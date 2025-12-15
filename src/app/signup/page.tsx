@@ -34,7 +34,11 @@ export default function SignupPage() {
   
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((newUser: AuthUser | null) => {
-      if (newUser && firestore && displayName) {
+      // We only want to create the user doc right after they sign up.
+      // onAuthStateChanged fires on every auth state change, so we need to be careful.
+      // The `user` from our `useFirebase` hook might still be the old one (or null).
+      // A simple way to check if this is a "new" signup is to see if a `displayName` has been entered.
+      if (newUser && firestore && displayName && !newUser.displayName) {
         const userProfile = {
           id: newUser.uid,
           uid: newUser.uid,
@@ -48,7 +52,7 @@ export default function SignupPage() {
     });
 
     return () => unsubscribe();
-  }, [auth, firestore, displayName]);
+  }, [auth, firestore, displayName, router]);
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
