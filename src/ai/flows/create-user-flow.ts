@@ -10,7 +10,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit/zod';
+import { z } from 'genkit';
 
 // We need to use the Admin SDK for this, so we'll import it dynamically.
 // This ensures it's only imported on the server.
