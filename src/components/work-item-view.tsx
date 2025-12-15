@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { Note, Task, WorkItem } from '@/lib/types';
 import {
   Accordion,
@@ -28,6 +28,7 @@ import { collection, doc } from 'firebase/firestore';
 
 function NotesTab({ workItemId }: { workItemId: string }) {
   const { firestore, user } = useFirebase();
+  const [noteText, setNoteText] = useState('');
 
   const notesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -38,26 +39,29 @@ function NotesTab({ workItemId }: { workItemId: string }) {
 
   const handleAddNote = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget;
-    const textarea = form.querySelector<HTMLTextAreaElement>('textarea[name="note-text"]');
-    const noteText = textarea?.value;
 
-    if (noteText && user && firestore) {
+    if (noteText.trim() && user && firestore) {
       const notesCollectionRef = collection(firestore, `work_items/${workItemId}/notes`);
       addDocumentNonBlocking(notesCollectionRef, {
-        author: user.displayName || 'Anonymous',
         authorId: user.uid,
+        // Fallback to email if displayName is not available
+        author: user.displayName || user.email || 'Anonymous',
         text: noteText,
         createdAt: new Date().toISOString(),
         workItemId: workItemId,
       });
-      if(textarea) textarea.value = '';
+      setNoteText('');
     }
   };
   
    const sortedNotes = useMemo(() => {
     if (!notes) return [];
-    return [...notes].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    // Ensure createdAt is a valid date for sorting
+    return [...notes].sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+    });
   }, [notes]);
 
 
@@ -65,7 +69,13 @@ function NotesTab({ workItemId }: { workItemId: string }) {
     <div className="space-y-6">
       <form onSubmit={handleAddNote}>
         <h3 className="text-lg font-medium">Add a Note</h3>
-        <Textarea name="note-text" placeholder="Type your note here." className="mt-2" />
+        <Textarea 
+          name="note-text" 
+          placeholder="Type your note here." 
+          className="mt-2"
+          value={noteText}
+          onChange={(e) => setNoteText(e.target.value)}
+        />
         <Button type="submit" className="mt-2">Save Note</Button>
       </form>
       <Separator />
@@ -76,19 +86,26 @@ function NotesTab({ workItemId }: { workItemId: string }) {
           <Card key={note.id}>
             <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{note.author}</CardTitle>
-              <CardDescription>{format(new Date(note.createdAt), 'PPpp')}</CardDescription>
+              {note.createdAt && (
+                <CardDescription>{format(new Date(note.createdAt), 'PPpp')}</CardDescription>
+              )}
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">{note.text}</p>
             </CardContent>
           </Card>
         ))}
+        {sortedNotes.length === 0 && !isLoading && <p>No notes have been added yet.</p>}
       </div>
     </div>
   );
 }
 
 function TasksTab({ tasks }: { tasks: Task[] }) {
+  if (!tasks || tasks.length === 0) {
+    return <p>No tasks for this work item.</p>;
+  }
+
   return (
     <div className="space-y-4">
        {tasks.map((task) => (
@@ -119,7 +136,11 @@ export function WorkItemView({ workItemId }: { workItemId: string }) {
 
 
   if (isLoading || !item) {
-    return <div className="p-6">Loading work item...</div>;
+    return (
+       <div className="flex h-full w-full items-center justify-center p-6">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
   }
 
   return (
