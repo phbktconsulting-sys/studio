@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LogoIcon } from '@/components/icons';
 import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
-import { LifeBuoy, LogOut, User as UserIcon } from 'lucide-react';
+import { LifeBuoy, LogOut, PlusCircle, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -27,6 +27,11 @@ export function AppHeader() {
     router.push('/login');
   };
 
+  const handleNewWork = () => {
+    // Placeholder for new work item functionality
+    console.log('Create new work item');
+  };
+
   return (
     <header className="flex h-16 items-center border-b bg-card px-4 md:px-6">
       <Link href="/" className="flex items-center gap-2">
@@ -34,6 +39,13 @@ export function AppHeader() {
         <span className="font-headline text-lg font-bold">PHBKT Group Limited</span>
       </Link>
       <div className="ml-auto flex items-center gap-4">
+        <Button variant="outline" onClick={handleNewWork}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          New Work
+        </Button>
+        <span className="hidden text-sm font-medium sm:inline">
+          {user?.displayName}
+        </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
