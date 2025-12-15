@@ -1,6 +1,5 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -43,16 +42,10 @@ export function AppHeader() {
           <PlusCircle className="mr-2 h-4 w-4" />
           New Work
         </Button>
-        <span className="hidden text-sm font-medium sm:inline">
-          {user?.displayName}
-        </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={`https://i.pravatar.cc/150?u=${user?.email}`} alt={user?.displayName || ''} />
-                <AvatarFallback>{user?.displayName?.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
+            <Button variant="ghost" className="relative">
+              {user?.displayName}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
