@@ -16,20 +16,37 @@ import { CreateUserInputSchema, CreateUserOutputSchema } from '@/lib/types';
 import type { App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
 
 let adminApp: App;
 
 // Initialize the Firebase Admin SDK lazily.
 async function initializeAdmin() {
-  if (adminApp) return adminApp;
-  const { initializeApp, cert, getApps } = await import('firebase-admin/app');
   if (getApps().length) {
     adminApp = getApps()[0]!;
-  } else {
-     // This requires the GOOGLE_APPLICATION_CREDENTIALS env var to be set.
-     // In Firebase Hosting with Cloud Functions/Run, this is handled automatically.
-    adminApp = initializeApp();
+    return adminApp;
   }
+
+  // This requires the GOOGLE_APPLICATION_CREDENTIALS_JSON env var to be set.
+  // In Firebase Hosting with Cloud Functions/Run, this is handled automatically.
+  // For local development, you need to set this in a .env.local file.
+  const serviceAccountString = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  if (!serviceAccountString) {
+    throw new Error(
+      'The GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is not set. ' +
+      'Please create a service account key and set its JSON content to this variable.'
+    );
+  }
+  
+  try {
+    const serviceAccount = JSON.parse(serviceAccountString);
+    adminApp = initializeApp({
+      credential: cert(serviceAccount),
+    });
+  } catch (e: any) {
+    throw new Error(`Failed to parse service account JSON: ${e.message}`);
+  }
+
   return adminApp;
 }
 
@@ -79,6 +96,8 @@ const createUserFlow = ai.defineFlow(
         errorMessage = 'This email address is already in use by another account.';
       } else if (error.code === 'auth/invalid-password') {
         errorMessage = 'The password is not strong enough. It must be at least 6 characters long.';
+      } else {
+        errorMessage = error.message;
       }
       return { error: errorMessage };
     }
