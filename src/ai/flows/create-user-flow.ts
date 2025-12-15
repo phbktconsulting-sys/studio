@@ -5,12 +5,11 @@
  * and set their custom claims and Firestore profile document.
  *
  * - createUser - The exported function to be called from the client.
- * - CreateUserInput - The Zod schema for the input.
- * - CreateUserOutput - The Zod schema for the output.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import type { CreateUserInput, CreateUserOutput } from '@/lib/types';
+import { CreateUserInputSchema, CreateUserOutputSchema } from '@/lib/types';
 
 // We need to use the Admin SDK for this, so we'll import it dynamically.
 // This ensures it's only imported on the server.
@@ -33,20 +32,6 @@ async function initializeAdmin() {
   }
   return adminApp;
 }
-
-export const CreateUserInputSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  displayName: z.string(),
-  role: z.enum(['Admin', 'User']),
-});
-export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;
-
-export const CreateUserOutputSchema = z.object({
-  uid: z.string().optional(),
-  error: z.string().optional(),
-});
-export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
 
 // This is the function we'll call from the client.
 export async function createUser(input: CreateUserInput): Promise<CreateUserOutput> {

@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -30,15 +29,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { createUser } from '@/ai/flows/create-user-flow';
+import { CreateUserInputSchema, type CreateUserInput } from '@/lib/types';
 
-const newUserSchema = z.object({
-  displayName: z.string().min(2, 'Name must be at least 2 characters.'),
-  email: z.string().email('Invalid email address.'),
-  password: z.string().min(6, 'Password must be at least 6 characters.'),
-  role: z.enum(['User', 'Admin']),
-});
-
-type NewUserFormValues = z.infer<typeof newUserSchema>;
 
 interface NewUserDialogProps {
   open: boolean;
@@ -49,8 +41,8 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<NewUserFormValues>({
-    resolver: zodResolver(newUserSchema),
+  const form = useForm<CreateUserInput>({
+    resolver: zodResolver(CreateUserInputSchema),
     defaultValues: {
       displayName: '',
       email: '',
@@ -59,7 +51,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
     },
   });
 
-  const onSubmit = async (data: NewUserFormValues) => {
+  const onSubmit = async (data: CreateUserInput) => {
     setIsSubmitting(true);
     try {
       const result = await createUser(data);

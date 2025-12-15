@@ -1,9 +1,11 @@
+import { z } from 'zod';
+
 export interface User {
   uid: string;
   id: string;
   email: string | null;
   displayName: string | null;
-  role: 'admin' | 'user' | 'User';
+  role: 'admin' | 'user' | 'User' | 'Admin';
 }
 
 export interface Task {
@@ -38,3 +40,18 @@ export interface Note {
   createdAt: string; // ISO date string
   workItemId: string;
 }
+
+// Moved from create-user-flow.ts to avoid 'use server' export issues
+export const CreateUserInputSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  displayName: z.string(),
+  role: z.enum(['Admin', 'User']),
+});
+export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;
+
+export const CreateUserOutputSchema = z.object({
+  uid: z.string().optional(),
+  error: z.string().optional(),
+});
+export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
