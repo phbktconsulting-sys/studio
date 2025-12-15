@@ -44,8 +44,9 @@ export function AppHeader() {
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative">
-              {user?.displayName}
+            <Button variant="ghost" className="relative h-8 w-auto px-4">
+              <UserIcon className="mr-2 h-4 w-4" />
+              {user?.displayName || user?.email}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
