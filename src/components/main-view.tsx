@@ -42,7 +42,9 @@ export function MainView() {
                 >
                   {tab.title}
                   {tab.type !== 'static' && (
-                    <button
+                    <div
+                      role="button"
+                      aria-label="Close tab"
                       onClick={(e) => {
                         e.stopPropagation();
                         closeTab(tab.id);
@@ -50,7 +52,7 @@ export function MainView() {
                       className="absolute right-1 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground opacity-50 hover:bg-accent hover:text-accent-foreground hover:opacity-100"
                     >
                       <XIcon className="h-3.5 w-3.5" />
-                    </button>
+                    </div>
                   )}
                 </TabsTrigger>
               ))}
