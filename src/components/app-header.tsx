@@ -33,7 +33,7 @@ export function AppHeader() {
 
   return (
     <div className="contents">
-      <header className="flex h-20 items-center border-b bg-card px-4 md:px-6">
+      <header className="flex h-24 items-center border-b bg-card px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <LogoIcon className="h-8 w-8" />
           <span className="font-headline text-lg font-bold">PHBKT Group Limited</span>
