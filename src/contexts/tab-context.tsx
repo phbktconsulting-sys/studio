@@ -1,0 +1,73 @@
+'use client';
+
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+
+export interface Tab {
+  id: string;
+  title: string;
+  type: 'static' | 'work-item';
+}
+
+interface TabContextType {
+  tabs: Tab[];
+  activeTab: string;
+  openTab: (tab: Tab) => void;
+  closeTab: (tabId: string) => void;
+  setActiveTab: (tabId: string) => void;
+}
+
+const TabContext = createContext<TabContextType | undefined>(undefined);
+
+const staticTabs: Tab[] = [
+  { id: 'my-work', title: 'My Work', type: 'static' },
+  { id: 'search', title: 'Search', type: 'static' },
+  { id: 'global-notes', title: 'Global Notes', type: 'static' },
+];
+
+export function TabProvider({ children }: { children: ReactNode }) {
+  const [tabs, setTabs] = useState<Tab[]>(staticTabs);
+  const [activeTab, setActiveTab] = useState<string>('my-work');
+
+  const openTab = useCallback((newTab: Tab) => {
+    setTabs((prevTabs) => {
+      if (prevTabs.some((tab) => tab.id === newTab.id)) {
+        return prevTabs;
+      }
+      return [...prevTabs, newTab];
+    });
+    setActiveTab(newTab.id);
+  }, []);
+
+  const closeTab = useCallback((tabId: string) => {
+    setTabs((prevTabs) => {
+      const tabToCloseIndex = prevTabs.findIndex((tab) => tab.id === tabId);
+      if (tabToCloseIndex === -1) return prevTabs;
+
+      // If closing the active tab, switch to the previous one
+      if (activeTab === tabId) {
+        const newActiveTab = prevTabs[tabToCloseIndex - 1] || prevTabs[0];
+        setActiveTab(newActiveTab.id);
+      }
+      
+      return prevTabs.filter((tab) => tab.id !== tabId);
+    });
+  }, [activeTab]);
+
+  const value = {
+    tabs,
+    activeTab,
+    openTab,
+    closeTab,
+    setActiveTab,
+  };
+
+  return <TabContext.Provider value={value}>{children}</TabContext.Provider>;
+}
+
+export function useTabs() {
+  const context = useContext(TabContext);
+  if (context === undefined) {
+    throw new Error('useTabs must be used within a TabProvider');
+  }
+  return context;
+}
