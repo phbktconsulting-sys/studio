@@ -15,10 +15,10 @@ import { LogoIcon } from '@/components/icons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real app, you'd handle Firebase authentication here.
     // For this demo, we'll just navigate to the dashboard.
@@ -33,34 +33,35 @@ export default function LoginPage() {
         </div>
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-            <CardDescription>Sign in to your PHBKT Group account</CardDescription>
+            <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
+            <CardDescription>
+              Enter your details to get started with PHBKT Group.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleSignup} className="space-y-4">
+               <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" type="text" placeholder="Ellen Ripley" required />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="ellen.ripley@phbkt.com" required defaultValue="ellen.ripley@phbkt.com" />
+                <Input id="email" type="email" placeholder="ellen.ripley@phbkt.com" required />
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link href="#" className="text-sm text-primary hover:underline">
-                    Forgot password?
-                  </Link>
-                </div>
-                <Input id="password" type="password" required defaultValue="password123" />
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" required />
               </div>
               <Button type="submit" className="w-full">
-                Sign In
+                Create Account
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Link href="/signup" className="text-primary hover:underline">
-                Sign Up
+              Already have an account?{' '}
+              <Link href="/login" className="text-primary hover:underline">
+                Sign In
               </Link>
             </p>
           </CardFooter>
