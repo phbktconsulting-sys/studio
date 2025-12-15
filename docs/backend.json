@@ -1,7 +1,7 @@
+
 {
   "entities": {
     "WorkItem": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "WorkItem",
       "type": "object",
       "description": "Represents a work item in the workflow management system.",
@@ -12,26 +12,33 @@
         },
         "assignedTo": {
           "type": "string",
-          "description": "Reference to User who is assigned to this work item. (Relationship: User 1:N WorkItem)"
+          "description": "Reference to User who is assigned to this work item."
         },
         "urgency": {
           "type": "string",
-          "description": "The urgency level of the work item (e.g., High, Medium, Low)."
+          "enum": ["High", "Medium", "Low"],
+          "description": "The urgency level of the work item."
         },
         "status": {
           "type": "string",
-          "description": "The current status of the work item (e.g., Open, In Progress, Closed)."
+          "enum": ["Open", "In Progress", "Closed", "Pending"],
+          "description": "The current status of the work item."
         },
         "subject": {
           "type": "string",
           "description": "A brief subject or title for the work item."
         },
-        "dateCreated": {
+        "createdAt": {
           "type": "string",
           "description": "The date and time when the work item was created.",
           "format": "date-time"
         },
-        "description": {
+        "updatedAt": {
+          "type": "string",
+          "description": "The date and time when the work item was last updated.",
+          "format": "date-time"
+        },
+        "overview": {
           "type": "string",
           "description": "A detailed description of the work item."
         }
@@ -42,11 +49,11 @@
         "urgency",
         "status",
         "subject",
-        "dateCreated"
+        "createdAt",
+        "updatedAt"
       ]
     },
     "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
       "description": "Represents a user in the system.",
@@ -54,6 +61,10 @@
         "id": {
           "type": "string",
           "description": "Unique identifier for the User entity."
+        },
+        "uid": {
+          "type": "string",
+          "description": "Firebase Authentication User ID."
         },
         "email": {
           "type": "string",
@@ -66,18 +77,19 @@
         },
         "role": {
           "type": "string",
-          "description": "The user's role in the system. (e.g., Admin, User, Manager)"
+          "enum": ["Admin", "User"],
+          "description": "The user's role in the system."
         }
       },
       "required": [
         "id",
+        "uid",
         "email",
         "displayName",
         "role"
       ]
     },
     "Note": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Note",
       "type": "object",
       "description": "Represents a note associated with a work item.",
@@ -88,17 +100,17 @@
         },
         "workItemId": {
           "type": "string",
-          "description": "Reference to the WorkItem this note belongs to. (Relationship: WorkItem 1:N Note)"
+          "description": "Reference to the WorkItem this note belongs to."
         },
         "authorId": {
           "type": "string",
-          "description": "Reference to the User who created the note. (Relationship: User 1:N Note)"
+          "description": "Reference to the User who created the note."
         },
         "text": {
           "type": "string",
           "description": "The content of the note."
         },
-        "timestamp": {
+        "createdAt": {
           "type": "string",
           "description": "The date and time when the note was created.",
           "format": "date-time"
@@ -109,79 +121,27 @@
         "workItemId",
         "authorId",
         "text",
-        "timestamp"
+        "createdAt"
       ]
     }
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profiles.  Path-based ownership ensures only the user (or an admin) can access their profile. User's role is stored within this document.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/work_items/{workitemId}",
-        "definition": {
-          "entityName": "WorkItem",
-          "schema": {
-            "$ref": "#/backend/entities/WorkItem"
-          },
-          "description": "Stores work items assigned to a specific user. Includes denormalized 'assignedTo' field (user ID) for authorization independence. This supports efficient listing of work items assigned to a user.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the assigned user."
-            },
-            {
-              "name": "workitemId",
-              "description": "The unique identifier of the work item."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/work_items/{workitemId}/notes/{noteId}",
-        "definition": {
-          "entityName": "Note",
-          "schema": {
-            "$ref": "#/backend/entities/Note"
-          },
-          "description": "Stores notes associated with a specific work item. Includes denormalized 'authorId' field (user ID) for authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the assigned user of the parent work item."
-            },
-            {
-              "name": "workitemId",
-              "description": "The unique identifier of the parent work item."
-            },
-            {
-              "name": "noteId",
-              "description": "The unique identifier of the note."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore data structure is designed to support the workflow management application with a focus on secure and efficient data access, especially concerning authorization. The core principle is Authorization Independence, achieved through denormalization, to avoid `get()` calls in security rules and enable atomic operations. The structure also facilitates secure listing (QAPs) through structural segregation and membership models.\n\n*   **Users:** User data is stored in `/users/{userId}`.  Path-based ownership ensures that only the user (or an admin) can access their profile data. The user's role is stored directly within the user document, which avoids the need for custom claims and simplifies the authentication process. This directly addresses the user request by providing a real-time, database-driven role and login state.\n*   **WorkItems:**  Work items are stored in a subcollection under the assigned user: `/users/{userId}/work_items/{workitemId}`. This enforces a clear ownership model where each work item belongs to a specific user. To enable efficient listing of work items assigned to a user and maintain Authorization Independence, the `assignedTo` field in the `work_items` document stores the user ID (denormalization).  This allows security rules to verify that `request.auth.uid == resource.data.assignedTo` without requiring a `get()` call to the parent user document. The structure is also designed to minimize filtering; the My Work dashboard can efficiently retrieve the work items by querying the `/users/{userId}/work_items` collection.\n*   **Notes:** Notes are stored as a subcollection of work items: `/users/{userId}/work_items/{workitemId}/notes/{noteId}`.  This ensures that notes are always associated with a specific work item and, indirectly, with a specific user (through the work item). To maintain Authorization Independence, the `authorId` field in the `notes` document stores the user ID of the note's creator.  This allows security rules to verify that `request.auth.uid == resource.data.authorId` without requiring `get()` calls.\n\nThis structure facilitates role-based access control.  For example, an admin could be granted access to all user documents and, consequently, all work items and notes.  Standard users are restricted to their own data, leveraging path-based ownership and the denormalized `assignedTo` and `authorId` fields."
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles. Path-based ownership ensures only the user (or an admin) can access their profile. User's role is stored within this document."
+    },
+    "/work_items/{workitemId}": {
+      "schema": { "$ref": "#/entities/WorkItem" },
+      "description": "Stores work items. Access is controlled by the 'assignedTo' field."
+    },
+    "/work_items/{workitemId}/notes/{noteId}": {
+      "schema": { "$ref": "#/entities/Note" },
+      "description": "Stores notes associated with a specific work item. Access is inherited from the parent work item."
+    }
   }
 }

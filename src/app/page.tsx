@@ -2,26 +2,21 @@
 
 import { MainView } from '@/components/main-view';
 import { TabProvider } from '@/contexts/tab-context';
-import { useAuth } from '@/hooks/use-auth';
+import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (isClient && !user) {
+    if (!isUserLoading && !user) {
       router.push('/login');
     }
-  }, [user, router, isClient]);
+  }, [user, isUserLoading, router]);
 
-  if (!user || !isClient) {
+  if (isUserLoading || !user) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>

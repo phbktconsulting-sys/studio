@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,16 +15,32 @@ import { Label } from '@/components/ui/label';
 import { LogoIcon } from '@/components/icons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useFirebase, initiateEmailSignIn } from '@/firebase';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { auth, user, isUserLoading } = useFirebase();
+  const [email, setEmail] = useState('ellen.ripley@phbkt.com');
+  const [password, setPassword] = useState('password123');
+
+  useEffect(() => {
+    if (!isUserLoading && user) {
+      router.push('/');
+    }
+  }, [user, isUserLoading, router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd handle Firebase authentication here.
-    // For this demo, we'll just navigate to the dashboard.
-    router.push('/');
+    initiateEmailSignIn(auth, email, password);
   };
+
+  if (isUserLoading || (!isUserLoading && user)) {
+     return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -40,7 +57,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="ellen.ripley@phbkt.com" required defaultValue="ellen.ripley@phbkt.com" />
+                <Input id="email" type="email" placeholder="ellen.ripley@phbkt.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -49,7 +66,7 @@ export default function LoginPage() {
                     Forgot password?
                   </Link>
                 </div>
-                <Input id="password" type="password" required defaultValue="password123" />
+                <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
               <Button type="submit" className="w-full">
                 Sign In

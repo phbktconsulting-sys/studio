@@ -11,12 +11,21 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { LogoIcon } from '@/components/icons';
-import { useAuth } from '@/hooks/use-auth';
+import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
 import { LifeBuoy, LogOut, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export function AppHeader() {
-  const { user } = useAuth();
+  const { user } = useUser();
+  const auth = useFirebaseAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    signOut(auth);
+    router.push('/login');
+  };
 
   return (
     <header className="flex h-16 items-center border-b bg-card px-4 md:px-6">
@@ -29,7 +38,7 @@ export function AppHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={`https://i.pravatar.cc/150?u=${user?.email}`} alt={user?.displayName} />
+                <AvatarImage src={`https://i.pravatar.cc/150?u=${user?.email}`} alt={user?.displayName || ''} />
                 <AvatarFallback>{user?.displayName?.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
             </Button>
@@ -51,11 +60,9 @@ export function AppHeader() {
               <span>Support</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/login">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </Link>
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -1,5 +1,5 @@
 import type { User, WorkItem, Note, Task } from './types';
-import { addDays } from 'date-fns';
+import { addDays, subDays } from 'date-fns';
 
 const now = new Date();
 
@@ -18,10 +18,10 @@ const workItems: WorkItem[] = [
     subject: 'Finalize Q3 Financial Report',
     status: 'In Progress',
     urgency: 'High',
-    assignedTo: 'user-001',
+    assignedTo: 'FzJdC4GsCqSj8qj2kL9s2d1jGgH2',
     createdBy: 'system',
-    createdAt: addDays(now, -10).toISOString(),
-    updatedAt: addDays(now, -1).toISOString(),
+    createdAt: subDays(now, 10).toISOString(),
+    updatedAt: subDays(now, 1).toISOString(),
     relatedContact: {
       name: 'Carter Burke',
       email: 'c.burke@weyland-yutani.com',
@@ -40,10 +40,10 @@ const workItems: WorkItem[] = [
     subject: 'Onboarding for New Client: Weyland-Yutani',
     status: 'Open',
     urgency: 'High',
-    assignedTo: 'user-001',
+    assignedTo: 'FzJdC4GsCqSj8qj2kL9s2d1jGgH2',
     createdBy: 'system',
-    createdAt: addDays(now, -5).toISOString(),
-    updatedAt: addDays(now, -2).toISOString(),
+    createdAt: subDays(now, 5).toISOString(),
+    updatedAt: subDays(now, 2).toISOString(),
     relatedContact: {
       name: 'Meredith Vickers',
       email: 'm.vickers@weyland-yutani.com',
@@ -61,10 +61,10 @@ const workItems: WorkItem[] = [
     subject: 'Investigate Nostromo Incident',
     status: 'Pending',
     urgency: 'Medium',
-    assignedTo: 'user-001',
+    assignedTo: 'FzJdC4GsCqSj8qj2kL9s2d1jGgH2',
     createdBy: 'system',
-    createdAt: addDays(now, -20).toISOString(),
-    updatedAt: addDays(now, -5).toISOString(),
+    createdAt: subDays(now, 20).toISOString(),
+    updatedAt: subDays(now, 5).toISOString(),
     relatedContact: {
       name: 'Ash',
       email: 'ash.science@weyland-yutani.com',
@@ -81,10 +81,10 @@ const workItems: WorkItem[] = [
     subject: 'Supply Requisition for LV-426 Outpost',
     status: 'Closed',
     urgency: 'Low',
-    assignedTo: 'user-001',
+    assignedTo: 'FzJdC4GsCqSj8qj2kL9s2d1jGgH2',
     createdBy: 'system',
-    createdAt: addDays(now, -30).toISOString(),
-    updatedAt: addDays(now, -15).toISOString(),
+    createdAt: subDays(now, 30).toISOString(),
+    updatedAt: subDays(now, 15).toISOString(),
     relatedContact: {
       name: 'Corporal Hicks',
       email: 'd.hicks@uscm.gov',
@@ -105,13 +105,17 @@ const notes: { [workItemId: string]: Note[] } = {
       id: 'note-1',
       author: 'Ellen Ripley',
       text: 'Marketing department has submitted their figures. Waiting on R&D.',
-      createdAt: addDays(now, -3).toISOString(),
+      createdAt: subDays(now, 3).toISOString(),
+      authorId: 'FzJdC4GsCqSj8qj2kL9s2d1jGgH2',
+      workItemId: 'wi-7a1b',
     },
     {
       id: 'note-2',
       author: 'Carter Burke',
       text: 'Just a reminder, the deadline for this is next Friday. The board is very keen to see the results.',
-      createdAt: addDays(now, -2).toISOString(),
+      createdAt: subDays(now, 2).toISOString(),
+      authorId: 'user-002',
+      workItemId: 'wi-7a1b',
     },
   ],
   'wi-3c4d': [
@@ -119,7 +123,9 @@ const notes: { [workItemId: string]: Note[] } = {
       id: 'note-3',
       author: 'System',
       text: 'Work item created. Assigned to Ellen Ripley.',
-      createdAt: addDays(now, -5).toISOString(),
+      createdAt: subDays(now, 5).toISOString(),
+      authorId: 'system',
+      workItemId: 'wi-3c4d',
     }
   ],
 };

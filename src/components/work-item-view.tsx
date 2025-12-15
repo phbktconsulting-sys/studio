@@ -1,8 +1,7 @@
 'use client';
 
-import { getNotesForWorkItem, getWorkItemById } from '@/lib/data';
+import { useMemo } from 'react';
 import type { Note, Task, WorkItem } from '@/lib/types';
-import { useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -24,24 +23,56 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Mail, Phone, User } from 'lucide-react';
 import { format } from 'date-fns';
+import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
 
 function NotesTab({ workItemId }: { workItemId: string }) {
-  const [notes, setNotes] = useState<Note[]>([]);
-  useEffect(() => {
-    setNotes(getNotesForWorkItem(workItemId));
-  }, [workItemId]);
+  const { firestore, user } = useFirebase();
+
+  const notesQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, `work_items/${workItemId}/notes`);
+  }, [firestore, workItemId]);
+
+  const { data: notes, isLoading } = useCollection<Note>(notesQuery);
+
+  const handleAddNote = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const textarea = form.querySelector<HTMLTextAreaElement>('textarea[name="note-text"]');
+    const noteText = textarea?.value;
+
+    if (noteText && user && firestore) {
+      const notesCollectionRef = collection(firestore, `work_items/${workItemId}/notes`);
+      addDocumentNonBlocking(notesCollectionRef, {
+        author: user.displayName || 'Anonymous',
+        authorId: user.uid,
+        text: noteText,
+        createdAt: new Date().toISOString(),
+        workItemId: workItemId,
+      });
+      if(textarea) textarea.value = '';
+    }
+  };
+  
+   const sortedNotes = useMemo(() => {
+    if (!notes) return [];
+    return [...notes].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [notes]);
+
 
   return (
     <div className="space-y-6">
-      <div>
+      <form onSubmit={handleAddNote}>
         <h3 className="text-lg font-medium">Add a Note</h3>
-        <Textarea placeholder="Type your note here." className="mt-2" />
-        <Button className="mt-2">Save Note</Button>
-      </div>
+        <Textarea name="note-text" placeholder="Type your note here." className="mt-2" />
+        <Button type="submit" className="mt-2">Save Note</Button>
+      </form>
       <Separator />
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Activity</h3>
-        {notes.map((note) => (
+        {isLoading && <p>Loading notes...</p>}
+        {sortedNotes && sortedNotes.map((note) => (
           <Card key={note.id}>
             <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{note.author}</CardTitle>
@@ -77,13 +108,17 @@ function TasksTab({ tasks }: { tasks: Task[] }) {
 
 
 export function WorkItemView({ workItemId }: { workItemId: string }) {
-  const [item, setItem] = useState<WorkItem | null>(null);
+  const { firestore } = useFirebase();
 
-  useEffect(() => {
-    setItem(getWorkItemById(workItemId));
-  }, [workItemId]);
+  const workItemRef = useMemoFirebase(() => {
+      if (!firestore) return null;
+      return doc(firestore, 'work_items', workItemId);
+  }, [firestore, workItemId]);
+  
+  const { data: item, isLoading } = useDoc<WorkItem>(workItemRef);
 
-  if (!item) {
+
+  if (isLoading || !item) {
     return <div className="p-6">Loading work item...</div>;
   }
 

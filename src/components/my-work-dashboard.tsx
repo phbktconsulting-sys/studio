@@ -1,9 +1,9 @@
 'use client';
 
-import { getWorkItemsForUser } from '@/lib/data';
+import { useMemo } from 'react';
+import { collection, query, where } from 'firebase/firestore';
+import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem } from '@/lib/types';
-import { useAuth } from '@/hooks/use-auth';
-import { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -36,15 +36,6 @@ const UrgencyIcon = ({ urgency }: { urgency: WorkItem['urgency'] }) => {
 };
 
 const StatusBadge = ({ status }: { status: WorkItem['status'] }) => {
-  const variant =
-    status === 'Open'
-      ? 'default'
-      : status === 'In Progress'
-      ? 'secondary'
-      : status === 'Closed'
-      ? 'outline'
-      : 'destructive';
-  
   const colorClass = 
     status === 'Open'
     ? 'bg-blue-500 hover:bg-blue-600'
@@ -58,16 +49,18 @@ const StatusBadge = ({ status }: { status: WorkItem['status'] }) => {
 };
 
 export function MyWorkDashboard() {
-  const { user } = useAuth();
+  const { firestore, user } = useFirebase();
   const { openTab } = useTabs();
-  const [workItems, setWorkItems] = useState<WorkItem[]>([]);
 
-  useEffect(() => {
-    if (user) {
-      const items = getWorkItemsForUser(user.uid);
-      setWorkItems(items);
-    }
-  }, [user]);
+  const workItemsQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return query(
+      collection(firestore, 'work_items'),
+      where('assignedTo', '==', user.uid)
+    );
+  }, [firestore, user]);
+
+  const { data: workItems, isLoading } = useCollection<WorkItem>(workItemsQuery);
 
   const handleRowClick = (item: WorkItem) => {
     openTab({
@@ -76,6 +69,20 @@ export function MyWorkDashboard() {
       type: 'work-item',
     });
   };
+  
+  const sortedWorkItems = useMemo(() => {
+    if (!workItems) return [];
+    return [...workItems].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  }, [workItems]);
+
+
+  if (isLoading) {
+     return (
+      <div className="flex h-full w-full items-center justify-center bg-background p-6">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6">
@@ -93,7 +100,7 @@ export function MyWorkDashboard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {workItems.map((item) => (
+            {sortedWorkItems && sortedWorkItems.map((item) => (
               <TableRow key={item.id} onClick={() => handleRowClick(item)} className="cursor-pointer">
                 <TableCell className="text-center">
                   <UrgencyIcon urgency={item.urgency} />

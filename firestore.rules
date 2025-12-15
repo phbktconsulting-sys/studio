@@ -12,8 +12,8 @@
  * Data Structure:
  * The data is organized hierarchically starting from a top-level `users` collection.
  * - /users/{userId}: Stores a user's profile, including their role.
- * - /users/{userId}/work_items/{workitemId}: A subcollection for work items assigned to that user.
- * - /users/{userId}/work_items/{workitemId}/notes/{noteId}: A subcollection for notes related to a specific work item.
+ * - /work_items/{workitemId}: A subcollection for work items assigned to that user.
+ * - /work_items/{workitemId}/notes/{noteId}: A subcollection for notes related to a specific work item.
  *
  * Key Security Decisions:
  * - User Enumeration is Disallowed: Non-admin users cannot list the `/users` collection.
@@ -21,19 +21,12 @@
  *   bypassing standard ownership rules.
  * - Role-Based Access Control (RBAC): A user's role is stored on their user document. Regular users
  *   cannot change their own role; this action is reserved for Admins.
- * - Path-Based Security: All rules for subcollections rely on the `{userId}` from the document path
- *   to determine ownership, making the rules simple and efficient.
  *
  * Denormalization for Authorization:
  * To create simpler and more performant rules, data required for authorization is denormalized:
  * - User roles are stored directly on the `/users/{userId}` document, checked via a `get()` for admin operations.
  * - The `assignedTo` field on a `WorkItem` and the `authorId` on a `Note` are validated
  *   during creation to ensure relational integrity with the document's path.
- *
- * Structural Segregation:
- * The data model uses structural segregation by default. Each user's data is stored in its
- * own document tree (/users/{userId}), which naturally prevents data leakage and simplifies
- * list queries for a user's own content.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -66,8 +59,6 @@ service cloud.firestore {
       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
     }
 
-    // Removed unused function isExistingOwner
-
     /**
      * @description Rules for user profile documents.
      * @path /users/{userId}
@@ -79,38 +70,34 @@ service cloud.firestore {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
       allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.role == 'User';
-      allow update: if (isOwner(userId) || isAdmin()) && get(/databases/$(database)/documents/users/$(userId)).data.id == userId && (request.resource.data.role == get(/databases/$(database)/documents/users/$(userId)).data.role || isAdmin());
-      allow delete: if (isOwner(userId) || isAdmin()) && get(/databases/$(database)/documents/users/$(userId)).data.id == userId;
+      allow update: if (isOwner(userId) || isAdmin()) && request.resource.data.id == userId && (request.resource.data.role == resource.data.role || isAdmin());
+      allow delete: if false; // Users should not be able to delete their own accounts through the app
     }
 
     /**
-     * @description Rules for a user's work items.
-     * @path /users/{userId}/work_items/{workitemId}
-     * @allow The assigned user (userId) (create) a new work item in their own subcollection.
-     * @deny A different user (get) a work item they are not assigned to.
-     * @principle Restricts access to a user's own data tree, enforcing that only the assigned user or an admin can manage work items.
+     * @description Rules for work items.
+     * @path /work_items/{workitemId}
+     * @allow The assigned user (userId) (create, read, update) a work item.
+     * @deny A different user access to a work item they are not assigned to.
+     * @principle Restricts access to a user's own data, enforcing that only the assigned user or an admin can manage work items.
      */
-    match /users/{userId}/work_items/{workitemId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isOwner(userId) || isAdmin();
-      allow create: if (isOwner(userId) || isAdmin()) && request.resource.data.assignedTo == userId;
-      allow update: if (isOwner(userId) || isAdmin() && get(/databases/$(database)/documents/users/$(userId)/work_items/$(workitemId)).data.assignedTo == userId);
-      allow delete: if (isOwner(userId) || isAdmin());
+    match /work_items/{workitemId} {
+      allow get, list: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.assignedTo == request.auth.uid;
+      allow update: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
     }
 
     /**
      * @description Rules for notes within a work item.
-     * @path /users/{userId}/work_items/{workitemId}/notes/{noteId}
-     * @allow The user assigned to the parent work item (userId) (create) a note for that item.
-     * @deny Any user not assigned to the parent work item (list) the notes within it.
-     * @principle Access is inherited from the parent work item. Only the user assigned to the work item (or an admin) can read or write notes.
+     * @path /work_items/{workitemId}/notes/{noteId}
+     * @allow The user assigned to the parent work item (or any signed in user) can create/read notes.
+     * @principle Access is broad for collaboration, but modification is restricted.
      */
-    match /users/{userId}/work_items/{workitemId}/notes/{noteId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isOwner(userId) || isAdmin();
-      allow create: if (isOwner(userId) || isAdmin()) && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
-      allow update: if (isOwner(userId) || isAdmin() && get(/databases/$(database)/documents/users/$(userId)/work_items/$(workitemId)/notes/$(noteId)).data.authorId == request.auth.uid && get(/databases/$(database)/documents/users/$(userId)/work_items/$(workitemId)/notes/$(noteId)).data.workItemId == workitemId);
-      allow delete: if (isOwner(userId) || isAdmin());
+    match /work_items/{workitemId}/notes/{noteId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
+      allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
     }
   }
 }

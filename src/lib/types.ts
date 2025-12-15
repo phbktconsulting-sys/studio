@@ -1,8 +1,9 @@
 export interface User {
   uid: string;
-  email: string;
-  displayName: string;
-  role: 'admin' | 'user';
+  id: string;
+  email: string | null;
+  displayName: string | null;
+  role: 'admin' | 'user' | 'User';
 }
 
 export interface Task {
@@ -32,6 +33,8 @@ export interface WorkItem {
 export interface Note {
   id: string;
   author: string;
+  authorId: string;
   text: string;
   createdAt: string; // ISO date string
+  workItemId: string;
 }

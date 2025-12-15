@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,16 +15,58 @@ import { Label } from '@/components/ui/label';
 import { LogoIcon } from '@/components/icons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useFirebase, initiateEmailSignUp, setDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { User as AuthUser } from 'firebase/auth';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { auth, firestore, user, isUserLoading } = useFirebase();
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    if (!isUserLoading && user) {
+      router.push('/');
+    }
+  }, [user, isUserLoading, router]);
+  
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((newUser: AuthUser | null) => {
+      if (newUser && firestore && displayName) {
+        const userProfile = {
+          id: newUser.uid,
+          uid: newUser.uid,
+          email: newUser.email,
+          displayName: displayName,
+          role: 'User',
+        };
+        const userDocRef = doc(firestore, `users/${newUser.uid}`);
+        setDocumentNonBlocking(userDocRef, userProfile, { merge: true });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth, firestore, displayName]);
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd handle Firebase authentication here.
-    // For this demo, we'll just navigate to the dashboard.
-    router.push('/');
+    if (!displayName) {
+      // You might want to show an error to the user here
+      console.error("Display name is required");
+      return;
+    }
+    initiateEmailSignUp(auth, email, password);
   };
+  
+    if (isUserLoading || (!isUserLoading && user)) {
+     return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -42,15 +85,15 @@ export default function SignupPage() {
             <form onSubmit={handleSignup} className="space-y-4">
                <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" type="text" placeholder="Ellen Ripley" required />
+                <Input id="name" type="text" placeholder="Ellen Ripley" required value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="ellen.ripley@phbkt.com" required />
+                <Input id="email" type="email" placeholder="ellen.ripley@phbkt.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
               <Button type="submit" className="w-full">
                 Create Account
