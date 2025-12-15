@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode, useEffect } from 'react';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 export interface Tab {
   id: string;
@@ -18,15 +19,35 @@ interface TabContextType {
 
 const TabContext = createContext<TabContextType | undefined>(undefined);
 
-const staticTabs: Tab[] = [
+const baseStaticTabs: Tab[] = [
   { id: 'my-work', title: 'My Work', type: 'static' },
   { id: 'search', title: 'Search', type: 'static' },
   { id: 'global-notes', title: 'Global Notes', type: 'static' },
 ];
 
+const adminTab: Tab = { id: 'admin', title: 'Admin', type: 'static' };
+
 export function TabProvider({ children }: { children: ReactNode }) {
-  const [tabs, setTabs] = useState<Tab[]>(staticTabs);
+  const { userProfile, isLoading: isProfileLoading } = useUserProfile();
+  const [tabs, setTabs] = useState<Tab[]>(baseStaticTabs);
   const [activeTab, setActiveTab] = useState<string>('my-work');
+
+  useEffect(() => {
+    if (!isProfileLoading && userProfile) {
+      const isAdmin = userProfile.role === 'Admin';
+      const hasAdminTab = tabs.some(tab => tab.id === 'admin');
+
+      if (isAdmin && !hasAdminTab) {
+        setTabs([adminTab, ...baseStaticTabs]);
+        setActiveTab('admin'); // Optionally make admin tab active by default for admins
+      } else if (!isAdmin && hasAdminTab) {
+        setTabs(baseStaticTabs);
+        if (activeTab === 'admin') {
+          setActiveTab('my-work');
+        }
+      }
+    }
+  }, [userProfile, isProfileLoading, tabs, activeTab]);
 
   const openTab = useCallback((newTab: Tab) => {
     setTabs((prevTabs) => {

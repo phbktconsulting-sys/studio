@@ -7,12 +7,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTabs } from '@/contexts/tab-context';
 import { XIcon } from 'lucide-react';
 import type { Tab } from '@/contexts/tab-context';
+import { AdminDashboard } from './admin-dashboard';
 
 export function MainView() {
   const { tabs, activeTab, setActiveTab, closeTab } = useTabs();
 
   const renderTabContent = (tab: Tab) => {
     switch (tab.id) {
+      case 'admin':
+        return <AdminDashboard />;
       case 'my-work':
         return <MyWorkDashboard />;
       case 'search':
