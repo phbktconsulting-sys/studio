@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem } from '@/lib/types';
@@ -18,9 +18,12 @@ import {
   ArrowDown,
   ArrowRight,
   ChevronUp,
+  PlusCircle,
 } from 'lucide-react';
 import { useTabs } from '@/contexts/tab-context';
 import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { NewUserDialog } from './new-user-dialog';
 
 const UrgencyIcon = ({ urgency }: { urgency: WorkItem['urgency'] }) => {
   switch (urgency) {
@@ -51,6 +54,7 @@ const StatusBadge = ({ status }: { status: WorkItem['status'] }) => {
 export function AdminDashboard() {
   const { firestore } = useFirebase();
   const { openTab } = useTabs();
+  const [isNewUserDialogOpen, setIsNewUserDialogOpen] = useState(false);
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -83,8 +87,18 @@ export function AdminDashboard() {
   }
 
   return (
+    <>
     <div className="p-4 sm:p-6">
-      <h1 className="font-headline text-2xl font-bold tracking-tight">Admin Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-headline text-2xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-muted-foreground">All work items in the system.</p>
+        </div>
+        <Button onClick={() => setIsNewUserDialogOpen(true)}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Create User
+        </Button>
+      </div>
       <p className="mb-6 text-muted-foreground">All work items in the system.</p>
       <div className="rounded-lg border bg-card">
         <Table>
@@ -117,5 +131,7 @@ export function AdminDashboard() {
         </Table>
       </div>
     </div>
+    <NewUserDialog open={isNewUserDialogOpen} onOpenChange={setIsNewUserDialogOpen} />
+    </>
   );
 }
