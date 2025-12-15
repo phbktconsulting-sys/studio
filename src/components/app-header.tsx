@@ -32,7 +32,7 @@ export function AppHeader() {
   };
 
   return (
-    <>
+    <div className="contents">
       <header className="flex h-16 items-center border-b bg-card px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <LogoIcon className="h-8 w-8" />
@@ -76,6 +76,6 @@ export function AppHeader() {
         </div>
       </header>
       <NewWorkItemDialog open={isNewWorkItemOpen} onOpenChange={setIsNewWorkItemOpen} />
-    </>
+    </div>
   );
 }
