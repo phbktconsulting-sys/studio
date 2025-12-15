@@ -17,6 +17,8 @@ import type { App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
+import * as fs from 'fs';
+import * as path from 'path';
 
 let adminApp: App;
 
@@ -27,24 +29,23 @@ async function initializeAdmin() {
     return adminApp;
   }
 
-  // This requires the GOOGLE_APPLICATION_CREDENTIALS_JSON env var to be set.
-  // In Firebase Hosting with Cloud Functions/Run, this is handled automatically.
-  // For local development, you need to set this in a .env.local file.
-  const serviceAccountString = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  if (!serviceAccountString) {
+  // Path to the service account key file
+  const serviceAccountPath = path.resolve(process.cwd(), 'src/service-account/key.json');
+
+  if (!fs.existsSync(serviceAccountPath)) {
     throw new Error(
-      'The GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is not set. ' +
-      'Please create a service account key and set its JSON content to this variable.'
+      `Service account key file not found at ${serviceAccountPath}. ` +
+      'Please create a service account key, name it "key.json", and place it in the "src/service-account" directory.'
     );
   }
   
   try {
-    const serviceAccount = JSON.parse(serviceAccountString);
+    // The `cert` function can take the file path directly
     adminApp = initializeApp({
-      credential: cert(serviceAccount),
+      credential: cert(serviceAccountPath),
     });
   } catch (e: any) {
-    throw new Error(`Failed to parse service account JSON: ${e.message}`);
+    throw new Error(`Failed to initialize Firebase Admin SDK: ${e.message}`);
   }
 
   return adminApp;
