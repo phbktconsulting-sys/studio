@@ -6,9 +6,9 @@ interface LogoIconProps extends SVGProps<SVGSVGElement> {
   src?: string | null;
 }
 
-export const LogoIcon = ({ src, ...props }: LogoIconProps) => {
+export const LogoIcon = ({ src, className, ...props }: LogoIconProps) => {
   if (src) {
-    return <Image src={src} alt="Custom Logo" width={64} height={64} className="rounded-md" {...props} />;
+    return <Image src={src} alt="Custom Logo" width={80} height={80} className={`rounded-md ${className}`} {...props} />;
   }
 
   return (
@@ -20,6 +20,7 @@ export const LogoIcon = ({ src, ...props }: LogoIconProps) => {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      className={className}
       {...props}
     >
       <rect width="18" height="18" x="3" y="3" rx="2" ry="2" fill="hsl(var(--primary))" stroke="none" />
