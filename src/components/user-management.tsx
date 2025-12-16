@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { User } from '@/lib/types';
@@ -37,6 +37,10 @@ export function UserManagement({ onBack }: UserManagementProps) {
     if (!users) return [];
     return [...users].sort((a, b) => (a.displayName || '').localeCompare(b.displayName || ''));
   }, [users]);
+  
+  const handleRowClick = (userId: string) => {
+    router.push(`/users/${userId}`);
+  };
 
   if (isLoading) {
     return (
@@ -81,7 +85,7 @@ export function UserManagement({ onBack }: UserManagementProps) {
             <TableBody>
               {sortedUsers &&
                 sortedUsers.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user.id} onClick={() => handleRowClick(user.id)} className="cursor-pointer">
                     <TableCell className="font-mono text-xs">{user.employeeId}</TableCell>
                     <TableCell className="font-medium">{user.displayName}</TableCell>
                     <TableCell>{user.email}</TableCell>
