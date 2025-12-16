@@ -16,7 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit } from 'firebase/firestore';
 import {
@@ -488,11 +488,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
 
   const isLoading = isWorkItemLoading || isUserLoading;
 
-  const priorityMap: { [key in WorkItem['urgency']]: number } = {
-    High: 1,
-    Medium: 5,
-    Low: 10,
-  };
+  const caseAge = item ? differenceInDays(new Date(), parseISO(item.createdAt)) : 0;
 
 
   if (isLoading || !item) {
@@ -521,7 +517,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <Separator orientation="vertical" className="h-5" />
             <span>Status: <span className="text-muted-foreground">{item.status}</span></span>
             <Separator orientation="vertical" className="h-5" />
-            <span>Priority: <span className="text-muted-foreground">{priorityMap[item.urgency]}</span></span>
+            <span>Case Age: <span className="text-muted-foreground">{caseAge} days</span></span>
           </div>
           <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -658,4 +654,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
 
