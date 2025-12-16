@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
-import { collection, query } from 'firebase/firestore';
-import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
+import { collection, query, arrayUnion } from 'firebase/firestore';
+import { useCollection, useFirebase, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import {
   Table,
@@ -21,8 +22,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertCircle,
@@ -31,12 +38,18 @@ import {
   ArrowRight,
   ChevronUp,
   Trash2,
+  MoreVertical,
+  UserPlus,
+  ListPlus,
 } from 'lucide-react';
 import { useTabs } from '@/contexts/tab-context';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { deleteWorkItem } from '@/ai/flows/delete-work-item-flow';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
 
 const UrgencyIcon = ({ urgency }: { urgency: WorkItem['urgency'] }) => {
   switch (urgency) {
@@ -73,10 +86,20 @@ interface AllWorkItemsProps {
 }
 
 export function AllWorkItems({ onBack }: AllWorkItemsProps) {
-  const { firestore } = useFirebase();
+  const { firestore, user: adminUser } = useFirebase();
   const { openTab, closeTab } = useTabs();
   const { toast } = useToast();
+  
+  const [selectedItem, setSelectedItem] = useState<WorkItem | null>(null);
+  const [isReallocateDialogOpen, setIsReallocateDialogOpen] = useState(false);
+  const [isAssignTaskDialogOpen, setIsAssignTaskDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // State for Reallocation
+  const [newAssigneeId, setNewAssigneeId] = useState('');
+
+  // State for Assign Task
+  const [newTaskText, setNewTaskText] = useState('');
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -105,16 +128,83 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     });
   };
 
-  const handleDelete = async (item: WorkItem) => {
+  const handleReallocate = async () => {
+    if (!selectedItem || !newAssigneeId || !firestore || !adminUser) return;
+    
+    const workItemRef = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return collection(firestore, 'work_items');
+    }, [firestore])!;
+
+    const targetUser = users?.find(u => u.uid === newAssigneeId);
+
+    updateDocumentNonBlocking(workItemRef.doc(selectedItem.id), { assignedTo: newAssigneeId });
+
+    const notesCollectionRef = collection(firestore, `work_items/${selectedItem.id}/notes`);
+      addDocumentNonBlocking(notesCollectionRef, {
+        authorId: adminUser.uid,
+        author: adminUser.displayName || 'Admin',
+        text: `Work item reallocated to ${targetUser?.displayName || 'Unknown User'}.`,
+        createdAt: new Date().toISOString(),
+        workItemId: selectedItem.id,
+      });
+
+    toast({
+      title: 'Work Item Reallocated',
+      description: `${selectedItem.customId} has been assigned to ${targetUser?.displayName}.`
+    });
+
+    setIsReallocateDialogOpen(false);
+    setSelectedItem(null);
+    setNewAssigneeId('');
+  };
+
+  const handleAssignTask = async () => {
+    if (!selectedItem || !newTaskText.trim() || !firestore || !adminUser) return;
+    
+    const workItemRef = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return collection(firestore, 'work_items');
+    }, [firestore])!;
+
+    const newTask = {
+        id: `task-${Date.now()}`,
+        text: newTaskText,
+        completed: false,
+    };
+
+    updateDocumentNonBlocking(workItemRef.doc(selectedItem.id), { tasks: arrayUnion(newTask) });
+
+    const notesCollectionRef = collection(firestore, `work_items/${selectedItem.id}/notes`);
+    addDocumentNonBlocking(notesCollectionRef, {
+      authorId: adminUser.uid,
+      author: adminUser.displayName || 'Admin',
+      text: `New task added: "${newTaskText}"`,
+      createdAt: new Date().toISOString(),
+      workItemId: selectedItem.id,
+    });
+
+    toast({
+        title: 'Task Assigned',
+        description: `A new task has been added to ${selectedItem.customId}.`
+    });
+
+    setIsAssignTaskDialogOpen(false);
+    setSelectedItem(null);
+    setNewTaskText('');
+  };
+
+  const handleDelete = async () => {
+    if (!selectedItem) return;
     setIsDeleting(true);
     try {
-      const result = await deleteWorkItem({ id: item.id });
+      const result = await deleteWorkItem({ id: selectedItem.id });
       if (result.success) {
         toast({
           title: 'Work Item Deleted',
-          description: `Work item ${item.customId} has been successfully deleted.`,
+          description: `Work item ${selectedItem.customId} has been successfully deleted.`,
         });
-        closeTab(item.id); // Close the tab if it's open
+        closeTab(selectedItem.id);
       } else {
         throw new Error(result.error || 'An unknown error occurred.');
       }
@@ -126,6 +216,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
       });
     } finally {
       setIsDeleting(false);
+      setSelectedItem(null);
     }
   };
 
@@ -184,38 +275,113 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                   <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
                   <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                   <TableCell className="text-right">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
-                           <Trash2 className="h-4 w-4" />
-                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the work item
-                             <span className="font-bold"> {item.customId}</span>.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(item)}
-                            disabled={isDeleting}
-                            className="bg-destructive hover:bg-destructive/90"
-                          >
-                            {isDeleting ? 'Deleting...' : 'Delete'}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                          <span className="sr-only">More actions</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => { setSelectedItem(item); setIsReallocateDialogOpen(true); }}>
+                          <UserPlus className="mr-2 h-4 w-4" />
+                          <span>Reallocate</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => { setSelectedItem(item); setIsAssignTaskDialogOpen(true); }}>
+                          <ListPlus className="mr-2 h-4 w-4" />
+                          <span>Assign Task</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => setSelectedItem(item)} className="text-destructive focus:text-destructive">
+                           <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                  <div className='flex items-center w-full'>
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      <span>Delete</span>
+                                  </div>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the work item
+                                     <span className="font-bold"> {selectedItem?.customId}</span>.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel onClick={() => setSelectedItem(null)}>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={handleDelete}
+                                    disabled={isDeleting}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                  >
+                                    {isDeleting ? 'Deleting...' : 'Delete'}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
           </TableBody>
         </Table>
       </div>
+
+       {/* Reallocate Dialog */}
+      <Dialog open={isReallocateDialogOpen} onOpenChange={setIsReallocateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reallocate Work Item: {selectedItem?.customId}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <Label htmlFor="assignee-select">New Assignee</Label>
+            <Select onValueChange={setNewAssigneeId} value={newAssigneeId}>
+              <SelectTrigger id="assignee-select">
+                <SelectValue placeholder="Select a user to assign" />
+              </SelectTrigger>
+              <SelectContent>
+                {users?.map(user => (
+                  <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">Cancel</Button>
+            </DialogClose>
+            <Button onClick={handleReallocate} disabled={!newAssigneeId}>Reallocate</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Assign Task Dialog */}
+      <Dialog open={isAssignTaskDialogOpen} onOpenChange={setIsAssignTaskDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign Task to: {selectedItem?.customId}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <Label htmlFor="task-description">Task Description</Label>
+            <Textarea
+              id="task-description"
+              value={newTaskText}
+              onChange={(e) => setNewTaskText(e.target.value)}
+              placeholder="Enter the details of the new task..."
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">Cancel</Button>
+            </DialogClose>
+            <Button onClick={handleAssignTask} disabled={!newTaskText.trim()}>Assign Task</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+    
