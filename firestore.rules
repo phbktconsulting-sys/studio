@@ -83,7 +83,7 @@ service cloud.firestore {
      */
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
+      allow list: if isSignedIn();
       allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.role == 'User';
       allow update: if (isOwner(userId) || isAdmin()) && request.resource.data.id == userId && (request.resource.data.role == resource.data.role || isAdmin());
       allow delete: if isAdmin(); // Only Admins can delete users
