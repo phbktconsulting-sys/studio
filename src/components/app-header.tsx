@@ -17,12 +17,24 @@ import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTabs } from '@/contexts/tab-context';
+import { useEffect, useState } from 'react';
 
 export function AppHeader() {
   const { user } = useUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
   const { openTab } = useTabs();
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Ensure this runs only on the client
+    if (typeof window !== 'undefined') {
+      const storedLogo = localStorage.getItem('customLogo');
+      if (storedLogo) {
+        setCustomLogo(storedLogo);
+      }
+    }
+  }, []);
 
   const handleLogout = () => {
     if (auth) {
@@ -44,7 +56,7 @@ export function AppHeader() {
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-4">
-            <LogoIcon className="h-8 w-8" />
+            <LogoIcon src={customLogo} className="h-8 w-8" />
             <div className="flex flex-col font-headline text-lg font-bold leading-tight">
               <span>PHBKT</span>
               <span>Group</span>

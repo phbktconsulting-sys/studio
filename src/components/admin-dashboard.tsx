@@ -1,12 +1,14 @@
+
 'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AllWorkItems } from './all-work-items';
 import { UserManagement } from './user-management';
-import { List, Users, FileText } from 'lucide-react';
+import { List, Users, Image } from 'lucide-react';
+import { ManageApp } from './manage-app';
 
-type AdminView = 'menu' | 'work-items' | 'users';
+type AdminView = 'menu' | 'work-items' | 'users' | 'manage-app';
 
 export function AdminDashboard() {
   const [view, setView] = useState<AdminView>('menu');
@@ -17,6 +19,10 @@ export function AdminDashboard() {
 
   if (view === 'users') {
     return <UserManagement onBack={() => setView('menu')} />;
+  }
+
+  if (view === 'manage-app') {
+    return <ManageApp onBack={() => setView('menu')} />;
   }
 
   return (
@@ -40,6 +46,12 @@ export function AdminDashboard() {
           description="View, create, and manage user accounts and roles."
           icon={<Users className="h-6 w-6" />}
           onClick={() => setView('users')}
+        />
+        <CardButton
+          title="Manage App"
+          description="Update application settings, like the logo."
+          icon={<Image className="h-6 w-6" />}
+          onClick={() => setView('manage-app')}
         />
       </div>
     </div>

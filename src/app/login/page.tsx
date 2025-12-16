@@ -23,6 +23,16 @@ export default function LoginPage() {
   const { auth, user, isUserLoading } = useFirebase();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedLogo = localStorage.getItem('customLogo');
+      if (storedLogo) {
+        setCustomLogo(storedLogo);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -47,7 +57,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <LogoIcon className="h-16 w-16" />
+          <LogoIcon src={customLogo} className="h-16 w-16" />
         </div>
         <Card>
           <CardHeader className="text-center">
