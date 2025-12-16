@@ -411,6 +411,8 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
     }, [firestore, lastNote?.authorId]);
 
     const { data: closingUser } = useDoc<User>(closingUserRef);
+    
+    const displayNote = lastNote?.text.split('Notes: ')[1] || lastNote?.text;
 
     return (
         <div className="flex items-center gap-4 text-sm py-2">
@@ -420,7 +422,7 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
                 Action by {closingUser?.displayName || lastNote?.author || 'System'}
             </span>
             <Separator orientation="vertical" className="h-5" />
-            <span className="text-sm text-muted-foreground">{lastNote?.text}</span>
+            <span className="text-sm text-muted-foreground">{displayNote}</span>
         </div>
     );
 }
