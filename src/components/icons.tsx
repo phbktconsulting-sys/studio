@@ -1,12 +1,7 @@
 
 import type { SVGProps } from 'react';
-import Image from 'next/image';
 
-export const LogoIcon = ({ src, className, ...props }: SVGProps<SVGSVGElement> & { src?: string | null }) => {
-  if (src) {
-    return <Image src={src} alt="Custom Logo" width={80} height={80} className={`rounded-md ${className}`} {...props} />;
-  }
-
+export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

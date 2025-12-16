@@ -26,17 +26,7 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [customLogo, setCustomLogo] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedLogo = localStorage.getItem('customLogo');
-      if (storedLogo) {
-        setCustomLogo(storedLogo);
-      }
-    }
-  }, []);
-  
   useEffect(() => {
     if (!isUserLoading && user) {
       router.push('/');
@@ -87,7 +77,7 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <LogoIcon src={customLogo} className="h-16 w-16" />
+          <LogoIcon className="h-16 w-16" />
         </div>
         <Card>
           <CardHeader className="text-center">

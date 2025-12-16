@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -24,30 +23,6 @@ export function AppHeader() {
   const auth = useFirebaseAuth();
   const router = useRouter();
   const { openTab } = useTabs();
-  const [customLogo, setCustomLogo] = useState<string | null>(null);
-
-  useEffect(() => {
-    // This effect runs on the client after hydration
-    // and whenever the component that uses it gets a new logo.
-    const handleStorageChange = () => {
-      const storedLogo = localStorage.getItem('customLogo');
-      setCustomLogo(storedLogo);
-    };
-
-    // Initial load
-    handleStorageChange();
-
-    // Listen for custom event
-    window.addEventListener('logoChanged', handleStorageChange);
-    
-    // Also listen for direct storage changes (e.g., from other tabs)
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('logoChanged', handleStorageChange);
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
 
   const handleLogout = () => {
     if (auth) {
@@ -69,7 +44,7 @@ export function AppHeader() {
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-4">
-             <LogoIcon src={customLogo} className="h-16 w-16" />
+             <LogoIcon className="h-16 w-16" />
             <div className="flex flex-col font-headline text-lg font-bold leading-tight">
               <span>PHBKT</span>
               <span>Group</span>
