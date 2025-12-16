@@ -147,7 +147,6 @@ export default function NewUserPage() {
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="user@phbkt.com"
                           {...field}
                           disabled
                         />
@@ -166,7 +165,7 @@ export default function NewUserPage() {
                     <FormItem>
                       <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ellen" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -179,7 +178,7 @@ export default function NewUserPage() {
                     <FormItem>
                       <FormLabel>Middle Name (Optional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Louise" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -192,7 +191,7 @@ export default function NewUserPage() {
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ripley" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -210,7 +209,6 @@ export default function NewUserPage() {
                       <FormControl>
                         <Input
                           type="password"
-                          placeholder="••••••••"
                           {...field}
                         />
                       </FormControl>
@@ -225,7 +223,7 @@ export default function NewUserPage() {
                     <FormItem>
                       <FormLabel>Mobile Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="9876543210" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -407,7 +405,7 @@ export default function NewUserPage() {
                     <FormItem>
                       <FormLabel>Aadhar Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="12-digit number" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -420,7 +418,7 @@ export default function NewUserPage() {
                     <FormItem>
                       <FormLabel>PAN Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="ABCDE1234F" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
