@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { collection, query, where } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import type { WorkItem } from '@/lib/types';
+import type { WorkItem, User } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -62,6 +62,19 @@ export function MyWorkDashboard() {
 
   const { data: workItems, isLoading } = useCollection<WorkItem>(workItemsQuery);
 
+  const usersQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'users'));
+  }, [firestore]);
+
+  const { data: users } = useCollection<User>(usersQuery);
+
+  const usersMap = useMemo(() => {
+    if (!users) return new Map();
+    return new Map(users.map(u => [u.uid, u.displayName]));
+  }, [users]);
+
+
   const handleRowClick = (item: WorkItem) => {
     openTab({
       id: item.id,
@@ -119,5 +132,3 @@ export function MyWorkDashboard() {
     </div>
   );
 }
-
-    

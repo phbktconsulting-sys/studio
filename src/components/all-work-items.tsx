@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import type { WorkItem } from '@/lib/types';
+import type { WorkItem, User } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -83,7 +83,19 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     return query(collection(firestore, 'work_items'));
   }, [firestore]);
 
-  const { data: workItems, isLoading } = useCollection<WorkItem>(workItemsQuery);
+  const { data: workItems, isLoading: workItemsLoading } = useCollection<WorkItem>(workItemsQuery);
+  
+  const usersQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'users'));
+  }, [firestore]);
+
+  const { data: users, isLoading: usersLoading } = useCollection<User>(usersQuery);
+
+  const usersMap = useMemo(() => {
+    if (!users) return new Map();
+    return new Map(users.map(u => [u.uid, u.displayName]));
+  }, [users]);
 
   const handleRowClick = (item: WorkItem) => {
     openTab({
@@ -122,7 +134,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     return [...workItems].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   }, [workItems]);
 
-  if (isLoading) {
+  if (workItemsLoading || usersLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center bg-background p-6">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
@@ -169,7 +181,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                     <StatusBadge status={item.status} />
                   </TableCell>
                   <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{item.subject}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{item.assignedTo.slice(0, 8)}...</TableCell>
+                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
                   <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                   <TableCell className="text-right">
                     <AlertDialog>
