@@ -515,7 +515,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
          <div className="mt-2">
             <h2 className="text-base font-semibold">Processes</h2>
-            <Separator />
+            <Separator className="bg-[#A60A0A] h-[2px]" />
              {isVerifyingAuthority ? (
               <VerifyAuthorityForm workItem={item} onCancel={() => setIsVerifyingAuthority(false)} />
             ) : isClosed ? (
