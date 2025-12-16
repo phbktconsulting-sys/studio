@@ -10,6 +10,7 @@ import { XIcon } from 'lucide-react';
 import type { Tab } from '@/contexts/tab-context';
 import { AdminDashboard } from './admin-dashboard';
 import { NewWorkItemView } from './new-work-item-view';
+import { SearchView } from './search-view';
 
 export function MainView() {
   const { tabs, activeTab, setActiveTab, closeTab } = useTabs();
@@ -21,7 +22,7 @@ export function MainView() {
       case 'my-work':
         return <MyWorkDashboard />;
       case 'search':
-        return <div className="p-6 text-xs">Search Functionality (Not Implemented)</div>;
+        return <SearchView />;
       case 'global-notes':
         return <div className="p-6 text-xs">Global Notes (Not Implemented)</div>;
       case 'new-work-item':
