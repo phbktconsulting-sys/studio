@@ -65,6 +65,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   // Form field states
   const [resolveCompleteCall, setResolveCompleteCall] = useState('');
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
+  const [resolveCompleteTask, setResolveCompleteTask] = useState('');
+  const [resolveCompleteTaskCompleted, setResolveCompleteTaskCompleted] = useState('');
   const [reindexOption, setReindexOption] = useState('myself');
   const [reindexReason, setReindexReason] = useState('');
   const [reindexCopyNotes, setReindexCopyNotes] = useState('yes');
@@ -113,7 +115,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch(selectedAction) {
       case 'resolve-complete':
         category = 'Resolved/Completed';
-        noteText = `Call to customer: ${resolveCompleteCall}. ${resolveCompleteNotes}`;
+        noteText = `Call to customer: ${resolveCompleteCall}. Task: ${resolveCompleteTask} (Completed: ${resolveCompleteTaskCompleted}). ${resolveCompleteNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 're-index':
@@ -182,6 +184,30 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <SelectItem value="No">No</SelectItem>
               </SelectContent>
             </Select>
+
+            <Label className="text-xs font-normal text-right">Task</Label>
+            <Select onValueChange={setResolveCompleteTask} value={resolveCompleteTask}>
+              <SelectTrigger className="text-xs h-6">
+                <SelectValue placeholder="Select a task..." />
+              </SelectTrigger>
+              <SelectContent>
+                {workItem.tasks?.map(task => (
+                  <SelectItem key={task.id} value={task.text}>{task.text}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Label className="text-xs font-normal text-right">Completed</Label>
+            <Select onValueChange={setResolveCompleteTaskCompleted} value={resolveCompleteTaskCompleted} disabled={!resolveCompleteTask}>
+              <SelectTrigger className="text-xs h-6">
+                <SelectValue placeholder="Select..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Yes">Yes</SelectItem>
+                <SelectItem value="No">No</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Label className="text-xs font-normal text-right self-start" htmlFor="notes-resolve-complete">Notes</Label>
             <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} className="text-xs min-h-[60px]" />
           </div>
@@ -583,5 +609,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    
