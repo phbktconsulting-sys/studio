@@ -313,12 +313,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   ];
 
   return (
-    <Card className="mt-4 border-primary border">
-      <CardHeader className="p-2 bg-slate-100 flex-row items-center">
-        <CardTitle className="text-xs font-bold uppercase pr-2">
-          {getActionDisplayName(selectedAction)}
-        </CardTitle>
-        <Select onValueChange={(value) => setSelectedAction(value as string)}>
+    <form onSubmit={handleSubmit}>
+      <Card className="mt-6 border-primary border">
+        <CardHeader className="p-2 bg-slate-100 flex-row items-center">
+          <CardTitle className="text-xs font-bold uppercase pr-2">
+            {getActionDisplayName(selectedAction)}
+          </CardTitle>
+          <Select onValueChange={(value) => setSelectedAction(value as string)}>
             <SelectTrigger className="text-xs h-6 w-auto flex-1 bg-black text-white hover:bg-black/90 focus:ring-black">
                 <SelectValue placeholder="-- Or select a different action --" />
             </SelectTrigger>
@@ -327,25 +328,26 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
             </SelectContent>
-        </Select>
-      </CardHeader>
-      <CardContent className='p-4'>
-        <form onSubmit={handleSubmit}>
-            <div>
-              {renderActionForm()}
-            </div>
-            
-            {selectedAction && (
-              <div className="flex justify-end gap-2 mt-0">
-                  <Button type="button" variant="secondary" size="sm" onClick={onCancel} className="h-6 py-0">
-                  Cancel
-                  </Button>
-                  <Button type="submit" size="sm" disabled={!selectedAction} className="h-6 py-0">Submit</Button>
-              </div>
-            )}
-        </form>
-      </CardContent>
-    </Card>
+          </Select>
+        </CardHeader>
+        <CardContent className='p-4'>
+          <div>
+            {renderActionForm()}
+          </div>
+        </CardContent>
+      </Card>
+      
+      {selectedAction && (
+        <div className="flex justify-end gap-2 mt-4">
+          <Button type="button" variant="secondary" size="sm" onClick={onCancel} className="h-6 py-0">
+            Cancel
+          </Button>
+          <Button type="submit" size="sm" disabled={!selectedAction} className="h-6 py-0">
+            Submit
+          </Button>
+        </div>
+      )}
+    </form>
   );
 }
 
@@ -581,3 +583,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    
