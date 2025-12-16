@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit } from 'firebase/firestore';
@@ -615,6 +615,15 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                       <span className="font-medium">Name:</span>
                       <span>{item.relatedContact.name}</span>
                   </div>
+                   {item.relatedContact.address && (
+                    <div className="flex items-start gap-4">
+                        <Home className="h-5 w-5 text-muted-foreground mt-1" />
+                        <div className="flex flex-col">
+                           <span className="font-medium">Address:</span>
+                           <span className="text-muted-foreground">{item.relatedContact.address}</span>
+                        </div>
+                    </div>
+                  )}
                   <div className="flex items-center gap-4">
                       <Mail className="h-5 w-5 text-muted-foreground" />
                       <span className="font-medium">Email:</span>

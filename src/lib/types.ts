@@ -43,6 +43,7 @@ export interface WorkItem {
     email: string;
     phone: string;
     phoneSecondary?: string;
+    address?: string;
   };
   overview: string;
   tasks: Task[];
@@ -98,6 +99,7 @@ export const WorkItemCreateSchema = z.object({
   customerEmail: z.string().email('Invalid email address.'),
   customerPhone: z.string().min(1, 'Customer phone is required.'),
   customerPhoneSecondary: z.string().optional(),
+  customerAddress: z.string().optional(),
   urgency: z.enum(['Low', 'Medium', 'High']),
   overview: z.string().min(1, 'Overview is required.'),
 });
@@ -113,6 +115,7 @@ export const ServerWorkItemCreateSchema = z.object({
     email: z.string(),
     phone: z.string(),
     phoneSecondary: z.string().optional(),
+    address: z.string().optional(),
   }),
   overview: z.string(),
   tasks: z.array(z.any()),

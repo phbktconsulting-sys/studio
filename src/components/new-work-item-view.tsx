@@ -52,6 +52,7 @@ export function NewWorkItemView() {
       customerEmail: '',
       customerPhone: '',
       customerPhoneSecondary: '',
+      customerAddress: '',
       urgency: 'Medium',
       overview: '',
     },
@@ -78,6 +79,7 @@ export function NewWorkItemView() {
           email: data.customerEmail,
           phone: data.customerPhone,
           phoneSecondary: data.customerPhoneSecondary || '',
+          address: data.customerAddress || '',
         },
         overview: data.overview,
         tasks: [],
@@ -244,6 +246,24 @@ export function NewWorkItemView() {
                   )}
                 />
               </div>
+
+               <FormField
+                control={form.control}
+                name="customerAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Customer Address</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter customer's full address"
+                        className="min-h-[100px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
