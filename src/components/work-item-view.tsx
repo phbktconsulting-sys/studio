@@ -125,7 +125,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         break;
       case 'terminate':
         category = 'Terminated';
-        noteText = terminateNotes || '';
+        noteText = `Reason: ${terminateReason}. Notes: ${terminateNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 'resolve-close':
@@ -536,7 +536,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsContent value="overview" className="mt-0">
               <Card className="border-0 shadow-none">
                 <CardHeader className="p-4">
-                  <CardTitle className="text-sm">Overview</CardTitle>
+                  <CardTitle className="text-xs">Overview</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                     <p className="text-xs text-muted-foreground">{item.overview}</p>
@@ -551,7 +551,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsContent value="contact" className="mt-0">
               <Card className="border-0 shadow-none">
                 <CardHeader className="p-4">
-                  <CardTitle className="text-sm">Contact Information</CardTitle>
+                  <CardTitle className="text-xs">Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 p-4 pt-0">
                   <div className="flex items-center gap-4 text-xs">
@@ -611,5 +611,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    
