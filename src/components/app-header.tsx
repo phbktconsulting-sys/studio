@@ -67,6 +67,7 @@ export function AppHeader() {
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-4">
+             <LogoIcon src={customLogo} className="h-16 w-16" />
             <div className="flex flex-col font-headline text-lg font-bold leading-tight">
               <span>PHBKT</span>
               <span>Group</span>
