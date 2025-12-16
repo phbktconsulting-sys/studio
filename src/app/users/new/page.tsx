@@ -28,7 +28,7 @@ import { CreateUserInputSchema, type CreateUserInput } from '@/lib/types';
 import { format } from 'date-fns';
 import { CustomCalendar } from '@/components/custom-calendar';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function NewUserPage() {
@@ -36,6 +36,7 @@ export default function NewUserPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nextEmployeeId, setNextEmployeeId] = useState<string>('Loading...');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     async function fetchNextId() {
@@ -439,12 +440,27 @@ export default function NewUserPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="password"
-                              {...field}
-                            />
-                          </FormControl>
+                            <div className="relative">
+                                <FormControl>
+                                <Input
+                                    type={showPassword ? 'text' : 'password'}
+                                    {...field}
+                                />
+                                </FormControl>
+                                <Button
+                                variant="ghost"
+                                type="button"
+                                size="icon"
+                                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
+                                onClick={() => setShowPassword(!showPassword)}
+                                >
+                                {showPassword ? (
+                                    <EyeOff className="h-4 w-4" />
+                                ) : (
+                                    <Eye className="h-4 w-4" />
+                                )}
+                                </Button>
+                            </div>
                           <FormMessage />
                         </FormItem>
                       )}
