@@ -56,7 +56,7 @@ export function MainView() {
                         e.stopPropagation();
                         closeTab(tab.id);
                       }}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground opacity-50 hover:bg-accent hover:text-accent-foreground hover:opacity-100"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-white/70 opacity-100 hover:bg-white/10 hover:text-white"
                     >
                       <XIcon className="h-3.5 w-3.5" />
                     </div>
