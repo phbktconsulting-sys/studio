@@ -58,34 +58,40 @@
       "type": "object",
       "description": "Represents a user in the system.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the User entity."
-        },
-        "uid": {
-          "type": "string",
-          "description": "Firebase Authentication User ID."
-        },
-        "email": {
-          "type": "string",
-          "description": "The user's email address.",
-          "format": "email"
-        },
-        "displayName": {
-          "type": "string",
-          "description": "The user's display name."
-        },
-        "role": {
-          "type": "string",
-          "enum": ["Admin", "User"],
-          "description": "The user's role in the system."
-        }
+        "id": { "type": "string", "description": "Unique identifier for the User entity." },
+        "uid": { "type": "string", "description": "Firebase Authentication User ID." },
+        "email": { "type": "string", "description": "The user's email address.", "format": "email" },
+        "displayName": { "type": "string", "description": "The user's full display name." },
+        "firstName": { "type": "string", "description": "The user's first name." },
+        "middleName": { "type": "string", "description": "The user's middle name (optional)." },
+        "lastName": { "type": "string", "description": "The user's last name." },
+        "dob": { "type": "string", "description": "Date of birth.", "format": "date" },
+        "mobileNumber": { "type": "string", "description": "User's mobile phone number." },
+        "department": { "type": "string", "description": "The department the user belongs to." },
+        "jobTitle": { "type": "string", "description": "The user's job title or position." },
+        "level": { "type": "string", "description": "The user's level in the organization." },
+        "workLocation": { "type": "string", "description": "The user's work location." },
+        "company": { "type": "string", "description": "The company the user works for." },
+        "aadharNumber": { "type": "string", "description": "The user's Aadhar number." },
+        "panNumber": { "type": "string", "description": "The user's PAN number." },
+        "role": { "type": "string", "enum": ["Admin", "User"], "description": "The user's role in the system." }
       },
       "required": [
         "id",
         "uid",
         "email",
         "displayName",
+        "firstName",
+        "lastName",
+        "dob",
+        "mobileNumber",
+        "department",
+        "jobTitle",
+        "level",
+        "workLocation",
+        "company",
+        "aadharNumber",
+        "panNumber",
         "role"
       ]
     },

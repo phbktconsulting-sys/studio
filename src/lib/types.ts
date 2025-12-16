@@ -1,3 +1,5 @@
+'use server';
+
 import { z } from 'zod';
 
 export interface User {
@@ -6,6 +8,18 @@ export interface User {
   email: string | null;
   displayName: string | null;
   role: 'admin' | 'user' | 'User' | 'Admin';
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  dob?: string;
+  mobileNumber?: string;
+  department?: string;
+  jobTitle?: string;
+  level?: string;
+  workLocation?: string;
+  company?: string;
+  aadharNumber?: string;
+  panNumber?: string;
 }
 
 export interface Task {
@@ -41,11 +55,21 @@ export interface Note {
   workItemId: string;
 }
 
-// Moved from create-user-flow.ts to avoid 'use server' export issues
 export const CreateUserInputSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-  displayName: z.string(),
+  firstName: z.string().min(1, { message: 'First name is required' }),
+  middleName: z.string().optional(),
+  lastName: z.string().min(1, { message: 'Last name is required' }),
+  dob: z.date(),
+  mobileNumber: z.string().min(10, { message: 'Mobile number must be at least 10 digits' }),
+  department: z.enum(['Operation', 'HR', 'Risk', 'Admin', 'Marketing', 'Other']),
+  jobTitle: z.enum(['Associate', 'Senior Associate', 'Team Lead', 'Assistant Manager', 'Manager', 'Senior Manager']),
+  level: z.enum(['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10']),
+  workLocation: z.enum(['Office', 'Remote', 'Hybrid', 'Other']),
+  company: z.string().default('PHBKT Group Limited'),
+  aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar must be 12 digits' }),
+  panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN format' }),
   role: z.enum(['Admin', 'User']),
 });
 export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;
