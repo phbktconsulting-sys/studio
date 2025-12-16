@@ -42,23 +42,26 @@ export function AppHeader() {
   return (
     <div className="contents">
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-4">
-             <LogoIcon className="h-16 w-16" />
-            <div className="flex flex-col font-headline text-lg font-bold leading-tight">
-              <span>PHBKT</span>
-              <span>Group</span>
-              <span>Limited</span>
-            </div>
-          </Link>
+        <div className="flex w-1/3">
+           {/* This empty div will occupy the left space */}
         </div>
 
-        <div className="flex-1 text-center">
-            <span className="font-headline text-lg font-bold">PHBKT-WorkFlow App</span>
-            <p className="text-sm text-muted-foreground">Home Page - {user?.displayName || user?.email}</p>
+        <div className="flex w-1/3 justify-center">
+            <Link href="/" className="flex items-center gap-4">
+                <LogoIcon className="h-16 w-16" />
+                <div className="flex flex-col font-headline text-lg font-bold leading-tight">
+                <span>PHBKT</span>
+                <span>Group</span>
+                <span>Limited</span>
+                </div>
+            </Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex w-1/3 items-center justify-end gap-4">
+          <div className="text-right">
+              <span className="font-headline text-sm font-bold">PHBKT-WorkFlow App</span>
+              <p className="text-xs text-muted-foreground">{user?.displayName || user?.email}</p>
+          </div>
           <Button onClick={handleNewWork} className="h-8 bg-black text-white hover:bg-black/80">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Work
@@ -67,7 +70,7 @@ export function AppHeader() {
             <DropdownMenuTrigger asChild>
               <Button className="relative h-8 w-auto px-4 bg-black text-white hover:bg-black/80">
                 <UserIcon className="mr-2 h-4 w-4" />
-                {user?.displayName || user?.email}
+                <span className="sr-only">User Menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
