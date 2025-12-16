@@ -175,7 +175,7 @@ export default function NewUserPage() {
               </div>
 
               <div className="rounded-lg border-[2px] border-[#C00025] p-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                   <FormField
                     control={form.control}
                     name="firstName"
@@ -215,23 +215,7 @@ export default function NewUserPage() {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-                  <FormField
-                    control={form.control}
-                    name="mobileNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Mobile Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
+                   <FormField
                     control={form.control}
                     name="dob"
                     render={({ field }) => (
@@ -242,6 +226,22 @@ export default function NewUserPage() {
                             value={field.value}
                             onChange={field.onChange}
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 mt-4">
+                   <FormField
+                    control={form.control}
+                    name="mobileNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold">Mobile Number</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
