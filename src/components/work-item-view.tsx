@@ -125,7 +125,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         break;
       case 'terminate':
         category = 'Terminated';
-        noteText = `Reason: ${terminateReason}. Notes: ${terminateNotes}`;
+        noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 'resolve-close':
