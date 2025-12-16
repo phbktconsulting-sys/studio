@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { Note, Task, WorkItem, User } from '@/lib/types';
+import type { Note, Task, WorkItem, User, WorkItemFormValues } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -33,6 +33,18 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { CustomCalendar } from './custom-calendar';
 import { useToast } from '@/hooks/use-toast';
 import { NotesTab } from './notes-tab';
+import { createWorkItem } from '@/ai/flows/create-work-item-flow';
+import { useTabs } from '@/contexts/tab-context';
+
+const processTypes = [
+  'Request Information',
+  'Request Quotation',
+  'Request Application',
+  'Request Website',
+  'Request inquiry',
+  'Request Backend Support',
+  'Request Other',
+];
 
 function TasksTab({ tasks }: { tasks: Task[] }) {
   if (!tasks || tasks.length === 0) {
@@ -58,6 +70,7 @@ function TasksTab({ tasks }: { tasks: Task[] }) {
 
 function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCancel: () => void }) {
   const { firestore, user } = useFirebase();
+  const { openTab } = useTabs();
   const { toast } = useToast();
 
   const [selectedAction, setSelectedAction] = useState<string>('resolve-complete');
@@ -67,10 +80,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
   const [resolveCompleteTask, setResolveCompleteTask] = useState('');
   const [resolveCompleteTaskCompleted, setResolveCompleteTaskCompleted] = useState('');
-  const [reindexOption, setReindexOption] = useState('myself');
+  
+  const [reindexToProcess, setReindexToProcess] = useState('');
   const [reindexReason, setReindexReason] = useState('');
-  const [reindexCopyNotes, setReindexCopyNotes] = useState('yes');
   const [reindexNotes, setReindexNotes] = useState('');
+
   const [terminateReason, setTerminateReason] = useState('');
   const [terminateNotes, setTerminateNotes] = useState('');
   const [resolveCloseResolved, setResolveCloseResolved] = useState('');
@@ -100,7 +114,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     return actionMap[actionValue] || 'VERIFY CUSTOMER AUTHORITY';
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !firestore || !selectedAction) return;
 
@@ -112,61 +126,96 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     let workItemUpdate: Partial<WorkItem> = { updatedAt: new Date().toISOString() };
     let subjectForNote = getActionDisplayName(selectedAction).replace(/\s+/g, ' ').trim();
 
-    switch(selectedAction) {
-      case 'resolve-complete':
-        category = 'Resolved/Completed';
-        noteText = `Resolve Complete: ${resolveCompleteStatus}. Task: ${resolveCompleteTask} (Completed: ${resolveCompleteTaskCompleted}). ${resolveCompleteNotes}`;
-        workItemUpdate.status = 'Closed';
-        break;
-      case 're-index':
-        category = 'Re-Indexed';
-        noteText = `Re-index option: ${reindexOption}. Reason: ${reindexReason}. Copy notes: ${reindexCopyNotes}. ${reindexNotes}`;
-        workItemUpdate.status = 'Pending';
-        break;
-      case 'terminate':
-        category = 'Terminated';
-        noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
-        workItemUpdate.status = 'Closed';
-        break;
-      case 'resolve-close':
-        category = 'Resolved/Closed';
-        noteText = `Customer request resolved: ${resolveCloseResolved}. ${resolveCloseNotes}`;
-        workItemUpdate.status = 'Closed';
-        break;
-      case 'transfer':
-        category = 'Transferred';
-        noteText = `${transferNotes}`;
-        workItemUpdate.assignedTo = transferToUser;
-        break;
-      case 'pend':
-        category = 'Pended';
-        noteText = `Pend until: ${pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A'}. Reason: ${pendReason}. ${pendNotes}`;
-        workItemUpdate.status = 'Pending';
-        break;
-      default:
-        return;
+    try {
+        switch(selectedAction) {
+        case 'resolve-complete':
+            category = 'Resolved/Completed';
+            noteText = `Resolve Complete: ${resolveCompleteStatus}. Task: ${resolveCompleteTask} (Completed: ${resolveCompleteTaskCompleted}). ${resolveCompleteNotes}`;
+            workItemUpdate.status = 'Closed';
+            break;
+        case 're-index':
+            if (!reindexToProcess) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Please select a process to re-index to.' });
+                return;
+            }
+            category = 'Re-Indexed';
+
+            const reindexPayload = {
+              process: reindexToProcess,
+              urgency: workItem.urgency,
+              assignedTo: user.uid,
+              createdBy: user.uid,
+              relatedContact: workItem.relatedContact,
+              overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
+              tasks: [], 
+            };
+            
+            const newWorkItemResult = await createWorkItem(reindexPayload);
+            if (!newWorkItemResult.id || !newWorkItemResult.customId) {
+                throw new Error(newWorkItemResult.error || 'Failed to create new work item during re-index.');
+            }
+
+            noteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
+            workItemUpdate.status = 'Closed';
+
+             toast({
+                title: 'Work Item Re-Indexed',
+                description: `Successfully created new work item ${newWorkItemResult.customId}.`,
+            });
+            openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
+
+            break;
+        case 'terminate':
+            category = 'Terminated';
+            noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
+            workItemUpdate.status = 'Closed';
+            break;
+        case 'resolve-close':
+            category = 'Resolved/Closed';
+            noteText = `Customer request resolved: ${resolveCloseResolved}. ${resolveCloseNotes}`;
+            workItemUpdate.status = 'Closed';
+            break;
+        case 'transfer':
+            category = 'Transferred';
+            noteText = `${transferNotes}`;
+            workItemUpdate.assignedTo = transferToUser;
+            break;
+        case 'pend':
+            category = 'Pended';
+            noteText = `Pend until: ${pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A'}. Reason: ${pendReason}. ${pendNotes}`;
+            workItemUpdate.status = 'Pending';
+            break;
+        default:
+            return;
+        }
+        
+        // 1. Add the note to the original work item
+        addDocumentNonBlocking(notesCollectionRef, {
+        authorId: user.uid,
+        author: user.displayName || user.email || 'System',
+        text: noteText,
+        createdAt: new Date().toISOString(),
+        workItemId: workItem.id,
+        category,
+        subject: subjectForNote,
+        });
+        
+        // 2. Update the original work item
+        updateDocumentNonBlocking(workItemRef, workItemUpdate);
+
+        toast({
+        title: "Action Submitted",
+        description: `The action '${subjectForNote}' was successfully logged and applied.`,
+        });
+
+        onCancel(); // Hide form after submission
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Action Failed',
+            description: error.message || 'An unexpected error occurred.',
+        });
     }
-    
-    // 1. Add the note
-    addDocumentNonBlocking(notesCollectionRef, {
-      authorId: user.uid,
-      author: user.displayName || user.email || 'System',
-      text: noteText,
-      createdAt: new Date().toISOString(),
-      workItemId: workItem.id,
-      category,
-      subject: subjectForNote,
-    });
-    
-    // 2. Update the work item
-    updateDocumentNonBlocking(workItemRef, workItemUpdate);
-
-    toast({
-      title: "Action Submitted",
-      description: `The action '${subjectForNote}' was successfully logged and applied.`,
-    });
-
-    onCancel(); // Hide form after submission
   };
 
   const renderActionForm = () => {
@@ -215,17 +264,20 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 're-index':
         return (
           <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
-            <Label className="text-xs font-normal text-right">Please select the correct Re-index option *</Label>
-            <RadioGroup value={reindexOption} onValueChange={setReindexOption} className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="myself" id="reindex-myself" />
-                <Label htmlFor="reindex-myself" className="text-xs font-normal">Re-index case myself</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="initial" id="reindex-initial" />
-                <Label htmlFor="reindex-initial" className="text-xs font-normal">Return to initial Indexing</Label>
-              </div>
-            </RadioGroup>
+            <Label className="text-xs font-normal text-right">Re-Index to Process</Label>
+            <Select onValueChange={setReindexToProcess} value={reindexToProcess}>
+              <SelectTrigger className="text-xs h-6">
+                <SelectValue placeholder="Select a new process..." />
+              </SelectTrigger>
+              <SelectContent>
+                 {processTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                        {type}
+                    </SelectItem>
+                 ))}
+              </SelectContent>
+            </Select>
+
             <Label className="text-xs font-normal text-right">Reason *</Label>
             <Select onValueChange={setReindexReason} value={reindexReason}>
               <SelectTrigger className="text-xs h-6">
@@ -236,17 +288,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
               </SelectContent>
             </Select>
-            <Label className="text-xs font-normal text-right">Do you want to copy the notes to the new case?</Label>
-            <RadioGroup value={reindexCopyNotes} onValueChange={setReindexCopyNotes} className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="yes" id="copy-yes" />
-                  <Label htmlFor="copy-yes" className="text-xs font-normal">Yes</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no" id="copy-no" />
-                  <Label htmlFor="copy-no" className="text-xs font-normal">No</Label>
-              </div>
-            </RadioGroup>
+
             <Label className="text-xs font-normal text-right self-start" htmlFor="notes-re-index">Note *</Label>
             <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[60px]" />
           </div>
@@ -340,13 +382,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   return (
     <form onSubmit={handleSubmit}>
-      <Card className="mt-2 border-primary">
-        <CardHeader className="p-2 bg-slate-100 flex-row items-center">
-          <CardTitle className="text-xs font-bold uppercase pr-2">
+      <Card className="mt-4 border-primary border">
+        <CardHeader className="p-2 bg-slate-100 flex-row items-center gap-4">
+          <CardTitle className="text-xs font-bold uppercase">
             {getActionDisplayName(selectedAction)}
           </CardTitle>
           <Select onValueChange={(value) => setSelectedAction(value as string)}>
-            <SelectTrigger className="text-xs h-6 w-auto flex-1 bg-black text-white hover:bg-black/90 focus:ring-black">
+            <SelectTrigger className="text-xs h-7 w-auto flex-1 bg-black text-white hover:bg-black/90 focus:ring-black">
                 <SelectValue placeholder="-- Or select a different action --" />
             </SelectTrigger>
             <SelectContent>
@@ -500,9 +542,9 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
-         <div className="my-4 mb-8">
+         <div className="mt-4 mb-4">
             <h2 className="text-base font-semibold">Processes</h2>
-            <Separator className="bg-[#A60A0A] h-[2px] mb-1" />
+            <Separator className="bg-[#A60A0A] h-[2px]" />
              {isVerifyingAuthority ? (
               <VerifyAuthorityForm workItem={item} onCancel={() => setIsVerifyingAuthority(false)} />
             ) : isClosed ? (
@@ -609,5 +651,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    
 
     
