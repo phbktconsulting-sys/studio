@@ -117,7 +117,7 @@ export default function NewUserPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 font-mono">
+    <div className="p-4 sm:p-6">
        <div className="flex items-center gap-4 mb-6">
         <Button variant="outline" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4" />
