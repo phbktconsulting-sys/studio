@@ -11,29 +11,41 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { LogoIcon } from '@/components/icons';
-import { useUser, useAuth as useFirebaseAuth, useFirebase, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
 import { LifeBuoy, LogOut, User as UserIcon, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTabs } from '@/contexts/tab-context';
+import { useEffect, useState } from 'react';
 
 export function AppHeader() {
   const { user } = useUser();
   const auth = useFirebaseAuth();
-  const { firestore } = useFirebase();
   const router = useRouter();
   const { openTab } = useTabs();
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
 
-  const appSettingsRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return doc(firestore, 'app_settings', 'config');
-  }, [firestore]);
-
-  const { data: appSettings } = useDoc(appSettingsRef);
-  const customLogo = appSettings?.logoUrl;
-
+  useEffect(() => {
+    // Load from localStorage on initial render
+    const storedLogo = localStorage.getItem('customLogo');
+    if (storedLogo) {
+      setCustomLogo(storedLogo);
+    }
+  
+    // Listen for changes from other tabs/windows
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'customLogo') {
+        setCustomLogo(event.newValue);
+      }
+    };
+  
+    window.addEventListener('storage', handleStorageChange);
+  
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const handleLogout = () => {
     if (auth) {

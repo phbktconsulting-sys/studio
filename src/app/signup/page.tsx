@@ -26,14 +26,16 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
   
-  const appSettingsRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return doc(firestore, 'app_settings', 'config');
-  }, [firestore]);
-
-  const { data: appSettings } = useDoc(appSettingsRef);
-  const customLogo = appSettings?.logoUrl;
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedLogo = localStorage.getItem('customLogo');
+      if (storedLogo) {
+        setCustomLogo(storedLogo);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!isUserLoading && user) {

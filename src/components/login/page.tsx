@@ -16,22 +16,23 @@ import { Label } from '@/components/ui/label';
 import { LogoIcon } from '@/components/icons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useFirebase, initiateEmailSignIn, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useFirebase, initiateEmailSignIn } from '@/firebase';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { auth, firestore, user, isUserLoading } = useFirebase();
+  const { auth, user, isUserLoading } = useFirebase();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  const appSettingsRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return doc(firestore, 'app_settings', 'config');
-  }, [firestore]);
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
 
-  const { data: appSettings } = useDoc(appSettingsRef);
-  const customLogo = appSettings?.logoUrl;
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedLogo = localStorage.getItem('customLogo');
+      if (storedLogo) {
+        setCustomLogo(storedLogo);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!isUserLoading && user) {

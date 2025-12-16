@@ -164,18 +164,6 @@
         }
       },
       "required": ["count"]
-    },
-    "AppSettings": {
-      "title": "AppSettings",
-      "type": "object",
-      "description": "Stores global application settings.",
-      "properties": {
-        "logoUrl": {
-          "type": "string",
-          "format": "uri",
-          "description": "The data URI of the custom application logo."
-        }
-      }
     }
   },
   "auth": {
@@ -206,10 +194,6 @@
     "/counters/work_item_RW": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Website work items." },
     "/counters/work_item_RIQ": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request inquiry work items." },
     "/counters/work_item_RBS": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Backend Support work items." },
-    "/counters/work_item_RO": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Other work items." },
-    "/app_settings/config": {
-      "schema": { "$ref": "#/entities/AppSettings" },
-      "description": "Stores global application settings like the logo URL. Readable by all authenticated users, writable only by admins."
-    }
+    "/counters/work_item_RO": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Other work items." }
   }
 }

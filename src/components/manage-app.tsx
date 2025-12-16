@@ -9,8 +9,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
-import { useFirebase, useDoc, setDocumentNonBlocking, updateDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
 
 interface ManageAppProps {
   onBack: () => void;
@@ -18,25 +16,17 @@ interface ManageAppProps {
 
 export function ManageApp({ onBack }: ManageAppProps) {
   const { toast } = useToast();
-  const { firestore } = useFirebase();
-
-  const appSettingsRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return doc(firestore, 'app_settings', 'config');
-  }, [firestore]);
-
-  const { data: appSettings, isLoading } = useDoc(appSettingsRef);
-
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => {
-    if (appSettings) {
-      setLogoPreview(appSettings.logoUrl || null);
+    // On mount, load the logo from localStorage
+    const storedLogo = localStorage.getItem('customLogo');
+    if (storedLogo) {
+      setLogoPreview(storedLogo);
     }
-  }, [appSettings]);
-
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -59,10 +49,15 @@ export function ManageApp({ onBack }: ManageAppProps) {
   };
 
   const handleSaveLogo = () => {
-    if (!appSettingsRef) return;
-
     if (logoPreview) {
-      setDocumentNonBlocking(appSettingsRef, { logoUrl: logoPreview }, { merge: true });
+      localStorage.setItem('customLogo', logoPreview);
+      // Dispatch a storage event to notify other tabs/components
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: 'customLogo',
+          newValue: logoPreview,
+        })
+      );
       toast({
         title: 'Logo Updated',
         description: 'The application logo has been successfully updated.',
@@ -78,8 +73,8 @@ export function ManageApp({ onBack }: ManageAppProps) {
   };
   
   const handleRemoveLogo = () => {
-    if (!appSettingsRef) return;
-    updateDocumentNonBlocking(appSettingsRef, { logoUrl: null });
+    localStorage.removeItem('customLogo');
+    window.dispatchEvent(new StorageEvent('storage', { key: 'customLogo', newValue: null }));
     setLogoPreview(null);
     setLogoFile(null);
     if(fileInputRef.current) {
