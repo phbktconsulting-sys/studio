@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { collection, query, arrayUnion, doc } from 'firebase/firestore';
+import { collection, query, doc, arrayUnion } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import {
@@ -22,7 +22,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import {
@@ -294,7 +293,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                   <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
                   <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                   <TableCell className="text-right">
-                    <DropdownMenu onOpenChange={(open) => !open && setSelectedItem(null)}>
+                    <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
                           <MoreVertical className="h-4 w-4" />
@@ -311,36 +310,10 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                           <span>Assign Task</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                             <DropdownMenuItem
-                              onSelect={(e) => e.preventDefault()}
-                              className="text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              <span>Delete</span>
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete the work item{' '}
-                                <span className="font-bold">{item?.customId}</span>.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete()}
-                                disabled={isDeleting}
-                                className="bg-destructive hover:bg-destructive/90"
-                              >
-                                {isDeleting ? 'Deleting...' : 'Delete'}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <DropdownMenuItem onSelect={() => { setSelectedItem(item); setIsDeleteDialogOpen(true); }} className="text-destructive focus:text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -351,7 +324,14 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
       </div>
       
        {/* Reallocate Dialog */}
-      <Dialog open={isReallocateDialogOpen} onOpenChange={setIsReallocateDialogOpen}>
+      <Dialog open={isReallocateDialogOpen} onOpenChange={(isOpen) => {
+          setIsReallocateDialogOpen(isOpen);
+          if (!isOpen) {
+              setSelectedItem(null);
+              setNewAssigneeId('');
+              setReallocationTaskText('');
+          }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Reallocate Work Item: {selectedItem?.customId}</DialogTitle>
@@ -382,7 +362,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="secondary" onClick={() => {setNewAssigneeId(''); setReallocationTaskText('');}}>Cancel</Button>
+              <Button type="button" variant="secondary">Cancel</Button>
             </DialogClose>
             <Button onClick={handleReallocate} disabled={!newAssigneeId}>Reallocate</Button>
           </DialogFooter>
@@ -390,7 +370,13 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
       </Dialog>
       
       {/* Assign Task Dialog */}
-      <Dialog open={isAssignTaskDialogOpen} onOpenChange={setIsAssignTaskDialogOpen}>
+      <Dialog open={isAssignTaskDialogOpen} onOpenChange={(isOpen) => {
+          setIsAssignTaskDialogOpen(isOpen);
+          if (!isOpen) {
+              setSelectedItem(null);
+              setNewTaskText('');
+          }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Assign Task to: {selectedItem?.customId}</DialogTitle>
@@ -412,6 +398,29 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+       {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the work item{' '}
+              <span className="font-bold">{selectedItem?.customId}</span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedItem(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
