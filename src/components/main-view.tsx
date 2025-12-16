@@ -10,7 +10,6 @@ import { XIcon } from 'lucide-react';
 import type { Tab } from '@/contexts/tab-context';
 import { AdminDashboard } from './admin-dashboard';
 import { NewWorkItemView } from './new-work-item-view';
-import { WorkItemTabTrigger } from './work-item-tab-trigger';
 
 export function MainView() {
   const { tabs, activeTab, setActiveTab, closeTab } = useTabs();
@@ -42,32 +41,28 @@ export function MainView() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-col">
           <div className="border-b">
             <TabsList className="h-auto rounded-none bg-transparent p-0">
-              {tabs.map((tab) =>
-                tab.type === 'work-item' && tab.id !== 'new-work-item' ? (
-                  <WorkItemTabTrigger key={tab.id} tab={tab} />
-                ) : (
-                  <TabsTrigger
-                    key={tab.id}
-                    value={tab.id}
-                    className="relative h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-4 text-xs text-white hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none"
-                  >
-                    {tab.title}
-                    {tab.type !== 'static' && (
-                      <div
-                        role="button"
-                        aria-label="Close tab"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          closeTab(tab.id);
-                        }}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground opacity-50 hover:bg-accent hover:text-accent-foreground hover:opacity-100"
-                      >
-                        <XIcon className="h-3.5 w-3.5" />
-                      </div>
-                    )}
-                  </TabsTrigger>
-                )
-              )}
+              {tabs.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="relative h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-4 text-xs text-white hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none"
+                >
+                  {tab.title}
+                  {tab.type !== 'static' && (
+                    <div
+                      role="button"
+                      aria-label="Close tab"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closeTab(tab.id);
+                      }}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground opacity-50 hover:bg-accent hover:text-accent-foreground hover:opacity-100"
+                    >
+                      <XIcon className="h-3.5 w-3.5" />
+                    </div>
+                  )}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </div>
           <div className="flex-1 overflow-y-auto">
