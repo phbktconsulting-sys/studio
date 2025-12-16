@@ -23,7 +23,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { doc } from 'firebase/firestore';
-import { useDoc, useFirebase, useMemoFirebase, updateDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { useDoc, useFirebase, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { CreateUserInputSchema, type CreateUserInput, type User as UserProfile } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import { CustomCalendar } from '@/components/custom-calendar';
@@ -31,6 +31,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { deleteUser } from '@/ai/flows/delete-user-flow';
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -39,6 +40,7 @@ export default function UserProfilePage() {
   const router = useRouter();
   const { firestore } = useFirebase();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const userProfileRef = useMemoFirebase(() => {
@@ -109,27 +111,33 @@ export default function UserProfilePage() {
   };
 
   const onDelete = async () => {
-    if (!userProfileRef) return;
+    if (!userId) return;
     
-    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    if (confirm('Are you sure you want to delete this user? This action will permanently remove their authentication account and all associated data.')) {
+      setIsDeleting(true);
       try {
-        // This only deletes the Firestore document, not the Auth user.
-        // A full implementation would require a server-side function.
-        deleteDocumentNonBlocking(userProfileRef);
-        toast({
-          title: 'User Deleted',
-          description: `User account has been deleted.`,
-        });
-        router.push('/admin'); // Navigate back to a safe page
+        const result = await deleteUser({ uid: userId });
+        if (result.success) {
+          toast({
+            title: 'User Deleted',
+            description: `User account has been permanently deleted.`,
+          });
+          router.push('/admin'); // Navigate back to a safe page
+        } else {
+          throw new Error(result.error || 'An unknown server error occurred.');
+        }
       } catch (error: any) {
         toast({
           variant: 'destructive',
-          title: 'Error deleting user',
+          title: 'Error Deleting User',
           description: error.message || 'Could not delete user.',
         });
+      } finally {
+        setIsDeleting(false);
       }
     }
   };
+
 
   if (isLoading) {
     return (
@@ -518,20 +526,20 @@ export default function UserProfilePage() {
                   type="button"
                   variant="destructive"
                   onClick={onDelete}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isDeleting}
                 >
-                  Delete User
+                  {isDeleting ? 'Deleting...' : 'Delete User'}
                 </Button>
                 <div className="flex space-x-2">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => router.back()}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isDeleting}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button type="submit" disabled={isSubmitting || isDeleting}>
                     {isSubmitting ? 'Updating...' : 'Update User'}
                   </Button>
                 </div>
