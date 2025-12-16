@@ -60,8 +60,8 @@ export function UserManagement({ onBack }: UserManagementProps) {
               <span className="sr-only">Back</span>
             </Button>
             <div>
-              <h1 className="font-headline text-2xl font-bold tracking-tight">User Management</h1>
-              <p className="text-muted-foreground">View and manage all users.</p>
+              <h1 className="font-headline text-lg font-bold tracking-tight">User Management</h1>
+              <p className="text-xs text-muted-foreground">View and manage all users.</p>
             </div>
           </div>
           <Button asChild>
@@ -75,24 +75,24 @@ export function UserManagement({ onBack }: UserManagementProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[120px]">Employee ID</TableHead>
-                <TableHead>Display Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead className="w-[150px]">Role</TableHead>
-                <TableHead className="w-[180px]">User ID</TableHead>
+                <TableHead className="w-[120px] text-xs">Employee ID</TableHead>
+                <TableHead className="text-xs">Display Name</TableHead>
+                <TableHead className="text-xs">Email</TableHead>
+                <TableHead className="w-[150px] text-xs">Role</TableHead>
+                <TableHead className="w-[180px] text-xs">User ID</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedUsers &&
                 sortedUsers.map((user) => (
                   <TableRow key={user.id} onClick={() => handleRowClick(user.id)} className="cursor-pointer">
-                    <TableCell className="font-mono text-xs">{user.employeeId}</TableCell>
-                    <TableCell className="font-medium">{user.displayName}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-mono text-xs py-1 px-4">{user.employeeId}</TableCell>
+                    <TableCell className="font-medium text-xs py-1 px-4">{user.displayName}</TableCell>
+                    <TableCell className="text-xs py-1 px-4">{user.email}</TableCell>
+                    <TableCell className="text-xs py-1 px-4">
                       <Badge variant={user.role === 'Admin' ? 'destructive' : 'secondary'}>{user.role}</Badge>
                     </TableCell>
-                    <TableCell className="font-mono text-xs">{user.uid}</TableCell>
+                    <TableCell className="font-mono text-xs py-1 px-4">{user.uid}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
