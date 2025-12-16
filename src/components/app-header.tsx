@@ -55,7 +55,7 @@ export function AppHeader() {
 
         <div className="flex-1 text-center">
             <span className="font-headline text-lg font-bold">PHBKT-WorkFlow App</span>
-            <p className="text-xs text-muted-foreground">home page - {user?.displayName || user?.email}</p>
+            <p className="text-sm text-muted-foreground">home page - {user?.displayName || user?.email}</p>
         </div>
 
         <div className="flex items-center gap-4">
