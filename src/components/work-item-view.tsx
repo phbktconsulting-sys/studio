@@ -569,7 +569,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
               <div className="flex items-center gap-4 text-sm py-2">
                   <span className="font-medium">Assigned To:</span>
                   <span>{assignedUser?.displayName || '...'}</span>
-                  <Button variant="secondary" onClick={() => setIsVerifyingAuthority(true)} className="h-8 bg-black text-white hover:bg-black/80">
+                  <Button variant="secondary" onClick={() => setIsVerifyingAuthority(true)} className="h-7 text-xs bg-black text-white hover:bg-black/80">
                     Verify Customer Authority
                   </Button>
               </div>
