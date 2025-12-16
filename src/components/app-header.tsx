@@ -55,8 +55,7 @@ export function AppHeader() {
 
         <div className="flex w-1/3 justify-center">
            <div className="text-center">
-              <span className="font-headline text-sm font-bold">PHBKT-WorkFlow App</span>
-              <p className="text-xs text-muted-foreground">{user?.displayName || user?.email}</p>
+              <span className="font-headline text-sm font-bold">{user?.displayName} - Home Page</span>
           </div>
         </div>
 
