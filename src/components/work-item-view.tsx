@@ -15,10 +15,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
-import { collection, doc, query } from 'firebase/firestore';
+import { collection, doc, query, orderBy, limit } from 'firebase/firestore';
 import {
   Table,
   TableBody,
@@ -39,7 +39,7 @@ function NotesTab({ workItemId }: { workItemId: string }) {
 
   const notesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return collection(firestore, `work_items/${workItemId}/notes`);
+    return query(collection(firestore, `work_items/${workItemId}/notes`), orderBy('createdAt', 'desc'));
   }, [firestore, workItemId]);
 
   const { data: notes, isLoading } = useCollection<Note>(notesQuery);
@@ -100,14 +100,14 @@ function NotesTab({ workItemId }: { workItemId: string }) {
             </TableHeader>
             <TableBody>
               {isLoading && <TableRow><TableCell colSpan={3}>Loading notes...</TableCell></TableRow>}
-              {sortedNotes && sortedNotes.map((note) => (
+              {notes && notes.map((note) => (
                 <TableRow key={note.id}>
                   <TableCell className="font-medium">{note.author}</TableCell>
                   <TableCell>{note.text}</TableCell>
                   <TableCell>{format(new Date(note.createdAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
                 </TableRow>
               ))}
-              {sortedNotes.length === 0 && !isLoading && (
+              {notes && notes.length === 0 && !isLoading && (
                  <TableRow>
                     <TableCell colSpan={3} className="text-center">
                       No notes have been added yet.
@@ -446,6 +446,40 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   );
 }
 
+function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
+    const { firestore } = useFirebase();
+
+    const lastNoteQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return query(
+            collection(firestore, `work_items/${workItem.id}/notes`),
+            orderBy('createdAt', 'desc'),
+            limit(1)
+        );
+    }, [firestore, workItem.id]);
+
+    const { data: lastNoteArr } = useCollection<Note>(lastNoteQuery);
+    const lastNote = lastNoteArr?.[0];
+
+    const closingUserRef = useMemoFirebase(() => {
+        if (!firestore || !lastNote?.authorId) return null;
+        return doc(firestore, 'users', lastNote.authorId);
+    }, [firestore, lastNote?.authorId]);
+
+    const { data: closingUser } = useDoc<User>(closingUserRef);
+
+    return (
+        <div className="flex items-center gap-4 text-sm py-2">
+            <Lock className="h-5 w-5 text-destructive" />
+            <span className="font-medium">Work Item {workItem.status}:</span>
+            <span className="text-muted-foreground">
+                Action by {closingUser?.displayName || lastNote?.author || 'System'}
+            </span>
+            <Separator orientation="vertical" className="h-5" />
+            <span className="text-sm text-muted-foreground">{lastNote?.text}</span>
+        </div>
+    );
+}
 
 export function WorkItemView({ workItemId, customId }: { workItemId: string, customId: string }) {
   const { firestore } = useFirebase();
@@ -488,6 +522,8 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 
+  const isClosed = item.status === 'Closed';
+
   return (
     <div className="flex h-full flex-col bg-slate-100">
        <header className="flex flex-col gap-2 border-b bg-card p-4">
@@ -527,6 +563,8 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <Separator />
              {isVerifyingAuthority ? (
               <VerifyAuthorityForm workItem={item} onCancel={() => setIsVerifyingAuthority(false)} />
+            ) : isClosed ? (
+              <ClosedWorkItemInfo workItem={item} />
             ) : (
               <div className="flex items-center gap-4 text-sm py-2">
                   <span className="font-medium">Assigned To:</span>
@@ -555,10 +593,10 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
               <Card className="border-0 shadow-none">
                 <CardHeader>
                   <CardTitle>Overview</CardTitle>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-muted-foreground">{item.overview}</p>
-                  </CardContent>
                 </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-muted-foreground">{item.overview}</p>
+                </CardContent>
               </Card>
             </TabsContent>
 
