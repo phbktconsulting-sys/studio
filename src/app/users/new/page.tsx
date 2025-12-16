@@ -240,9 +240,14 @@ export default function NewUserPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="font-bold">Mobile Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
+                        <div className="relative">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span className="text-gray-500 sm:text-sm">+91</span>
+                          </div>
+                          <FormControl>
+                            <Input {...field} className="pl-10" />
+                          </FormControl>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
