@@ -339,7 +339,7 @@ export default function NewUserPage() {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue />
+                              <SelectValue placeholder="Select a department" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -373,7 +373,7 @@ export default function NewUserPage() {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue />
+                              <SelectValue placeholder="Select a job title" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -407,7 +407,7 @@ export default function NewUserPage() {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue />
+                              <SelectValue placeholder="Select a level" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -437,7 +437,7 @@ export default function NewUserPage() {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue />
+                              <SelectValue placeholder="Select a location" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -466,7 +466,7 @@ export default function NewUserPage() {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue />
+                              <SelectValue placeholder="Select a role" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -502,5 +502,3 @@ export default function NewUserPage() {
     </div>
   );
 }
-
-    
