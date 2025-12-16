@@ -173,7 +173,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch (selectedAction) {
       case 'resolve-complete':
         return (
-          <div className="space-y-2">
+          <div className="space-y-1">
             <div className="space-y-1">
               <Label className="font-bold text-xs">Call to customer?</Label>
               <Select onValueChange={setResolveCompleteCall} value={resolveCompleteCall}>
@@ -194,7 +194,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 're-index':
         return (
-          <div className="space-y-2">
+          <div className="space-y-1">
              <div className="space-y-1">
               <Label className="font-bold text-xs">Please select the correct Re-index option</Label>
               <RadioGroup value={reindexOption} onValueChange={setReindexOption}>
@@ -241,7 +241,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'terminate':
         return (
-          <div className="space-y-2">
+          <div className="space-y-1">
             <div className="space-y-1">
               <Label className="font-bold text-xs">Reason</Label>
               <Select onValueChange={setTerminateReason} value={terminateReason}>
@@ -263,7 +263,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'resolve-close':
          return (
-          <div className="space-y-2">
+          <div className="space-y-1">
             <div className="space-y-1">
               <Label className="font-bold text-xs">Customer request resolved?</Label>
               <Select onValueChange={setResolveCloseResolved} value={resolveCloseResolved}>
@@ -284,7 +284,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'transfer':
         return (
-          <div className="space-y-2">
+          <div className="space-y-1">
             <div className="space-y-1">
               <Label className="font-bold text-xs">Transfer to User</Label>
               <Select onValueChange={setTransferToUser} value={transferToUser}>
@@ -306,7 +306,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'pend':
         return (
-          <div className="space-y-2">
+          <div className="space-y-1">
             <div className="space-y-1">
                 <Label className="font-bold text-xs">Pend until date</Label>
                 <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
@@ -336,13 +336,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   };
 
   return (
-    <Card className="my-4 border-primary border-2">
+    <Card className="my-1 border-primary border-2">
       <CardHeader>
         <CardTitle className="text-base font-bold">Verify Customer Authority - Action</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 py-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 py-1">
             <div className="space-y-1">
               <Label className="font-bold text-xs">Action</Label>
               <Select onValueChange={(value) => setSelectedAction(value as string)}>
@@ -374,11 +374,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
           </div>
 
-            {selectedAction && <Separator className='my-2' />}
+            {selectedAction && <Separator className='my-1' />}
 
-            {renderActionForm()}
+            <div className='py-1'>
+              {renderActionForm()}
+            </div>
             
-          <div className="flex justify-end gap-1 mt-2">
+          <div className="flex justify-end gap-1 mt-1">
             <Button type="button" variant="secondary" onClick={onCancel}>
               Cancel
             </Button>
