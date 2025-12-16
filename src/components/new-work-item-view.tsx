@@ -54,7 +54,8 @@ const initialTaskOptions = [
 
 export function NewWorkItemView() {
   const { user } = useFirebase();
-  const { toast } = useTabs();
+  const { openTab, closeTab } = useTabs();
+  const { toast } = useToast();
 
   const form = useForm<WorkItemFormValues>({
     resolver: zodResolver(WorkItemCreateSchema),
@@ -147,7 +148,7 @@ export function NewWorkItemView() {
         </CardHeader>
         <CardContent>
            <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                  <FormField
                   control={form.control}
@@ -336,5 +337,3 @@ export function NewWorkItemView() {
     </div>
   );
 }
-
-    
