@@ -313,7 +313,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   ];
 
   return (
-    <Card className="mt-4 border-primary border-2">
+    <Card className="mt-4 border-primary border">
       <CardHeader className="p-2 bg-slate-100 flex-row items-center">
         <CardTitle className="text-xs font-bold uppercase pr-2">
           {selectedAction ? getActionDisplayName(selectedAction) + ' OR' : 'Action'}
@@ -581,7 +581,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    
-
-    
