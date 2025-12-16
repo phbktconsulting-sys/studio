@@ -43,9 +43,7 @@ interface NewUserDialogProps {
 export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [nextEmployeeId, setNextEmployeeId] = useState<string>(
-    'Loading...'
-  );
+  const [nextEmployeeId, setNextEmployeeId] = useState<string>('Loading...');
 
   useEffect(() => {
     async function fetchNextId() {
@@ -142,12 +140,31 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <ScrollArea className="h-[60vh] pr-6">
               <div className="space-y-4">
-                <FormItem>
-                  <FormLabel>Employee ID</FormLabel>
-                  <FormControl>
-                    <Input readOnly disabled value={nextEmployeeId} />
-                  </FormControl>
-                </FormItem>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <FormItem>
+                    <FormLabel>Employee ID</FormLabel>
+                    <FormControl>
+                      <Input readOnly disabled value={nextEmployeeId} />
+                    </FormControl>
+                  </FormItem>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="user@example.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormField
@@ -192,24 +209,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="user@example.com"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
+                   <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
@@ -226,9 +226,21 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="mobileNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mobile Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., 9876543210" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="dob"
@@ -245,24 +257,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="mobileNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Mobile Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., 9876543210" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
+                   <FormField
                     control={form.control}
                     name="department"
                     render={({ field }) => (
@@ -296,6 +291,10 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                 
                   <FormField
                     control={form.control}
                     name="jobTitle"
@@ -330,10 +329,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
+                   <FormField
                     control={form.control}
                     name="level"
                     render={({ field }) => (
@@ -363,6 +359,10 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                 
                   <FormField
                     control={form.control}
                     name="workLocation"
@@ -392,9 +392,6 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="company"
@@ -408,7 +405,9 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                </div>
 
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="aadharNumber"
@@ -422,9 +421,6 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="panNumber"
@@ -438,31 +434,32 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Role</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a role" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="User">User</SelectItem>
-                            <SelectItem value="Admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="User">User</SelectItem>
+                          <SelectItem value="Admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </ScrollArea>
             <div className="flex justify-end space-x-2 pt-4">
