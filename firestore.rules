@@ -78,11 +78,12 @@ service cloud.firestore {
     /**
      * @description Rules for the work_items collection.
      * @path /work_items
-     * @allow Any signed-in user to query (list) the collection. Individual document reads are protected by the `get` rule below.
+     * @allow An admin to list all documents.
+     * @allow Any signed-in user to query the collection only if they are querying for items assigned to themselves.
      * @allow A signed-in user to create a work item if they are the one it's assigned to.
      */
     match /work_items/{workitemId} {
-      allow list: if isSignedIn();
+      allow list: if isAdmin() || (isSignedIn() && request.query.resource.data.assignedTo == request.auth.uid);
       allow create: if isSignedIn() && request.resource.data.assignedTo == request.auth.uid;
       
       /**
