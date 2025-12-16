@@ -173,7 +173,7 @@ export default function NewUserPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border p-4">
+              <div className="rounded-lg border-[2px] border-[#C00025] p-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormField
                     control={form.control}
