@@ -99,9 +99,13 @@ export function MyWorkDashboard() {
 
   return (
     <div className="p-4 sm:p-6">
-      <h1 className="font-headline text-2xl font-bold tracking-tight">My Work</h1>
-      <p className="mb-6 text-muted-foreground">Work items assigned to you.</p>
-      <div className="rounded-lg border bg-card">
+       <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-headline text-lg font-bold tracking-tight">My Work</h1>
+          <p className="text-xs text-muted-foreground">Work items assigned to you.</p>
+        </div>
+      </div>
+      <div className="mt-6 rounded-lg border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
