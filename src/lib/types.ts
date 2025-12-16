@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export interface User {
@@ -93,7 +92,6 @@ export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
 
 
 export const WorkItemCreateSchema = z.object({
-  subject: z.string().min(5, 'Subject must be at least 5 characters.'),
   process: z.enum(['Request Information', 'Request Quotation', 'Request Application', 'Request Website', 'Request inquiry', 'Request Backend Support', 'Request Other']),
   customerName: z.string().min(2, 'Customer name is required.'),
   customerEmail: z.string().email('Invalid email address.'),
@@ -104,7 +102,6 @@ export const WorkItemCreateSchema = z.object({
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 
 export const ServerWorkItemCreateSchema = z.object({
-  subject: z.string(),
   process: z.string(),
   urgency: z.enum(['Low', 'Medium', 'High']),
   assignedTo: z.string(),

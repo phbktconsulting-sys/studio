@@ -122,6 +122,7 @@ const createWorkItemFlow = ai.defineFlow(
           status: 'Open',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          subject: `${payload.process} for ${payload.relatedContact.name}` // Auto-generate subject
         };
 
         transaction.set(newWorkItemRef, newWorkItemData);

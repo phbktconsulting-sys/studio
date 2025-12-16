@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -45,7 +46,6 @@ export function NewWorkItemView() {
   const form = useForm<WorkItemFormValues>({
     resolver: zodResolver(WorkItemCreateSchema),
     defaultValues: {
-      subject: '',
       process: 'Request Information',
       customerName: '',
       customerEmail: '',
@@ -67,7 +67,6 @@ export function NewWorkItemView() {
 
     try {
       const payload = {
-        subject: data.subject,
         process: data.process,
         urgency: data.urgency,
         assignedTo: user.uid,
@@ -126,20 +125,6 @@ export function NewWorkItemView() {
         <CardContent className="p-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="subject"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Fix leaking faucet" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                  <FormField
                   control={form.control}
@@ -274,5 +259,3 @@ export function NewWorkItemView() {
     </div>
   );
 }
-
-    
