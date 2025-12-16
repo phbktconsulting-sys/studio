@@ -412,18 +412,26 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
 
     const { data: authorUser } = useDoc<User>(authorUserRef);
     
-    let noteText = lastNote?.text || '';
-    if (lastNote?.category === 'Terminated' && noteText.startsWith('Reason: ')) {
-        noteText = `Work Item Terminated. ${noteText}`;
+    let statusText = '';
+    if (lastNote) {
+        if (lastNote.category === 'Terminated') {
+            statusText = `Work Item Terminated. Reason: ${lastNote.text.split('. ')[0].replace('Reason: ', '')}`;
+        } else if (lastNote.category === 'Resolved/Completed' || lastNote.category === 'Resolved/Close') {
+            statusText = `Work Item Closed. Reason: ${lastNote.text.split('. ')[0]}`;
+        } else {
+            statusText = `Work Item Closed.`;
+        }
     }
+
 
     return (
         <div className="flex items-center gap-4 text-sm py-2">
             <Lock className="h-5 w-5 text-destructive" />
             <span className="font-medium">Work Item Closed:</span>
+            <Separator orientation="vertical" className="h-4" />
             <span className="text-muted-foreground">Action by {authorUser?.displayName || lastNote?.author || '...'}</span>
             <Separator orientation="vertical" className="h-4" />
-            <span className="text-muted-foreground">{noteText}</span>
+            <span className="text-muted-foreground">{statusText}</span>
         </div>
     );
 }
