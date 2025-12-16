@@ -138,13 +138,13 @@ export function NewWorkItemView() {
           <span className="sr-only">Back</span>
         </Button>
         <div>
-          <h1 className="font-headline text-lg font-bold tracking-tight">Create New Work Item</h1>
+          <h1 className="font-headline text-base font-bold tracking-tight">Create New Work Item</h1>
           <p className="text-xs text-muted-foreground">Fill out the details below to create a new work item.</p>
         </div>
       </div>
        <Card>
         <CardHeader>
-           <CardTitle className="text-base">Work Item Details</CardTitle>
+           <CardTitle className="text-sm">Work Item Details</CardTitle>
         </CardHeader>
         <CardContent>
            <Form {...form}>
