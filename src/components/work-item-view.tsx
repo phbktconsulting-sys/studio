@@ -2,12 +2,6 @@
 
 import { useMemo, useState } from 'react';
 import type { Note, Task, WorkItem, User } from '@/lib/types';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -23,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, query } from 'firebase/firestore';
 import {
   Table,
   TableBody,
@@ -32,8 +26,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Dialog, DialogTrigger } from './ui/dialog';
-import { VerifyAuthorityDialog } from './verify-authority-dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { CustomCalendar } from './custom-calendar';
 
 function NotesTab({ workItemId }: { workItemId: string }) {
   const { firestore, user } = useFirebase();
@@ -146,26 +142,226 @@ function TasksTab({ tasks }: { tasks: Task[] }) {
   );
 }
 
-function StatusBadge({ status }: { status: WorkItem['status'] }) {
-  const colorClass =
-    status === 'Open'
-      ? 'bg-blue-500 hover:bg-blue-600'
-      : status === 'In Progress'
-      ? 'bg-yellow-500 hover:bg-yellow-600'
-      : status === 'Pending'
-      ? 'bg-orange-500 hover:bg-orange-600'
-      : 'bg-gray-500 hover:bg-gray-600';
+function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
+  const { firestore } = useFirebase();
+  const [selectedAction, setSelectedAction] = useState<string>('');
+  
+  const usersQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'users'));
+  }, [firestore]);
+
+  const { data: users } = useCollection<User>(usersQuery);
+
+  const renderActionForm = () => {
+    switch (selectedAction) {
+      case 'resolve-complete':
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Call to customer?</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="yes">Yes</SelectItem>
+                  <SelectItem value="no">No</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes-resolve-complete">Notes</Label>
+              <Textarea id="notes-resolve-complete" placeholder="Add notes..." />
+            </div>
+          </div>
+        );
+      case 're-index':
+        return (
+          <div className="space-y-4">
+             <div className="space-y-2">
+              <Label>Please select the correct Re-index option</Label>
+              <RadioGroup defaultValue="myself">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="myself" id="reindex-myself" />
+                  <Label htmlFor="reindex-myself">Re-index case myself</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="initial" id="reindex-initial" />
+                  <Label htmlFor="reindex-initial">Return to initial Indexing</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label>Reason</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select reason..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="wrong-process">Wrong Process</SelectItem>
+                  <SelectItem value="incorrect-data">Incorrect Data</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+                <Label>Do you want to copy the notes to the new case?</Label>
+                 <RadioGroup defaultValue="yes">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="copy-yes" />
+                        <Label htmlFor="copy-yes">Yes</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="copy-no" />
+                        <Label htmlFor="copy-no">No</Label>
+                    </div>
+                </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes-re-index">Note</Label>
+              <Textarea id="notes-re-index" placeholder="Add notes..." />
+            </div>
+          </div>
+        );
+      case 'terminate':
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Reason</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select reason..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="customer-request">Customer Request</SelectItem>
+                  <SelectItem value="fraud">Potential Fraud</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes-terminate">Notes</Label>
+              <Textarea id="notes-terminate" placeholder="Add notes..." />
+            </div>
+          </div>
+        );
+      case 'resolve-close':
+         return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Customer request resolved?</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="yes">Yes</SelectItem>
+                  <SelectItem value="no">No</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes-resolve-close">Notes</Label>
+              <Textarea id="notes-resolve-close" placeholder="Add notes..." />
+            </div>
+          </div>
+        );
+      case 'transfer':
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Transfer to User</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select user..." />
+                </SelectTrigger>
+                <SelectContent>
+                   {users?.map(user => (
+                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes-transfer">Notes</Label>
+              <Textarea id="notes-transfer" placeholder="Add notes..." />
+            </div>
+          </div>
+        );
+      case 'pend':
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+                <Label>Pend until date</Label>
+                <CustomCalendar onChange={() => {}} />
+            </div>
+            <div className="space-y-2">
+              <Label>Reason for pend</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select reason..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="info-needed">Information Needed</SelectItem>
+                  <SelectItem value="customer-unavailable">Customer Unavailable</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes-pend">Notes</Label>
+              <Textarea id="notes-pend" placeholder="Add notes..." />
+            </div>
+          </div>
+        );
+      default:
+        return <p className='text-center text-muted-foreground'>Please select an action to continue.</p>;
+    }
+  };
 
   return (
-    <Badge variant="default" className={`border-transparent text-primary-foreground ${colorClass}`}>
-      {status}
-    </Badge>
+    <Card className="my-4 border-primary border-2">
+      <CardHeader>
+        <CardTitle>Verify Customer Authority - Action</CardTitle>
+      </CardHeader>
+      <CardContent>
+         <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label>Action</Label>
+            <Select onValueChange={(value) => setSelectedAction(value as string)}>
+              <SelectTrigger>
+                <SelectValue placeholder="--Select a different action--" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="resolve-complete">Resolve Complete</SelectItem>
+                <SelectItem value="re-index">Re-Index</SelectItem>
+                <SelectItem value="terminate">Terminate</SelectItem>
+                <SelectItem value="resolve-close">Resolve Close</SelectItem>
+                <SelectItem value="transfer">Transfer to Another User</SelectItem>
+                <SelectItem value="pend">Pend Work</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedAction && <Separator className='my-4' />}
+
+          {renderActionForm()}
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={!selectedAction}>Submit</Button>
+        </div>
+      </CardContent>
+    </Card>
   );
-};
+}
 
 
 export function WorkItemView({ workItemId, customId }: { workItemId: string, customId: string }) {
   const { firestore } = useFirebase();
+  const [isVerifyingAuthority, setIsVerifyingAuthority] = useState(false);
 
   const workItemRef = useMemoFirebase(() => {
       if (!firestore) return null;
@@ -183,7 +379,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
 
   const isLoading = isWorkItemLoading || isUserLoading;
 
-  const priorityMap = {
+  const priorityMap: { [key in WorkItem['urgency']]: number } = {
     High: 1,
     Medium: 5,
     Low: 10,
@@ -241,16 +437,17 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
          <div className="mb-4 space-y-2">
             <h2 className="text-lg font-semibold">Processes</h2>
             <Separator />
-            <div className="flex items-center gap-4 text-sm">
-                <span className="font-medium">Assigned To:</span>
-                <span>{assignedUser?.displayName || '...'}</span>
-                 <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="secondary" size="sm">Verify Customer Authority</Button>
-                  </DialogTrigger>
-                  <VerifyAuthorityDialog />
-                </Dialog>
-            </div>
+             {isVerifyingAuthority ? (
+              <VerifyAuthorityForm onCancel={() => setIsVerifyingAuthority(false)} />
+            ) : (
+              <div className="flex items-center gap-4 text-sm">
+                  <span className="font-medium">Assigned To:</span>
+                  <span>{assignedUser?.displayName || '...'}</span>
+                  <Button variant="secondary" size="sm" onClick={() => setIsVerifyingAuthority(true)}>
+                    Verify Customer Authority
+                  </Button>
+              </div>
+            )}
          </div>
         
         <Tabs defaultValue="overview" className="w-full">
