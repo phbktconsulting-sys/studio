@@ -233,8 +233,8 @@ export default function NewUserPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 mt-4">
-                   <FormField
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-4 mt-4">
+                  <FormField
                     control={form.control}
                     name="mobileNumber"
                     render={({ field }) => (
@@ -247,9 +247,6 @@ export default function NewUserPage() {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
                   <FormField
                     control={form.control}
                     name="aadharNumber"
@@ -272,6 +269,37 @@ export default function NewUserPage() {
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold">Password</FormLabel>
+                          <div className="relative">
+                              <FormControl>
+                              <Input
+                                  type={showPassword ? 'text' : 'password'}
+                                  {...field}
+                              />
+                              </FormControl>
+                              <Button
+                              variant="ghost"
+                              type="button"
+                              size="icon"
+                              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
+                              onClick={() => setShowPassword(!showPassword)}
+                              >
+                              {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                              ) : (
+                                  <Eye className="h-4 w-4" />
+                              )}
+                              </Button>
+                          </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -380,7 +408,7 @@ export default function NewUserPage() {
                     )}
                   />
                   </div>
-                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="workLocation"
@@ -434,37 +462,6 @@ export default function NewUserPage() {
                       </FormItem>
                     )}
                   />
-                   <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="font-bold">Password</FormLabel>
-                            <div className="relative">
-                                <FormControl>
-                                <Input
-                                    type={showPassword ? 'text' : 'password'}
-                                    {...field}
-                                />
-                                </FormControl>
-                                <Button
-                                variant="ghost"
-                                type="button"
-                                size="icon"
-                                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
-                                onClick={() => setShowPassword(!showPassword)}
-                                >
-                                {showPassword ? (
-                                    <EyeOff className="h-4 w-4" />
-                                ) : (
-                                    <Eye className="h-4 w-4" />
-                                )}
-                                </Button>
-                            </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                 </div>
               </div>
 
