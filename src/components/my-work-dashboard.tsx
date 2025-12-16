@@ -70,7 +70,7 @@ export function MyWorkDashboard() {
   const { openTab } = useTabs();
   
   const [statusFilter, setStatusFilter] = useState<string>('Open');
-  const [processFilter, setProcessFilter] = useState<string>('');
+  const [processFilter, setProcessFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<Date | undefined>();
 
   // Query for items assigned to the user
@@ -110,10 +110,10 @@ export function MyWorkDashboard() {
   const filteredAndSortedWorkItems = useMemo(() => {
     let filtered = workItems;
 
-    if (statusFilter) {
+    if (statusFilter && statusFilter !== 'all') {
       filtered = filtered.filter((item) => item.status === statusFilter);
     }
-    if (processFilter) {
+    if (processFilter && processFilter !== 'all') {
       filtered = filtered.filter((item) => item.process === processFilter);
     }
     if (dateFilter) {
@@ -127,7 +127,7 @@ export function MyWorkDashboard() {
   
   const clearFilters = () => {
     setStatusFilter('Open');
-    setProcessFilter('');
+    setProcessFilter('all');
     setDateFilter(undefined);
   }
 
@@ -154,7 +154,7 @@ export function MyWorkDashboard() {
             <SelectValue placeholder="Filter by Status" />
           </SelectTrigger>
           <SelectContent>
-             <SelectItem value="">All Statuses</SelectItem>
+             <SelectItem value="all">All Statuses</SelectItem>
              {statusTypes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -164,7 +164,7 @@ export function MyWorkDashboard() {
             <SelectValue placeholder="Filter by Process" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Processes</SelectItem>
+            <SelectItem value="all">All Processes</SelectItem>
             {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -224,4 +224,5 @@ export function MyWorkDashboard() {
       </div>
     </div>
   );
-}
+
+    
