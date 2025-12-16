@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A server-side flow for securely creating a Work Item.
@@ -8,7 +9,6 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
 import type { App } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import {
@@ -18,7 +18,7 @@ import {
   ServiceAccount,
 } from 'firebase-admin/app';
 import {
-  WorkItemCreateSchema,
+  ServerWorkItemCreateSchema,
   WorkItemCreateResponseSchema,
   type WorkItemCreateResponse,
 } from '@/lib/types';
@@ -82,7 +82,7 @@ export async function createWorkItem(
 const createWorkItemFlow = ai.defineFlow(
   {
     name: 'createWorkItemFlow',
-    inputSchema: WorkItemCreateSchema,
+    inputSchema: ServerWorkItemCreateSchema,
     outputSchema: WorkItemCreateResponseSchema,
   },
   async (payload) => {
@@ -128,13 +128,17 @@ const createWorkItemFlow = ai.defineFlow(
 
         return newWorkItemRef;
       });
+      
+      const newWorkItem = (await docRef.get()).data();
+      if (!newWorkItem) {
+        throw new Error('Failed to retrieve the newly created work item.');
+      }
 
-      return { id: docRef.id, customId: `${prefix}-${(await docRef.get()).data()!.customId.split('-')[1]}` };
+
+      return { id: docRef.id, customId: newWorkItem.customId };
     } catch (error: any) {
       console.error('Error creating work item:', error);
       return { error: error.message || 'An unexpected error occurred.' };
     }
   }
 );
-
-    

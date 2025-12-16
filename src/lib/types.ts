@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export interface User {
@@ -102,11 +103,24 @@ export const WorkItemCreateSchema = z.object({
 });
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 
+export const ServerWorkItemCreateSchema = z.object({
+  subject: z.string(),
+  process: z.string(),
+  urgency: z.enum(['Low', 'Medium', 'High']),
+  assignedTo: z.string(),
+  createdBy: z.string(),
+  relatedContact: z.object({
+    name: z.string(),
+    email: z.string(),
+    phone: z.string(),
+  }),
+  overview: z.string(),
+  tasks: z.array(z.any()),
+});
+
 export const WorkItemCreateResponseSchema = z.object({
   id: z.string().optional(),
   customId: z.string().optional(),
   error: z.string().optional(),
 });
 export type WorkItemCreateResponse = z.infer<typeof WorkItemCreateResponseSchema>;
-
-    
