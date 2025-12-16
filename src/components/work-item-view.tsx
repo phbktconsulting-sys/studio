@@ -63,7 +63,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [selectedAction, setSelectedAction] = useState<string>('resolve-complete');
   
   // Form field states
-  const [resolveCompleteCall, setResolveCompleteCall] = useState('');
+  const [resolveCompleteStatus, setResolveCompleteStatus] = useState('');
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
   const [resolveCompleteTask, setResolveCompleteTask] = useState('');
   const [resolveCompleteTaskCompleted, setResolveCompleteTaskCompleted] = useState('');
@@ -115,7 +115,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch(selectedAction) {
       case 'resolve-complete':
         category = 'Resolved/Completed';
-        noteText = `Call to customer: ${resolveCompleteCall}. Task: ${resolveCompleteTask} (Completed: ${resolveCompleteTaskCompleted}). ${resolveCompleteNotes}`;
+        noteText = `Resolve Complete: ${resolveCompleteStatus}. Task: ${resolveCompleteTask} (Completed: ${resolveCompleteTaskCompleted}). ${resolveCompleteNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 're-index':
@@ -174,8 +174,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
-            <Label className="text-xs font-normal text-right">Call to customer?</Label>
-            <Select onValueChange={setResolveCompleteCall} value={resolveCompleteCall}>
+            <Label className="text-xs font-normal text-right">Resolve Complete</Label>
+            <Select onValueChange={setResolveCompleteStatus} value={resolveCompleteStatus}>
               <SelectTrigger className="text-xs h-6">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
@@ -340,7 +340,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   return (
     <form onSubmit={handleSubmit}>
-      <Card className="mt-2 border-primary border">
+      <Card className="mt-2 border-primary">
         <CardHeader className="p-2 bg-slate-100 flex-row items-center">
           <CardTitle className="text-xs font-bold uppercase pr-2">
             {getActionDisplayName(selectedAction)}
@@ -500,7 +500,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
-         <div className="my-4">
+         <div className="my-4 mb-8">
             <h2 className="text-base font-semibold">Processes</h2>
             <Separator className="bg-[#A60A0A] h-[2px] mb-1" />
              {isVerifyingAuthority ? (
