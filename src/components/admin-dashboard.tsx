@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AllWorkItems } from './all-work-items';
 import { UserManagement } from './user-management';
-import { List, Users } from 'lucide-react';
+import { AnalyticsDashboard } from './analytics-dashboard';
+import { List, Users, BarChart2 } from 'lucide-react';
 
-type AdminView = 'menu' | 'work-items' | 'users';
+type AdminView = 'menu' | 'work-items' | 'users' | 'dashboard';
 
 export function AdminDashboard() {
   const [view, setView] = useState<AdminView>('menu');
@@ -19,6 +20,10 @@ export function AdminDashboard() {
     return <UserManagement onBack={() => setView('menu')} />;
   }
 
+  if (view === 'dashboard') {
+    return <AnalyticsDashboard onBack={() => setView('menu')} />;
+  }
+
   return (
     <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between">
@@ -29,6 +34,12 @@ export function AdminDashboard() {
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+         <CardButton
+          title="Analytics Dashboard"
+          description="View charts and graphs for work item progress."
+          icon={<BarChart2 className="h-6 w-6" />}
+          onClick={() => setView('dashboard')}
+        />
         <CardButton
           title="Manage Work Items"
           description="View and manage all work items across the system."
