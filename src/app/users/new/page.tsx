@@ -30,6 +30,7 @@ import { CustomCalendar } from '@/components/custom-calendar';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 export default function NewUserPage() {
   const { toast } = useToast();
@@ -131,14 +132,17 @@ export default function NewUserPage() {
       <Card>
         <CardContent className="p-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               
-              <div className="rounded-lg border border-black p-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              {/* Official Details Section */}
+              <div className="space-y-4">
+                 <h2 className="text-lg font-semibold text-primary">Official Details</h2>
+                 <Separator />
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
                   <FormItem>
                     <FormLabel className="font-bold">Employee ID</FormLabel>
                     <FormControl>
-                      <Input readOnly disabled value={nextEmployeeId} />
+                      <Input readOnly disabled value={nextEmployeeId} className="bg-muted/50" />
                     </FormControl>
                   </FormItem>
                   <FormField
@@ -151,7 +155,9 @@ export default function NewUserPage() {
                           <Input
                             type="email"
                             {...field}
+                            readOnly
                             disabled
+                            className="bg-muted/50"
                           />
                         </FormControl>
                         <FormMessage />
@@ -165,7 +171,7 @@ export default function NewUserPage() {
                       <FormItem>
                         <FormLabel className="font-bold">Company</FormLabel>
                         <FormControl>
-                          <Input {...field} disabled />
+                          <Input {...field} disabled className="bg-muted/50" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -174,8 +180,12 @@ export default function NewUserPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-black p-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+
+              {/* Personal Information Section */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-primary">Personal Information</h2>
+                <Separator />
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
                   <FormField
                     control={form.control}
                     name="firstName"
@@ -194,9 +204,9 @@ export default function NewUserPage() {
                     name="middleName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="font-bold">Middle Name (Optional)</FormLabel>
+                        <FormLabel className="font-bold">Middle Name</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} placeholder="Optional" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -233,7 +243,7 @@ export default function NewUserPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-4 mt-4">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
                   <FormField
                     control={form.control}
                     name="mobileNumber"
@@ -312,8 +322,11 @@ export default function NewUserPage() {
                 </div>
               </div>
 
-               <div className="rounded-lg border border-black p-4">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+              {/* Employment Details Section */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-primary">Employment Details</h2>
+                <Separator />
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-5">
                    <FormField
                     control={form.control}
                     name="department"
@@ -353,7 +366,7 @@ export default function NewUserPage() {
                     name="jobTitle"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="font-bold">Job Title / Position</FormLabel>
+                        <FormLabel className="font-bold">Job Title</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -489,3 +502,5 @@ export default function NewUserPage() {
     </div>
   );
 }
+
+    
