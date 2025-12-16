@@ -124,3 +124,14 @@ export const WorkItemCreateResponseSchema = z.object({
   error: z.string().optional(),
 });
 export type WorkItemCreateResponse = z.infer<typeof WorkItemCreateResponseSchema>;
+
+export const DeleteWorkItemInputSchema = z.object({
+  id: z.string().min(1, { message: 'Work Item ID is required' }),
+});
+export type DeleteWorkItemInput = z.infer<typeof DeleteWorkItemInputSchema>;
+
+export const DeleteWorkItemOutputSchema = z.object({
+  success: z.boolean(),
+  error: z.string().optional(),
+});
+export type DeleteWorkItemOutput = z.infer<typeof DeleteWorkItemOutputSchema>;
