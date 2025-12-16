@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { AllWorkItems } from './all-work-items';
 import { UserManagement } from './user-management';
 import { List, Users, FileText } from 'lucide-react';
-import { OfferManagement } from './offer-management';
 
-type AdminView = 'menu' | 'work-items' | 'users' | 'offers';
+type AdminView = 'menu' | 'work-items' | 'users';
 
 export function AdminDashboard() {
   const [view, setView] = useState<AdminView>('menu');
@@ -18,10 +17,6 @@ export function AdminDashboard() {
 
   if (view === 'users') {
     return <UserManagement onBack={() => setView('menu')} />;
-  }
-
-  if (view === 'offers') {
-    return <OfferManagement onBack={() => setView('menu')} />;
   }
 
   return (
@@ -45,12 +40,6 @@ export function AdminDashboard() {
           description="View, create, and manage user accounts and roles."
           icon={<Users className="h-8 w-8" />}
           onClick={() => setView('users')}
-        />
-        <CardButton
-          title="Generate Offer Letters"
-          description="Create and manage offer letters for new employees."
-          icon={<FileText className="h-8 w-8" />}
-          onClick={() => setView('offers')}
         />
       </div>
     </div>
