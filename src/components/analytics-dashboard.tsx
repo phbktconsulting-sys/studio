@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { collection, query, where, Timestamp } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
@@ -34,9 +34,22 @@ interface AnalyticsDashboardProps {
   onBack: () => void;
 }
 
+const processTypes = [
+  'Request Information',
+  'Request Quotation',
+  'Request Application',
+  'Request Website',
+  'Request inquiry',
+  'Request Backend Support',
+  'Request Other',
+];
+
 export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
   const { firestore } = useFirebase();
   const [timeRange, setTimeRange] = useState(30);
+  const [processFilter, setProcessFilter] = useState('all');
+  const [userFilter, setUserFilter] = useState('all');
+
 
   // --- Data Fetching ---
   const dateFilter = useMemo(() => subDays(new Date(), timeRange), [timeRange]);
@@ -59,6 +72,16 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
 
   const isLoading = workItemsLoading || usersLoading;
 
+  // Apply process and user filters
+  const filteredWorkItems = useMemo(() => {
+    if (!workItems) return [];
+    return workItems.filter(item => {
+      const processMatch = processFilter === 'all' || item.process === processFilter;
+      const userMatch = userFilter === 'all' || item.assignedTo === userFilter;
+      return processMatch && userMatch;
+    });
+  }, [workItems, processFilter, userFilter]);
+
   // --- Data Processing for Charts ---
   const usersMap = useMemo(() => {
     if (!users) return new Map<string, string>();
@@ -66,48 +89,48 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
   }, [users]);
   
   const statusChartData = useMemo(() => {
-    if (!workItems) return [];
+    if (!filteredWorkItems) return [];
     const counts: { [key: string]: number } = {};
-    workItems.forEach((item) => {
+    filteredWorkItems.forEach((item) => {
       counts[item.status] = (counts[item.status] || 0) + 1;
     });
     return Object.entries(counts).map(([status, count]) => ({ status, count }));
-  }, [workItems]);
+  }, [filteredWorkItems]);
 
   const dailyChartData = useMemo(() => {
-    if (!workItems) return [];
+    if (!filteredWorkItems) return [];
     const dailyCounts: { [key: string]: number } = {};
     for (let i = 0; i < timeRange; i++) {
       const date = subDays(new Date(), i);
       dailyCounts[format(date, 'MMM d')] = 0;
     }
-    workItems.forEach((item) => {
+    filteredWorkItems.forEach((item) => {
       const formattedDate = format(new Date(item.createdAt), 'MMM d');
       if (dailyCounts[formattedDate] !== undefined) {
         dailyCounts[formattedDate]++;
       }
     });
     return Object.entries(dailyCounts).map(([date, count]) => ({ date, count })).reverse();
-  }, [workItems, timeRange]);
+  }, [filteredWorkItems, timeRange]);
   
   const assigneeChartData = useMemo(() => {
-    if (!workItems || !usersMap.size) return [];
+    if (!filteredWorkItems || !usersMap.size) return [];
     const counts: { [key: string]: number } = {};
-    workItems.forEach((item) => {
+    filteredWorkItems.forEach((item) => {
       const assigneeName = usersMap.get(item.assignedTo) || 'Unassigned';
       counts[assigneeName] = (counts[assigneeName] || 0) + 1;
     });
     return Object.entries(counts).map(([assignee, count]) => ({ assignee, count }));
-  }, [workItems, usersMap]);
+  }, [filteredWorkItems, usersMap]);
 
   const processChartData = useMemo(() => {
-    if (!workItems) return [];
+    if (!filteredWorkItems) return [];
     const counts: { [key: string]: number } = {};
-    workItems.forEach((item) => {
+    filteredWorkItems.forEach((item) => {
         counts[item.process] = (counts[item.process] || 0) + 1;
     });
     return Object.entries(counts).map(([process, count]) => ({ process, count }));
-  }, [workItems]);
+  }, [filteredWorkItems]);
 
 
   const chartConfig = {
@@ -125,7 +148,7 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
@@ -136,24 +159,48 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
             <p className="text-xs text-muted-foreground">Overview of work item activity.</p>
           </div>
         </div>
-        <Select value={String(timeRange)} onValueChange={(val) => setTimeRange(Number(val))}>
-          <SelectTrigger className="w-[180px] h-8 text-xs">
-            <SelectValue placeholder="Select time range" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7">Last 7 Days</SelectItem>
-            <SelectItem value="30">Last 30 Days</SelectItem>
-            <SelectItem value="90">Last 90 Days</SelectItem>
-            <SelectItem value="365">Last 365 Days</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap items-center gap-2">
+            <Select value={userFilter} onValueChange={setUserFilter}>
+            <SelectTrigger className="w-full sm:w-[180px] h-8 text-xs">
+                <SelectValue placeholder="Filter by User" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">All Users</SelectItem>
+                {users?.map(user => (
+                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                ))}
+            </SelectContent>
+            </Select>
+
+            <Select value={processFilter} onValueChange={setProcessFilter}>
+            <SelectTrigger className="w-full sm:w-[180px] h-8 text-xs">
+                <SelectValue placeholder="Filter by Process" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">All Processes</SelectItem>
+                {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+            </SelectContent>
+            </Select>
+            
+            <Select value={String(timeRange)} onValueChange={(val) => setTimeRange(Number(val))}>
+            <SelectTrigger className="w-full sm:w-[180px] h-8 text-xs">
+                <SelectValue placeholder="Select time range" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="7">Last 7 Days</SelectItem>
+                <SelectItem value="30">Last 30 Days</SelectItem>
+                <SelectItem value="90">Last 90 Days</SelectItem>
+                <SelectItem value="365">Last 365 Days</SelectItem>
+            </SelectContent>
+            </Select>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Work Items by Assignee</CardTitle>
-            <CardDescription className="text-xs">Work items assigned to each user in the last {timeRange} days.</CardDescription>
+            <CardDescription className="text-xs">Work items assigned to each user.</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
@@ -182,7 +229,7 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Daily Created Work Items</CardTitle>
-            <CardDescription className="text-xs">Trend of new work items created over the last {timeRange} days.</CardDescription>
+            <CardDescription className="text-xs">Trend of new work items created.</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={{ count: { label: 'Created Items', color: 'hsl(var(--accent))'}}} className="min-h-[250px] w-full">
@@ -200,7 +247,7 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Work Items by Status</CardTitle>
-            <CardDescription className="text-xs">Distribution of work items by status in the last {timeRange} days.</CardDescription>
+            <CardDescription className="text-xs">Distribution of work items by status.</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={{count: {color: 'hsl(var(--chart-2))'}}} className="min-h-[250px] w-full">
@@ -218,7 +265,7 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Work Items by Process</CardTitle>
-            <CardDescription className="text-xs">Distribution of work items by process in the last {timeRange} days.</CardDescription>
+            <CardDescription className="text-xs">Distribution of work items by process.</CardDescription>
           </CardHeader>
           <CardContent>
              <ChartContainer config={{count: {color: 'hsl(var(--chart-4))'}}} className="min-h-[250px] w-full">
