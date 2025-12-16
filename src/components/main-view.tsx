@@ -45,9 +45,9 @@ export function MainView() {
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="relative h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-4 text-xs text-white hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none"
+                  className="relative flex h-7 items-center gap-2 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-4 text-xs text-white hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none"
                 >
-                  {tab.title}
+                  <span>{tab.title}</span>
                   {tab.type !== 'static' && (
                     <div
                       role="button"
@@ -56,7 +56,7 @@ export function MainView() {
                         e.stopPropagation();
                         closeTab(tab.id);
                       }}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-white/70 opacity-100 hover:bg-white/10 hover:text-white"
+                      className="z-10 rounded-sm p-0.5 text-white/70 opacity-100 hover:bg-white/10 hover:text-white"
                     >
                       <XIcon className="h-3.5 w-3.5" />
                     </div>
