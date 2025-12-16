@@ -42,12 +42,16 @@ export function AppHeader() {
   return (
     <div className="contents">
       <header className="flex h-24 items-center border-b bg-card px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-4">
           <LogoIcon className="h-8 w-8" />
           <div className="flex flex-col font-headline text-lg font-bold leading-tight">
             <span>PHBKT</span>
             <span>Group</span>
             <span>Limited</span>
+          </div>
+          <div className="flex flex-col leading-tight">
+             <span className="font-headline text-lg font-bold">PHBKT-WorkFlow App</span>
+             <span className="text-xs text-muted-foreground">home page - {user?.displayName || user?.email}</span>
           </div>
         </Link>
         <div className="ml-auto flex items-center gap-4">
