@@ -125,7 +125,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         break;
       case 'terminate':
         category = 'Terminated';
-        noteText = `${terminateReason}. ${terminateNotes}`;
+        noteText = terminateNotes;
         workItemUpdate.status = 'Closed';
         break;
       case 'resolve-close':
@@ -416,8 +416,9 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
         <div className="flex items-center gap-4 text-sm py-2">
             <Lock className="h-5 w-5 text-destructive" />
             <span className="font-medium">Work Item {workItem.status}:</span>
-            <span className="text-muted-foreground">
+             <span className="text-muted-foreground">
                 Action by {closingUser?.displayName || lastNote?.author || 'System'}
+                {lastNote?.category && ` (${lastNote.category})`}
             </span>
         </div>
     );
@@ -551,14 +552,14 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                 <CardHeader className="p-4">
                   <CardTitle className="text-xs">Contact Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 p-4 pt-0">
-                  <div className="flex items-center gap-4 text-xs">
+                <CardContent className="space-y-4 p-4 pt-0 text-xs">
+                  <div className="flex items-center gap-4">
                       <UserIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Name:</span>
                       <span className="text-muted-foreground">{item.relatedContact.name}</span>
                   </div>
                    {item.relatedContact.address && (
-                    <div className="flex items-start gap-4 text-xs">
+                    <div className="flex items-start gap-4">
                         <Home className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div className="flex flex-col">
                            <span className="font-medium">Address:</span>
@@ -566,18 +567,18 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                         </div>
                     </div>
                   )}
-                  <div className="flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-4">
                       <Mail className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Email:</span>
                       <a href={`mailto:${item.relatedContact.email}`} className="text-primary hover:underline">{item.relatedContact.email}</a>
                   </div>
-                  <div className="flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-4">
                       <Phone className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Phone:</span>
                       <span className="text-muted-foreground">{item.relatedContact.phone}</span>
                   </div>
                   {item.relatedContact.phoneSecondary && (
-                    <div className="flex items-center gap-4 text-xs">
+                    <div className="flex items-center gap-4">
                         <Phone className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">Secondary Phone:</span>
                         <span className="text-muted-foreground">{item.relatedContact.phoneSecondary}</span>
