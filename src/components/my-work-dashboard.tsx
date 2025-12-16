@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -43,6 +44,8 @@ const StatusBadge = ({ status }: { status: WorkItem['status'] }) => {
     ? 'bg-yellow-500 hover:bg-yellow-600'
     : status === 'Pending'
     ? 'bg-orange-500 hover:bg-orange-600'
+    : status === 'Re-indexed'
+    ? 'bg-purple-500 hover:bg-purple-600'
     : 'bg-gray-500 hover:bg-gray-600'
 
   return <Badge variant="default" className={`border-transparent text-primary-foreground ${colorClass}`}>{status}</Badge>;

@@ -30,7 +30,7 @@
         },
         "status": {
           "type": "string",
-          "enum": ["Open", "In Progress", "Closed", "Pending"],
+          "enum": ["Open", "In Progress", "Closed", "Pending", "Re-indexed"],
           "description": "The current status of the work item."
         },
         "subject": {

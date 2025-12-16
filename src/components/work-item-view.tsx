@@ -156,7 +156,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             }
 
             noteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
-            workItemUpdate.status = 'Closed';
+            workItemUpdate.status = 'Re-indexed';
 
              toast({
                 title: 'Work Item Re-Indexed',
@@ -382,7 +382,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   return (
     <form onSubmit={handleSubmit}>
-      <Card className="mt-4 border-primary border">
+      <Card className="mt-4 border-primary">
         <CardHeader className="p-2 bg-slate-100 flex-row items-center gap-4">
           <CardTitle className="text-xs font-bold uppercase">
             {getActionDisplayName(selectedAction)}
@@ -407,7 +407,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       
       {selectedAction && (
         <div className="flex justify-end gap-2 mt-4">
-          <Button type="button" variant="secondary" onClick={onCancel} className="h-6 py-0">
+          <Button type="button" variant="outline" onClick={onCancel} className="h-6 py-0">
             Cancel
           </Button>
           <Button type="submit" disabled={!selectedAction} className="h-6 py-0">
@@ -506,7 +506,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 
-  const isClosed = item.status === 'Closed';
+  const isClosed = item.status === 'Closed' || item.status === 'Re-indexed';
 
   return (
     <div className="flex h-full flex-col bg-slate-100">

@@ -33,7 +33,7 @@ export interface WorkItem {
   customId: string;
   process: string;
   subject: string;
-  status: 'Open' | 'In Progress' | 'Pending' | 'Closed';
+  status: 'Open' | 'In Progress' | 'Pending' | 'Closed' | 'Re-indexed';
   urgency: 'High' | 'Medium' | 'Low';
   assignedTo: string; // User UID
   createdBy: string;
