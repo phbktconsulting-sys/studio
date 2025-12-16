@@ -129,7 +129,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent className="font-mono sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Create New User</DialogTitle>
           <DialogDescription>
@@ -482,3 +482,5 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
     </Dialog>
   );
 }
+
+    
