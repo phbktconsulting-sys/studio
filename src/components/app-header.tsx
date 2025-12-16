@@ -54,14 +54,13 @@ export function AppHeader() {
         </div>
 
         <div className="flex w-1/3 justify-center">
-           {/* This empty div will occupy the center space */}
-        </div>
-
-        <div className="flex w-1/3 items-center justify-end gap-4">
-          <div className="text-right">
+           <div className="text-center">
               <span className="font-headline text-sm font-bold">PHBKT-WorkFlow App</span>
               <p className="text-xs text-muted-foreground">{user?.displayName || user?.email}</p>
           </div>
+        </div>
+
+        <div className="flex w-1/3 items-center justify-end gap-4">
           <Button onClick={handleNewWork} className="h-8 bg-black text-white hover:bg-black/80">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Work
@@ -101,4 +100,3 @@ export function AppHeader() {
     </div>
   );
 }
-
