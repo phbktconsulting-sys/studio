@@ -158,6 +158,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                             type="email"
                             placeholder="user@example.com"
                             {...field}
+                            disabled
                           />
                         </FormControl>
                         <FormMessage />
