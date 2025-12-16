@@ -45,10 +45,10 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+        <CardHeader className="p-4 pb-2">
           <CardTitle className="text-base">Activity</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0">
           <Table>
             <TableHeader>
               <TableRow>
