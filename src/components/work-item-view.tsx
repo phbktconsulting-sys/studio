@@ -63,7 +63,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [selectedAction, setSelectedAction] = useState<string>('');
   
   // Form field states
-  const [subject, setSubject] = useState('');
   const [resolveCompleteCall, setResolveCompleteCall] = useState('');
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
   const [reindexOption, setReindexOption] = useState('myself');
@@ -80,30 +79,28 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [pendReason, setPendReason] = useState('');
   const [pendNotes, setPendNotes] = useState('');
 
-  const subjectOptions = [
-    'Initial Review',
-    'Follow-up Call',
-    'Document Request',
-    'Information Verification',
-    'Customer Update',
-    'Internal Escalation',
-    'Case Resolution',
-    'Data Correction',
-    'System Update',
-    'Final Closure',
-  ];
-
-
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'users'));
   }, [firestore]);
 
   const { data: users } = useCollection<User>(usersQuery);
+  
+  const getActionDisplayName = (actionValue: string) => {
+    const actionMap: { [key: string]: string } = {
+        'resolve-complete': 'Resolve Complete',
+        're-index': 'Re-Index',
+        'terminate': 'Terminate',
+        'resolve-close': 'Resolve Close',
+        'transfer': 'Transfer',
+        'pend': 'Pend'
+    };
+    return actionMap[actionValue] || 'Verify Customer Authority';
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !firestore || !selectedAction || !subject) return;
+    if (!user || !firestore || !selectedAction) return;
 
     const workItemRef = doc(firestore, 'work_items', workItem.id);
     const notesCollectionRef = collection(firestore, `work_items/${workItem.id}/notes`);
@@ -111,6 +108,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     let noteText = '';
     let category = '';
     let workItemUpdate: Partial<WorkItem> = { updatedAt: new Date().toISOString() };
+    let subjectForNote = getActionDisplayName(selectedAction);
 
     switch(selectedAction) {
       case 'resolve-complete':
@@ -155,7 +153,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       createdAt: new Date().toISOString(),
       workItemId: workItem.id,
       category,
-      subject,
+      subject: subjectForNote,
     });
     
     // 2. Update the work item
@@ -163,7 +161,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
     toast({
       title: "Action Submitted",
-      description: `The action '${selectedAction}' was successfully logged and applied.`,
+      description: `The action '${subjectForNote}' was successfully logged and applied.`,
     });
 
     onCancel(); // Hide form after submission
@@ -173,219 +171,174 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch (selectedAction) {
       case 'resolve-complete':
         return (
-          <div>
-            <div>
-              <Label className="font-bold text-xs">Call to customer?</Label>
-              <Select onValueChange={setResolveCompleteCall} value={resolveCompleteCall}>
-                <SelectTrigger className="text-xs">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Yes">Yes</SelectItem>
-                  <SelectItem value="No">No</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="font-bold text-xs" htmlFor="notes-resolve-complete">Notes</Label>
-              <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} />
-            </div>
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+            <Label className="text-xs font-normal text-right">Call to customer?</Label>
+            <Select onValueChange={setResolveCompleteCall} value={resolveCompleteCall}>
+              <SelectTrigger className="text-xs h-8">
+                <SelectValue placeholder="Select..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Yes">Yes</SelectItem>
+                <SelectItem value="No">No</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-resolve-complete">Notes</Label>
+            <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} className="text-xs min-h-[60px]" />
           </div>
         );
       case 're-index':
         return (
-          <div>
-             <div>
-              <Label className="font-bold text-xs">Please select the correct Re-index option</Label>
-              <RadioGroup value={reindexOption} onValueChange={setReindexOption}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="myself" id="reindex-myself" />
-                  <Label htmlFor="reindex-myself" className="text-xs font-normal">Re-index case myself</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="initial" id="reindex-initial" />
-                  <Label htmlFor="reindex-initial" className="text-xs font-normal">Return to initial Indexing</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            <div>
-              <Label className="font-bold text-xs">Reason</Label>
-              <Select onValueChange={setReindexReason} value={reindexReason}>
-                <SelectTrigger className="text-xs">
-                  <SelectValue placeholder="Select reason..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Wrong Process">Wrong Process</SelectItem>
-                  <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-                <Label className="font-bold text-xs">Do you want to copy the notes to the new case?</Label>
-                 <RadioGroup value={reindexCopyNotes} onValueChange={setReindexCopyNotes}>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="copy-yes" />
-                        <Label htmlFor="copy-yes" className="text-xs font-normal">Yes</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="copy-no" />
-                        <Label htmlFor="copy-no" className="text-xs font-normal">No</Label>
-                    </div>
-                </RadioGroup>
-            </div>
-            <div>
-              <Label className="font-bold text-xs" htmlFor="notes-re-index">Note</Label>
-              <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} />
-            </div>
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+            <Label className="text-xs font-normal text-right">Please select the correct Re-index option *</Label>
+            <RadioGroup value={reindexOption} onValueChange={setReindexOption} className="flex items-center gap-4">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="myself" id="reindex-myself" />
+                <Label htmlFor="reindex-myself" className="text-xs font-normal">Re-index case myself</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="initial" id="reindex-initial" />
+                <Label htmlFor="reindex-initial" className="text-xs font-normal">Return to initial Indexing</Label>
+              </div>
+            </RadioGroup>
+            <Label className="text-xs font-normal text-right">Reason *</Label>
+            <Select onValueChange={setReindexReason} value={reindexReason}>
+              <SelectTrigger className="text-xs h-8">
+                <SelectValue placeholder="Select reason..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Wrong Process">Wrong Process</SelectItem>
+                <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label className="text-xs font-normal text-right">Do you want to copy the notes to the new case?</Label>
+            <RadioGroup value={reindexCopyNotes} onValueChange={setReindexCopyNotes} className="flex items-center gap-4">
+              <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="copy-yes" />
+                  <Label htmlFor="copy-yes" className="text-xs font-normal">Yes</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="copy-no" />
+                  <Label htmlFor="copy-no" className="text-xs font-normal">No</Label>
+              </div>
+            </RadioGroup>
+            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-re-index">Note *</Label>
+            <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[60px]" />
           </div>
         );
       case 'terminate':
         return (
-          <div>
-            <div>
-              <Label className="font-bold text-xs">Reason</Label>
-              <Select onValueChange={setTerminateReason} value={terminateReason}>
-                <SelectTrigger className="text-xs">
-                  <SelectValue placeholder="Select reason..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Customer Request">Customer Request</SelectItem>
-                  <SelectItem value="Potential Fraud">Potential Fraud</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="font-bold text-xs" htmlFor="notes-terminate">Notes</Label>
-              <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} />
-            </div>
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+            <Label className="text-xs font-normal text-right">Reason</Label>
+            <Select onValueChange={setTerminateReason} value={terminateReason}>
+              <SelectTrigger className="text-xs h-8">
+                <SelectValue placeholder="Select reason..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Customer Request">Customer Request</SelectItem>
+                <SelectItem value="Potential Fraud">Potential Fraud</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-terminate">Notes</Label>
+            <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[60px]" />
           </div>
         );
       case 'resolve-close':
          return (
-          <div>
-            <div>
-              <Label className="font-bold text-xs">Customer request resolved?</Label>
-              <Select onValueChange={setResolveCloseResolved} value={resolveCloseResolved}>
-                <SelectTrigger className="text-xs">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Yes">Yes</SelectItem>
-                  <SelectItem value="No">No</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="font-bold text-xs" htmlFor="notes-resolve-close">Notes</Label>
-              <Textarea id="notes-resolve-close" placeholder="Add notes..." value={resolveCloseNotes} onChange={e => setResolveCloseNotes(e.target.value)} />
-            </div>
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+            <Label className="text-xs font-normal text-right">Customer request resolved?</Label>
+            <Select onValueChange={setResolveCloseResolved} value={resolveCloseResolved}>
+              <SelectTrigger className="text-xs h-8">
+                <SelectValue placeholder="Select..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Yes">Yes</SelectItem>
+                <SelectItem value="No">No</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-resolve-close">Notes</Label>
+            <Textarea id="notes-resolve-close" placeholder="Add notes..." value={resolveCloseNotes} onChange={e => setResolveCloseNotes(e.target.value)} className="text-xs min-h-[60px]" />
           </div>
         );
       case 'transfer':
         return (
-          <div>
-            <div>
-              <Label className="font-bold text-xs">Transfer to User</Label>
-              <Select onValueChange={setTransferToUser} value={transferToUser}>
-                <SelectTrigger className="text-xs">
-                  <SelectValue placeholder="Select user..." />
-                </SelectTrigger>
-                <SelectContent>
-                   {users?.map(user => (
-                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="font-bold text-xs" htmlFor="notes-transfer">Notes</Label>
-              <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} />
-            </div>
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+            <Label className="text-xs font-normal text-right">Transfer to User</Label>
+            <Select onValueChange={setTransferToUser} value={transferToUser}>
+              <SelectTrigger className="text-xs h-8">
+                <SelectValue placeholder="Select user..." />
+              </SelectTrigger>
+              <SelectContent>
+                 {users?.map(user => (
+                  <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-transfer">Notes</Label>
+            <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[60px]" />
           </div>
         );
       case 'pend':
         return (
-          <div>
-            <div>
-                <Label className="font-bold text-xs">Pend until date</Label>
-                <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
-            </div>
-            <div>
-              <Label className="font-bold text-xs">Reason for pend</Label>
-              <Select onValueChange={setPendReason} value={pendReason}>
-                <SelectTrigger className="text-xs">
-                  <SelectValue placeholder="Select reason..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Information Needed">Information Needed</SelectItem>
-                  <SelectItem value="Customer Unavailable">Customer Unavailable</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="font-bold text-xs" htmlFor="notes-pend">Notes</Label>
-              <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} />
-            </div>
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+            <Label className="text-xs font-normal text-right">Pend until date</Label>
+            <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
+            <Label className="text-xs font-normal text-right">Reason for pend</Label>
+            <Select onValueChange={setPendReason} value={pendReason}>
+              <SelectTrigger className="text-xs h-8">
+                <SelectValue placeholder="Select reason..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Information Needed">Information Needed</SelectItem>
+                <SelectItem value="Customer Unavailable">Customer Unavailable</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-pend">Notes</Label>
+            <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[60px]" />
           </div>
         );
       default:
-        return <p className='text-center text-muted-foreground text-xs'>Please select an action to continue.</p>;
+        return null;
     }
   };
 
+  const actionOptions = [
+      { value: 'resolve-complete', label: 'Resolve Complete' },
+      { value: 're-index', label: 'Re-Index' },
+      { value: 'terminate', label: 'Terminate' },
+      { value: 'resolve-close', label: 'Resolve Close' },
+      { value: 'transfer', label: 'Transfer' },
+      { value: 'pend', label: 'Pend' }
+  ];
+
   return (
     <Card className="my-1 border-primary border-2">
-      <CardHeader>
-        <CardTitle className="text-base font-bold">Verify Customer Authority - Action</CardTitle>
+      <CardHeader className="p-2 bg-slate-100 flex-row items-center">
+        <CardTitle className="text-xs font-bold uppercase pr-2">
+          {selectedAction ? getActionDisplayName(selectedAction) + ' OR' : 'Action'}
+        </CardTitle>
+        <Select onValueChange={(value) => setSelectedAction(value as string)}>
+            <SelectTrigger className="text-xs h-8 w-auto flex-1">
+                <SelectValue placeholder="--Select a different action--" />
+            </SelectTrigger>
+            <SelectContent>
+                {actionOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
       </CardHeader>
-      <CardContent>
+      <CardContent className='p-4'>
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 py-1">
-            <div>
-              <Label className="font-bold text-xs">Action</Label>
-              <Select onValueChange={(value) => setSelectedAction(value as string)}>
-                <SelectTrigger className="text-xs">
-                  <SelectValue placeholder="--Select a different action--" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="resolve-complete">Resolve Complete</SelectItem>
-                  <SelectItem value="re-index">Re-Index</SelectItem>
-                  <SelectItem value="terminate">Terminate</SelectItem>
-                  <SelectItem value="resolve-close">Resolve Close</SelectItem>
-                  <SelectItem value="transfer">Transfer to Another User</SelectItem>
-                  <SelectItem value="pend">Pend Work</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="font-bold text-xs">Subject</Label>
-              <Select onValueChange={setSubject} value={subject} disabled={!selectedAction}>
-                <SelectTrigger className="text-xs">
-                  <SelectValue placeholder="--Select a subject--" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjectOptions.map(opt => (
-                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-            {selectedAction && <Separator className='my-1' />}
-
-            <div className='py-1'>
-              {renderActionForm()}
-            </div>
+            {renderActionForm()}
             
-          <div className="flex justify-end gap-1">
-            <Button type="button" variant="secondary" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={!selectedAction || !subject}>Submit</Button>
-          </div>
+            <div className="flex justify-end gap-2 mt-4">
+                <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
+                Cancel
+                </Button>
+                <Button type="submit" size="sm" disabled={!selectedAction}>Submit</Button>
+            </div>
         </form>
       </CardContent>
     </Card>
@@ -624,3 +577,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    
