@@ -312,7 +312,6 @@ export function NewWorkItemView() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
                           {initialTaskOptions.map((task) => (
                             <SelectItem key={task} value={task}>
                               {task}
