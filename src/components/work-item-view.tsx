@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query } from 'firebase/firestore';
 import {
   Table,
@@ -31,6 +31,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { CustomCalendar } from './custom-calendar';
+import { useToast } from '@/hooks/use-toast';
 
 function NotesTab({ workItemId }: { workItemId: string }) {
   const { firestore, user } = useFirebase();
@@ -143,16 +144,100 @@ function TasksTab({ tasks }: { tasks: Task[] }) {
   );
 }
 
-function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
-  const { firestore } = useFirebase();
+function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCancel: () => void }) {
+  const { firestore, user } = useFirebase();
+  const { toast } = useToast();
+
   const [selectedAction, setSelectedAction] = useState<string>('');
   
+  // Form field states
+  const [resolveCompleteCall, setResolveCompleteCall] = useState('');
+  const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
+  const [reindexOption, setReindexOption] = useState('myself');
+  const [reindexReason, setReindexReason] = useState('');
+  const [reindexCopyNotes, setReindexCopyNotes] = useState('yes');
+  const [reindexNotes, setReindexNotes] = useState('');
+  const [terminateReason, setTerminateReason] = useState('');
+  const [terminateNotes, setTerminateNotes] = useState('');
+  const [resolveCloseResolved, setResolveCloseResolved] = useState('');
+  const [resolveCloseNotes, setResolveCloseNotes] = useState('');
+  const [transferToUser, setTransferToUser] = useState('');
+  const [transferNotes, setTransferNotes] = useState('');
+  const [pendUntilDate, setPendUntilDate] = useState<Date>();
+  const [pendReason, setPendReason] = useState('');
+  const [pendNotes, setPendNotes] = useState('');
+
+
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'users'));
   }, [firestore]);
 
   const { data: users } = useCollection<User>(usersQuery);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !firestore || !selectedAction) return;
+
+    const workItemRef = doc(firestore, 'work_items', workItem.id);
+    const notesCollectionRef = collection(firestore, `work_items/${workItem.id}/notes`);
+    
+    let noteText = '';
+    let workItemUpdate: Partial<WorkItem> = { updatedAt: new Date().toISOString() };
+
+    switch(selectedAction) {
+      case 'resolve-complete':
+        noteText = `Work Item Resolved/Completed. Call to customer: ${resolveCompleteCall || 'N/A'}. Notes: ${resolveCompleteNotes || 'None'}`;
+        workItemUpdate.status = 'Closed';
+        break;
+      case 're-index':
+        noteText = `Work Item Re-Indexed. Option: ${reindexOption}. Reason: ${reindexReason || 'N/A'}. Copy notes: ${reindexCopyNotes}. Notes: ${reindexNotes || 'None'}`;
+        // Note: Actual re-indexing logic would be more complex and is not fully implemented here.
+        // This just logs the intent. We can mark it as pending review.
+        workItemUpdate.status = 'Pending';
+        break;
+      case 'terminate':
+        noteText = `Work Item Terminated. Reason: ${terminateReason || 'N/A'}. Notes: ${terminateNotes || 'None'}`;
+        workItemUpdate.status = 'Closed';
+        break;
+      case 'resolve-close':
+        noteText = `Work Item Resolved/Closed. Customer request resolved: ${resolveCloseResolved || 'N/A'}. Notes: ${resolveCloseNotes || 'None'}`;
+        workItemUpdate.status = 'Closed';
+        break;
+      case 'transfer':
+        const targetUser = users?.find(u => u.uid === transferToUser);
+        noteText = `Work Item Transferred to ${targetUser?.displayName || 'Unknown User'}. Notes: ${transferNotes || 'None'}`;
+        workItemUpdate.assignedTo = transferToUser;
+        break;
+      case 'pend':
+        const pendDateFormatted = pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A';
+        noteText = `Work Item Pended until ${pendDateFormatted}. Reason: ${pendReason || 'N/A'}. Notes: ${pendNotes || 'None'}`;
+        workItemUpdate.status = 'Pending';
+        // You might want to store the pendUntilDate on the workItem as well.
+        break;
+      default:
+        return;
+    }
+    
+    // 1. Add the note
+    addDocumentNonBlocking(notesCollectionRef, {
+      authorId: user.uid,
+      author: user.displayName || user.email || 'System',
+      text: noteText,
+      createdAt: new Date().toISOString(),
+      workItemId: workItem.id,
+    });
+    
+    // 2. Update the work item
+    updateDocumentNonBlocking(workItemRef, workItemUpdate);
+
+    toast({
+      title: "Action Submitted",
+      description: `The action '${selectedAction}' was successfully logged and applied.`,
+    });
+
+    onCancel(); // Hide form after submission
+  };
 
   const renderActionForm = () => {
     switch (selectedAction) {
@@ -161,19 +246,19 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="font-bold">Call to customer?</Label>
-              <Select>
+              <Select onValueChange={setResolveCompleteCall} value={resolveCompleteCall}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="yes">Yes</SelectItem>
-                  <SelectItem value="no">No</SelectItem>
+                  <SelectItem value="Yes">Yes</SelectItem>
+                  <SelectItem value="No">No</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label className="font-bold" htmlFor="notes-resolve-complete">Notes</Label>
-              <Textarea id="notes-resolve-complete" placeholder="Add notes..." />
+              <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} />
             </div>
           </div>
         );
@@ -182,7 +267,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
           <div className="space-y-4">
              <div className="space-y-2">
               <Label className="font-bold">Please select the correct Re-index option</Label>
-              <RadioGroup defaultValue="myself">
+              <RadioGroup value={reindexOption} onValueChange={setReindexOption}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="myself" id="reindex-myself" />
                   <Label htmlFor="reindex-myself">Re-index case myself</Label>
@@ -195,19 +280,19 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
             </div>
             <div className="space-y-2">
               <Label className="font-bold">Reason</Label>
-              <Select>
+              <Select onValueChange={setReindexReason} value={reindexReason}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select reason..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="wrong-process">Wrong Process</SelectItem>
-                  <SelectItem value="incorrect-data">Incorrect Data</SelectItem>
+                  <SelectItem value="Wrong Process">Wrong Process</SelectItem>
+                  <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
                 <Label className="font-bold">Do you want to copy the notes to the new case?</Label>
-                 <RadioGroup defaultValue="yes">
+                 <RadioGroup value={reindexCopyNotes} onValueChange={setReindexCopyNotes}>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="yes" id="copy-yes" />
                         <Label htmlFor="copy-yes">Yes</Label>
@@ -220,7 +305,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
             </div>
             <div className="space-y-2">
               <Label className="font-bold" htmlFor="notes-re-index">Note</Label>
-              <Textarea id="notes-re-index" placeholder="Add notes..." />
+              <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} />
             </div>
           </div>
         );
@@ -229,20 +314,20 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="font-bold">Reason</Label>
-              <Select>
+              <Select onValueChange={setTerminateReason} value={terminateReason}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select reason..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="customer-request">Customer Request</SelectItem>
-                  <SelectItem value="fraud">Potential Fraud</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="Customer Request">Customer Request</SelectItem>
+                  <SelectItem value="Potential Fraud">Potential Fraud</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label className="font-bold" htmlFor="notes-terminate">Notes</Label>
-              <Textarea id="notes-terminate" placeholder="Add notes..." />
+              <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} />
             </div>
           </div>
         );
@@ -251,19 +336,19 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="font-bold">Customer request resolved?</Label>
-              <Select>
+              <Select onValueChange={setResolveCloseResolved} value={resolveCloseResolved}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="yes">Yes</SelectItem>
-                  <SelectItem value="no">No</SelectItem>
+                  <SelectItem value="Yes">Yes</SelectItem>
+                  <SelectItem value="No">No</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label className="font-bold" htmlFor="notes-resolve-close">Notes</Label>
-              <Textarea id="notes-resolve-close" placeholder="Add notes..." />
+              <Textarea id="notes-resolve-close" placeholder="Add notes..." value={resolveCloseNotes} onChange={e => setResolveCloseNotes(e.target.value)} />
             </div>
           </div>
         );
@@ -272,7 +357,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="font-bold">Transfer to User</Label>
-              <Select>
+              <Select onValueChange={setTransferToUser} value={transferToUser}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select user..." />
                 </SelectTrigger>
@@ -285,7 +370,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
             </div>
             <div className="space-y-2">
               <Label className="font-bold" htmlFor="notes-transfer">Notes</Label>
-              <Textarea id="notes-transfer" placeholder="Add notes..." />
+              <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} />
             </div>
           </div>
         );
@@ -294,24 +379,24 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
           <div className="space-y-4">
             <div className="space-y-2">
                 <Label className="font-bold">Pend until date</Label>
-                <CustomCalendar onChange={() => {}} />
+                <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
             </div>
             <div className="space-y-2">
               <Label className="font-bold">Reason for pend</Label>
-              <Select>
+              <Select onValueChange={setPendReason} value={pendReason}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select reason..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="info-needed">Information Needed</SelectItem>
-                  <SelectItem value="customer-unavailable">Customer Unavailable</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="Information Needed">Information Needed</SelectItem>
+                  <SelectItem value="Customer Unavailable">Customer Unavailable</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label className="font-bold" htmlFor="notes-pend">Notes</Label>
-              <Textarea id="notes-pend" placeholder="Add notes..." />
+              <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} />
             </div>
           </div>
         );
@@ -326,34 +411,36 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
         <CardTitle>Verify Customer Authority - Action</CardTitle>
       </CardHeader>
       <CardContent>
-         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label className="font-bold">Action</Label>
-            <Select onValueChange={(value) => setSelectedAction(value as string)}>
-              <SelectTrigger>
-                <SelectValue placeholder="--Select a different action--" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="resolve-complete">Resolve Complete</SelectItem>
-                <SelectItem value="re-index">Re-Index</SelectItem>
-                <SelectItem value="terminate">Terminate</SelectItem>
-                <SelectItem value="resolve-close">Resolve Close</SelectItem>
-                <SelectItem value="transfer">Transfer to Another User</SelectItem>
-                <SelectItem value="pend">Pend Work</SelectItem>
-              </SelectContent>
-            </Select>
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="font-bold">Action</Label>
+              <Select onValueChange={(value) => setSelectedAction(value as string)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="--Select a different action--" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="resolve-complete">Resolve Complete</SelectItem>
+                  <SelectItem value="re-index">Re-Index</SelectItem>
+                  <SelectItem value="terminate">Terminate</SelectItem>
+                  <SelectItem value="resolve-close">Resolve Close</SelectItem>
+                  <SelectItem value="transfer">Transfer to Another User</SelectItem>
+                  <SelectItem value="pend">Pend Work</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedAction && <Separator className='my-4' />}
+
+            {renderActionForm()}
           </div>
-
-          {selectedAction && <Separator className='my-4' />}
-
-          {renderActionForm()}
-        </div>
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={!selectedAction}>Submit</Button>
-        </div>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="secondary" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!selectedAction}>Submit</Button>
+          </div>
+        </form>
       </CardContent>
     </Card>
   );
@@ -439,9 +526,9 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <h2 className="text-lg font-semibold">Processes</h2>
             <Separator />
              {isVerifyingAuthority ? (
-              <VerifyAuthorityForm onCancel={() => setIsVerifyingAuthority(false)} />
+              <VerifyAuthorityForm workItem={item} onCancel={() => setIsVerifyingAuthority(false)} />
             ) : (
-              <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-4 text-sm py-2">
                   <span className="font-medium">Assigned To:</span>
                   <span>{assignedUser?.displayName || '...'}</span>
                   <Button variant="secondary" size="sm" onClick={() => setIsVerifyingAuthority(true)}>
@@ -533,5 +620,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    
