@@ -9,12 +9,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
-import { useFirebase, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
-
-interface AppSettings {
-  logo?: string;
-}
 
 interface ManageAppProps {
   onBack: () => void;
@@ -22,24 +16,18 @@ interface ManageAppProps {
 
 export function ManageApp({ onBack }: ManageAppProps) {
   const { toast } = useToast();
-  const { firestore } = useFirebase();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const appSettingsRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return doc(firestore, 'settings', 'app');
-  }, [firestore]);
-
-  const { data: appSettings } = useDoc<AppSettings>(appSettingsRef);
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (appSettings) {
-      setLogoPreview(appSettings.logo || null);
+    // This effect runs on the client-side after initial render
+    const storedLogo = localStorage.getItem('customLogo');
+    if (storedLogo) {
+      setLogoPreview(storedLogo);
     }
-  }, [appSettings]);
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -61,11 +49,16 @@ export function ManageApp({ onBack }: ManageAppProps) {
   };
 
   const handleSaveLogo = async () => {
-    if (!appSettingsRef) return;
     setIsSaving(true);
-    
     try {
-      setDocumentNonBlocking(appSettingsRef, { logo: logoPreview }, { merge: true });
+      if (logoPreview) {
+        localStorage.setItem('customLogo', logoPreview);
+      } else {
+        localStorage.removeItem('customLogo');
+      }
+      // Dispatch a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('logoChanged'));
+
       toast({
         title: 'Logo Updated',
         description: 'The application logo has been successfully updated.',
@@ -83,15 +76,16 @@ export function ManageApp({ onBack }: ManageAppProps) {
   };
 
   const handleRemoveLogo = async () => {
-    if (!appSettingsRef) return;
     setIsSaving(true);
-    
     try {
-      setDocumentNonBlocking(appSettingsRef, { logo: null }, { merge: true });
+      localStorage.removeItem('customLogo');
       setLogoPreview(null);
-       if(fileInputRef.current) {
+      if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+      // Dispatch a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('logoChanged'));
+
       toast({
         title: 'Logo Removed',
         description: 'The default logo will now be used.',

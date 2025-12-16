@@ -139,14 +139,5 @@ service cloud.firestore {
     match /counters/{counterId=**} {
       allow read, write: if isAdmin();
     }
-
-    /**
-     * @description Rules for app settings. Publicly readable, admin-only write.
-     */
-    match /settings/{settingId} {
-        allow get: if true;
-        allow list: if true;
-        allow write: if isAdmin();
-    }
   }
 }

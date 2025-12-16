@@ -16,13 +16,9 @@ import { Label } from '@/components/ui/label';
 import { LogoIcon } from '@/components/icons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useFirebase, initiateEmailSignUp, setDocumentNonBlocking, useDoc, useMemoFirebase } from '@/firebase';
+import { useFirebase, initiateEmailSignUp, setDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { User as AuthUser } from 'firebase/auth';
-
-interface AppSettings {
-  logo?: string;
-}
 
 export default function SignupPage() {
   const router = useRouter();
@@ -30,14 +26,17 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
 
-  const appSettingsRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return doc(firestore, 'settings', 'app');
-  }, [firestore]);
-
-  const { data: appSettings } = useDoc<AppSettings>(appSettingsRef);
-
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedLogo = localStorage.getItem('customLogo');
+      if (storedLogo) {
+        setCustomLogo(storedLogo);
+      }
+    }
+  }, []);
+  
   useEffect(() => {
     if (!isUserLoading && user) {
       router.push('/');
@@ -88,7 +87,7 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <LogoIcon src={appSettings?.logo} className="h-16 w-16" />
+          <LogoIcon src={customLogo} className="h-16 w-16" />
         </div>
         <Card>
           <CardHeader className="text-center">

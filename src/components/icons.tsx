@@ -2,11 +2,7 @@
 import type { SVGProps } from 'react';
 import Image from 'next/image';
 
-interface LogoIconProps extends SVGProps<SVGSVGElement> {
-  src?: string | null;
-}
-
-export const LogoIcon = ({ src, className, ...props }: LogoIconProps) => {
+export const LogoIcon = ({ src, className, ...props }: SVGProps<SVGSVGElement> & { src?: string | null }) => {
   if (src) {
     return <Image src={src} alt="Custom Logo" width={80} height={80} className={`rounded-md ${className}`} {...props} />;
   }
