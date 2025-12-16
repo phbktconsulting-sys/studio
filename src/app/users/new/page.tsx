@@ -279,12 +279,12 @@ export default function NewUserPage() {
               </div>
 
                <div className="rounded-lg border-[2px] border-[#C00025] p-4">
-                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                 <div className="grid grid-cols-1 gap-4">
                     <FormField
                       control={form.control}
                       name="password"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2">
+                        <FormItem>
                           <FormLabel>Password</FormLabel>
                           <FormControl>
                             <Input
@@ -296,7 +296,8 @@ export default function NewUserPage() {
                         </FormItem>
                       )}
                     />
-
+                  </div>
+                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
                    <FormField
                     control={form.control}
                     name="department"
@@ -395,6 +396,8 @@ export default function NewUserPage() {
                       </FormItem>
                     )}
                   />
+                  </div>
+                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="workLocation"
