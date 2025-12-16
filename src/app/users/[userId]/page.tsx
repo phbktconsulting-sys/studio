@@ -33,6 +33,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
 export default function UserProfilePage({ params }: { params: { userId: string } }) {
+  const { userId } = params;
   const { toast } = useToast();
   const router = useRouter();
   const { firestore } = useFirebase();
@@ -40,9 +41,9 @@ export default function UserProfilePage({ params }: { params: { userId: string }
   const [showPassword, setShowPassword] = useState(false);
 
   const userProfileRef = useMemoFirebase(() => {
-      if (!firestore || !params.userId) return null;
-      return doc(firestore, 'users', params.userId);
-  }, [firestore, params.userId]);
+      if (!firestore || !userId) return null;
+      return doc(firestore, 'users', userId);
+  }, [firestore, userId]);
 
   const { data: userProfile, isLoading } = useDoc<UserProfile>(userProfileRef);
 
