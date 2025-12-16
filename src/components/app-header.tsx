@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTabs } from '@/contexts/tab-context';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 export function AppHeader() {
   const { user } = useUser();
@@ -26,15 +26,30 @@ export function AppHeader() {
   const { openTab } = useTabs();
   const [customLogo, setCustomLogo] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Ensure this runs only on the client
-    if (typeof window !== 'undefined') {
-      const storedLogo = localStorage.getItem('customLogo');
-      if (storedLogo) {
-        setCustomLogo(storedLogo);
-      }
-    }
+  const updateLogo = useCallback(() => {
+    const storedLogo = localStorage.getItem('customLogo');
+    setCustomLogo(storedLogo);
   }, []);
+
+  useEffect(() => {
+    // Initial logo load
+    updateLogo();
+
+    // Listen for changes from other tabs/windows
+    window.addEventListener('storage', updateLogo);
+
+    // Custom event to handle changes within the same tab
+    const handleLogoChange = () => {
+      updateLogo();
+    };
+    window.addEventListener('logo-updated', handleLogoChange);
+
+
+    return () => {
+      window.removeEventListener('storage', updateLogo);
+      window.removeEventListener('logo-updated', handleLogoChange);
+    };
+  }, [updateLogo]);
 
   const handleLogout = () => {
     if (auth) {

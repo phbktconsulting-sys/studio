@@ -43,9 +43,11 @@ export function ManageApp({ onBack }: ManageAppProps) {
   const handleSaveLogo = () => {
     if (logoPreview) {
       localStorage.setItem('customLogo', logoPreview);
+      // Dispatch a custom event so the header can update in real-time
+      window.dispatchEvent(new CustomEvent('logo-updated'));
       toast({
         title: 'Logo Updated',
-        description: 'The application logo has been successfully updated. Refresh to see changes.',
+        description: 'The application logo has been successfully updated.',
       });
       onBack();
     } else {
@@ -59,6 +61,8 @@ export function ManageApp({ onBack }: ManageAppProps) {
   
   const handleRemoveLogo = () => {
     localStorage.removeItem('customLogo');
+     // Dispatch a custom event so the header can update in real-time
+    window.dispatchEvent(new CustomEvent('logo-updated'));
     setLogoPreview(null);
     setLogoFile(null);
     if(fileInputRef.current) {
@@ -66,7 +70,7 @@ export function ManageApp({ onBack }: ManageAppProps) {
     }
     toast({
         title: 'Logo Removed',
-        description: 'The custom logo has been removed. The default logo will be used. Refresh to see changes.',
+        description: 'The custom logo has been removed. The default logo will be used.',
       });
   }
 
