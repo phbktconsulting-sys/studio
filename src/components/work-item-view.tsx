@@ -412,20 +412,20 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
 
     const { data: authorUser } = useDoc<User>(authorUserRef);
     
-    let statusText = '';
+    let statusText = `Work Item ${workItem.status}.`;
     if (lastNote) {
         if (lastNote.category === 'Terminated') {
-            statusText = `Work Item Terminated. Reason: ${lastNote.text.split('. ')[0].replace('Reason: ', '')}`;
+            const reason = lastNote.text.split('Reason: ')[1]?.split('.')[0] || 'Not specified';
+            statusText = `Work Item Terminated. Reason: ${reason}.`;
         } else if (lastNote.category === 'Resolved/Completed' || lastNote.category === 'Resolved/Close') {
-            statusText = `Work Item Closed. Reason: ${lastNote.text.split('. ')[0]}`;
-        } else {
-            statusText = `Work Item Closed.`;
+            const reason = lastNote.text.split('. ')[0] || 'Not specified';
+             statusText = `Work Item Closed. Reason: ${reason}`;
         }
     }
 
 
     return (
-        <div className="flex items-center gap-4 text-sm py-2">
+        <div className="flex items-center gap-4 text-xs py-2">
             <Lock className="h-5 w-5 text-destructive" />
             <span className="font-medium">Work Item Closed:</span>
             <Separator orientation="vertical" className="h-4" />
