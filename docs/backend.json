@@ -133,6 +133,14 @@
           "type": "string",
           "description": "The date and time when the note was created.",
           "format": "date-time"
+        },
+        "category": {
+            "type": "string",
+            "description": "The category of the action taken (e.g., Closed, Terminated, Re-indexed)."
+        },
+        "subject": {
+            "type": "string",
+            "description": "A specific subject line for the note or action."
         }
       },
       "required": [
@@ -140,7 +148,9 @@
         "workItemId",
         "authorId",
         "text",
-        "createdAt"
+        "createdAt",
+        "category",
+        "subject"
       ]
     },
      "Counter": {
@@ -187,5 +197,3 @@
     "/counters/work_item_RO": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Other work items." }
   }
 }
-
-    

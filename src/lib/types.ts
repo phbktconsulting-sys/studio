@@ -57,6 +57,8 @@ export interface Note {
   text: string;
   createdAt: string; // ISO date string
   workItemId: string;
+  category: string;
+  subject: string;
 }
 
 export const CreateUserInputSchema = z.object({

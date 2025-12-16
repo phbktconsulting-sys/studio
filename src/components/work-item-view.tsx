@@ -63,6 +63,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [selectedAction, setSelectedAction] = useState<string>('');
   
   // Form field states
+  const [subject, setSubject] = useState('');
   const [resolveCompleteCall, setResolveCompleteCall] = useState('');
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
   const [reindexOption, setReindexOption] = useState('myself');
@@ -79,6 +80,19 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [pendReason, setPendReason] = useState('');
   const [pendNotes, setPendNotes] = useState('');
 
+  const subjectOptions = [
+    'Initial Review',
+    'Follow-up Call',
+    'Document Request',
+    'Information Verification',
+    'Customer Update',
+    'Internal Escalation',
+    'Case Resolution',
+    'Data Correction',
+    'System Update',
+    'Final Closure',
+  ];
+
 
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -89,43 +103,47 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !firestore || !selectedAction) return;
+    if (!user || !firestore || !selectedAction || !subject) return;
 
     const workItemRef = doc(firestore, 'work_items', workItem.id);
     const notesCollectionRef = collection(firestore, `work_items/${workItem.id}/notes`);
     
     let noteText = '';
+    let category = '';
     let workItemUpdate: Partial<WorkItem> = { updatedAt: new Date().toISOString() };
 
     switch(selectedAction) {
       case 'resolve-complete':
-        noteText = `Work Item Resolved/Completed. Call to customer: ${resolveCompleteCall || 'N/A'}. Notes: ${resolveCompleteNotes || 'None'}`;
+        category = 'Resolved/Completed';
+        noteText = `Call to customer: ${resolveCompleteCall || 'N/A'}. Notes: ${resolveCompleteNotes || 'None'}`;
         workItemUpdate.status = 'Closed';
         break;
       case 're-index':
-        noteText = `Work Item Re-Indexed. Option: ${reindexOption}. Reason: ${reindexReason || 'N/A'}. Copy notes: ${reindexCopyNotes}. Notes: ${reindexNotes || 'None'}`;
-        // Note: Actual re-indexing logic would be more complex and is not fully implemented here.
-        // This just logs the intent. We can mark it as pending review.
+        category = 'Re-Indexed';
+        noteText = `Option: ${reindexOption}. Reason: ${reindexReason || 'N/A'}. Copy notes: ${reindexCopyNotes}. Notes: ${reindexNotes || 'None'}`;
         workItemUpdate.status = 'Pending';
         break;
       case 'terminate':
-        noteText = `Work Item Terminated. Reason: ${terminateReason || 'N/A'}. Notes: ${terminateNotes || 'None'}`;
+        category = 'Terminated';
+        noteText = `Reason: ${terminateReason || 'N/A'}. Notes: ${terminateNotes || 'None'}`;
         workItemUpdate.status = 'Closed';
         break;
       case 'resolve-close':
-        noteText = `Work Item Resolved/Closed. Customer request resolved: ${resolveCloseResolved || 'N/A'}. Notes: ${resolveCloseNotes || 'None'}`;
+        category = 'Resolved/Closed';
+        noteText = `Customer request resolved: ${resolveCloseResolved || 'N/A'}. Notes: ${resolveCloseNotes || 'None'}`;
         workItemUpdate.status = 'Closed';
         break;
       case 'transfer':
+        category = 'Transferred';
         const targetUser = users?.find(u => u.uid === transferToUser);
-        noteText = `Work Item Transferred to ${targetUser?.displayName || 'Unknown User'}. Notes: ${transferNotes || 'None'}`;
+        noteText = `Transferred to ${targetUser?.displayName || 'Unknown User'}. Notes: ${transferNotes || 'None'}`;
         workItemUpdate.assignedTo = transferToUser;
         break;
       case 'pend':
+        category = 'Pended';
         const pendDateFormatted = pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A';
-        noteText = `Work Item Pended until ${pendDateFormatted}. Reason: ${pendReason || 'N/A'}. Notes: ${pendNotes || 'None'}`;
+        noteText = `Pended until ${pendDateFormatted}. Reason: ${pendReason || 'N/A'}. Notes: ${pendNotes || 'None'}`;
         workItemUpdate.status = 'Pending';
-        // You might want to store the pendUntilDate on the workItem as well.
         break;
       default:
         return;
@@ -138,6 +156,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       text: noteText,
       createdAt: new Date().toISOString(),
       workItemId: workItem.id,
+      category,
+      subject,
     });
     
     // 2. Update the work item
@@ -324,7 +344,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
             <div className="space-y-2">
               <Label className="font-bold">Action</Label>
               <Select onValueChange={(value) => setSelectedAction(value as string)}>
@@ -341,16 +361,30 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="font-bold">Subject</Label>
+              <Select onValueChange={setSubject} value={subject} disabled={!selectedAction}>
+                <SelectTrigger>
+                  <SelectValue placeholder="--Select a subject--" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjectOptions.map(opt => (
+                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
             {selectedAction && <Separator className='my-4' />}
 
             {renderActionForm()}
-          </div>
-          <div className="flex justify-end gap-2">
+            
+          <div className="flex justify-end gap-2 mt-4">
             <Button type="button" variant="secondary" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!selectedAction}>Submit</Button>
+            <Button type="submit" disabled={!selectedAction || !subject}>Submit</Button>
           </div>
         </form>
       </CardContent>
@@ -579,6 +613,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-
-

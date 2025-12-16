@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -52,23 +53,27 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[200px]">Author</TableHead>
+                <TableHead className="w-[150px]">Category</TableHead>
+                <TableHead className="w-[150px]">Subject</TableHead>
                 <TableHead>Note</TableHead>
-                <TableHead className="w-[250px]">Date/Time</TableHead>
+                <TableHead className="w-[200px]">Added By</TableHead>
+                <TableHead className="w-[200px]">Date/Time</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading && <TableRow><TableCell colSpan={3} className="py-1 px-4">Loading notes...</TableCell></TableRow>}
+              {isLoading && <TableRow><TableCell colSpan={5} className="py-1 px-4">Loading notes...</TableCell></TableRow>}
               {notes && notes.map((note) => (
                 <TableRow key={note.id}>
-                  <TableCell className="font-medium py-1 px-4">{userMap.get(note.authorId) || 'System'}</TableCell>
+                  <TableCell className="font-medium py-1 px-4">{note.category}</TableCell>
+                  <TableCell className="font-medium py-1 px-4">{note.subject}</TableCell>
                   <TableCell className="py-1 px-4">{note.text}</TableCell>
+                  <TableCell className="font-medium py-1 px-4">{userMap.get(note.authorId) || 'System'}</TableCell>
                   <TableCell className="py-1 px-4">{format(new Date(note.createdAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
                 </TableRow>
               ))}
               {notes && notes.length === 0 && !isLoading && (
                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-1 px-4">
+                    <TableCell colSpan={5} className="text-center py-1 px-4">
                       No notes have been added yet.
                     </TableCell>
                   </TableRow>
