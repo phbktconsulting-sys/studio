@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AllWorkItems } from './all-work-items';
 import { UserManagement } from './user-management';
-import { List, Users } from 'lucide-react';
+import { List, Users, FileText } from 'lucide-react';
+import { OfferManagement } from './offer-management';
 
-type AdminView = 'menu' | 'work-items' | 'users';
+type AdminView = 'menu' | 'work-items' | 'users' | 'offers';
 
 export function AdminDashboard() {
   const [view, setView] = useState<AdminView>('menu');
@@ -19,6 +20,10 @@ export function AdminDashboard() {
     return <UserManagement onBack={() => setView('menu')} />;
   }
 
+  if (view === 'offers') {
+    return <OfferManagement onBack={() => setView('menu')} />;
+  }
+
   return (
     <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between">
@@ -28,7 +33,7 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <CardButton
           title="Manage Work Items"
           description="View and manage all work items across the system."
@@ -40,6 +45,12 @@ export function AdminDashboard() {
           description="View, create, and manage user accounts and roles."
           icon={<Users className="h-8 w-8" />}
           onClick={() => setView('users')}
+        />
+        <CardButton
+          title="Generate Offer Letters"
+          description="Create and manage offer letters for new employees."
+          icon={<FileText className="h-8 w-8" />}
+          onClick={() => setView('offers')}
         />
       </div>
     </div>
