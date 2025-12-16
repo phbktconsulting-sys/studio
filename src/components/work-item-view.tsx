@@ -577,15 +577,15 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
          </div>
         
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="work-item-tabs-list">
-            <TabsTrigger value="overview" className="work-item-tabs-trigger">Work Overview</TabsTrigger>
-            <TabsTrigger value="notes" className="work-item-tabs-trigger">Notes</TabsTrigger>
-            <TabsTrigger value="contact" className="work-item-tabs-trigger">Contact Info</TabsTrigger>
-            <TabsTrigger value="images" className="work-item-tabs-trigger">Images</TabsTrigger>
-            <TabsTrigger value="associations" className="work-item-tabs-trigger">Associations</TabsTrigger>
-            <TabsTrigger value="tasks" className="work-item-tabs-trigger">Tasks</TabsTrigger>
-            <TabsTrigger value="policy" className="work-item-tabs-trigger">Policy</TabsTrigger>
-            <TabsTrigger value="agency" className="work-item-tabs-trigger">Agency</TabsTrigger>
+          <TabsList className="h-auto rounded-none bg-transparent p-0">
+            <TabsTrigger value="overview" className="relative flex-1 justify-center h-6 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none" style={{ fontSize: '5px' }}>Work Overview</TabsTrigger>
+            <TabsTrigger value="notes" className="relative flex-1 justify-center h-6 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none" style={{ fontSize: '5px' }}>Notes</TabsTrigger>
+            <TabsTrigger value="contact" className="relative flex-1 justify-center h-6 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none" style={{ fontSize: '5px' }}>Contact Info</TabsTrigger>
+            <TabsTrigger value="images" className="relative flex-1 justify-center h-6 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none" style={{ fontSize: '5px' }}>Images</TabsTrigger>
+            <TabsTrigger value="associations" className="relative flex-1 justify-center h-6 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none" style={{ fontSize: '5px' }}>Associations</TabsTrigger>
+            <TabsTrigger value="tasks" className="relative flex-1 justify-center h-6 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none" style={{ fontSize: '5px' }}>Tasks</TabsTrigger>
+            <TabsTrigger value="policy" className="relative flex-1 justify-center h-6 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none" style={{ fontSize: '5px' }}>Policy</TabsTrigger>
+            <TabsTrigger value="agency" className="relative flex-1 justify-center h-6 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none" style={{ fontSize: '5px' }}>Agency</TabsTrigger>
           </TabsList>
           
           <div className="mt-0 border-t-4 border-[#A60A0A] bg-card px-2">
@@ -667,3 +667,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -68,19 +69,4 @@
   }
 }
 
-/* Custom styles for Work Item View tabs */
-@layer components {
-  .work-item-tabs-list {
-    @apply flex w-full h-auto rounded-none bg-neutral-300 p-0;
-  }
-  .work-item-tabs-trigger {
-    @apply relative flex-1 justify-center h-6 rounded-none border-b-2 border-transparent bg-transparent px-4 font-semibold text-neutral-700 transition-none;
-    font-size: 5px;
-  }
-  .work-item-tabs-trigger:hover {
-     @apply bg-neutral-400/50;
-  }
-  .work-item-tabs-trigger[data-state='active'] {
-    @apply border-transparent bg-[#A60A0A] text-white shadow-none;
-  }
-}
+    
