@@ -64,10 +64,14 @@ export function TabProvider({ children }: { children: ReactNode }) {
       const tabToCloseIndex = prevTabs.findIndex((tab) => tab.id === tabId);
       if (tabToCloseIndex === -1) return prevTabs;
 
-      // If closing the active tab, switch to the previous one
+      // Determine the new active tab BEFORE filtering
       if (activeTab === tabId) {
-        const newActiveTab = prevTabs[tabToCloseIndex - 1] || prevTabs[0];
-        setActiveTab(newActiveTab.id);
+        // If there's a tab after the one being closed, activate it
+        if (tabToCloseIndex < prevTabs.length - 1) {
+            setActiveTab(prevTabs[tabToCloseIndex + 1].id);
+        } else { // Otherwise, activate the one before it
+            setActiveTab(prevTabs[tabToCloseIndex - 1].id);
+        }
       }
       
       return prevTabs.filter((tab) => tab.id !== tabId);

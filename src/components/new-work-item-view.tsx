@@ -21,22 +21,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const processTypes = [
   'Request Information',
@@ -48,11 +39,10 @@ const processTypes = [
   'Request Other',
 ];
 
-export function NewWorkItemDialog() {
+export function NewWorkItemView() {
   const { user } = useFirebase();
   const { toast } = useToast();
-  const { openTab } = useTabs();
-  const [isOpen, setIsOpen] = useState(false);
+  const { openTab, closeTab } = useTabs();
 
   const form = useForm<WorkItemFormValues>({
     resolver: zodResolver(WorkItemCreateSchema),
@@ -102,7 +92,7 @@ export function NewWorkItemDialog() {
         });
 
         form.reset();
-        setIsOpen(false); // Close dialog on success
+        closeTab('new-work-item');
         openTab({
           id: result.id,
           title: result.customId,
@@ -120,20 +110,29 @@ export function NewWorkItemDialog() {
     }
   };
 
+  const handleCancel = () => {
+    closeTab('new-work-item');
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          New Work
+    <div className="p-4 sm:p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="outline" size="icon" onClick={handleCancel}>
+          <ArrowLeft className="h-4 w-4" />
+          <span className="sr-only">Back</span>
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Create New Work Item</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+        <div>
+          <h1 className="font-headline text-xl font-bold tracking-tight">Create New Work Item</h1>
+          <p className="text-sm text-muted-foreground">Fill out the details below to create a new work item.</p>
+        </div>
+      </div>
+       <Card>
+        <CardHeader>
+           <CardTitle>Work Item Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+           <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                  <FormField
                   control={form.control}
@@ -238,7 +237,7 @@ export function NewWorkItemDialog() {
                     <FormItem>
                       <FormLabel>Customer Phone Secondary</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='Optional' />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -262,17 +261,16 @@ export function NewWorkItemDialog() {
                   </FormItem>
                 )}
               />
-              <DialogFooter>
-                <DialogClose asChild>
-                    <Button type="button" variant="outline">
-                    Cancel
-                    </Button>
-                </DialogClose>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={handleCancel}>
+                  Cancel
+                </Button>
                 <Button type="submit">Create Work Item</Button>
-              </DialogFooter>
+              </div>
             </form>
           </Form>
-      </DialogContent>
-    </Dialog>
+        </CardContent>
+       </Card>
+    </div>
   );
 }
