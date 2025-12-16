@@ -27,13 +27,14 @@ import { useDoc, useFirebase, useMemoFirebase, updateDocumentNonBlocking, delete
 import { CreateUserInputSchema, type CreateUserInput, type User as UserProfile } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import { CustomCalendar } from '@/components/custom-calendar';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
-export default function UserProfilePage({ params }: { params: { userId: string } }) {
-  const { userId } = params;
+export default function UserProfilePage() {
+  const params = useParams();
+  const userId = params.userId as string;
   const { toast } = useToast();
   const router = useRouter();
   const { firestore } = useFirebase();
