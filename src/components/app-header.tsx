@@ -42,11 +42,7 @@ export function AppHeader() {
   return (
     <div className="contents">
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
-        <div className="flex w-1/3">
-           {/* This empty div will occupy the left space */}
-        </div>
-
-        <div className="flex w-1/3 justify-center">
+        <div className="flex w-1/3 items-center">
             <Link href="/" className="flex items-center gap-4">
                 <LogoIcon className="h-16 w-16" />
                 <div className="flex flex-col font-headline text-lg font-bold leading-tight">
@@ -55,6 +51,10 @@ export function AppHeader() {
                 <span>Limited</span>
                 </div>
             </Link>
+        </div>
+
+        <div className="flex w-1/3 justify-center">
+           {/* This empty div will occupy the center space */}
         </div>
 
         <div className="flex w-1/3 items-center justify-end gap-4">
@@ -101,3 +101,4 @@ export function AppHeader() {
     </div>
   );
 }
+
