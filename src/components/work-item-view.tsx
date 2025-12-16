@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
@@ -205,13 +205,29 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   return (
     <div className="flex h-full flex-col bg-slate-100">
        <header className="flex flex-col gap-2 border-b bg-card p-4">
-        <div className="flex items-center gap-4 text-sm font-medium">
-          <Briefcase className="h-5 w-5 text-muted-foreground" />
-          <span className="font-headline text-lg">{item.process}</span>
-          <Separator orientation="vertical" className="h-5" />
-          <span>Status: <span className="text-muted-foreground">{item.status}</span></span>
-          <Separator orientation="vertical" className="h-5" />
-          <span>Priority: <span className="text-muted-foreground">{priorityMap[item.urgency]}</span></span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4 text-sm font-medium">
+            <Briefcase className="h-5 w-5 text-muted-foreground" />
+            <span className="font-headline text-lg">{item.process}</span>
+            <Separator orientation="vertical" className="h-5" />
+            <span>Status: <span className="text-muted-foreground">{item.status}</span></span>
+            <Separator orientation="vertical" className="h-5" />
+            <span>Priority: <span className="text-muted-foreground">{priorityMap[item.urgency]}</span></span>
+          </div>
+          <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <FilePenLine className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Paperclip className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+          </div>
         </div>
         <div className="flex items-center gap-6 text-xs text-muted-foreground">
           <span>Created: {format(parseISO(item.createdAt), 'dd/MM/yyyy HH:mm')}</span>
