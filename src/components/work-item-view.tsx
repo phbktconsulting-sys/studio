@@ -60,7 +60,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const { firestore, user } = useFirebase();
   const { toast } = useToast();
 
-  const [selectedAction, setSelectedAction] = useState<string>('re-index');
+  const [selectedAction, setSelectedAction] = useState<string>('resolve-complete');
   
   // Form field states
   const [resolveCompleteCall, setResolveCompleteCall] = useState('');
@@ -314,7 +314,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   return (
     <form onSubmit={handleSubmit}>
-      <Card className="mt-6 border-primary border">
+      <Card className="mt-2 border-primary border">
         <CardHeader className="p-2 bg-slate-100 flex-row items-center">
           <CardTitle className="text-xs font-bold uppercase pr-2">
             {getActionDisplayName(selectedAction)}
@@ -339,10 +339,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       
       {selectedAction && (
         <div className="flex justify-end gap-2 mt-4">
-          <Button type="button" variant="secondary" size="sm" onClick={onCancel} className="h-6 py-0">
+          <Button type="button" variant="secondary" onClick={onCancel} className="h-6 py-0">
             Cancel
           </Button>
-          <Button type="submit" size="sm" disabled={!selectedAction} className="h-6 py-0">
+          <Button type="submit" disabled={!selectedAction} className="h-6 py-0">
             Submit
           </Button>
         </div>
@@ -476,7 +476,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
          <div className="my-4">
             <h2 className="text-base font-semibold">Processes</h2>
-            <Separator className="bg-[#A60A0A] h-[2px] mb-4" />
+            <Separator className="bg-[#A60A0A] h-[2px] mb-1" />
              {isVerifyingAuthority ? (
               <VerifyAuthorityForm workItem={item} onCancel={() => setIsVerifyingAuthority(false)} />
             ) : isClosed ? (
