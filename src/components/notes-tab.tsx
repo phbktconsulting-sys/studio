@@ -1,10 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { Note } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { useFirebase, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import {
   Table,
@@ -23,7 +21,7 @@ import {
 import { format } from 'date-fns';
 
 export function NotesTab({ workItemId }: { workItemId: string }) {
-  const { firestore, user } = useFirebase();
+  const { firestore } = useFirebase();
 
   const notesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -60,17 +58,17 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading && <TableRow><TableCell colSpan={3}>Loading notes...</TableCell></TableRow>}
+              {isLoading && <TableRow><TableCell colSpan={3} className="py-1 px-4">Loading notes...</TableCell></TableRow>}
               {notes && notes.map((note) => (
                 <TableRow key={note.id}>
-                  <TableCell className="font-medium">{userMap.get(note.authorId) || 'System'}</TableCell>
-                  <TableCell>{note.text}</TableCell>
-                  <TableCell>{format(new Date(note.createdAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
+                  <TableCell className="font-medium py-1 px-4">{userMap.get(note.authorId) || 'System'}</TableCell>
+                  <TableCell className="py-1 px-4">{note.text}</TableCell>
+                  <TableCell className="py-1 px-4">{format(new Date(note.createdAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
                 </TableRow>
               ))}
               {notes && notes.length === 0 && !isLoading && (
                  <TableRow>
-                    <TableCell colSpan={3} className="text-center">
+                    <TableCell colSpan={3} className="text-center py-1 px-4">
                       No notes have been added yet.
                     </TableCell>
                   </TableRow>
