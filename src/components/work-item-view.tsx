@@ -569,7 +569,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
               <div className="flex items-center gap-4 text-sm py-2">
                   <span className="font-medium">Assigned To:</span>
                   <span>{assignedUser?.displayName || '...'}</span>
-                  <Button variant="secondary" onClick={() => setIsVerifyingAuthority(true)} className="h-7 text-xs bg-black text-white hover:bg-black/80">
+                  <Button onClick={() => setIsVerifyingAuthority(true)} className="h-7 text-xs bg-black text-white hover:bg-black/80">
                     Verify Customer Authority
                   </Button>
               </div>
@@ -588,7 +588,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsTrigger value="agency" className="work-item-tabs-trigger">Agency</TabsTrigger>
           </TabsList>
           
-          <div className="mt-0 border-t-4 border-[#A60A0A] bg-card p-4">
+          <div className="mt-0 border-t-4 border-[#A60A0A] bg-card p-2">
             <TabsContent value="overview" className="mt-0">
               <Card className="border-0 shadow-none">
                 <CardHeader>
