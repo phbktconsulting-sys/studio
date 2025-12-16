@@ -71,7 +71,7 @@ service cloud.firestore {
       allow list: if isAdmin();
       allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.role == 'User';
       allow update: if (isOwner(userId) || isAdmin()) && request.resource.data.id == userId && (request.resource.data.role == resource.data.role || isAdmin());
-      allow delete: if false; // Users should not be able to delete their own accounts through the app
+      allow delete: if isAdmin(); // Only Admins can delete users
     }
 
     /**

@@ -122,7 +122,7 @@ export default function UserProfilePage() {
             title: 'User Deleted',
             description: `User account has been permanently deleted.`,
           });
-          router.push('/admin'); // Navigate back to a safe page
+          router.push('/'); // Navigate back to a safe page
         } else {
           throw new Error(result.error || 'An unknown server error occurred.');
         }
