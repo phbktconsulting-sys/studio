@@ -124,7 +124,7 @@ function TasksTab({ tasks }: { tasks: Task[] }) {
 }
 
 
-export function WorkItemView({ workItemId }: { workItemId: string }) {
+export function WorkItemView({ workItemId, customId }: { workItemId: string, customId: string }) {
   const { firestore } = useFirebase();
 
   const workItemRef = useMemoFirebase(() => {
@@ -148,7 +148,7 @@ export function WorkItemView({ workItemId }: { workItemId: string }) {
       <header className="flex items-center justify-between border-b bg-card p-4">
         <div>
           <h1 className="font-headline text-2xl font-bold">{item.subject}</h1>
-          <p className="text-sm text-muted-foreground">Work Item ID: WI-{item.id.slice(0, 4)}</p>
+          <p className="text-sm text-muted-foreground">Work Item ID: {customId}</p>
         </div>
         <div className="flex items-center gap-4">
           <Badge variant="outline">{item.urgency} Urgency</Badge>
@@ -215,3 +215,5 @@ export function WorkItemView({ workItemId }: { workItemId: string }) {
     </div>
   );
 }
+
+    

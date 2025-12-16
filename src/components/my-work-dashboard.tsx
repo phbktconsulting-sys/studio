@@ -65,7 +65,7 @@ export function MyWorkDashboard() {
   const handleRowClick = (item: WorkItem) => {
     openTab({
       id: item.id,
-      title: `WI-${item.id.slice(0, 4)}`,
+      title: item.customId,
       type: 'work-item',
     });
   };
@@ -105,7 +105,7 @@ export function MyWorkDashboard() {
                 <TableCell className="text-center">
                   <UrgencyIcon urgency={item.urgency} />
                 </TableCell>
-                <TableCell className="font-medium">{`WI-${item.id.slice(0, 4)}`}</TableCell>
+                <TableCell className="font-medium">{item.customId}</TableCell>
                 <TableCell>
                   <StatusBadge status={item.status} />
                 </TableCell>
@@ -119,3 +119,5 @@ export function MyWorkDashboard() {
     </div>
   );
 }
+
+    

@@ -10,6 +10,15 @@
           "type": "string",
           "description": "Unique identifier for the WorkItem entity."
         },
+        "customId": {
+          "type": "string",
+          "description": "User-facing sequential ID, like RI-10001."
+        },
+        "process": {
+            "type": "string",
+            "enum": ["Request Information", "Request Quotation", "Request Application", "Request Website", "Request inquiry", "Request Backend Support", "Request Other"],
+            "description": "The type of process for the work item."
+        },
         "assignedTo": {
           "type": "string",
           "description": "Reference to User who is assigned to this work item."
@@ -45,6 +54,8 @@
       },
       "required": [
         "id",
+        "customId",
+        "process",
         "assignedTo",
         "urgency",
         "status",
@@ -166,7 +177,14 @@
     "/counters/user_employee_id": {
       "schema": { "$ref": "#/entities/Counter" },
       "description": "Stores the counter for generating unique employee IDs for users."
-    }
+    },
+    "/counters/work_item_RI": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Information work items." },
+    "/counters/work_item_RQ": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Quotation work items." },
+    "/counters/work_item_RA": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Application work items." },
+    "/counters/work_item_RW": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Website work items." },
+    "/counters/work_item_RIQ": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request inquiry work items." },
+    "/counters/work_item_RBS": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Backend Support work items." },
+    "/counters/work_item_RO": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Other work items." }
   }
 }
 

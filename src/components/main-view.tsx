@@ -27,7 +27,7 @@ export function MainView() {
         return <NewWorkItemView />;
       default:
         if (tab.type === 'work-item') {
-          return <WorkItemView workItemId={tab.id} />;
+          return <WorkItemView workItemId={tab.id} customId={tab.title} />;
         }
         return null;
     }
@@ -76,3 +76,5 @@ export function MainView() {
     </div>
   );
 }
+
+    

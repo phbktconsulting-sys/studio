@@ -29,6 +29,8 @@ export interface Task {
 
 export interface WorkItem {
   id: string;
+  customId: string;
+  process: string;
   subject: string;
   status: 'Open' | 'In Progress' | 'Pending' | 'Closed';
   urgency: 'High' | 'Medium' | 'Low';
@@ -87,3 +89,24 @@ export const CreateUserOutputSchema = z.object({
   error: z.string().optional(),
 });
 export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
+
+
+export const WorkItemCreateSchema = z.object({
+  subject: z.string().min(5, 'Subject must be at least 5 characters.'),
+  process: z.enum(['Request Information', 'Request Quotation', 'Request Application', 'Request Website', 'Request inquiry', 'Request Backend Support', 'Request Other']),
+  customerName: z.string().min(2, 'Customer name is required.'),
+  customerEmail: z.string().email('Invalid email address.'),
+  customerPhone: z.string().optional(),
+  urgency: z.enum(['Low', 'Medium', 'High']),
+  overview: z.string().min(10, 'Overview must be at least 10 characters.'),
+});
+export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
+
+export const WorkItemCreateResponseSchema = z.object({
+  id: z.string().optional(),
+  customId: z.string().optional(),
+  error: z.string().optional(),
+});
+export type WorkItemCreateResponse = z.infer<typeof WorkItemCreateResponseSchema>;
+
+    
