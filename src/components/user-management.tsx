@@ -79,13 +79,13 @@ export function UserManagement({ onBack }: UserManagementProps) {
               {sortedUsers &&
                 sortedUsers.map((user) => (
                   <TableRow key={user.id}>
-                     <TableCell className="font-mono text-xs">{user.employeeId}</TableCell>
+                    <TableCell className="font-mono text-xs">{user.employeeId}</TableCell>
                     <TableCell className="font-medium">{user.displayName}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                       <Badge variant={user.role === 'Admin' ? 'destructive' : 'secondary'}>{user.role}</Badge>
+                      <Badge variant={user.role === 'Admin' ? 'destructive' : 'secondary'}>{user.role}</Badge>
                     </TableCell>
-                    <TableCell className='font-mono text-xs'>{user.uid}</TableCell>
+                    <TableCell className="font-mono text-xs">{user.uid}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
