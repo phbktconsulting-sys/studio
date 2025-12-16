@@ -42,6 +42,7 @@ export interface WorkItem {
     name: string;
     email: string;
     phone: string;
+    phoneSecondary?: string;
   };
   overview: string;
   tasks: Task[];
@@ -95,7 +96,8 @@ export const WorkItemCreateSchema = z.object({
   process: z.enum(['Request Information', 'Request Quotation', 'Request Application', 'Request Website', 'Request inquiry', 'Request Backend Support', 'Request Other']),
   customerName: z.string().min(2, 'Customer name is required.'),
   customerEmail: z.string().email('Invalid email address.'),
-  customerPhone: z.string().optional(),
+  customerPhone: z.string().min(1, 'Customer phone is required.'),
+  customerPhoneSecondary: z.string().optional(),
   urgency: z.enum(['Low', 'Medium', 'High']),
   overview: z.string().min(10, 'Overview must be at least 10 characters.'),
 });
@@ -110,6 +112,7 @@ export const ServerWorkItemCreateSchema = z.object({
     name: z.string(),
     email: z.string(),
     phone: z.string(),
+    phoneSecondary: z.string().optional(),
   }),
   overview: z.string(),
   tasks: z.array(z.any()),

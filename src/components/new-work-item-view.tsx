@@ -50,6 +50,7 @@ export function NewWorkItemView() {
       customerName: '',
       customerEmail: '',
       customerPhone: '',
+      customerPhoneSecondary: '',
       urgency: 'Medium',
       overview: '',
     },
@@ -74,7 +75,8 @@ export function NewWorkItemView() {
         relatedContact: {
           name: data.customerName,
           email: data.customerEmail,
-          phone: data.customerPhone || '',
+          phone: data.customerPhone,
+          phoneSecondary: data.customerPhoneSecondary || '',
         },
         overview: data.overview,
         tasks: [],
@@ -138,7 +140,7 @@ export function NewWorkItemView() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a process" />
+                            <SelectValue />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -165,7 +167,7 @@ export function NewWorkItemView() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select urgency" />
+                            <SelectValue />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -180,7 +182,7 @@ export function NewWorkItemView() {
                 />
               </div>
 
-               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                  <FormField
                   control={form.control}
                   name="customerName"
@@ -188,7 +190,7 @@ export function NewWorkItemView() {
                     <FormItem>
                       <FormLabel>Customer Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -202,7 +204,6 @@ export function NewWorkItemView() {
                       <FormLabel>Customer Email</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="john.doe@example.com"
                           {...field}
                         />
                       </FormControl>
@@ -215,9 +216,22 @@ export function NewWorkItemView() {
                   name="customerPhone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer Phone (Optional)</FormLabel>
+                      <FormLabel>Customer Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="555-123-4567" {...field} />
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="customerPhoneSecondary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Customer Phone Secondary (Optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -233,7 +247,6 @@ export function NewWorkItemView() {
                     <FormLabel>Overview / Notes</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Provide a detailed description of the work to be done."
                         className="min-h-[100px]"
                         {...field}
                       />

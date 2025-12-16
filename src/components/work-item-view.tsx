@@ -204,6 +204,12 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                     <Phone className="h-5 w-5 text-muted-foreground" />
                     <span>{item.relatedContact.phone}</span>
                 </div>
+                {item.relatedContact.phoneSecondary && (
+                  <div className="flex items-center gap-4">
+                      <Phone className="h-5 w-5 text-muted-foreground" />
+                      <span>{item.relatedContact.phoneSecondary} (Secondary)</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -215,5 +221,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    
