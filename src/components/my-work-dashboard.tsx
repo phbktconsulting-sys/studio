@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -110,24 +111,24 @@ export function MyWorkDashboard() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[50px]"></TableHead>
-              <TableHead className="w-[120px]">ID</TableHead>
-              <TableHead className="w-[150px]">Status</TableHead>
-              <TableHead>Subject</TableHead>
-              <TableHead className="w-[180px]">Date</TableHead>
+              <TableHead className="w-[120px] text-xs">ID</TableHead>
+              <TableHead className="w-[150px] text-xs">Status</TableHead>
+              <TableHead className="text-xs">Subject</TableHead>
+              <TableHead className="w-[180px] text-xs">Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedWorkItems && sortedWorkItems.map((item) => (
               <TableRow key={item.id} onClick={() => handleRowClick(item)} className="cursor-pointer">
-                <TableCell className="text-center">
+                <TableCell className="text-center py-1 px-4">
                   <UrgencyIcon urgency={item.urgency} />
                 </TableCell>
-                <TableCell className="font-medium">{item.customId}</TableCell>
-                <TableCell>
+                <TableCell className="font-medium py-1 px-4 text-xs">{item.customId}</TableCell>
+                <TableCell className="py-1 px-4 text-xs">
                   <StatusBadge status={item.status} />
                 </TableCell>
-                <TableCell>{item.subject}</TableCell>
-                <TableCell>{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
+                <TableCell className="py-1 px-4 text-xs">{item.subject}</TableCell>
+                <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
               </TableRow>
             ))}
           </TableBody>
