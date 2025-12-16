@@ -171,7 +171,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch (selectedAction) {
       case 'resolve-complete':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Call to customer?</Label>
             <Select onValueChange={setResolveCompleteCall} value={resolveCompleteCall}>
               <SelectTrigger className="text-xs h-6">
@@ -188,7 +188,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 're-index':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Please select the correct Re-index option *</Label>
             <RadioGroup value={reindexOption} onValueChange={setReindexOption} className="flex items-center gap-4">
               <div className="flex items-center space-x-2">
@@ -227,7 +227,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'terminate':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Reason</Label>
             <Select onValueChange={setTerminateReason} value={terminateReason}>
               <SelectTrigger className="text-xs h-6">
@@ -245,7 +245,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'resolve-close':
          return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Customer request resolved?</Label>
             <Select onValueChange={setResolveCloseResolved} value={resolveCloseResolved}>
               <SelectTrigger className="text-xs h-6">
@@ -262,7 +262,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'transfer':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Transfer to User</Label>
             <Select onValueChange={setTransferToUser} value={transferToUser}>
               <SelectTrigger className="text-xs h-6">
@@ -280,7 +280,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'pend':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Pend until date</Label>
             <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
             <Label className="text-xs font-normal text-right">Reason for pend</Label>
@@ -474,7 +474,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
          <div className="my-4">
             <h2 className="text-base font-semibold">Processes</h2>
-            <Separator className="bg-[#A60A0A] h-[2px]" />
+            <Separator className="bg-[#A60A0A] h-[2px] mb-4" />
              {isVerifyingAuthority ? (
               <VerifyAuthorityForm workItem={item} onCancel={() => setIsVerifyingAuthority(false)} />
             ) : isClosed ? (
