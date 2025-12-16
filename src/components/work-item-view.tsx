@@ -588,7 +588,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsTrigger value="agency" className="work-item-tabs-trigger">Agency</TabsTrigger>
           </TabsList>
           
-          <div className="mt-0 border-t-4 border-[#A60A0A] bg-card p-2">
+          <div className="mt-0 border-t-4 border-[#A60A0A] bg-card px-2">
             <TabsContent value="overview" className="mt-0">
               <Card className="border-0 shadow-none">
                 <CardHeader>
