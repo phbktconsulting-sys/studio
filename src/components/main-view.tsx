@@ -45,7 +45,7 @@ export function MainView() {
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="relative h-8 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-4 text-white hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none"
+                  className="relative h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-4 text-white hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none"
                 >
                   {tab.title}
                   {tab.type !== 'static' && (
