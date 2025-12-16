@@ -93,14 +93,9 @@ service cloud.firestore {
      * @description Rules for the work_items collection (queries).
      */
     match /work_items/{workitemId=**} {
-      // Admins can list all items without restriction.
-      allow list: if isAdmin();
-      
-      // A user can list items assigned to them.
-      allow list: if isSignedIn() && request.query.where.assignedTo == request.auth.uid;
-
-      // A user can list items created by them.
-      allow list: if isSignedIn() && request.query.where.createdBy == request.auth.uid;
+      // Any signed-in user can list items for search and dashboard functionality.
+      // More granular access is controlled at the document read level.
+      allow list: if isSignedIn();
     }
 
     /**
@@ -138,6 +133,15 @@ service cloud.firestore {
      */
     match /counters/{counterId=**} {
       allow read, write: if isAdmin();
+    }
+
+    /**
+     * @description Rules for customer documents. Any signed-in user can read.
+     * Creation/updates are handled by a trusted server-side flow.
+     */
+    match /customers/{customerId} {
+      allow get: if isSignedIn();
+      allow list, create, update, delete: if isAdmin(); // Only admins or server can modify
     }
   }
 }
