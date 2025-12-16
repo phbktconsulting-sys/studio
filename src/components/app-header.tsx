@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,19 +15,27 @@ import { LifeBuoy, LogOut, PlusCircle, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { NewWorkItemDialog } from './new-work-item-dialog';
+import { useTabs } from '@/contexts/tab-context';
 
 export function AppHeader() {
   const { user } = useUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
-  const [isNewWorkItemOpen, setIsNewWorkItemOpen] = useState(false);
+  const { openTab } = useTabs();
 
   const handleLogout = () => {
     if (auth) {
       signOut(auth);
     }
     router.push('/login');
+  };
+
+  const handleNewWorkItem = () => {
+    openTab({
+      id: 'new-work-item',
+      title: 'New Work',
+      type: 'new-work-item',
+    });
   };
 
   return (
@@ -39,7 +46,7 @@ export function AppHeader() {
           <span className="font-headline text-lg font-bold">PHBKT Group Limited</span>
         </Link>
         <div className="ml-auto flex items-center gap-4">
-          <Button variant="outline" onClick={() => setIsNewWorkItemOpen(true)}>
+          <Button variant="outline" onClick={handleNewWorkItem}>
             <PlusCircle className="mr-2 h-4 w-4" />
             New Work
           </Button>
@@ -75,7 +82,6 @@ export function AppHeader() {
           </DropdownMenu>
         </div>
       </header>
-      <NewWorkItemDialog open={isNewWorkItemOpen} onOpenChange={setIsNewWorkItemOpen} />
     </div>
   );
 }
