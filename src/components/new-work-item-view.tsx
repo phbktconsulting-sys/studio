@@ -54,8 +54,7 @@ const initialTaskOptions = [
 
 export function NewWorkItemView() {
   const { user } = useFirebase();
-  const { toast } = useToast();
-  const { openTab, closeTab } = useTabs();
+  const { toast } = useTabs();
 
   const form = useForm<WorkItemFormValues>({
     resolver: zodResolver(WorkItemCreateSchema),
@@ -138,13 +137,13 @@ export function NewWorkItemView() {
           <span className="sr-only">Back</span>
         </Button>
         <div>
-          <h1 className="font-headline text-xl font-bold tracking-tight">Create New Work Item</h1>
-          <p className="text-sm text-muted-foreground">Fill out the details below to create a new work item.</p>
+          <h1 className="font-headline text-lg font-bold tracking-tight">Create New Work Item</h1>
+          <p className="text-xs text-muted-foreground">Fill out the details below to create a new work item.</p>
         </div>
       </div>
        <Card>
         <CardHeader>
-           <CardTitle>Work Item Details</CardTitle>
+           <CardTitle className="text-base">Work Item Details</CardTitle>
         </CardHeader>
         <CardContent>
            <Form {...form}>
@@ -155,7 +154,7 @@ export function NewWorkItemView() {
                   name="process"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Process</FormLabel>
+                      <FormLabel className="text-xs">Process</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -182,7 +181,7 @@ export function NewWorkItemView() {
                   name="urgency"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Urgency</FormLabel>
+                      <FormLabel className="text-xs">Urgency</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -207,7 +206,7 @@ export function NewWorkItemView() {
                   name="customerName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer Name</FormLabel>
+                      <FormLabel className="text-xs">Customer Name</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -223,7 +222,7 @@ export function NewWorkItemView() {
                   name="customerEmail"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer Email</FormLabel>
+                      <FormLabel className="text-xs">Customer Email</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -238,7 +237,7 @@ export function NewWorkItemView() {
                   name="customerPhone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer Phone</FormLabel>
+                      <FormLabel className="text-xs">Customer Phone</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -251,7 +250,7 @@ export function NewWorkItemView() {
                   name="customerPhoneSecondary"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer Phone Secondary</FormLabel>
+                      <FormLabel className="text-xs">Customer Phone Secondary</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -266,7 +265,7 @@ export function NewWorkItemView() {
                   name="customerAddress"
                   render={({ field }) => (
                     <FormItem className="md:col-span-1">
-                      <FormLabel>Customer Address</FormLabel>
+                      <FormLabel className="text-xs">Customer Address</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Enter customer's full address"
@@ -284,7 +283,7 @@ export function NewWorkItemView() {
                   name="overview"
                   render={({ field }) => (
                     <FormItem className="md:col-span-1">
-                      <FormLabel>Overview / Notes</FormLabel>
+                      <FormLabel className="text-xs">Overview / Notes</FormLabel>
                       <FormControl>
                         <Textarea
                           className="min-h-[100px]"
@@ -301,7 +300,7 @@ export function NewWorkItemView() {
                     name="task"
                     render={({ field }) => (
                       <FormItem className="md:col-span-1">
-                        <FormLabel>Initial Task</FormLabel>
+                        <FormLabel className="text-xs">Initial Task</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
@@ -337,3 +336,5 @@ export function NewWorkItemView() {
     </div>
   );
 }
+
+    
