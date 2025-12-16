@@ -319,7 +319,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           {selectedAction ? getActionDisplayName(selectedAction) + ' OR' : 'Action'}
         </CardTitle>
         <Select onValueChange={(value) => setSelectedAction(value as string)}>
-            <SelectTrigger className="text-xs h-8 w-auto flex-1">
+            <SelectTrigger className="text-xs h-8 w-auto flex-1 bg-black text-white hover:bg-black/90 focus:ring-black">
                 <SelectValue placeholder="--Select a different action--" />
             </SelectTrigger>
             <SelectContent>
