@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -5,6 +6,7 @@ import { collection, query, where, Timestamp } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
+import * as RechartsPrimitive from 'recharts';
 import {
   ChartContainer,
   ChartTooltip,
