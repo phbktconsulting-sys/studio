@@ -77,6 +77,8 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
         ''
       );
       setValue('email', email);
+    } else {
+      setValue('email', '');
     }
   }, [firstName, lastName, setValue]);
 
@@ -236,6 +238,9 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                               mode="single"
                               selected={field.value}
                               onSelect={field.onChange}
+                              captionLayout="dropdown-nav"
+                              fromYear={1960}
+                              toYear={2030}
                               disabled={(date) =>
                                 date > new Date() || date < new Date('1900-01-01')
                               }
