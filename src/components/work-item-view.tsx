@@ -159,7 +159,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Call to customer?</Label>
+              <Label className="font-bold">Call to customer?</Label>
               <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Select..." />
@@ -171,7 +171,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notes-resolve-complete">Notes</Label>
+              <Label className="font-bold" htmlFor="notes-resolve-complete">Notes</Label>
               <Textarea id="notes-resolve-complete" placeholder="Add notes..." />
             </div>
           </div>
@@ -180,7 +180,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
         return (
           <div className="space-y-4">
              <div className="space-y-2">
-              <Label>Please select the correct Re-index option</Label>
+              <Label className="font-bold">Please select the correct Re-index option</Label>
               <RadioGroup defaultValue="myself">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="myself" id="reindex-myself" />
@@ -193,7 +193,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
               </RadioGroup>
             </div>
             <div className="space-y-2">
-              <Label>Reason</Label>
+              <Label className="font-bold">Reason</Label>
               <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Select reason..." />
@@ -205,7 +205,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
               </Select>
             </div>
             <div className="space-y-2">
-                <Label>Do you want to copy the notes to the new case?</Label>
+                <Label className="font-bold">Do you want to copy the notes to the new case?</Label>
                  <RadioGroup defaultValue="yes">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="yes" id="copy-yes" />
@@ -218,7 +218,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
                 </RadioGroup>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notes-re-index">Note</Label>
+              <Label className="font-bold" htmlFor="notes-re-index">Note</Label>
               <Textarea id="notes-re-index" placeholder="Add notes..." />
             </div>
           </div>
@@ -227,7 +227,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Reason</Label>
+              <Label className="font-bold">Reason</Label>
               <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Select reason..." />
@@ -240,7 +240,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notes-terminate">Notes</Label>
+              <Label className="font-bold" htmlFor="notes-terminate">Notes</Label>
               <Textarea id="notes-terminate" placeholder="Add notes..." />
             </div>
           </div>
@@ -249,7 +249,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
          return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Customer request resolved?</Label>
+              <Label className="font-bold">Customer request resolved?</Label>
               <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Select..." />
@@ -261,7 +261,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notes-resolve-close">Notes</Label>
+              <Label className="font-bold" htmlFor="notes-resolve-close">Notes</Label>
               <Textarea id="notes-resolve-close" placeholder="Add notes..." />
             </div>
           </div>
@@ -270,7 +270,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Transfer to User</Label>
+              <Label className="font-bold">Transfer to User</Label>
               <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Select user..." />
@@ -283,7 +283,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notes-transfer">Notes</Label>
+              <Label className="font-bold" htmlFor="notes-transfer">Notes</Label>
               <Textarea id="notes-transfer" placeholder="Add notes..." />
             </div>
           </div>
@@ -292,11 +292,11 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-                <Label>Pend until date</Label>
+                <Label className="font-bold">Pend until date</Label>
                 <CustomCalendar onChange={() => {}} />
             </div>
             <div className="space-y-2">
-              <Label>Reason for pend</Label>
+              <Label className="font-bold">Reason for pend</Label>
               <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Select reason..." />
@@ -309,7 +309,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notes-pend">Notes</Label>
+              <Label className="font-bold" htmlFor="notes-pend">Notes</Label>
               <Textarea id="notes-pend" placeholder="Add notes..." />
             </div>
           </div>
@@ -327,7 +327,7 @@ function VerifyAuthorityForm({ onCancel }: { onCancel: () => void }) {
       <CardContent>
          <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Action</Label>
+            <Label className="font-bold">Action</Label>
             <Select onValueChange={(value) => setSelectedAction(value as string)}>
               <SelectTrigger>
                 <SelectValue placeholder="--Select a different action--" />
