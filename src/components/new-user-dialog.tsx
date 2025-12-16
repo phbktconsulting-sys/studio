@@ -72,16 +72,22 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
 
   useEffect(() => {
     if (firstName && lastName) {
-      const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@phbkt.com`.replace(/\s+/g, '');
+      const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@phbkt.com`.replace(
+        /\s+/g,
+        ''
+      );
       setValue('email', email);
     }
   }, [firstName, lastName, setValue]);
 
-
   const onSubmit = async (data: CreateUserInput) => {
     setIsSubmitting(true);
     try {
-      const result = await createUser(data);
+      const payload = {
+        ...data,
+        dob: format(data.dob, 'yyyy-MM-dd'),
+      };
+      const result = await createUser(payload);
 
       if (result.uid) {
         toast({
@@ -160,7 +166,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
+                   <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
@@ -173,7 +179,21 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                  <FormField
+                   <FormItem>
+                    <FormLabel>Employee ID</FormLabel>
+                    <FormControl>
+                      <Input
+                        readOnly
+                        disabled
+                        value="Will be generated upon creation"
+                        className="border-dashed"
+                      />
+                    </FormControl>
+                  </FormItem>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                   <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
@@ -186,10 +206,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                   <FormField
+                  <FormField
                     control={form.control}
                     name="dob"
                     render={({ field }) => (
@@ -199,14 +216,14 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
-                                variant={"outline"}
+                                variant={'outline'}
                                 className={cn(
-                                  "pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
+                                  'pl-3 text-left font-normal',
+                                  !field.value && 'text-muted-foreground'
                                 )}
                               >
                                 {field.value ? (
-                                  format(field.value, "PPP")
+                                  format(field.value, 'PPP')
                                 ) : (
                                   <span>Pick a date</span>
                                 )}
@@ -220,7 +237,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                               selected={field.value}
                               onSelect={field.onChange}
                               disabled={(date) =>
-                                date > new Date() || date < new Date("1900-01-01")
+                                date > new Date() || date < new Date('1900-01-01')
                               }
                               initialFocus
                             />
@@ -230,6 +247,9 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="mobileNumber"
@@ -243,9 +263,6 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="department"
@@ -259,30 +276,17 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {['Operation', 'HR', 'Risk', 'Admin', 'Marketing', 'Other'].map(dep => (
-                                <SelectItem key={dep} value={dep}>{dep}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                   <FormField
-                    control={form.control}
-                    name="jobTitle"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Job Title / Position</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a job title" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                             {['Associate', 'Senior Associate', 'Team Lead', 'Assistant Manager', 'Manager', 'Senior Manager'].map(title => (
-                                <SelectItem key={title} value={title}>{title}</SelectItem>
+                            {[
+                              'Operation',
+                              'HR',
+                              'Risk',
+                              'Admin',
+                              'Marketing',
+                              'Other',
+                            ].map((dep) => (
+                              <SelectItem key={dep} value={dep}>
+                                {dep}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -291,29 +295,68 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                     )}
                   />
                 </div>
+
                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="level"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Level</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a level" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Array.from({length: 10}, (_, i) => `L${i + 1}`).map(level => (
-                                <SelectItem key={level} value={level}>{level}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="jobTitle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Job Title / Position</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a job title" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {[
+                                'Associate',
+                                'Senior Associate',
+                                'Team Lead',
+                                'Assistant Manager',
+                                'Manager',
+                                'Senior Manager',
+                              ].map((title) => (
+                                <SelectItem key={title} value={title}>
+                                  {title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="level"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Level</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a level" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Array.from({ length: 10 }, (_, i) => `L${i + 1}`).map(
+                                (level) => (
+                                  <SelectItem key={level} value={level}>
+                                    {level}
+                                  </SelectItem>
+                                )
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                 </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="workLocation"
@@ -327,8 +370,10 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                             {['Office', 'Remote', 'Hybrid', 'Other'].map(loc => (
-                                <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                            {['Office', 'Remote', 'Hybrid', 'Other'].map((loc) => (
+                              <SelectItem key={loc} value={loc}>
+                                {loc}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -336,9 +381,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                </div>
-                
-                 <FormField
+                  <FormField
                     control={form.control}
                     name="company"
                     render={({ field }) => (
@@ -351,6 +394,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
@@ -405,7 +449,12 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
               </div>
             </ScrollArea>
             <div className="flex justify-end space-x-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>

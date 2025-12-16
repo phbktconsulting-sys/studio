@@ -9,7 +9,7 @@
 
 import { ai } from '@/ai/genkit';
 import type { CreateUserOutput } from '@/lib/types';
-import { CreateUserInputSchema, CreateUserOutputSchema } from '@/lib/types';
+import { ServerCreateUserInputSchema, CreateUserOutputSchema } from '@/lib/types';
 
 // We need to use the Admin SDK for this, so we'll import it dynamically.
 // This ensures it's only imported on the server.
@@ -63,7 +63,7 @@ export async function createUser(payload: any): Promise<CreateUserOutput> {
 const createUserFlow = ai.defineFlow(
   {
     name: 'createUserFlow',
-    inputSchema: CreateUserInputSchema,
+    inputSchema: ServerCreateUserInputSchema,
     outputSchema: CreateUserOutputSchema,
   },
   async (payload) => {

@@ -75,6 +75,12 @@ export const CreateUserInputSchema = z.object({
 });
 export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;
 
+export const ServerCreateUserInputSchema = CreateUserInputSchema.extend({
+    dob: z.string(),
+});
+export type ServerCreateUserInput = z.infer<typeof ServerCreateUserInputSchema>;
+
+
 export const CreateUserOutputSchema = z.object({
   uid: z.string().optional(),
   employeeId: z.string().optional(),
