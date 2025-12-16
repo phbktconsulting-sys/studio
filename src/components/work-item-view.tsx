@@ -115,32 +115,32 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch(selectedAction) {
       case 'resolve-complete':
         category = 'Resolved/Completed';
-        noteText = resolveCompleteNotes || '';
+        noteText = `Call to customer: ${resolveCompleteCall}. Notes: ${resolveCompleteNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 're-index':
         category = 'Re-Indexed';
-        noteText = reindexNotes || '';
+        noteText = `Re-index option: ${reindexOption}. Reason: ${reindexReason}. Copy notes: ${reindexCopyNotes}. Notes: ${reindexNotes}`;
         workItemUpdate.status = 'Pending';
         break;
       case 'terminate':
         category = 'Terminated';
-        noteText = terminateNotes;
+        noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 'resolve-close':
         category = 'Resolved/Closed';
-        noteText = resolveCloseNotes || '';
+        noteText = `Customer request resolved: ${resolveCloseResolved}. Notes: ${resolveCloseNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 'transfer':
         category = 'Transferred';
-        noteText = transferNotes || '';
+        noteText = `Notes: ${transferNotes}`;
         workItemUpdate.assignedTo = transferToUser;
         break;
       case 'pend':
         category = 'Pended';
-        noteText = pendNotes || '';
+        noteText = `Pend until: ${pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A'}. Reason: ${pendReason}. Notes: ${pendNotes}`;
         workItemUpdate.status = 'Pending';
         break;
       default:
@@ -404,22 +404,16 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
 
     const { data: lastNoteArr } = useCollection<Note>(lastNoteQuery);
     const lastNote = lastNoteArr?.[0];
-
-    const closingUserRef = useMemoFirebase(() => {
-        if (!firestore || !lastNote?.authorId) return null;
-        return doc(firestore, 'users', lastNote.authorId);
-    }, [firestore, lastNote?.authorId]);
-
-    const { data: closingUser } = useDoc<User>(closingUserRef);
+    
+    let noteText = lastNote?.text || '';
+    if (lastNote?.category === 'Terminated' && noteText.startsWith('Reason: ')) {
+        noteText = `Work Item Terminated. ${noteText}`;
+    }
 
     return (
         <div className="flex items-center gap-4 text-sm py-2">
             <Lock className="h-5 w-5 text-destructive" />
-            <span className="font-medium">Work Item {workItem.status}:</span>
-             <span className="text-muted-foreground">
-                Action by {closingUser?.displayName || lastNote?.author || 'System'}
-                {lastNote?.category && ` (${lastNote.category})`}
-            </span>
+            <span className="font-medium text-muted-foreground">{noteText}</span>
         </div>
     );
 }
@@ -553,13 +547,13 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                   <CardTitle className="text-xs">Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 p-4 pt-0 text-xs">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 text-xs">
                       <UserIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Name:</span>
                       <span className="text-muted-foreground">{item.relatedContact.name}</span>
                   </div>
                    {item.relatedContact.address && (
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-4 text-xs">
                         <Home className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div className="flex flex-col">
                            <span className="font-medium">Address:</span>
@@ -567,18 +561,18 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                         </div>
                     </div>
                   )}
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 text-xs">
                       <Mail className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Email:</span>
                       <a href={`mailto:${item.relatedContact.email}`} className="text-primary hover:underline">{item.relatedContact.email}</a>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 text-xs">
                       <Phone className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Phone:</span>
                       <span className="text-muted-foreground">{item.relatedContact.phone}</span>
                   </div>
                   {item.relatedContact.phoneSecondary && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 text-xs">
                         <Phone className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">Secondary Phone:</span>
                         <span className="text-muted-foreground">{item.relatedContact.phoneSecondary}</span>
