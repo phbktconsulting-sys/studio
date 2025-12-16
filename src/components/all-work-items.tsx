@@ -22,6 +22,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import {
@@ -131,14 +132,11 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   const handleReallocate = async () => {
     if (!selectedItem || !newAssigneeId || !firestore || !adminUser) return;
     
-    const workItemRef = useMemoFirebase(() => {
-        if (!firestore) return null;
-        return collection(firestore, 'work_items');
-    }, [firestore])!;
+    const workItemRef = doc(firestore, 'work_items', selectedItem.id);
 
     const targetUser = users?.find(u => u.uid === newAssigneeId);
 
-    updateDocumentNonBlocking(workItemRef.doc(selectedItem.id), { assignedTo: newAssigneeId });
+    updateDocumentNonBlocking(workItemRef, { assignedTo: newAssigneeId });
 
     const notesCollectionRef = collection(firestore, `work_items/${selectedItem.id}/notes`);
       addDocumentNonBlocking(notesCollectionRef, {
@@ -162,10 +160,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   const handleAssignTask = async () => {
     if (!selectedItem || !newTaskText.trim() || !firestore || !adminUser) return;
     
-    const workItemRef = useMemoFirebase(() => {
-        if (!firestore) return null;
-        return collection(firestore, 'work_items');
-    }, [firestore])!;
+    const workItemRef = doc(firestore, 'work_items', selectedItem.id);
 
     const newTask = {
         id: `task-${Date.now()}`,
@@ -173,7 +168,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
         completed: false,
     };
 
-    updateDocumentNonBlocking(workItemRef.doc(selectedItem.id), { tasks: arrayUnion(newTask) });
+    updateDocumentNonBlocking(workItemRef, { tasks: arrayUnion(newTask) });
 
     const notesCollectionRef = collection(firestore, `work_items/${selectedItem.id}/notes`);
     addDocumentNonBlocking(notesCollectionRef, {
