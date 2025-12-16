@@ -106,41 +106,51 @@ const createWorkItemFlow = ai.defineFlow(
 
     try {
       const docRef = await adminFirestore.runTransaction(async (transaction) => {
-        // 1. Get or create unique customer ID
+        // 1. All reads must be done before any writes.
         const customerEmail = payload.relatedContact.email.toLowerCase();
         const customerDocRef = customersRef.doc(customerEmail);
-        let customerDoc = await transaction.get(customerDocRef);
+
+        // Read all necessary documents first.
+        const customerDoc = await transaction.get(customerDocRef);
+        const customerCounterDoc = await transaction.get(customerCounterRef);
+        const workItemCounterDoc = await transaction.get(workItemCounterRef);
+
         let customerUniqueId: string;
+        let isNewCustomer = false;
 
         if (customerDoc.exists) {
           customerUniqueId = customerDoc.data()!.customerUniqueId;
         } else {
-          const counterDoc = await transaction.get(customerCounterRef);
+          isNewCustomer = true;
           let nextId = 24000;
-          if (counterDoc.exists) {
-            nextId = counterDoc.data()!.count;
+          if (customerCounterDoc.exists) {
+            nextId = customerCounterDoc.data()!.count;
           }
           customerUniqueId = nextId.toString();
+        }
 
+        let nextWorkItemIdNumber = 10001; // Starting ID
+        if (workItemCounterDoc.exists) {
+          nextWorkItemIdNumber = workItemCounterDoc.data()!.count;
+        }
+
+        // 2. Now perform all write operations.
+        if (isNewCustomer) {
           transaction.set(customerDocRef, {
             id: customerEmail,
             email: customerEmail,
             customerUniqueId: customerUniqueId,
             createdAt: new Date().toISOString(),
           });
-          transaction.set(customerCounterRef, { count: nextId + 1 }, { merge: true });
+          transaction.set(customerCounterRef, { count: parseInt(customerUniqueId, 10) + 1 }, { merge: true });
         }
-
-        // 2. Get next work item ID
-        const workItemCounterDoc = await transaction.get(workItemCounterRef);
-        let nextWorkItemIdNumber = 10001; // Starting ID
-        if (workItemCounterDoc.exists) {
-          nextWorkItemIdNumber = workItemCounterDoc.data()!.count;
-        }
-
-        // 3. Create the work item
+        
+        // Update work item counter
+        transaction.set(workItemCounterRef, { count: nextWorkItemIdNumber + 1 }, { merge: true });
+        
+        // Create the work item
         const customId = `${prefix}-${nextWorkItemIdNumber}`;
-        const newWorkItemRef = workItemsRef.doc(); // Auto-generate Firestore ID
+        const newWorkItemRef = workItemsRef.doc();
 
         const newWorkItemData = {
           ...payload,
@@ -157,9 +167,6 @@ const createWorkItemFlow = ai.defineFlow(
         };
 
         transaction.set(newWorkItemRef, newWorkItemData);
-        
-        // 4. Update work item counter
-        transaction.set(workItemCounterRef, { count: nextWorkItemIdNumber + 1 }, { merge: true });
         
         return newWorkItemRef;
       });
