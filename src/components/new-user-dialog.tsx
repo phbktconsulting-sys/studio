@@ -31,28 +31,16 @@ import { useEffect, useState } from 'react';
 import { createUser } from '@/ai/flows/create-user-flow';
 import { CreateUserInputSchema, type CreateUserInput } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { Calendar } from './ui/calendar';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface NewUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const years = Array.from({ length: 71 }, (_, i) => (new Date().getFullYear() - 18 - i).toString());
-const months = [
-  { value: '01', label: 'January' },
-  { value: '02', label: 'February' },
-  { value: '03', label: 'March' },
-  { value: '04', label: 'April' },
-  { value: '05', label: 'May' },
-  { value: '06', label: 'June' },
-  { value: '07', label: 'July' },
-  { value: '08', label: 'August' },
-  { value: '09', label: 'September' },
-  { value: '10', label: 'October' },
-  { value: '11', label: 'November' },
-  { value: '12', label: 'December' },
-];
-const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString().padStart(2, '0'));
 
 
 export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
@@ -67,7 +55,6 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
       lastName: '',
       email: '',
       password: '',
-      dob: { day: '', month: '', year: '' },
       mobileNumber: '',
       department: 'Operation',
       jobTitle: 'Associate',
@@ -99,10 +86,9 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
   const onSubmit = async (data: CreateUserInput) => {
     setIsSubmitting(true);
     try {
-      const { day, month, year } = data.dob;
       const payload = {
         ...data,
-        dob: `${year}-${month}-${day}`,
+        dob: format(data.dob, 'yyyy-MM-dd'),
       };
       const result = await createUser(payload);
 
@@ -224,66 +210,47 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                     )}
                   />
                   
-                  <FormItem>
-                    <FormLabel>Date of Birth</FormLabel>
-                    <div className="grid grid-cols-3 gap-2">
-                       <FormField
-                        control={form.control}
-                        name="dob.day"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Day" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {days.map((day) => (<SelectItem key={day} value={day}>{day}</SelectItem>))}
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
-                       <FormField
-                        control={form.control}
-                        name="dob.month"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Month" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {months.map((month) => (<SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>))}
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="dob.year"
-                        render={({ field }) => (
-                           <FormItem>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Year" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {years.map((year) => (<SelectItem key={year} value={year}>{year}</SelectItem>))}
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                     <FormMessage>{form.formState.errors.dob?.message}</FormMessage>
-                  </FormItem>
+                  <FormField
+                    control={form.control}
+                    name="dob"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Date of Birth</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() || date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                 </div>
 
