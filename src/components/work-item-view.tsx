@@ -32,95 +32,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { CustomCalendar } from './custom-calendar';
 import { useToast } from '@/hooks/use-toast';
-
-function NotesTab({ workItemId }: { workItemId: string }) {
-  const { firestore, user } = useFirebase();
-  const [noteText, setNoteText] = useState('');
-
-  const notesQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, `work_items/${workItemId}/notes`), orderBy('createdAt', 'desc'));
-  }, [firestore, workItemId]);
-
-  const { data: notes, isLoading } = useCollection<Note>(notesQuery);
-
-  const handleAddNote = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (noteText.trim() && user && firestore) {
-      const notesCollectionRef = collection(firestore, `work_items/${workItemId}/notes`);
-      addDocumentNonBlocking(notesCollectionRef, {
-        authorId: user.uid,
-        author: user.displayName || user.email || 'Anonymous',
-        text: noteText,
-        createdAt: new Date().toISOString(),
-        workItemId: workItemId,
-      });
-      setNoteText('');
-    }
-  };
-  
-   const sortedNotes = useMemo(() => {
-    if (!notes) return [];
-    return [...notes].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [notes]);
-
-
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Add a Note</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddNote} className="space-y-4">
-            <Textarea 
-              name="note-text" 
-              placeholder="Type your note here." 
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-            />
-            <Button type="submit">Save Note</Button>
-          </form>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">Author</TableHead>
-                <TableHead>Note</TableHead>
-                <TableHead className="w-[250px]">Date/Time</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading && <TableRow><TableCell colSpan={3}>Loading notes...</TableCell></TableRow>}
-              {notes && notes.map((note) => (
-                <TableRow key={note.id}>
-                  <TableCell className="font-medium">{note.author}</TableCell>
-                  <TableCell>{note.text}</TableCell>
-                  <TableCell>{format(new Date(note.createdAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
-                </TableRow>
-              ))}
-              {notes && notes.length === 0 && !isLoading && (
-                 <TableRow>
-                    <TableCell colSpan={3} className="text-center">
-                      No notes have been added yet.
-                    </TableCell>
-                  </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+import { NotesTab } from './notes-tab';
 
 function TasksTab({ tasks }: { tasks: Task[] }) {
   if (!tasks || tasks.length === 0) {
@@ -592,7 +504,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsContent value="overview" className="mt-0">
               <Card className="border-0 shadow-none">
                 <CardHeader>
-                  <CardTitle>Overview</CardTitle>
+                  <CardTitle className="text-base">Overview</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-sm text-muted-foreground">{item.overview}</p>
@@ -607,7 +519,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsContent value="contact" className="mt-0">
               <Card className="border-0 shadow-none">
                 <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
+                  <CardTitle className="text-base">Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-4">
@@ -667,5 +579,6 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
 
 

@@ -65,7 +65,7 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Add a Note</CardTitle>
+          <CardTitle className="text-base">Add a Note</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAddNote} className="space-y-4">
@@ -82,7 +82,7 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
       
       <Card>
         <CardHeader>
-          <CardTitle>Activity</CardTitle>
+          <CardTitle className="text-base">Activity</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
