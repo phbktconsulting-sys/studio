@@ -279,25 +279,7 @@ export default function NewUserPage() {
               </div>
 
                <div className="rounded-lg border-[2px] border-[#C00025] p-4">
-                 <div className="grid grid-cols-1 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="password"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                    <FormField
                     control={form.control}
                     name="department"
@@ -397,7 +379,7 @@ export default function NewUserPage() {
                     )}
                   />
                   </div>
-                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormField
                     control={form.control}
                     name="workLocation"
@@ -451,6 +433,22 @@ export default function NewUserPage() {
                       </FormItem>
                     )}
                   />
+                   <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="password"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                 </div>
               </div>
 
