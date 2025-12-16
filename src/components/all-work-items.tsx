@@ -98,6 +98,8 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
 
   // State for Reallocation
   const [newAssigneeId, setNewAssigneeId] = useState('');
+  const [reallocationTaskText, setReallocationTaskText] = useState('');
+
 
   // State for Assign Task
   const [newTaskText, setNewTaskText] = useState('');
@@ -131,31 +133,50 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
 
   const handleReallocate = async () => {
     if (!selectedItem || !newAssigneeId || !firestore || !adminUser) return;
-    
-    const workItemRef = doc(firestore, 'work_items', selectedItem.id);
 
+    const workItemRef = doc(firestore, 'work_items', selectedItem.id);
     const targetUser = users?.find(u => u.uid === newAssigneeId);
 
-    updateDocumentNonBlocking(workItemRef, { assignedTo: newAssigneeId });
+    const updatePayload: any = {
+      assignedTo: newAssigneeId,
+      status: 'Open',
+    };
+    
+    let noteText = `Work item reallocated to ${targetUser?.displayName || 'Unknown User'}. Status set to Open.`;
+
+    if (reallocationTaskText.trim()) {
+        const newTask = {
+            id: `task-${Date.now()}`,
+            text: reallocationTaskText,
+            completed: false,
+        };
+        updatePayload.tasks = arrayUnion(newTask);
+        noteText += ` New task added: "${reallocationTaskText}"`;
+    }
+    
+    updateDocumentNonBlocking(workItemRef, updatePayload);
 
     const notesCollectionRef = collection(firestore, `work_items/${selectedItem.id}/notes`);
-      addDocumentNonBlocking(notesCollectionRef, {
+    addDocumentNonBlocking(notesCollectionRef, {
         authorId: adminUser.uid,
         author: adminUser.displayName || 'Admin',
-        text: `Work item reallocated to ${targetUser?.displayName || 'Unknown User'}.`,
+        text: noteText,
         createdAt: new Date().toISOString(),
         workItemId: selectedItem.id,
-      });
+    });
+
 
     toast({
-      title: 'Work Item Reallocated',
-      description: `${selectedItem.customId} has been assigned to ${targetUser?.displayName}.`
+        title: 'Work Item Reallocated',
+        description: `${selectedItem.customId} has been assigned to ${targetUser?.displayName}.`
     });
 
     setIsReallocateDialogOpen(false);
     setSelectedItem(null);
     setNewAssigneeId('');
+    setReallocationTaskText('');
   };
+
 
   const handleAssignTask = async () => {
     if (!selectedItem || !newTaskText.trim() || !firestore || !adminUser) return;
@@ -331,21 +352,32 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
             <DialogTitle>Reallocate Work Item: {selectedItem?.customId}</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
-            <Label htmlFor="assignee-select">New Assignee</Label>
-            <Select onValueChange={setNewAssigneeId} value={newAssigneeId}>
-              <SelectTrigger id="assignee-select">
-                <SelectValue placeholder="Select a user to assign" />
-              </SelectTrigger>
-              <SelectContent>
-                {users?.map(user => (
-                  <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+             <div className="space-y-2">
+              <Label htmlFor="assignee-select">New Assignee</Label>
+              <Select onValueChange={setNewAssigneeId} value={newAssigneeId}>
+                <SelectTrigger id="assignee-select">
+                  <SelectValue placeholder="Select a user to assign" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users?.map(user => (
+                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="reallocation-task">Task for New Assignee (Optional)</Label>
+                <Textarea
+                  id="reallocation-task"
+                  value={reallocationTaskText}
+                  onChange={(e) => setReallocationTaskText(e.target.value)}
+                  placeholder="Enter the details of a task for the new assignee..."
+                />
+            </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="secondary">Cancel</Button>
+              <Button type="button" variant="secondary" onClick={() => {setNewAssigneeId(''); setReallocationTaskText('');}}>Cancel</Button>
             </DialogClose>
             <Button onClick={handleReallocate} disabled={!newAssigneeId}>Reallocate</Button>
           </DialogFooter>
@@ -378,3 +410,5 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     </div>
   );
 }
+
+    
