@@ -9,6 +9,12 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
+import { useFirebase, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
+
+interface AppSettings {
+  logo?: string;
+}
 
 interface ManageAppProps {
   onBack: () => void;
@@ -16,17 +22,24 @@ interface ManageAppProps {
 
 export function ManageApp({ onBack }: ManageAppProps) {
   const { toast } = useToast();
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const { firestore } = useFirebase();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
+  const appSettingsRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'settings', 'app');
+  }, [firestore]);
+
+  const { data: appSettings } = useDoc<AppSettings>(appSettingsRef);
+
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
-    // On mount, load the logo from localStorage
-    const storedLogo = localStorage.getItem('customLogo');
-    if (storedLogo) {
-      setLogoPreview(storedLogo);
+    if (appSettings) {
+      setLogoPreview(appSettings.logo || null);
     }
-  }, []);
+  }, [appSettings]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -39,7 +52,6 @@ export function ManageApp({ onBack }: ManageAppProps) {
         });
         return;
       }
-      setLogoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setLogoPreview(reader.result as string);
@@ -48,43 +60,52 @@ export function ManageApp({ onBack }: ManageAppProps) {
     }
   };
 
-  const handleSaveLogo = () => {
-    if (logoPreview) {
-      localStorage.setItem('customLogo', logoPreview);
-      // Dispatch a storage event to notify other tabs/components
-      window.dispatchEvent(
-        new StorageEvent('storage', {
-          key: 'customLogo',
-          newValue: logoPreview,
-        })
-      );
+  const handleSaveLogo = async () => {
+    if (!appSettingsRef) return;
+    setIsSaving(true);
+    
+    try {
+      setDocumentNonBlocking(appSettingsRef, { logo: logoPreview }, { merge: true });
       toast({
         title: 'Logo Updated',
         description: 'The application logo has been successfully updated.',
       });
       onBack();
-    } else {
-      toast({
+    } catch (error: any) {
+       toast({
         variant: 'destructive',
-        title: 'No Logo Selected',
-        description: 'Please upload an image to set as the logo.',
+        title: 'Error Saving Logo',
+        description: error.message || 'An unexpected error occurred.',
       });
+    } finally {
+      setIsSaving(false);
     }
   };
-  
-  const handleRemoveLogo = () => {
-    localStorage.removeItem('customLogo');
-    window.dispatchEvent(new StorageEvent('storage', { key: 'customLogo', newValue: null }));
-    setLogoPreview(null);
-    setLogoFile(null);
-    if(fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    toast({
+
+  const handleRemoveLogo = async () => {
+    if (!appSettingsRef) return;
+    setIsSaving(true);
+    
+    try {
+      setDocumentNonBlocking(appSettingsRef, { logo: null }, { merge: true });
+      setLogoPreview(null);
+       if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      toast({
         title: 'Logo Removed',
-        description: 'The custom logo has been removed. The default logo will be used.',
+        description: 'The default logo will now be used.',
       });
-  }
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Error Removing Logo',
+            description: error.message || 'An unexpected error occurred.',
+        });
+    } finally {
+        setIsSaving(false);
+    }
+  };
 
   return (
     <div className="p-4 sm:p-6">
@@ -131,8 +152,12 @@ export function ManageApp({ onBack }: ManageAppProps) {
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="destructive" onClick={handleRemoveLogo}>Remove Logo</Button>
-            <Button onClick={handleSaveLogo} disabled={!logoFile && !logoPreview}>Save Logo</Button>
+            <Button variant="destructive" onClick={handleRemoveLogo} disabled={!logoPreview || isSaving}>
+                {isSaving ? 'Removing...' : 'Remove Logo'}
+            </Button>
+            <Button onClick={handleSaveLogo} disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save Logo'}
+            </Button>
           </div>
         </CardContent>
       </Card>

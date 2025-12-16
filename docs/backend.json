@@ -188,6 +188,17 @@
         }
       },
       "required": ["count"]
+    },
+    "AppSettings": {
+        "title": "AppSettings",
+        "type": "object",
+        "description": "Stores global application settings.",
+        "properties": {
+            "logo": {
+                "type": "string",
+                "description": "A base64 data URI of the custom application logo."
+            }
+        }
     }
   },
   "auth": {
@@ -226,6 +237,10 @@
     "/counters/work_item_RW": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Website work items." },
     "/counters/work_item_RIQ": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request inquiry work items." },
     "/counters/work_item_RBS": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Backend Support work items." },
-    "/counters/work_item_RO": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Other work items." }
+    "/counters/work_item_RO": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Other work items." },
+    "/settings/app": {
+      "schema": { "$ref": "#/entities/AppSettings" },
+      "description": "Stores global application settings, like the custom logo. Should be publicly readable."
+    }
   }
 }

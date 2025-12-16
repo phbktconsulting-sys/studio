@@ -136,8 +136,17 @@ service cloud.firestore {
      * @description Rules for counters. Admins can read/write all counters.
      * This is an internal collection used for generating sequential IDs.
      */
-    match /counters/{counterId} {
+    match /counters/{counterId=**} {
       allow read, write: if isAdmin();
+    }
+
+    /**
+     * @description Rules for app settings. Publicly readable, admin-only write.
+     */
+    match /settings/{settingId} {
+        allow get: if true;
+        allow list: if true;
+        allow write: if isAdmin();
     }
   }
 }

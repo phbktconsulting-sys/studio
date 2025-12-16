@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -16,29 +16,25 @@ import { Label } from '@/components/ui/label';
 import { LogoIcon } from '@/components/icons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useFirebase, initiateEmailSignIn } from '@/firebase';
+import { useFirebase, initiateEmailSignIn, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+
+interface AppSettings {
+  logo?: string;
+}
 
 export default function LoginPage() {
   const router = useRouter();
-  const { auth, user, isUserLoading } = useFirebase();
+  const { auth, firestore, user, isUserLoading } = useFirebase();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [customLogo, setCustomLogo] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedLogo = localStorage.getItem('customLogo');
-      if (storedLogo) {
-        setCustomLogo(storedLogo);
-      }
-    }
-  }, []);
+  const appSettingsRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'settings', 'app');
+  }, [firestore]);
 
-  useEffect(() => {
-    if (!isUserLoading && user) {
-      router.push('/');
-    }
-  }, [user, isUserLoading, router]);
+  const { data: appSettings } = useDoc<AppSettings>(appSettingsRef);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +53,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <LogoIcon src={customLogo} className="h-16 w-16" />
+          <LogoIcon src={appSettings?.logo} className="h-16 w-16" />
         </div>
         <Card>
           <CardHeader className="text-center">

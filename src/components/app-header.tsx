@@ -11,41 +11,31 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { LogoIcon } from '@/components/icons';
-import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
+import { useUser, useAuth as useFirebaseAuth, useDoc, useMemoFirebase, useFirebase } from '@/firebase';
 import { LifeBuoy, LogOut, User as UserIcon, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTabs } from '@/contexts/tab-context';
-import { useEffect, useState } from 'react';
+import { doc } from 'firebase/firestore';
+
+interface AppSettings {
+  logo?: string;
+}
 
 export function AppHeader() {
   const { user } = useUser();
   const auth = useFirebaseAuth();
+  const { firestore } = useFirebase();
   const router = useRouter();
   const { openTab } = useTabs();
-  const [customLogo, setCustomLogo] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Load from localStorage on initial render
-    const storedLogo = localStorage.getItem('customLogo');
-    if (storedLogo) {
-      setCustomLogo(storedLogo);
-    }
-  
-    // Listen for changes from other tabs/windows
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'customLogo') {
-        setCustomLogo(event.newValue);
-      }
-    };
-  
-    window.addEventListener('storage', handleStorageChange);
-  
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
+  const appSettingsRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'settings', 'app');
+  }, [firestore]);
+
+  const { data: appSettings } = useDoc<AppSettings>(appSettingsRef);
 
   const handleLogout = () => {
     if (auth) {
@@ -67,7 +57,7 @@ export function AppHeader() {
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-4">
-             <LogoIcon src={customLogo} className="h-16 w-16" />
+             <LogoIcon src={appSettings?.logo} className="h-16 w-16" />
             <div className="flex flex-col font-headline text-lg font-bold leading-tight">
               <span>PHBKT</span>
               <span>Group</span>
