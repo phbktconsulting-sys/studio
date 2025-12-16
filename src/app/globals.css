@@ -75,7 +75,7 @@
   }
   .work-item-tabs-trigger {
     @apply relative flex-1 justify-center h-8 rounded-none border-b-2 border-transparent bg-transparent px-4 font-semibold text-neutral-700 transition-none;
-    font-size: 11px;
+    font-size: 10px;
   }
   .work-item-tabs-trigger:hover {
      @apply bg-neutral-400/50;
