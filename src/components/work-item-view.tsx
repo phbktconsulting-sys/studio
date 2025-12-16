@@ -554,13 +554,13 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                   <CardTitle className="text-base">Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 text-sm">
                       <UserIcon className="h-5 w-5 text-muted-foreground" />
                       <span className="font-medium">Name:</span>
                       <span>{item.relatedContact.name}</span>
                   </div>
                    {item.relatedContact.address && (
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-4 text-sm">
                         <Home className="h-5 w-5 text-muted-foreground mt-1" />
                         <div className="flex flex-col">
                            <span className="font-medium">Address:</span>
@@ -568,18 +568,18 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                         </div>
                     </div>
                   )}
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 text-sm">
                       <Mail className="h-5 w-5 text-muted-foreground" />
                       <span className="font-medium">Email:</span>
                       <a href={`mailto:${item.relatedContact.email}`} className="text-primary hover:underline">{item.relatedContact.email}</a>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 text-sm">
                       <Phone className="h-5 w-5 text-muted-foreground" />
                       <span className="font-medium">Phone:</span>
                       <span>{item.relatedContact.phone}</span>
                   </div>
                   {item.relatedContact.phoneSecondary && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 text-sm">
                         <Phone className="h-5 w-5 text-muted-foreground" />
                         <span className="font-medium">Secondary Phone:</span>
                         <span>{item.relatedContact.phoneSecondary}</span>
@@ -611,3 +611,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    
