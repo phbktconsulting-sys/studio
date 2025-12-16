@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { AllWorkItems } from './all-work-items';
 import { UserManagement } from './user-management';
 import { AnalyticsDashboard } from './analytics-dashboard';
-import { List, Users, BarChart2 } from 'lucide-react';
+import { List, Users, BarChart2, Upload } from 'lucide-react';
+import { BatchWorkCreate } from './batch-work-create';
 
-type AdminView = 'menu' | 'work-items' | 'users' | 'dashboard';
+type AdminView = 'menu' | 'work-items' | 'users' | 'dashboard' | 'batch-create';
 
 export function AdminDashboard() {
   const [view, setView] = useState<AdminView>('menu');
@@ -24,6 +25,10 @@ export function AdminDashboard() {
     return <AnalyticsDashboard onBack={() => setView('menu')} />;
   }
 
+  if (view === 'batch-create') {
+    return <BatchWorkCreate onBack={() => setView('menu')} />;
+  }
+
   return (
     <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between">
@@ -33,7 +38,7 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
          <CardButton
           title="Analytics Dashboard"
           description="View charts and graphs for work item progress."
@@ -51,6 +56,12 @@ export function AdminDashboard() {
           description="View, create, and manage user accounts and roles."
           icon={<Users className="h-6 w-6" />}
           onClick={() => setView('users')}
+        />
+         <CardButton
+          title="Batch Work Create"
+          description="Create multiple work items by uploading an Excel file."
+          icon={<Upload className="h-6 w-6" />}
+          onClick={() => setView('batch-create')}
         />
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { AppHeader } from '@/components/app-header';
@@ -11,6 +10,7 @@ import type { Tab } from '@/contexts/tab-context';
 import { AdminDashboard } from './admin-dashboard';
 import { NewWorkItemView } from './new-work-item-view';
 import { SearchView } from './search-view';
+import { BatchWorkCreate } from './batch-work-create';
 
 export function MainView() {
   const { tabs, activeTab, setActiveTab, closeTab } = useTabs();
@@ -27,6 +27,8 @@ export function MainView() {
         return <div className="p-6 text-xs">Global Notes (Not Implemented)</div>;
       case 'new-work-item':
         return <NewWorkItemView />;
+      case 'batch-create':
+        return <BatchWorkCreate onBack={() => closeTab('batch-create')} />;
       default:
         if (tab.type === 'work-item') {
           return <WorkItemView workItemId={tab.id} customId={tab.title} />;
