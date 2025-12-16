@@ -21,9 +21,9 @@ export function MainView() {
       case 'my-work':
         return <MyWorkDashboard />;
       case 'search':
-        return <div className="p-6">Search Functionality (Not Implemented)</div>;
+        return <div className="p-6 text-xs">Search Functionality (Not Implemented)</div>;
       case 'global-notes':
-        return <div className="p-6">Global Notes (Not Implemented)</div>;
+        return <div className="p-6 text-xs">Global Notes (Not Implemented)</div>;
       case 'new-work-item':
         return <NewWorkItemView />;
       default:
