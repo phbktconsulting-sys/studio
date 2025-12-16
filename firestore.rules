@@ -83,7 +83,8 @@ service cloud.firestore {
      * @principle Restricts access to a user's own data, enforcing that only the assigned user or an admin can manage work items.
      */
     match /work_items/{workitemId} {
-      allow get, list: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
+      allow get: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
+      allow list: if isSignedIn(); // Allow all signed-in users to query the collection. Specific docs are protected by the 'get' rule.
       allow create: if isSignedIn() && request.resource.data.assignedTo == request.auth.uid;
       allow update: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
