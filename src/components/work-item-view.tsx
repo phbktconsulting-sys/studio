@@ -171,7 +171,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch (selectedAction) {
       case 'resolve-complete':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Call to customer?</Label>
             <Select onValueChange={setResolveCompleteCall} value={resolveCompleteCall}>
               <SelectTrigger className="text-xs h-8">
@@ -188,7 +188,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 're-index':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Please select the correct Re-index option *</Label>
             <RadioGroup value={reindexOption} onValueChange={setReindexOption} className="flex items-center gap-4">
               <div className="flex items-center space-x-2">
@@ -227,7 +227,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'terminate':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Reason</Label>
             <Select onValueChange={setTerminateReason} value={terminateReason}>
               <SelectTrigger className="text-xs h-8">
@@ -245,7 +245,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'resolve-close':
          return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Customer request resolved?</Label>
             <Select onValueChange={setResolveCloseResolved} value={resolveCloseResolved}>
               <SelectTrigger className="text-xs h-8">
@@ -262,7 +262,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'transfer':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Transfer to User</Label>
             <Select onValueChange={setTransferToUser} value={transferToUser}>
               <SelectTrigger className="text-xs h-8">
@@ -280,7 +280,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'pend':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Pend until date</Label>
             <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
             <Label className="text-xs font-normal text-right">Reason for pend</Label>
@@ -299,7 +299,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           </div>
         );
       default:
-        return null;
+        return <p className="text-xs text-muted-foreground p-4 text-center">Please select an action to continue.</p>;
     }
   };
 
@@ -331,14 +331,18 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       </CardHeader>
       <CardContent className='p-4'>
         <form onSubmit={handleSubmit}>
-            {renderActionForm()}
-            
-            <div className="flex justify-end gap-2 mt-4">
-                <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
-                Cancel
-                </Button>
-                <Button type="submit" size="sm" disabled={!selectedAction}>Submit</Button>
+            <div className="space-y-0">
+              {renderActionForm()}
             </div>
+            
+            {selectedAction && (
+              <div className="flex justify-end gap-2 mt-0">
+                  <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
+                  Cancel
+                  </Button>
+                  <Button type="submit" size="sm" disabled={!selectedAction}>Submit</Button>
+              </div>
+            )}
         </form>
       </CardContent>
     </Card>
@@ -468,7 +472,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
-         <div className="mt-2">
+         <div className="mt-2 mb-4">
             <h2 className="text-base font-semibold">Processes</h2>
             <Separator className="bg-[#A60A0A] h-[2px]" />
              {isVerifyingAuthority ? (
@@ -577,5 +581,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    
 
     
