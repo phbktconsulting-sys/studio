@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -53,7 +52,8 @@ export function MyWorkDashboard() {
   const { firestore, user } = useFirebase();
   const { openTab } = useTabs();
 
-  const workItemsQuery = useMemoFirebase(() => {
+  // Query for items assigned to the user
+  const assignedItemsQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
     return query(
       collection(firestore, 'work_items'),
@@ -61,7 +61,33 @@ export function MyWorkDashboard() {
     );
   }, [firestore, user]);
 
-  const { data: workItems, isLoading } = useCollection<WorkItem>(workItemsQuery);
+  // Query for items created by the user
+  const createdItemsQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return query(
+      collection(firestore, 'work_items'),
+      where('createdBy', '==', user.uid)
+    );
+  }, [firestore, user]);
+
+  const { data: assignedItems, isLoading: assignedLoading } = useCollection<WorkItem>(assignedItemsQuery);
+  const { data: createdItems, isLoading: createdLoading } = useCollection<WorkItem>(createdItemsQuery);
+
+  const workItems = useMemo(() => {
+    const allItems = new Map<string, WorkItem>();
+
+    // Add assigned items to the map
+    if (assignedItems) {
+      assignedItems.forEach(item => allItems.set(item.id, item));
+    }
+    // Add created items to the map (will overwrite duplicates, which is fine)
+    if (createdItems) {
+      createdItems.forEach(item => allItems.set(item.id, item));
+    }
+    
+    return Array.from(allItems.values());
+  }, [assignedItems, createdItems]);
+
 
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -89,6 +115,7 @@ export function MyWorkDashboard() {
     return [...workItems].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   }, [workItems]);
 
+  const isLoading = assignedLoading || createdLoading;
 
   if (isLoading) {
      return (
@@ -103,7 +130,7 @@ export function MyWorkDashboard() {
        <div className="flex items-center justify-between">
         <div>
           <h1 className="font-headline text-lg font-bold tracking-tight text-xs">My Work</h1>
-          <p className="text-xs text-muted-foreground">Work items assigned to you.</p>
+          <p className="text-xs text-muted-foreground">Work items assigned to or created by you.</p>
         </div>
       </div>
       <div className="mt-6 rounded-lg border bg-card">
@@ -131,6 +158,13 @@ export function MyWorkDashboard() {
                 <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
               </TableRow>
             ))}
+             {(!sortedWorkItems || sortedWorkItems.length === 0) && !isLoading && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-4 text-xs">
+                  You have no work items.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

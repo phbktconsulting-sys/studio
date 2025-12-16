@@ -59,6 +59,20 @@ service cloud.firestore {
     function isAdmin() {
       return isSignedIn() && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin' || request.auth.uid == 'Bx6NMfVHH5dFSYDvWP5QBW1giQ23');
     }
+    
+    /**
+     * Checks if the document being created/updated has the `assignedTo` field set to the user's UID.
+     */
+    function isAssignedToSelf() {
+      return request.resource.data.assignedTo == request.auth.uid;
+    }
+    
+    /**
+     * Checks if the document being created/updated has the `createdBy` field set to the user's UID.
+     */
+    function isCreatedBySelf() {
+        return request.resource.data.createdBy == request.auth.uid;
+    }
 
     /**
      * @description Rules for user profile documents.
@@ -77,23 +91,26 @@ service cloud.firestore {
     
     /**
      * @description Rules for the work_items collection.
-     * @path /work_items
-     * @allow An admin to list all documents.
-     * @allow Any signed-in user to query the collection only if they are querying for items assigned to themselves.
-     * @allow A signed-in user to create a work item if they are the one it's assigned to.
      */
     match /work_items/{workitemId} {
-      allow list: if isAdmin() || (isSignedIn() && request.query.resource.data.assignedTo == request.auth.uid);
-      allow create: if isSignedIn() && request.resource.data.assignedTo == request.auth.uid;
-      
-      /**
-       * @description Rules for individual work item documents.
-       * @path /work_items/{workitemId}
-       * @allow The assigned user or an admin to read, update, or delete a work item.
-       */
-      allow get: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
-      allow update: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
-      allow delete: if isAdmin();
+        // Admins can list all items without restriction.
+        allow list: if isAdmin();
+        
+        // A user can list items assigned to them.
+        allow list: if isSignedIn() && request.query.where.assignedTo == request.auth.uid;
+
+        // A user can list items created by them.
+        allow list: if isSignedIn() && request.query.where.createdBy == request.auth.uid;
+        
+        // A user can create a work item if it's assigned to them OR created by them.
+        allow create: if isSignedIn() && (isAssignedToSelf() || isCreatedBySelf());
+
+        // The assigned user or an admin can read or update a work item.
+        allow get: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || resource.data.createdBy == request.auth.uid || isAdmin());
+        allow update: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
+        
+        // Only Admins can delete a work item.
+        allow delete: if isAdmin();
 
       /**
        * @description Rules for notes within a work item.
