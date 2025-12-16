@@ -46,6 +46,8 @@ interface NewUserDialogProps {
 export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
 
   const form = useForm<CreateUserInput>({
     resolver: zodResolver(CreateUserInputSchema),
@@ -216,7 +218,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Date of Birth</FormLabel>
-                        <Popover>
+                        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -240,7 +242,10 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                               mode="single"
                               captionLayout="dropdown-buttons"
                               selected={field.value}
-                              onSelect={field.onChange}
+                              onSelect={(date) => {
+                                field.onChange(date);
+                                setIsCalendarOpen(false);
+                              }}
                               fromYear={1960}
                               toYear={2030}
                               disabled={(date) =>
@@ -475,5 +480,3 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
     </Dialog>
   );
 }
-
-    
