@@ -338,7 +338,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   return (
     <Card className="my-4 border-primary border-2">
       <CardHeader>
-        <CardTitle>Verify Customer Authority - Action</CardTitle>
+        <CardTitle className="text-base font-bold">Verify Customer Authority - Action</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
