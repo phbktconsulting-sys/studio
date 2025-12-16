@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -131,7 +132,7 @@ export default function NewUserPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               
-              <div className="rounded-lg border p-4">
+              <div className="rounded-lg border-[2px] border-[#C00025] p-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormItem>
                     <FormLabel>Employee ID</FormLabel>
@@ -472,3 +473,5 @@ export default function NewUserPage() {
     </div>
   );
 }
+
+    
