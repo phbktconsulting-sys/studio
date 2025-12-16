@@ -115,12 +115,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch(selectedAction) {
       case 'resolve-complete':
         category = 'Resolved/Completed';
-        noteText = `Call to customer: ${resolveCompleteCall}. Notes: ${resolveCompleteNotes}`;
+        noteText = `Call to customer: ${resolveCompleteCall}. ${resolveCompleteNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 're-index':
         category = 'Re-Indexed';
-        noteText = `Re-index option: ${reindexOption}. Reason: ${reindexReason}. Copy notes: ${reindexCopyNotes}. Notes: ${reindexNotes}`;
+        noteText = `Re-index option: ${reindexOption}. Reason: ${reindexReason}. Copy notes: ${reindexCopyNotes}. ${reindexNotes}`;
         workItemUpdate.status = 'Pending';
         break;
       case 'terminate':
@@ -130,17 +130,17 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         break;
       case 'resolve-close':
         category = 'Resolved/Closed';
-        noteText = `Customer request resolved: ${resolveCloseResolved}. Notes: ${resolveCloseNotes}`;
+        noteText = `Customer request resolved: ${resolveCloseResolved}. ${resolveCloseNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 'transfer':
         category = 'Transferred';
-        noteText = `Notes: ${transferNotes}`;
+        noteText = `${transferNotes}`;
         workItemUpdate.assignedTo = transferToUser;
         break;
       case 'pend':
         category = 'Pended';
-        noteText = `Pend until: ${pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A'}. Reason: ${pendReason}. Notes: ${pendNotes}`;
+        noteText = `Pend until: ${pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A'}. Reason: ${pendReason}. ${pendNotes}`;
         workItemUpdate.status = 'Pending';
         break;
       default:
@@ -404,6 +404,13 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
 
     const { data: lastNoteArr } = useCollection<Note>(lastNoteQuery);
     const lastNote = lastNoteArr?.[0];
+
+    const authorUserRef = useMemoFirebase(() => {
+        if (!firestore || !lastNote?.authorId) return null;
+        return doc(firestore, 'users', lastNote.authorId);
+    }, [firestore, lastNote?.authorId]);
+
+    const { data: authorUser } = useDoc<User>(authorUserRef);
     
     let noteText = lastNote?.text || '';
     if (lastNote?.category === 'Terminated' && noteText.startsWith('Reason: ')) {
@@ -413,7 +420,10 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
     return (
         <div className="flex items-center gap-4 text-sm py-2">
             <Lock className="h-5 w-5 text-destructive" />
-            <span className="font-medium text-muted-foreground">{noteText}</span>
+            <span className="font-medium">Work Item Closed:</span>
+            <span className="text-muted-foreground">Action by {authorUser?.displayName || lastNote?.author || '...'}</span>
+            <Separator orientation="vertical" className="h-4" />
+            <span className="text-muted-foreground">{noteText}</span>
         </div>
     );
 }
@@ -546,7 +556,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                 <CardHeader className="p-4">
                   <CardTitle className="text-xs">Contact Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 p-4 pt-0 text-xs">
+                <CardContent className="space-y-4 p-4 pt-0">
                   <div className="flex items-center gap-4 text-xs">
                       <UserIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Name:</span>
