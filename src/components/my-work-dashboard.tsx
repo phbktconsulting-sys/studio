@@ -102,7 +102,7 @@ export function MyWorkDashboard() {
     <div className="p-4 sm:p-6">
        <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-headline text-lg font-bold tracking-tight">My Work</h1>
+          <h1 className="font-headline text-lg font-bold tracking-tight text-xs">My Work</h1>
           <p className="text-xs text-muted-foreground">Work items assigned to you.</p>
         </div>
       </div>
@@ -111,7 +111,7 @@ export function MyWorkDashboard() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[50px]"></TableHead>
-              <TableHead className="w-[120px] text-xs">ID</TableHead>
+              <TableHead className="w-[120px] text-xs">Case ID</TableHead>
               <TableHead className="w-[150px] text-xs">Status</TableHead>
               <TableHead className="text-xs">Subject</TableHead>
               <TableHead className="w-[180px] text-xs">Date</TableHead>
