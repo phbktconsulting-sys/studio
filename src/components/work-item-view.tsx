@@ -115,34 +115,32 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch(selectedAction) {
       case 'resolve-complete':
         category = 'Resolved/Completed';
-        noteText = `Call to customer: ${resolveCompleteCall || 'N/A'}. Notes: ${resolveCompleteNotes || 'None'}`;
+        noteText = resolveCompleteNotes || '';
         workItemUpdate.status = 'Closed';
         break;
       case 're-index':
         category = 'Re-Indexed';
-        noteText = `Option: ${reindexOption}. Reason: ${reindexReason || 'N/A'}. Copy notes: ${reindexCopyNotes}. Notes: ${reindexNotes || 'None'}`;
+        noteText = reindexNotes || '';
         workItemUpdate.status = 'Pending';
         break;
       case 'terminate':
         category = 'Terminated';
-        noteText = `Reason: ${terminateReason || 'N/A'}. Notes: ${terminateNotes || 'None'}`;
+        noteText = terminateNotes || '';
         workItemUpdate.status = 'Closed';
         break;
       case 'resolve-close':
         category = 'Resolved/Closed';
-        noteText = `Customer request resolved: ${resolveCloseResolved || 'N/A'}. Notes: ${resolveCloseNotes || 'None'}`;
+        noteText = resolveCloseNotes || '';
         workItemUpdate.status = 'Closed';
         break;
       case 'transfer':
         category = 'Transferred';
-        const targetUser = users?.find(u => u.uid === transferToUser);
-        noteText = `Transferred to ${targetUser?.displayName || 'Unknown User'}. Notes: ${transferNotes || 'None'}`;
+        noteText = transferNotes || '';
         workItemUpdate.assignedTo = transferToUser;
         break;
       case 'pend':
         category = 'Pended';
-        const pendDateFormatted = pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A';
-        noteText = `Pended until ${pendDateFormatted}. Reason: ${pendReason || 'N/A'}. Notes: ${pendNotes || 'None'}`;
+        noteText = pendNotes || '';
         workItemUpdate.status = 'Pending';
         break;
       default:
@@ -503,8 +501,8 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6">
-         <div className="mt-2 space-y-2">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
+         <div className="mt-2">
             <h2 className="text-lg font-semibold">Processes</h2>
             <Separator />
              {isVerifyingAuthority ? (
@@ -534,7 +532,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsTrigger value="agency" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Agency</TabsTrigger>
           </TabsList>
           
-          <div className="mt-0 bg-card px-2">
+          <div className="mt-0 bg-card px-2 border-t-0">
             <TabsContent value="overview" className="mt-0">
               <Card className="border-0 shadow-none">
                 <CardHeader>
