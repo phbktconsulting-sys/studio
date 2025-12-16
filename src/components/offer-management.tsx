@@ -38,8 +38,7 @@ export function OfferManagement({ onBack }: OfferManagementProps) {
   }, [users]);
   
   const handleGenerateOffer = (userId: string) => {
-    // This will be implemented later. For now, it can log to console or show an alert.
-    alert(`Generating offer letter for user ${userId} is not yet implemented.`);
+    router.push(`/offer-letter/${userId}`);
   };
 
   if (isLoading) {
