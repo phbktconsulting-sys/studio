@@ -21,12 +21,22 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
-import { Card, CardContent } from './ui/card';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 
 const processTypes = [
   'Request Information',
@@ -38,10 +48,11 @@ const processTypes = [
   'Request Other',
 ];
 
-export function NewWorkItemView() {
+export function NewWorkItemDialog() {
   const { user } = useFirebase();
   const { toast } = useToast();
-  const { closeTab, openTab } = useTabs();
+  const { openTab } = useTabs();
+  const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<WorkItemFormValues>({
     resolver: zodResolver(WorkItemCreateSchema),
@@ -91,7 +102,7 @@ export function NewWorkItemView() {
         });
 
         form.reset();
-        closeTab('new-work-item');
+        setIsOpen(false); // Close dialog on success
         openTab({
           id: result.id,
           title: result.customId,
@@ -109,24 +120,20 @@ export function NewWorkItemView() {
     }
   };
 
-  const handleCancel = () => {
-    closeTab('new-work-item');
-  };
-
   return (
-    <div className="p-4 sm:p-6">
-      <div className="mb-6">
-        <h1 className="font-headline text-xl font-bold tracking-tight">
-          Create New Work Item
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Fill out the details below to create a new work item.
-        </p>
-      </div>
-      <Card>
-        <CardContent className="p-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          <PlusCircle className="mr-2 h-4 w-4" />
+          New Work
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Create New Work Item</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                  <FormField
                   control={form.control}
@@ -229,9 +236,9 @@ export function NewWorkItemView() {
                   name="customerPhoneSecondary"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer Phone Secondary (Optional)</FormLabel>
+                      <FormLabel>Customer Phone Secondary</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} placeholder='Optional' />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -255,20 +262,17 @@ export function NewWorkItemView() {
                   </FormItem>
                 )}
               />
-              <div className="flex justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                >
-                  Cancel
-                </Button>
+              <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="outline">
+                    Cancel
+                    </Button>
+                </DialogClose>
                 <Button type="submit">Create Work Item</Button>
-              </div>
+              </DialogFooter>
             </form>
           </Form>
-        </CardContent>
-      </Card>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

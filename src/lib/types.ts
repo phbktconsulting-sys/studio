@@ -99,7 +99,7 @@ export const WorkItemCreateSchema = z.object({
   customerPhone: z.string().min(1, 'Customer phone is required.'),
   customerPhoneSecondary: z.string().optional(),
   urgency: z.enum(['Low', 'Medium', 'High']),
-  overview: z.string().min(10, 'Overview must be at least 10 characters.'),
+  overview: z.string().min(1, 'Overview is required.'),
 });
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 

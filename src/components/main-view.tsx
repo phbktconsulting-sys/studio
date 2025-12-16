@@ -8,7 +8,6 @@ import { useTabs } from '@/contexts/tab-context';
 import { XIcon } from 'lucide-react';
 import type { Tab } from '@/contexts/tab-context';
 import { AdminDashboard } from './admin-dashboard';
-import { NewWorkItemView } from './new-work-item-view';
 
 export function MainView() {
   const { tabs, activeTab, setActiveTab, closeTab } = useTabs();
@@ -23,8 +22,6 @@ export function MainView() {
         return <div className="p-6">Search Functionality (Not Implemented)</div>;
       case 'global-notes':
         return <div className="p-6">Global Notes (Not Implemented)</div>;
-      case 'new-work-item':
-        return <NewWorkItemView />;
       default:
         if (tab.type === 'work-item') {
           return <WorkItemView workItemId={tab.id} customId={tab.title} />;
@@ -76,5 +73,3 @@ export function MainView() {
     </div>
   );
 }
-
-    

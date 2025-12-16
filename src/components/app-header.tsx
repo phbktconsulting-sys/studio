@@ -11,31 +11,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LogoIcon } from '@/components/icons';
 import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
-import { LifeBuoy, LogOut, PlusCircle, User as UserIcon } from 'lucide-react';
+import { LifeBuoy, LogOut, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { useTabs } from '@/contexts/tab-context';
+import { NewWorkItemDialog } from './new-work-item-dialog';
 
 export function AppHeader() {
   const { user } = useUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
-  const { openTab } = useTabs();
 
   const handleLogout = () => {
     if (auth) {
       signOut(auth);
     }
     router.push('/login');
-  };
-
-  const handleNewWorkItem = () => {
-    openTab({
-      id: 'new-work-item',
-      title: 'New Work',
-      type: 'new-work-item',
-    });
   };
 
   return (
@@ -46,10 +37,7 @@ export function AppHeader() {
           <span className="font-headline text-lg font-bold">PHBKT Group Limited</span>
         </Link>
         <div className="ml-auto flex items-center gap-4">
-          <Button variant="outline" onClick={handleNewWorkItem}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            New Work
-          </Button>
+          <NewWorkItemDialog />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-auto px-4">

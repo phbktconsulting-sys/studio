@@ -6,7 +6,7 @@ import { useUserProfile } from '@/hooks/use-user-profile';
 export interface Tab {
   id: string;
   title: string;
-  type: 'static' | 'work-item' | 'user' | 'new-work-item';
+  type: 'static' | 'work-item' | 'user';
 }
 
 interface TabContextType {
