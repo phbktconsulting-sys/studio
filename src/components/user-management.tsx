@@ -15,7 +15,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { NewUserDialog } from './new-user-dialog';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface UserManagementProps {
   onBack: () => void;
@@ -23,7 +24,7 @@ interface UserManagementProps {
 
 export function UserManagement({ onBack }: UserManagementProps) {
   const { firestore } = useFirebase();
-  const [isNewUserDialogOpen, setIsNewUserDialogOpen] = useState(false);
+  const router = useRouter();
 
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -59,9 +60,11 @@ export function UserManagement({ onBack }: UserManagementProps) {
               <p className="text-muted-foreground">View and manage all users.</p>
             </div>
           </div>
-          <Button onClick={() => setIsNewUserDialogOpen(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Create User
+          <Button asChild>
+            <Link href="/users/new">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create User
+            </Link>
           </Button>
         </div>
         <div className="mt-6 rounded-lg border bg-card">
@@ -92,7 +95,6 @@ export function UserManagement({ onBack }: UserManagementProps) {
           </Table>
         </div>
       </div>
-      <NewUserDialog open={isNewUserDialogOpen} onOpenChange={setIsNewUserDialogOpen} />
     </>
   );
 }
