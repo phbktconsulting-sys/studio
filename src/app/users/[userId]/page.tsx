@@ -31,7 +31,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { deleteUser } from '@/ai/flows/delete-user-flow';
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -40,7 +39,6 @@ export default function UserProfilePage() {
   const router = useRouter();
   const { firestore } = useFirebase();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const userProfileRef = useMemoFirebase(() => {
@@ -109,35 +107,6 @@ export default function UserProfilePage() {
       setIsSubmitting(false);
     }
   };
-
-  const onDelete = async () => {
-    if (!userId) return;
-    
-    if (confirm('Are you sure you want to delete this user? This action will permanently remove their authentication account and all associated data.')) {
-      setIsDeleting(true);
-      try {
-        const result = await deleteUser({ uid: userId });
-        if (result.success) {
-          toast({
-            title: 'User Deleted',
-            description: `User account has been permanently deleted.`,
-          });
-          router.push('/'); // Navigate back to a safe page
-        } else {
-          throw new Error(result.error || 'An unknown server error occurred.');
-        }
-      } catch (error: any) {
-        toast({
-          variant: 'destructive',
-          title: 'Error Deleting User',
-          description: error.message || 'Could not delete user.',
-        });
-      } finally {
-        setIsDeleting(false);
-      }
-    }
-  };
-
 
   if (isLoading) {
     return (
@@ -521,25 +490,17 @@ export default function UserProfilePage() {
               </div>
 
 
-              <div className="flex justify-between pt-4">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={onDelete}
-                  disabled={isSubmitting || isDeleting}
-                >
-                  {isDeleting ? 'Deleting...' : 'Delete User'}
-                </Button>
+              <div className="flex justify-end pt-4">
                 <div className="flex space-x-2">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => router.back()}
-                    disabled={isSubmitting || isDeleting}
+                    disabled={isSubmitting}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting || isDeleting}>
+                  <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? 'Updating...' : 'Update User'}
                   </Button>
                 </div>
