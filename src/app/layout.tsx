@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -7,7 +8,7 @@ import { FirebaseClientProvider } from '@/firebase';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'PHBKT Group Limited - Workflow Management',
+  title: 'PHBKT - WorkFlow Management',
   description: 'PHBKT Group Limited - Workflow Management',
 };
 
