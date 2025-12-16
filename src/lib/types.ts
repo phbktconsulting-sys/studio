@@ -8,6 +8,7 @@ export interface User {
   email: string | null;
   displayName: string | null;
   role: 'admin' | 'user' | 'User' | 'Admin';
+  employeeId?: string;
   firstName?: string;
   middleName?: string;
   lastName?: string;
@@ -76,6 +77,7 @@ export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;
 
 export const CreateUserOutputSchema = z.object({
   uid: z.string().optional(),
+  employeeId: z.string().optional(),
   error: z.string().optional(),
 });
 export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;

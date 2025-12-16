@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createUser } from '@/ai/flows/create-user-flow';
 import { CreateUserInputSchema, type CreateUserInput } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -66,17 +66,27 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
     },
   });
 
+  const { control, setValue } = form;
+  const firstName = useWatch({ control, name: 'firstName' });
+  const lastName = useWatch({ control, name: 'lastName' });
+
+  useEffect(() => {
+    if (firstName && lastName) {
+      const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@phbkt.com`.replace(/\s+/g, '');
+      setValue('email', email);
+    }
+  }, [firstName, lastName, setValue]);
+
+
   const onSubmit = async (data: CreateUserInput) => {
     setIsSubmitting(true);
     try {
-      // The flow expects displayName, so we construct it.
-      const displayName = `${data.firstName} ${data.lastName}`;
-      const result = await createUser({ ...data, displayName });
+      const result = await createUser(data);
 
       if (result.uid) {
         toast({
           title: 'User Created',
-          description: `User ${displayName} has been successfully created.`,
+          description: `User ${data.firstName} ${data.lastName} (ID: ${result.employeeId}) has been successfully created.`,
         });
         form.reset();
         onOpenChange(false);

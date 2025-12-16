@@ -60,6 +60,7 @@
       "properties": {
         "id": { "type": "string", "description": "Unique identifier for the User entity." },
         "uid": { "type": "string", "description": "Firebase Authentication User ID." },
+        "employeeId": { "type": "string", "description": "The user's unique employee ID." },
         "email": { "type": "string", "description": "The user's email address.", "format": "email" },
         "displayName": { "type": "string", "description": "The user's full display name." },
         "firstName": { "type": "string", "description": "The user's first name." },
@@ -79,6 +80,7 @@
       "required": [
         "id",
         "uid",
+        "employeeId",
         "email",
         "displayName",
         "firstName",
@@ -129,6 +131,18 @@
         "text",
         "createdAt"
       ]
+    },
+     "Counter": {
+      "title": "Counter",
+      "type": "object",
+      "description": "A document to store a counter value for atomic increments.",
+      "properties": {
+        "count": {
+          "type": "number",
+          "description": "The current value of the counter."
+        }
+      },
+      "required": ["count"]
     }
   },
   "auth": {
@@ -148,6 +162,12 @@
     "/work_items/{workitemId}/notes/{noteId}": {
       "schema": { "$ref": "#/entities/Note" },
       "description": "Stores notes associated with a specific work item. Access is inherited from the parent work item."
+    },
+    "/counters/user_employee_id": {
+      "schema": { "$ref": "#/entities/Counter" },
+      "description": "Stores the counter for generating unique employee IDs for users."
     }
   }
 }
+
+    

@@ -15,7 +15,7 @@ import { CreateUserInputSchema, CreateUserOutputSchema } from '@/lib/types';
 // This ensures it's only imported on the server.
 import type { App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { initializeApp, cert, getApps, ServiceAccount } from 'firebase-admin/app';
 
 // This is a temporary solution for the prototype. In a real app,
@@ -67,12 +67,31 @@ const createUserFlow = ai.defineFlow(
     outputSchema: CreateUserOutputSchema,
   },
   async (payload) => {
-    try {
-      await initializeAdmin();
-      const adminAuth = getAuth(adminApp);
-      const adminFirestore = getFirestore(adminApp);
+    await initializeAdmin();
+    const adminAuth = getAuth(adminApp);
+    const adminFirestore = getFirestore(adminApp);
 
+    try {
       const displayName = `${payload.firstName} ${payload.middleName ? payload.middleName + ' ' : ''}${payload.lastName}`;
+
+      // Get the next employee ID in a transaction
+      const counterRef = adminFirestore.collection('counters').doc('user_employee_id');
+      let newEmployeeId: string;
+
+      const newEmployeeIdNumber = await adminFirestore.runTransaction(async (transaction) => {
+        const counterDoc = await transaction.get(counterRef);
+        let nextId;
+        if (!counterDoc.exists) {
+          nextId = 1568400; // Starting ID
+          transaction.set(counterRef, { count: nextId + 1 });
+        } else {
+          nextId = counterDoc.data()!.count;
+          transaction.update(counterRef, { count: FieldValue.increment(1) });
+        }
+        return nextId;
+      });
+      
+      newEmployeeId = newEmployeeIdNumber.toString();
 
       // 1. Create the user in Firebase Authentication
       const userRecord = await adminAuth.createUser({
@@ -88,6 +107,7 @@ const createUserFlow = ai.defineFlow(
       const userProfile = {
         id: userRecord.uid,
         uid: userRecord.uid,
+        employeeId: newEmployeeId,
         email: payload.email,
         displayName: displayName,
         firstName: payload.firstName,
@@ -106,7 +126,8 @@ const createUserFlow = ai.defineFlow(
       };
       await adminFirestore.collection('users').doc(userRecord.uid).set(userProfile);
 
-      return { uid: userRecord.uid };
+      return { uid: userRecord.uid, employeeId: newEmployeeId };
+
     } catch (error: any) {
       console.error('Error creating user:', error);
       // Provide a more user-friendly error message

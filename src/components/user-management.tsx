@@ -68,6 +68,7 @@ export function UserManagement({ onBack }: UserManagementProps) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[120px]">Employee ID</TableHead>
                 <TableHead>Display Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead className="w-[150px]">Role</TableHead>
@@ -78,6 +79,7 @@ export function UserManagement({ onBack }: UserManagementProps) {
               {sortedUsers &&
                 sortedUsers.map((user) => (
                   <TableRow key={user.id}>
+                     <TableCell className="font-mono text-xs">{user.employeeId}</TableCell>
                     <TableCell className="font-medium">{user.displayName}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
