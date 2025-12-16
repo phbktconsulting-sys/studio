@@ -313,7 +313,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   ];
 
   return (
-    <Card className="my-1 border-primary border-2">
+    <Card className="mt-4 border-primary border-2">
       <CardHeader className="p-2 bg-slate-100 flex-row items-center">
         <CardTitle className="text-xs font-bold uppercase pr-2">
           {selectedAction ? getActionDisplayName(selectedAction) + ' OR' : 'Action'}
@@ -331,7 +331,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       </CardHeader>
       <CardContent className='p-4'>
         <form onSubmit={handleSubmit}>
-            <div className="space-y-0">
+            <div>
               {renderActionForm()}
             </div>
             
