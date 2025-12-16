@@ -133,7 +133,7 @@ export default function NewUserPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               
-              <div className="rounded-lg border-[2px] border-[#C00025] p-4">
+              <div className="rounded-lg border-2 border-[#C00025] p-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormItem>
                     <FormLabel className="font-bold">Employee ID</FormLabel>
@@ -174,7 +174,7 @@ export default function NewUserPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border-[2px] border-[#C00025] p-4">
+              <div className="rounded-lg border-2 border-[#C00025] p-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                   <FormField
                     control={form.control}
@@ -307,8 +307,8 @@ export default function NewUserPage() {
                 </div>
               </div>
 
-               <div className="rounded-lg border-[2px] border-[#C00025] p-4">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+               <div className="rounded-lg border-2 border-[#C00025] p-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
                    <FormField
                     control={form.control}
                     name="department"
@@ -407,8 +407,6 @@ export default function NewUserPage() {
                       </FormItem>
                     )}
                   />
-                  </div>
-                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="workLocation"
