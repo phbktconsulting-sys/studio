@@ -31,11 +31,8 @@ import { useEffect, useState } from 'react';
 import { createUser } from '@/ai/flows/create-user-flow';
 import { CreateUserInputSchema, type CreateUserInput } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { CalendarIcon } from 'lucide-react';
-import { Calendar } from './ui/calendar';
-import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { CustomCalendar } from './custom-calendar';
 
 interface NewUserDialogProps {
   open: boolean;
@@ -46,7 +43,6 @@ interface NewUserDialogProps {
 export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
 
   const form = useForm<CreateUserInput>({
@@ -88,6 +84,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
   const onSubmit = async (data: CreateUserInput) => {
     setIsSubmitting(true);
     try {
+      // The schema now expects a Date object, so we format it just before sending.
       const payload = {
         ...data,
         dob: format(data.dob, 'yyyy-MM-dd'),
@@ -216,45 +213,11 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                     control={form.control}
                     name="dob"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
+                      <FormItem>
                         <FormLabel>Date of Birth</FormLabel>
-                        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              captionLayout="dropdown-buttons"
-                              selected={field.value}
-                              onSelect={(date) => {
-                                field.onChange(date);
-                                setIsCalendarOpen(false);
-                              }}
-                              fromYear={1960}
-                              toYear={2030}
-                              disabled={(date) =>
-                                date > new Date() || date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <FormControl>
+                           <CustomCalendar value={field.value} onChange={field.onChange} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
