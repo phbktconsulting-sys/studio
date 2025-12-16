@@ -36,17 +36,17 @@ import { NotesTab } from './notes-tab';
 
 function TasksTab({ tasks }: { tasks: Task[] }) {
   if (!tasks || tasks.length === 0) {
-    return <p>No tasks for this work item.</p>;
+    return <p className="text-xs p-4">No tasks for this work item.</p>;
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-4">
        {tasks.map((task) => (
           <div key={task.id} className="flex items-center space-x-3 rounded-md border p-4">
             <Checkbox id={`task-${task.id}`} checked={task.completed} />
             <label
               htmlFor={`task-${task.id}`}
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               {task.text}
             </label>
@@ -462,7 +462,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   
   const PlaceholderContent = ({ title }: { title: string }) => (
     <div className="flex h-full items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-6">
-      <p className="text-muted-foreground">{title} (Not Implemented)</p>
+      <p className="text-xs text-muted-foreground">{title} (Not Implemented)</p>
     </div>
   );
 
@@ -503,7 +503,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
          <div className="mt-2">
-            <h2 className="text-lg font-semibold">Processes</h2>
+            <h2 className="text-base font-semibold">Processes</h2>
             <Separator />
              {isVerifyingAuthority ? (
               <VerifyAuthorityForm workItem={item} onCancel={() => setIsVerifyingAuthority(false)} />
@@ -535,11 +535,11 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
           <div className="mt-0 bg-card px-2 border-t-0">
             <TabsContent value="overview" className="mt-0">
               <Card className="border-0 shadow-none">
-                <CardHeader>
-                  <CardTitle className="text-base">Overview</CardTitle>
+                <CardHeader className="p-4">
+                  <CardTitle className="text-sm">Overview</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground">{item.overview}</p>
+                <CardContent className="p-4 pt-0">
+                    <p className="text-xs text-muted-foreground">{item.overview}</p>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -550,39 +550,39 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
 
             <TabsContent value="contact" className="mt-0">
               <Card className="border-0 shadow-none">
-                <CardHeader>
-                  <CardTitle className="text-base">Contact Information</CardTitle>
+                <CardHeader className="p-4">
+                  <CardTitle className="text-sm">Contact Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4 text-sm">
-                      <UserIcon className="h-5 w-5 text-muted-foreground" />
+                <CardContent className="space-y-4 p-4 pt-0">
+                  <div className="flex items-center gap-4 text-xs">
+                      <UserIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Name:</span>
-                      <span>{item.relatedContact.name}</span>
+                      <span className="text-muted-foreground">{item.relatedContact.name}</span>
                   </div>
                    {item.relatedContact.address && (
-                    <div className="flex items-start gap-4 text-sm">
-                        <Home className="h-5 w-5 text-muted-foreground mt-1" />
+                    <div className="flex items-start gap-4 text-xs">
+                        <Home className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div className="flex flex-col">
                            <span className="font-medium">Address:</span>
                            <span className="text-muted-foreground">{item.relatedContact.address}</span>
                         </div>
                     </div>
                   )}
-                  <div className="flex items-center gap-4 text-sm">
-                      <Mail className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex items-center gap-4 text-xs">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Email:</span>
                       <a href={`mailto:${item.relatedContact.email}`} className="text-primary hover:underline">{item.relatedContact.email}</a>
                   </div>
-                  <div className="flex items-center gap-4 text-sm">
-                      <Phone className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex items-center gap-4 text-xs">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">Phone:</span>
-                      <span>{item.relatedContact.phone}</span>
+                      <span className="text-muted-foreground">{item.relatedContact.phone}</span>
                   </div>
                   {item.relatedContact.phoneSecondary && (
-                    <div className="flex items-center gap-4 text-sm">
-                        <Phone className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex items-center gap-4 text-xs">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">Secondary Phone:</span>
-                        <span>{item.relatedContact.phoneSecondary}</span>
+                        <span className="text-muted-foreground">{item.relatedContact.phoneSecondary}</span>
                     </div>
                   )}
                 </CardContent>
