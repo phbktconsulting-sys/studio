@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -55,7 +54,8 @@ export function AppHeader() {
 
         <div className="flex w-1/3 justify-center">
            <div className="text-center">
-              <span className="font-headline text-sm font-bold">{user?.displayName} - Home Page</span>
+              <h1 className="font-headline text-lg font-bold">PHBKT - WorkFlow Management</h1>
+              <p className="text-sm text-muted-foreground">{user?.displayName} - Home Page</p>
           </div>
         </div>
 
