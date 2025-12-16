@@ -23,8 +23,8 @@ export function AdminDashboard() {
     <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-headline text-2xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Select an administrative task to continue.</p>
+          <h1 className="font-headline text-xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Select an administrative task to continue.</p>
         </div>
       </div>
 
@@ -61,8 +61,8 @@ function CardButton({ title, description, icon, onClick }: CardButtonProps) {
     >
       <div className="rounded-full bg-primary p-3 text-primary-foreground">{icon}</div>
       <div className="flex flex-col">
-        <h3 className="text-lg font-semibold">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <h3 className="text-base font-semibold">{title}</h3>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
     </button>
   );
