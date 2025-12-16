@@ -60,7 +60,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const { firestore, user } = useFirebase();
   const { toast } = useToast();
 
-  const [selectedAction, setSelectedAction] = useState<string>('');
+  const [selectedAction, setSelectedAction] = useState<string>('re-index');
   
   // Form field states
   const [resolveCompleteCall, setResolveCompleteCall] = useState('');
@@ -174,7 +174,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Call to customer?</Label>
             <Select onValueChange={setResolveCompleteCall} value={resolveCompleteCall}>
-              <SelectTrigger className="text-xs h-8">
+              <SelectTrigger className="text-xs h-7">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
@@ -202,7 +202,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </RadioGroup>
             <Label className="text-xs font-normal text-right">Reason *</Label>
             <Select onValueChange={setReindexReason} value={reindexReason}>
-              <SelectTrigger className="text-xs h-8">
+              <SelectTrigger className="text-xs h-7">
                 <SelectValue placeholder="Select reason..." />
               </SelectTrigger>
               <SelectContent>
@@ -230,7 +230,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Reason</Label>
             <Select onValueChange={setTerminateReason} value={terminateReason}>
-              <SelectTrigger className="text-xs h-8">
+              <SelectTrigger className="text-xs h-7">
                 <SelectValue placeholder="Select reason..." />
               </SelectTrigger>
               <SelectContent>
@@ -248,7 +248,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Customer request resolved?</Label>
             <Select onValueChange={setResolveCloseResolved} value={resolveCloseResolved}>
-              <SelectTrigger className="text-xs h-8">
+              <SelectTrigger className="text-xs h-7">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
@@ -265,7 +265,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4">
             <Label className="text-xs font-normal text-right">Transfer to User</Label>
             <Select onValueChange={setTransferToUser} value={transferToUser}>
-              <SelectTrigger className="text-xs h-8">
+              <SelectTrigger className="text-xs h-7">
                 <SelectValue placeholder="Select user..." />
               </SelectTrigger>
               <SelectContent>
@@ -285,7 +285,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
             <Label className="text-xs font-normal text-right">Reason for pend</Label>
             <Select onValueChange={setPendReason} value={pendReason}>
-              <SelectTrigger className="text-xs h-8">
+              <SelectTrigger className="text-xs h-7">
                 <SelectValue placeholder="Select reason..." />
               </SelectTrigger>
               <SelectContent>
@@ -316,11 +316,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     <Card className="mt-4 border-primary border">
       <CardHeader className="p-2 bg-slate-100 flex-row items-center">
         <CardTitle className="text-xs font-bold uppercase pr-2">
-          {selectedAction ? getActionDisplayName(selectedAction) + ' OR' : 'Action'}
+          {getActionDisplayName(selectedAction)}
         </CardTitle>
         <Select onValueChange={(value) => setSelectedAction(value as string)}>
-            <SelectTrigger className="text-xs h-8 w-auto flex-1 bg-black text-white hover:bg-black/90 focus:ring-black">
-                <SelectValue placeholder="--Select a different action--" />
+            <SelectTrigger className="text-xs h-7 w-auto flex-1 bg-black text-white hover:bg-black/90 focus:ring-black">
+                <SelectValue placeholder="-- Or select a different action --" />
             </SelectTrigger>
             <SelectContent>
                 {actionOptions.map(opt => (
