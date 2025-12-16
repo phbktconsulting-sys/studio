@@ -181,6 +181,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
               <TableHead className="w-[120px] text-xs">ID</TableHead>
               <TableHead className="w-[150px] text-xs">Status</TableHead>
               <TableHead className='text-xs'>Subject</TableHead>
+              <TableHead className="w-[180px] text-xs">Customer Name</TableHead>
               <TableHead className="w-[180px] text-xs">Assigned To</TableHead>
               <TableHead className="w-[180px] text-xs">Date</TableHead>
               <TableHead className="w-[100px] text-right text-xs">Actions</TableHead>
@@ -198,6 +199,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                     <StatusBadge status={item.status} />
                   </TableCell>
                   <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{item.subject}</TableCell>
+                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
                   <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
                   <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                   <TableCell className="text-right py-1 px-4">
