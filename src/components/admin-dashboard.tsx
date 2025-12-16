@@ -23,8 +23,8 @@ export function AdminDashboard() {
     <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-headline text-xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Select an administrative task to continue.</p>
+          <h1 className="font-headline text-lg font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-xs text-muted-foreground">Select an administrative task to continue.</p>
         </div>
       </div>
 
@@ -32,13 +32,13 @@ export function AdminDashboard() {
         <CardButton
           title="Manage Work Items"
           description="View and manage all work items across the system."
-          icon={<List className="h-8 w-8" />}
+          icon={<List className="h-6 w-6" />}
           onClick={() => setView('work-items')}
         />
         <CardButton
           title="Manage Users"
           description="View, create, and manage user accounts and roles."
-          icon={<Users className="h-8 w-8" />}
+          icon={<Users className="h-6 w-6" />}
           onClick={() => setView('users')}
         />
       </div>
@@ -57,11 +57,11 @@ function CardButton({ title, description, icon, onClick }: CardButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-start gap-4 rounded-lg border bg-card p-6 text-left shadow-sm transition-all hover:bg-accent hover:text-accent-foreground"
+      className="flex flex-col items-start gap-3 rounded-lg border bg-card p-4 text-left shadow-sm transition-all hover:bg-accent hover:text-accent-foreground"
     >
-      <div className="rounded-full bg-primary p-3 text-primary-foreground">{icon}</div>
+      <div className="rounded-full bg-primary p-2 text-primary-foreground">{icon}</div>
       <div className="flex flex-col">
-        <h3 className="text-base font-semibold">{title}</h3>
+        <h3 className="text-sm font-semibold">{title}</h3>
         <p className="text-xs text-muted-foreground">{description}</p>
       </div>
     </button>
