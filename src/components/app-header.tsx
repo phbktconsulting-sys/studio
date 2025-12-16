@@ -44,7 +44,11 @@ export function AppHeader() {
       <header className="flex h-24 items-center border-b bg-card px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <LogoIcon className="h-8 w-8" />
-          <span className="font-headline text-lg font-bold">PHBKT Group Limited</span>
+          <div className="flex flex-col font-headline text-lg font-bold leading-tight">
+            <span>PHBKT</span>
+            <span>Group</span>
+            <span>Limited</span>
+          </div>
         </Link>
         <div className="ml-auto flex items-center gap-4">
           <Button onClick={handleNewWork} className="h-8 bg-black text-white hover:bg-black/80">
