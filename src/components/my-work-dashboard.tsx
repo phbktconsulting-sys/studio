@@ -132,7 +132,7 @@ export function MyWorkDashboard() {
     <div className="p-4 sm:p-6">
        <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-headline text-lg font-bold tracking-tight text-xs">My Work</h1>
+          <h1 className="font-headline text-lg font-bold tracking-tight">My Work</h1>
           <p className="text-xs text-muted-foreground">Work items assigned to or created by you.</p>
         </div>
       </div>
