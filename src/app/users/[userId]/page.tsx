@@ -386,7 +386,7 @@ export default function UserProfilePage({ params }: { params: { userId: string }
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue />
-                            </Trigger>
+                            </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {[
