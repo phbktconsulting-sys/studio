@@ -62,7 +62,11 @@ export const CreateUserInputSchema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
   middleName: z.string().optional(),
   lastName: z.string().min(1, { message: 'Last name is required' }),
-  dob: z.date(),
+  dob: z.object({
+    day: z.string().min(1, {message: 'Day is required'}),
+    month: z.string().min(1, {message: 'Month is required'}),
+    year: z.string().min(1, {message: 'Year is required'}),
+  }),
   mobileNumber: z.string().min(10, { message: 'Mobile number must be at least 10 digits' }),
   department: z.enum(['Operation', 'HR', 'Risk', 'Admin', 'Marketing', 'Other']),
   jobTitle: z.enum(['Associate', 'Senior Associate', 'Team Lead', 'Assistant Manager', 'Manager', 'Senior Manager']),
