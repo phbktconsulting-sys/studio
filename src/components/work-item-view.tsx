@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -468,7 +469,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                 <CardHeader>
                   <CardTitle>Overview</CardTitle>
                   <CardContent className="pt-4">
-                    <p className="text-muted-foreground">{item.overview}</p>
+                    <p className="text-sm text-muted-foreground">{item.overview}</p>
                   </CardContent>
                 </CardHeader>
               </Card>
@@ -532,3 +533,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    
