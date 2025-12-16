@@ -194,6 +194,7 @@ export function MyWorkDashboard() {
               <TableHead className="w-[120px] text-xs">Case ID</TableHead>
               <TableHead className="w-[150px] text-xs">Status</TableHead>
               <TableHead className="text-xs">Subject</TableHead>
+              <TableHead className="w-[180px] text-xs">Customer Name</TableHead>
               <TableHead className="w-[180px] text-xs">Date</TableHead>
             </TableRow>
           </TableHeader>
@@ -209,12 +210,13 @@ export function MyWorkDashboard() {
                     <StatusBadge status={item.status} />
                   </TableCell>
                   <TableCell className="py-1 px-4 text-xs">{item.subject}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
                   <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                 </TableRow>
               ))}
             {(!filteredAndSortedWorkItems || filteredAndSortedWorkItems.length === 0) && !isLoading && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-4 text-xs">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-4 text-xs">
                   No work items match the current filters.
                 </TableCell>
               </TableRow>
