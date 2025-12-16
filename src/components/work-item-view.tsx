@@ -21,7 +21,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Mail, Phone, User as UserIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import {
@@ -197,95 +197,109 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   );
 
   return (
-    <div className="flex h-full flex-col">
-       <header className="flex items-center justify-between border-b bg-card p-4">
-        <div className="flex items-center gap-4">
-            <h1 className="font-headline text-2xl font-bold">{item.subject}</h1>
-            <Badge variant="outline">{item.urgency} Urgency</Badge>
-            <StatusBadge status={item.status} />
+    <div className="flex h-full flex-col bg-slate-100">
+      <header className="flex flex-col border-b bg-card p-4">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <p>Created: {format(parseISO(item.createdAt), 'dd/MM/yyyy HH:mm')}</p>
+          <p>Inbound Method: Manual</p>
         </div>
-        <div>
-          <span className="text-sm text-muted-foreground">Assigned To: </span>
-          <span className="font-semibold">{assignedUser?.displayName || '...'}</span>
+        <div className="mt-2 flex items-center justify-between">
+           <h1 className="font-headline text-xl font-bold">{item.subject}</h1>
+           <div>
+            <Badge variant="outline" className='mr-2'>{item.urgency} Urgency</Badge>
+            <StatusBadge status={item.status} />
+           </div>
         </div>
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+         <div className="mb-4 space-y-2">
+            <h2 className="text-lg font-semibold">Processes</h2>
+            <Separator />
+            <div className="flex items-center gap-4 text-sm">
+                <span className="font-medium">Assigned To:</span>
+                <span>{assignedUser?.displayName || '...'}</span>
+                <Button variant="secondary" size="sm">Verify Customer Authority</Button>
+            </div>
+         </div>
+        
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList>
-            <TabsTrigger value="overview">Work Overview</TabsTrigger>
-            <TabsTrigger value="notes">Notes</TabsTrigger>
-            <TabsTrigger value="contact">Contact Info</TabsTrigger>
-            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-            <TabsTrigger value="images">Images</TabsTrigger>
-            <TabsTrigger value="associations">Associations</TabsTrigger>
-            <TabsTrigger value="policy">Policy</TabsTrigger>
-            <TabsTrigger value="agency">Agency</TabsTrigger>
+          <TabsList className="work-item-tabs-list">
+            <TabsTrigger value="overview" className="work-item-tabs-trigger">Work Overview</TabsTrigger>
+            <TabsTrigger value="notes" className="work-item-tabs-trigger">Notes</TabsTrigger>
+            <TabsTrigger value="contact" className="work-item-tabs-trigger">Contact Info</TabsTrigger>
+            <TabsTrigger value="images" className="work-item-tabs-trigger">Images</TabsTrigger>
+            <TabsTrigger value="associations" className="work-item-tabs-trigger">Associations</TabsTrigger>
+            <TabsTrigger value="tasks" className="work-item-tabs-trigger">Tasks</TabsTrigger>
+            <TabsTrigger value="policy" className="work-item-tabs-trigger">Policy</TabsTrigger>
+            <TabsTrigger value="agency" className="work-item-tabs-trigger">Agency</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="overview" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-                <CardContent className="pt-4">
-                   <p className="text-muted-foreground">{item.overview}</p>
-                </CardContent>
-              </CardHeader>
-            </Card>
-          </TabsContent>
+          <div className="mt-0 border-t-4 border-[#A60A0A] bg-card p-4">
+            <TabsContent value="overview" className="mt-0">
+              <Card className="border-0 shadow-none">
+                <CardHeader>
+                  <CardTitle>Overview</CardTitle>
+                  <CardContent className="pt-4">
+                    <p className="text-muted-foreground">{item.overview}</p>
+                  </CardContent>
+                </CardHeader>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="notes" className="mt-4">
-             <NotesTab workItemId={item.id} />
-          </TabsContent>
+            <TabsContent value="notes" className="mt-0">
+              <NotesTab workItemId={item.id} />
+            </TabsContent>
 
-          <TabsContent value="contact" className="mt-4">
-             <Card>
-              <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-4">
-                    <UserIcon className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-medium">Name:</span>
-                    <span>{item.relatedContact.name}</span>
-                </div>
-                 <div className="flex items-center gap-4">
-                    <Mail className="h-5 w-5 text-muted-foreground" />
-                     <span className="font-medium">Email:</span>
-                    <a href={`mailto:${item.relatedContact.email}`} className="text-primary hover:underline">{item.relatedContact.email}</a>
-                </div>
-                 <div className="flex items-center gap-4">
-                    <Phone className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-medium">Phone:</span>
-                    <span>{item.relatedContact.phone}</span>
-                </div>
-                {item.relatedContact.phoneSecondary && (
+            <TabsContent value="contact" className="mt-0">
+              <Card className="border-0 shadow-none">
+                <CardHeader>
+                  <CardTitle>Contact Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-4">
+                      <UserIcon className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-medium">Name:</span>
+                      <span>{item.relatedContact.name}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                      <Mail className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-medium">Email:</span>
+                      <a href={`mailto:${item.relatedContact.email}`} className="text-primary hover:underline">{item.relatedContact.email}</a>
+                  </div>
                   <div className="flex items-center gap-4">
                       <Phone className="h-5 w-5 text-muted-foreground" />
-                      <span className="font-medium">Secondary Phone:</span>
-                      <span>{item.relatedContact.phoneSecondary}</span>
+                      <span className="font-medium">Phone:</span>
+                      <span>{item.relatedContact.phone}</span>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  {item.relatedContact.phoneSecondary && (
+                    <div className="flex items-center gap-4">
+                        <Phone className="h-5 w-5 text-muted-foreground" />
+                        <span className="font-medium">Secondary Phone:</span>
+                        <span>{item.relatedContact.phoneSecondary}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="tasks" className="mt-4">
-            <TasksTab tasks={item.tasks} />
-          </TabsContent>
+            <TabsContent value="tasks" className="mt-0">
+              <TasksTab tasks={item.tasks} />
+            </TabsContent>
 
-          <TabsContent value="images" className="mt-4">
-            <PlaceholderContent title="Images" />
-          </TabsContent>
-          <TabsContent value="associations" className="mt-4">
-            <PlaceholderContent title="Associations" />
-          </TabsContent>
-           <TabsContent value="policy" className="mt-4">
-            <PlaceholderContent title="Policy" />
-          </TabsContent>
-           <TabsContent value="agency" className="mt-4">
-            <PlaceholderContent title="Agency" />
-          </TabsContent>
+            <TabsContent value="images" className="mt-0">
+              <PlaceholderContent title="Images" />
+            </TabsContent>
+            <TabsContent value="associations" className="mt-0">
+              <PlaceholderContent title="Associations" />
+            </TabsContent>
+            <TabsContent value="policy" className="mt-0">
+              <PlaceholderContent title="Policy" />
+            </TabsContent>
+            <TabsContent value="agency" className="mt-0">
+              <PlaceholderContent title="Agency" />
+            </TabsContent>
+          </div>
         </Tabs>
       </div>
     </div>
