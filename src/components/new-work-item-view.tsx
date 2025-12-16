@@ -149,7 +149,7 @@ export function NewWorkItemView() {
         <CardContent>
            <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                  <FormField
                   control={form.control}
                   name="process"
@@ -202,9 +202,6 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
-              </div>
-
-               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                  <FormField
                   control={form.control}
                   name="customerName"
@@ -218,6 +215,9 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
+              </div>
+
+               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <FormField
                   control={form.control}
                   name="customerEmail"
@@ -260,70 +260,70 @@ export function NewWorkItemView() {
                   )}
                 />
               </div>
-
-               <FormField
-                control={form.control}
-                name="customerAddress"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Customer Address</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter customer's full address"
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="overview"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Overview / Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <FormField
                   control={form.control}
-                  name="task"
+                  name="customerAddress"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Initial Task</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an initial task (optional)" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {initialTaskOptions.map((task) => (
-                            <SelectItem key={task} value={task}>
-                              {task}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <FormItem className="md:col-span-1">
+                      <FormLabel>Customer Address</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter customer's full address"
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="overview"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-1">
+                      <FormLabel>Overview / Notes</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                    control={form.control}
+                    name="task"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-1">
+                        <FormLabel>Initial Task</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an initial task (optional)" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {initialTaskOptions.map((task) => (
+                              <SelectItem key={task} value={task}>
+                                {task}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={handleCancel}>
                   Cancel
