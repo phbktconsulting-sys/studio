@@ -238,8 +238,11 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                           <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
                               mode="single"
+                              captionLayout="dropdown-buttons"
                               selected={field.value}
                               onSelect={field.onChange}
+                              fromYear={1960}
+                              toYear={2030}
                               disabled={(date) =>
                                 date > new Date() || date < new Date("1900-01-01")
                               }
@@ -472,3 +475,5 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
     </Dialog>
   );
 }
+
+    
