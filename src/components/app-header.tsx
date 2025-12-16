@@ -69,7 +69,7 @@ export function AppHeader() {
             <DropdownMenuTrigger asChild>
               <Button className="relative h-8 w-auto px-4 bg-black text-white hover:bg-black/80">
                 <UserIcon className="mr-2 h-4 w-4" />
-                <span className="sr-only">User Menu</span>
+                <span>{user?.displayName || 'User Menu'}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
