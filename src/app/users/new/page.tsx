@@ -136,7 +136,7 @@ export default function NewUserPage() {
               <div className="rounded-lg border-[2px] border-[#C00025] p-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormItem>
-                    <FormLabel>Employee ID</FormLabel>
+                    <FormLabel className="font-bold">Employee ID</FormLabel>
                     <FormControl>
                       <Input readOnly disabled value={nextEmployeeId} />
                     </FormControl>
@@ -146,7 +146,7 @@ export default function NewUserPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel className="font-bold">Email</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
@@ -163,7 +163,7 @@ export default function NewUserPage() {
                     name="company"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Company</FormLabel>
+                        <FormLabel className="font-bold">Company</FormLabel>
                         <FormControl>
                           <Input {...field} disabled />
                         </FormControl>
@@ -181,7 +181,7 @@ export default function NewUserPage() {
                     name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name</FormLabel>
+                        <FormLabel className="font-bold">First Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -194,7 +194,7 @@ export default function NewUserPage() {
                     name="middleName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Middle Name (Optional)</FormLabel>
+                        <FormLabel className="font-bold">Middle Name (Optional)</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -207,7 +207,7 @@ export default function NewUserPage() {
                     name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name</FormLabel>
+                        <FormLabel className="font-bold">Last Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -223,7 +223,7 @@ export default function NewUserPage() {
                     name="mobileNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mobile Number</FormLabel>
+                        <FormLabel className="font-bold">Mobile Number</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -236,7 +236,7 @@ export default function NewUserPage() {
                     name="dob"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Date of Birth</FormLabel>
+                        <FormLabel className="font-bold">Date of Birth</FormLabel>
                         <FormControl>
                           <CustomCalendar
                             value={field.value}
@@ -255,7 +255,7 @@ export default function NewUserPage() {
                     name="aadharNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Aadhar Number</FormLabel>
+                        <FormLabel className="font-bold">Aadhar Number</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -268,7 +268,7 @@ export default function NewUserPage() {
                     name="panNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>PAN Number</FormLabel>
+                        <FormLabel className="font-bold">PAN Number</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -286,7 +286,7 @@ export default function NewUserPage() {
                     name="department"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Department</FormLabel>
+                        <FormLabel className="font-bold">Department</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -320,7 +320,7 @@ export default function NewUserPage() {
                     name="jobTitle"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Job Title / Position</FormLabel>
+                        <FormLabel className="font-bold">Job Title / Position</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -354,7 +354,7 @@ export default function NewUserPage() {
                     name="level"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Level</FormLabel>
+                        <FormLabel className="font-bold">Level</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -386,7 +386,7 @@ export default function NewUserPage() {
                     name="workLocation"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Work Location</FormLabel>
+                        <FormLabel className="font-bold">Work Location</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -415,7 +415,7 @@ export default function NewUserPage() {
                     name="role"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Role</FormLabel>
+                        <FormLabel className="font-bold">Role</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -439,7 +439,7 @@ export default function NewUserPage() {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel className="font-bold">Password</FormLabel>
                             <div className="relative">
                                 <FormControl>
                                 <Input
