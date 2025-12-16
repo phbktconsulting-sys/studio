@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,9 +22,12 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, FileDown, Info } from 'lucide-react';
-import { useFirebase } from '@/firebase';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { batchCreateWorkItems } from '@/ai/flows/batch-create-work-items-flow';
+import type { WorkItem, User } from '@/lib/types';
+import { collection, query } from 'firebase/firestore';
+import { format } from 'date-fns';
 
 const processTypes = [
   'Request Information',
@@ -41,11 +45,32 @@ interface BatchWorkCreateProps {
 
 export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
   const { toast } = useToast();
-  const { user } = useFirebase();
+  const { user, firestore } = useFirebase();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [process, setProcess] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [fileName, setFileName] = useState('');
+
+  // Fetch all work items and users for the report
+  const workItemsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'work_items'));
+  }, [firestore]);
+
+  const usersQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'users'));
+  }, [firestore]);
+
+  const { data: workItems, isLoading: workItemsLoading } = useCollection<WorkItem>(workItemsQuery);
+  const { data: users, isLoading: usersLoading } = useCollection<User>(usersQuery);
+
+  const usersMap = useMemo(() => {
+    if (!users) return new Map<string, string>();
+    return new Map(users.map(u => [u.uid, u.displayName || u.email || 'N/A']));
+  }, [users]);
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -91,7 +116,6 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
         
-        // Skip header row and filter out any empty rows
         const rows = json.slice(1).filter((row: any) => row.some((cell: any) => cell !== null && cell !== ''));
         
         if (rows.length === 0) {
@@ -119,7 +143,7 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
             title: 'Batch Creation Successful',
             description: `${result.successCount} work items have been created.`,
           });
-          onBack(); // Go back to admin dashboard
+          onBack();
         } else {
            throw new Error(result.error || "Batch creation failed with an unknown error.");
         }
@@ -145,6 +169,49 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
     XLSX.utils.book_append_sheet(wb, ws, 'Template');
     XLSX.writeFile(wb, 'work_item_template.xlsx');
   };
+  
+  const handleDownloadReport = () => {
+    if (!workItems || workItems.length === 0) {
+        toast({ title: 'No Data', description: 'There are no work items to export.' });
+        return;
+    }
+
+    setIsDownloading(true);
+    
+    try {
+        const reportData = workItems.map(item => ({
+            'Case ID': item.customId,
+            'Process': item.process,
+            'Status': item.status,
+            'Urgency': item.urgency,
+            'Subject': item.subject,
+            'Assigned To': usersMap.get(item.assignedTo) || item.assignedTo,
+            'Created By': usersMap.get(item.createdBy) || item.createdBy,
+            'Created At': format(new Date(item.createdAt), 'yyyy-MM-dd HH:mm:ss'),
+            'Updated At': format(new Date(item.updatedAt), 'yyyy-MM-dd HH:mm:ss'),
+            'Customer Name': item.relatedContact.name,
+            'Customer Email': item.relatedContact.email,
+            'Customer Phone': item.relatedContact.phone,
+            'Customer Phone Secondary': item.relatedContact.phoneSecondary,
+            'Customer Address': item.relatedContact.address,
+            'Customer Unique ID': item.relatedContact.customerUniqueId,
+            'Overview': item.overview,
+        }));
+        
+        const ws = XLSX.utils.json_to_sheet(reportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Work Items Report');
+        XLSX.writeFile(wb, 'work_items_report.xlsx');
+        
+        toast({ title: 'Report Downloaded', description: 'The work items report has been successfully downloaded.' });
+    } catch(error: any) {
+        toast({ variant: 'destructive', title: 'Download Failed', description: error.message || 'An unexpected error occurred.' });
+    } finally {
+        setIsDownloading(false);
+    }
+  };
+
+  const isLoading = workItemsLoading || usersLoading;
 
   return (
     <div className="p-4 sm:p-6">
@@ -163,17 +230,23 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
         <Info className="h-4 w-4" />
         <AlertTitle>Instructions</AlertTitle>
         <AlertDescription className="text-xs">
-          <ul className="list-disc pl-5 space-y-1 mt-2">
-            <li>Ensure your Excel file has a header row matching the template columns.</li>
-            <li>The columns are: Customer Name, Customer Email, Customer Phone, Customer Phone Secondary, Customer Address, and Overview / Notes.</li>
-            <li>The system will process all rows after the header.</li>
-            <li>All created work items will be assigned to you with 'Medium' urgency.</li>
-          </ul>
+          <div className="flex justify-between items-start">
+            <ul className="list-disc pl-5 space-y-1 mt-2">
+              <li>To upload items, select a process and an Excel file with the correct format.</li>
+              <li>The Excel columns are: Customer Name, Customer Email, Customer Phone, Customer Phone Secondary, Customer Address, and Overview / Notes.</li>
+              <li>To download a report of all existing work items, click the "Download Report" button.</li>
+            </ul>
+             <div className="flex flex-col space-y-2">
+                <Button variant="link" size="sm" onClick={downloadTemplate} className="p-0 h-auto mt-2 text-xs">
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Download Upload Template
+                </Button>
+                 <Button variant="secondary" size="sm" onClick={handleDownloadReport} className="h-auto py-1 text-xs" disabled={isDownloading || isLoading}>
+                    {isDownloading ? 'Downloading...' : (isLoading ? 'Loading Data...' : 'Download Report')}
+                </Button>
+            </div>
+          </div>
         </AlertDescription>
-         <Button variant="link" size="sm" onClick={downloadTemplate} className="p-0 h-auto mt-2 text-xs">
-            <FileDown className="mr-2 h-4 w-4" />
-            Download Excel Template
-        </Button>
       </Alert>
 
       <Card>
