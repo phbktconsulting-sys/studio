@@ -166,8 +166,8 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
             <span className="sr-only">Back</span>
           </Button>
           <div>
-            <h1 className="font-headline text-2xl font-bold tracking-tight">All Work Items</h1>
-            <p className="text-muted-foreground">A view of all work items in the system.</p>
+            <h1 className="font-headline text-lg font-bold tracking-tight">All Work Items</h1>
+            <p className="text-xs text-muted-foreground">A view of all work items in the system.</p>
           </div>
         </div>
       </div>
@@ -176,29 +176,29 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[50px]"></TableHead>
-              <TableHead className="w-[120px]">ID</TableHead>
-              <TableHead className="w-[150px]">Status</TableHead>
-              <TableHead>Subject</TableHead>
-              <TableHead className="w-[180px]">Assigned To</TableHead>
-              <TableHead className="w-[180px]">Date</TableHead>
-              <TableHead className="w-[100px] text-right">Actions</TableHead>
+              <TableHead className="w-[120px] text-xs">ID</TableHead>
+              <TableHead className="w-[150px] text-xs">Status</TableHead>
+              <TableHead className='text-xs'>Subject</TableHead>
+              <TableHead className="w-[180px] text-xs">Assigned To</TableHead>
+              <TableHead className="w-[180px] text-xs">Date</TableHead>
+              <TableHead className="w-[100px] text-right text-xs">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedWorkItems &&
               sortedWorkItems.map((item) => (
                 <TableRow key={item.id} className="group">
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer text-center">
+                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer text-center py-1 px-4">
                     <UrgencyIcon urgency={item.urgency} />
                   </TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="font-medium cursor-pointer">{item.customId}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">
+                  <TableCell onClick={() => handleRowClick(item)} className="font-medium cursor-pointer py-1 px-4 text-xs">{item.customId}</TableCell>
+                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">
                     <StatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{item.subject}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{item.subject}</TableCell>
+                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
+                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
+                  <TableCell className="text-right py-1 px-4">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
