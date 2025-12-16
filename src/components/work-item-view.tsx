@@ -337,10 +337,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             
             {selectedAction && (
               <div className="flex justify-end gap-2 mt-0">
-                  <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
+                  <Button type="button" variant="secondary" size="sm" onClick={onCancel} className="h-6 py-0">
                   Cancel
                   </Button>
-                  <Button type="submit" size="sm" disabled={!selectedAction}>Submit</Button>
+                  <Button type="submit" size="sm" disabled={!selectedAction} className="h-6 py-0">Submit</Button>
               </div>
             )}
         </form>
@@ -472,7 +472,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
-         <div className="mt-2 mb-4">
+         <div className="my-4">
             <h2 className="text-base font-semibold">Processes</h2>
             <Separator className="bg-[#A60A0A] h-[2px]" />
              {isVerifyingAuthority ? (
