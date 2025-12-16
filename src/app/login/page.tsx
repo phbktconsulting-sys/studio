@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -20,8 +21,8 @@ import { useFirebase, initiateEmailSignIn } from '@/firebase';
 export default function LoginPage() {
   const router = useRouter();
   const { auth, user, isUserLoading } = useFirebase();
-  const [email, setEmail] = useState('ellen.ripley@phbkt.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -57,7 +58,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="ellen.ripley@phbkt.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
