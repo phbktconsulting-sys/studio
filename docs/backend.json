@@ -50,6 +50,18 @@
         "overview": {
           "type": "string",
           "description": "A detailed description of the work item."
+        },
+        "relatedContact": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "phone": { "type": "string" },
+            "phoneSecondary": { "type": "string" },
+            "address": { "type": "string" },
+            "customerUniqueId": { "type": "string" }
+          },
+          "required": ["name", "email", "phone"]
         }
       },
       "required": [
@@ -153,7 +165,19 @@
         "subject"
       ]
     },
-     "Counter": {
+    "Customer": {
+      "title": "Customer",
+      "type": "object",
+      "description": "Represents a customer with a unique ID.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier (customer's email)." },
+        "email": { "type": "string", "description": "Customer's email address.", "format": "email" },
+        "customerUniqueId": { "type": "string", "description": "The customer's unique sequential ID." },
+        "createdAt": { "type": "string", "description": "The date of creation.", "format": "date-time" }
+      },
+      "required": ["id", "email", "customerUniqueId", "createdAt"]
+    },
+    "Counter": {
       "title": "Counter",
       "type": "object",
       "description": "A document to store a counter value for atomic increments.",
@@ -176,6 +200,10 @@
       "schema": { "$ref": "#/entities/User" },
       "description": "Stores user profiles. Path-based ownership ensures only the user (or an admin) can access their profile. User's role is stored within this document."
     },
+    "/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "Stores unique customer information, keyed by email, to maintain a single unique ID per customer."
+    },
     "/work_items/{workitemId}": {
       "schema": { "$ref": "#/entities/WorkItem" },
       "description": "Stores work items. Access is controlled by the 'assignedTo' field."
@@ -187,6 +215,10 @@
     "/counters/user_employee_id": {
       "schema": { "$ref": "#/entities/Counter" },
       "description": "Stores the counter for generating unique employee IDs for users."
+    },
+    "/counters/customer_unique_id": {
+      "schema": { "$ref": "#/entities/Counter" },
+      "description": "Counter for generating unique sequential IDs for customers."
     },
     "/counters/work_item_RI": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Information work items." },
     "/counters/work_item_RQ": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Quotation work items." },

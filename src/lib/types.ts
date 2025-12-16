@@ -45,6 +45,7 @@ export interface WorkItem {
     phone: string;
     phoneSecondary?: string;
     address?: string;
+    customerUniqueId?: string;
   };
   overview: string;
   tasks: Task[];

@@ -636,7 +636,25 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
               <PlaceholderContent title="Images" />
             </TabsContent>
             <TabsContent value="associations" className="mt-0">
-              <PlaceholderContent title="Associations" />
+               <Card className="border-0 shadow-none">
+                <CardHeader className="p-4">
+                  <CardTitle className="text-xs">Customer Associations</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  {item.relatedContact.customerUniqueId ? (
+                    <div className="flex items-center gap-4 text-xs">
+                        <UserIcon className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Customer:</span>
+                        <span className="text-muted-foreground">{item.relatedContact.name}</span>
+                        <Separator orientation="vertical" className="h-4" />
+                         <span className="font-medium">Unique ID:</span>
+                        <span className="font-mono text-muted-foreground">{item.relatedContact.customerUniqueId}</span>
+                    </div>
+                  ) : (
+                     <p className="text-xs text-muted-foreground">No unique customer ID associated with this work item.</p>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
             <TabsContent value="policy" className="mt-0">
               <PlaceholderContent title="Policy" />
@@ -650,9 +668,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    
-
-    
-
-

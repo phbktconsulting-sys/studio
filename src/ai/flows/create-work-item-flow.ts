@@ -4,6 +4,7 @@
  * @fileOverview A server-side flow for securely creating a Work Item.
  * This flow uses the Firebase Admin SDK to create a work item,
  * atomically incrementing the correct counter to generate a sequential ID.
+ * It also creates or retrieves a unique customer ID based on email.
  *
  * - createWorkItem - The exported function to be called from the client.
  */
@@ -94,25 +95,51 @@ const createWorkItemFlow = ai.defineFlow(
       return { error: 'Invalid process type specified.' };
     }
 
-    const counterRef = adminFirestore
+    const workItemCounterRef = adminFirestore
       .collection('counters')
       .doc(`work_item_${prefix}`);
+    const customerCounterRef = adminFirestore
+      .collection('counters')
+      .doc('customer_unique_id');
+    const customersRef = adminFirestore.collection('customers');
     const workItemsRef = adminFirestore.collection('work_items');
 
     try {
-      // Transaction to get the next ID and create the work item
       const docRef = await adminFirestore.runTransaction(async (transaction) => {
-        const counterDoc = await transaction.get(counterRef);
-        let nextIdNumber = 10001; // Starting ID
+        // 1. Get or create unique customer ID
+        const customerEmail = payload.relatedContact.email.toLowerCase();
+        const customerDocRef = customersRef.doc(customerEmail);
+        let customerDoc = await transaction.get(customerDocRef);
+        let customerUniqueId: string;
 
-        if (counterDoc.exists) {
-          nextIdNumber = counterDoc.data()!.count;
+        if (customerDoc.exists) {
+          customerUniqueId = customerDoc.data()!.customerUniqueId;
+        } else {
+          const counterDoc = await transaction.get(customerCounterRef);
+          let nextId = 24000;
+          if (counterDoc.exists) {
+            nextId = counterDoc.data()!.count;
+          }
+          customerUniqueId = nextId.toString();
+
+          transaction.set(customerDocRef, {
+            id: customerEmail,
+            email: customerEmail,
+            customerUniqueId: customerUniqueId,
+            createdAt: new Date().toISOString(),
+          });
+          transaction.set(customerCounterRef, { count: nextId + 1 }, { merge: true });
         }
 
-        // Increment the counter for the next use
-        transaction.set(counterRef, { count: nextIdNumber + 1 }, { merge: true });
+        // 2. Get next work item ID
+        const workItemCounterDoc = await transaction.get(workItemCounterRef);
+        let nextWorkItemIdNumber = 10001; // Starting ID
+        if (workItemCounterDoc.exists) {
+          nextWorkItemIdNumber = workItemCounterDoc.data()!.count;
+        }
 
-        const customId = `${prefix}-${nextIdNumber}`;
+        // 3. Create the work item
+        const customId = `${prefix}-${nextWorkItemIdNumber}`;
         const newWorkItemRef = workItemsRef.doc(); // Auto-generate Firestore ID
 
         const newWorkItemData = {
@@ -122,11 +149,18 @@ const createWorkItemFlow = ai.defineFlow(
           status: 'Open',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          subject: `${payload.process} for ${payload.relatedContact.name}` // Auto-generate subject
+          subject: `${payload.process} for ${payload.relatedContact.name}`,
+          relatedContact: {
+            ...payload.relatedContact,
+            customerUniqueId: customerUniqueId,
+          },
         };
 
         transaction.set(newWorkItemRef, newWorkItemData);
-
+        
+        // 4. Update work item counter
+        transaction.set(workItemCounterRef, { count: nextWorkItemIdNumber + 1 }, { merge: true });
+        
         return newWorkItemRef;
       });
       
