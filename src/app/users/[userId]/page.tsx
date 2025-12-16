@@ -73,6 +73,12 @@ export default function UserProfilePage() {
     if (userProfile) {
       form.reset({
         ...userProfile,
+        firstName: userProfile.firstName || '',
+        middleName: userProfile.middleName || '',
+        lastName: userProfile.lastName || '',
+        mobileNumber: userProfile.mobileNumber || '',
+        aadharNumber: userProfile.aadharNumber || '',
+        panNumber: userProfile.panNumber || '',
         dob: userProfile.dob ? parseISO(userProfile.dob) : new Date(),
         password: '', // Password should not be pre-filled
       });
