@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export interface User {
@@ -102,6 +103,7 @@ export const WorkItemCreateSchema = z.object({
   customerAddress: z.string().optional(),
   urgency: z.enum(['Low', 'Medium', 'High']),
   overview: z.string().min(1, 'Overview is required.'),
+  task: z.string().optional(),
 });
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 

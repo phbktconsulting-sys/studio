@@ -39,6 +39,19 @@ const processTypes = [
   'Request Other',
 ];
 
+const initialTaskOptions = [
+    'Follow up with customer',
+    'Gather required documents',
+    'Process application',
+    'Send quotation',
+    'Schedule a meeting',
+    'Verify information',
+    'Update customer records',
+    'Escalate to manager',
+    'Prepare report',
+    'Close work item'
+];
+
 export function NewWorkItemView() {
   const { user } = useFirebase();
   const { toast } = useToast();
@@ -55,6 +68,7 @@ export function NewWorkItemView() {
       customerAddress: '',
       urgency: 'Medium',
       overview: '',
+      task: '',
     },
   });
 
@@ -82,7 +96,7 @@ export function NewWorkItemView() {
           address: data.customerAddress || '',
         },
         overview: data.overview,
-        tasks: [],
+        tasks: data.task ? [{ id: `task-${Date.now()}`, text: data.task, completed: false }] : [],
       };
       
       const result = await createWorkItem(payload);
@@ -281,6 +295,36 @@ export function NewWorkItemView() {
                   </FormItem>
                 )}
               />
+              
+              <FormField
+                  control={form.control}
+                  name="task"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Initial Task</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an initial task (optional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {initialTaskOptions.map((task) => (
+                            <SelectItem key={task} value={task}>
+                              {task}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={handleCancel}>
                   Cancel
