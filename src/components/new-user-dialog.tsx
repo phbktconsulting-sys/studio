@@ -29,6 +29,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { createUser } from '@/ai/flows/create-user-flow';
+import { getNextEmployeeId } from '@/ai/flows/get-next-employee-id-flow';
 import { CreateUserInputSchema, type CreateUserInput } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
 import { format } from 'date-fns';
@@ -39,11 +40,27 @@ interface NewUserDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-
 export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [nextEmployeeId, setNextEmployeeId] = useState<string>(
+    'Loading...'
+  );
 
+  useEffect(() => {
+    async function fetchNextId() {
+      if (open) {
+        try {
+          const id = await getNextEmployeeId();
+          setNextEmployeeId(id);
+        } catch (error) {
+          console.error('Failed to fetch next employee ID:', error);
+          setNextEmployeeId('Error');
+        }
+      }
+    }
+    fetchNextId();
+  }, [open]);
 
   const form = useForm<CreateUserInput>({
     resolver: zodResolver(CreateUserInputSchema),
@@ -125,6 +142,13 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <ScrollArea className="h-[60vh] pr-6">
               <div className="space-y-4">
+                <FormItem>
+                  <FormLabel>Employee ID</FormLabel>
+                  <FormControl>
+                    <Input readOnly disabled value={nextEmployeeId} />
+                  </FormControl>
+                </FormItem>
+
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormField
                     control={form.control}
@@ -168,47 +192,43 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                   <FormField
+                  <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="user@example.com" {...field} />
+                          <Input
+                            type="email"
+                            placeholder="user@example.com"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                   <FormItem>
-                    <FormLabel>Employee ID</FormLabel>
-                    <FormControl>
-                      <Input
-                        readOnly
-                        disabled
-                        value="Will be generated upon creation"
-                        className="border-dashed"
-                      />
-                    </FormControl>
-                  </FormItem>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                   <FormField
+                  <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="dob"
@@ -216,16 +236,16 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       <FormItem>
                         <FormLabel>Date of Birth</FormLabel>
                         <FormControl>
-                           <CustomCalendar value={field.value} onChange={field.onChange} />
+                          <CustomCalendar
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="mobileNumber"
@@ -239,13 +259,19 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="department"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Department</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a department" />
@@ -270,85 +296,32 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="jobTitle"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Job Title / Position</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a job title" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {[
-                                'Associate',
-                                'Senior Associate',
-                                'Team Lead',
-                                'Assistant Manager',
-                                'Manager',
-                                'Senior Manager',
-                              ].map((title) => (
-                                <SelectItem key={title} value={title}>
-                                  {title}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="level"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Level</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a level" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {Array.from({ length: 10 }, (_, i) => `L${i + 1}`).map(
-                                (level) => (
-                                  <SelectItem key={level} value={level}>
-                                    {level}
-                                  </SelectItem>
-                                )
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                 </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="workLocation"
+                    name="jobTitle"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Work Location</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormLabel>Job Title / Position</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a location" />
+                              <SelectValue placeholder="Select a job title" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {['Office', 'Remote', 'Hybrid', 'Other'].map((loc) => (
-                              <SelectItem key={loc} value={loc}>
-                                {loc}
+                            {[
+                              'Associate',
+                              'Senior Associate',
+                              'Team Lead',
+                              'Assistant Manager',
+                              'Manager',
+                              'Senior Manager',
+                            ].map((title) => (
+                              <SelectItem key={title} value={title}>
+                                {title}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -357,6 +330,71 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="level"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Level</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a level" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from(
+                              { length: 10 },
+                              (_, i) => `L${i + 1}`
+                            ).map((level) => (
+                              <SelectItem key={level} value={level}>
+                                {level}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="workLocation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Work Location</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a location" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {['Office', 'Remote', 'Hybrid', 'Other'].map(
+                              (loc) => (
+                                <SelectItem key={loc} value={loc}>
+                                  {loc}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="company"
@@ -370,9 +408,7 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="aadharNumber"
@@ -386,6 +422,9 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="panNumber"
@@ -399,29 +438,31 @@ export function NewUserDialog({ open, onOpenChange }: NewUserDialogProps) {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a role" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="User">User</SelectItem>
+                            <SelectItem value="Admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="User">User</SelectItem>
-                          <SelectItem value="Admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
             </ScrollArea>
             <div className="flex justify-end space-x-2 pt-4">
