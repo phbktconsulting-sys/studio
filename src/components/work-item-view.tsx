@@ -382,7 +382,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   return (
     <form onSubmit={handleSubmit}>
-      <Card className="mt-4 border-primary">
+      <Card className="mt-4 border-primary border">
         <CardHeader className="p-2 bg-slate-100 flex-row items-center gap-4">
           <CardTitle className="text-xs font-bold uppercase">
             {getActionDisplayName(selectedAction)}
@@ -443,7 +443,10 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
     
     let statusText = `Work Item ${workItem.status}.`;
     if (lastNote) {
-        if (lastNote.category === 'Terminated') {
+        if (workItem.status === 'Re-indexed') {
+            const newCaseId = lastNote.text.match(/New Case ID: (\S+)\./)?.[1] || 'N/A';
+            statusText = `Work Item Re-indexed to Case ID: ${newCaseId}.`;
+        } else if (lastNote.category === 'Terminated') {
             const reason = lastNote.text.split('Reason: ')[1]?.split('.')[0] || 'Not specified';
             statusText = `Work Item Terminated. Reason: ${reason}.`;
         } else if (lastNote.category === 'Resolved/Completed' || lastNote.category === 'Resolved/Close') {
@@ -456,7 +459,7 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
     return (
         <div className="flex items-center gap-4 text-xs py-2">
             <Lock className="h-5 w-5 text-destructive" />
-            <span className="font-medium">Work Item Closed:</span>
+            <span className="font-medium">Work Item {workItem.status}:</span>
             <Separator orientation="vertical" className="h-4" />
             <span className="text-muted-foreground">Action by {authorUser?.displayName || lastNote?.author || '...'}</span>
             <Separator orientation="vertical" className="h-4" />
@@ -655,3 +658,4 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
