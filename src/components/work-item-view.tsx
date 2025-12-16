@@ -32,6 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Dialog, DialogTrigger } from './ui/dialog';
+import { VerifyAuthorityDialog } from './verify-authority-dialog';
 
 function NotesTab({ workItemId }: { workItemId: string }) {
   const { firestore, user } = useFirebase();
@@ -242,7 +244,12 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <div className="flex items-center gap-4 text-sm">
                 <span className="font-medium">Assigned To:</span>
                 <span>{assignedUser?.displayName || '...'}</span>
-                <Button variant="secondary" size="sm">Verify Customer Authority</Button>
+                 <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="secondary" size="sm">Verify Customer Authority</Button>
+                  </DialogTrigger>
+                  <VerifyAuthorityDialog />
+                </Dialog>
             </div>
          </div>
         
