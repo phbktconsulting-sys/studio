@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -46,7 +47,7 @@ export function AppHeader() {
           <span className="font-headline text-lg font-bold">PHBKT Group Limited</span>
         </Link>
         <div className="ml-auto flex items-center gap-4">
-          <Button onClick={handleNewWork} className="bg-black text-white hover:bg-black/80">
+          <Button onClick={handleNewWork} className="h-8 bg-black text-white hover:bg-black/80">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Work
           </Button>
