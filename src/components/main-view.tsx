@@ -39,7 +39,7 @@ export function MainView() {
       <AppHeader />
       <div className="flex-1 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-col">
-          <div className="border-b">
+          <div className="border-b border-[#A60A0A]">
             <TabsList className="h-auto rounded-none bg-transparent p-0">
               {tabs.map((tab) => (
                 <TabsTrigger
