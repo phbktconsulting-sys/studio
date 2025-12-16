@@ -50,6 +50,23 @@ export default function UserProfilePage() {
 
   const form = useForm<CreateUserInput>({
     resolver: zodResolver(CreateUserInputSchema),
+    defaultValues: {
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      mobileNumber: '',
+      department: 'Operation',
+      jobTitle: 'Associate',
+      level: 'L1',
+      workLocation: 'Office',
+      company: 'PHBKT Group Limited',
+      aadharNumber: '',
+      panNumber: '',
+      role: 'User',
+      dob: new Date(),
+    },
   });
 
   useEffect(() => {
