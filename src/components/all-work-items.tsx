@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { collection, query, arrayUnion } from 'firebase/firestore';
+import { collection, query, arrayUnion, doc } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import {
@@ -378,5 +378,3 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     </div>
   );
 }
-
-    
