@@ -74,32 +74,45 @@ service cloud.firestore {
       allow update: if (isOwner(userId) || isAdmin()) && request.resource.data.id == userId && (request.resource.data.role == resource.data.role || isAdmin());
       allow delete: if isAdmin(); // Only Admins can delete users
     }
-
+    
     /**
-     * @description Rules for work items.
-     * @path /work_items/{workitemId}
-     * @allow The assigned user (userId) (create, read, update) a work item.
-     * @deny A different user access to a work item they are not assigned to.
-     * @principle Restricts access to a user's own data, enforcing that only the assigned user or an admin can manage work items.
+     * @description Rules for the work_items collection.
+     * @path /work_items
+     * @allow Any signed-in user to query (list) the collection. Individual document reads are protected by the `get` rule below.
+     * @allow A signed-in user to create a work item if they are the one it's assigned to.
      */
     match /work_items/{workitemId} {
-      allow get: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
-      allow list: if isSignedIn(); // Allow all signed-in users to query the collection. Specific docs are protected by the 'get' rule.
+      allow list: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.assignedTo == request.auth.uid;
+      
+      /**
+       * @description Rules for individual work item documents.
+       * @path /work_items/{workitemId}
+       * @allow The assigned user or an admin to read, update, or delete a work item.
+       */
+      allow get: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
       allow update: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
+
+      /**
+       * @description Rules for notes within a work item.
+       * @path /work_items/{workitemId}/notes/{noteId}
+       * @allow The user assigned to the parent work item (or any signed in user) can create/read notes.
+       * @principle Access is broad for collaboration, but modification is restricted.
+       */
+      match /notes/{noteId} {
+        allow get, list: if isSignedIn();
+        allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
+        allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+      }
     }
 
     /**
-     * @description Rules for notes within a work item.
-     * @path /work_items/{workitemId}/notes/{noteId}
-     * @allow The user assigned to the parent work item (or any signed in user) can create/read notes.
-     * @principle Access is broad for collaboration, but modification is restricted.
+     * @description Rules for counters. Admins can read/write all counters.
+     * This is an internal collection used for generating sequential IDs.
      */
-    match /work_items/{workitemId}/notes/{noteId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
-      allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+    match /counters/{counterId} {
+      allow read, write: if isAdmin();
     }
   }
 }
