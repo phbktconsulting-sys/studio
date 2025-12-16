@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -25,7 +24,6 @@ import { format } from 'date-fns';
 
 export function NotesTab({ workItemId }: { workItemId: string }) {
   const { firestore, user } = useFirebase();
-  const [noteText, setNoteText] = useState('');
 
   const notesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -46,40 +44,8 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
     return new Map(users.map((u: any) => [u.uid, u.displayName]));
   }, [users]);
 
-  const handleAddNote = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (noteText.trim() && user && firestore) {
-      const notesCollectionRef = collection(firestore, `work_items/${workItemId}/notes`);
-      addDocumentNonBlocking(notesCollectionRef, {
-        authorId: user.uid,
-        text: noteText,
-        createdAt: new Date().toISOString(),
-        workItemId: workItemId,
-      });
-      setNoteText('');
-    }
-  };
-
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Add a Note</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddNote} className="space-y-4">
-            <Textarea
-              name="note-text"
-              placeholder="Type your note here."
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-            />
-            <Button type="submit">Save Note</Button>
-          </form>
-        </CardContent>
-      </Card>
-      
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Activity</CardTitle>
