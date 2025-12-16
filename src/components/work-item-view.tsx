@@ -558,7 +558,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6">
-         <div className="my-4 space-y-2">
+         <div className="mt-2 space-y-2">
             <h2 className="text-lg font-semibold">Processes</h2>
             <Separator />
              {isVerifyingAuthority ? (
@@ -577,7 +577,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
          </div>
         
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="h-auto rounded-none bg-transparent p-0 flex">
+          <TabsList className="flex h-auto rounded-none bg-transparent p-0">
             <TabsTrigger value="overview" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Work Overview</TabsTrigger>
             <TabsTrigger value="notes" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Notes</TabsTrigger>
             <TabsTrigger value="contact" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Contact Info</TabsTrigger>
@@ -667,4 +667,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
 
