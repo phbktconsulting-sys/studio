@@ -125,7 +125,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         break;
       case 'terminate':
         category = 'Terminated';
-        noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
+        noteText = `${terminateReason}. ${terminateNotes}`;
         workItemUpdate.status = 'Closed';
         break;
       case 'resolve-close':
@@ -411,8 +411,6 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
     }, [firestore, lastNote?.authorId]);
 
     const { data: closingUser } = useDoc<User>(closingUserRef);
-    
-    const displayNote = lastNote?.text.split('Notes: ')[1] || lastNote?.text;
 
     return (
         <div className="flex items-center gap-4 text-sm py-2">
@@ -421,8 +419,6 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
             <span className="text-muted-foreground">
                 Action by {closingUser?.displayName || lastNote?.author || 'System'}
             </span>
-            <Separator orientation="vertical" className="h-5" />
-            <span className="text-sm text-muted-foreground">{displayNote}</span>
         </div>
     );
 }
