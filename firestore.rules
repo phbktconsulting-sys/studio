@@ -122,7 +122,7 @@ service cloud.firestore {
        * @principle Access is broad for collaboration, but modification is restricted to author/admin.
        */
       match /notes/{noteId} {
-        allow get, list: if isSignedIn();
+        allow read, list: if isSignedIn();
         allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
         allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
       }
@@ -141,7 +141,8 @@ service cloud.firestore {
      * Allows any signed-in user to create and read global notes.
      */
     match /global_notes/{globalNoteId} {
-        allow read, list, create: if isSignedIn();
+        allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+        allow read, list: if isSignedIn();
         allow update, delete: if isAdmin() || (resource.data.authorId == request.auth.uid);
     }
 
