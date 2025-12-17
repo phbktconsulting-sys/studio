@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import { collection, query, updateDoc, addDoc, doc } from 'firebase/firestore';
+import { collection, query, updateDoc, addDoc, doc, getDocs } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import {
@@ -118,10 +118,10 @@ const initialTaskOptions = [
 interface ReallocateDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    workItem: WorkItem | null;
+    itemToReallocate: WorkItem | null;
 }
 
-function ReallocateDialog({ isOpen, onClose, workItem }: ReallocateDialogProps) {
+function ReallocateDialog({ isOpen, onClose, itemToReallocate }: ReallocateDialogProps) {
     const { firestore, user: currentUser } = useFirebase();
     const { toast } = useToast();
     const [usersForReallocation, setUsersForReallocation] = useState<User[]>([]);
@@ -147,13 +147,13 @@ function ReallocateDialog({ isOpen, onClose, workItem }: ReallocateDialogProps) 
     }, [usersForReallocation]);
 
     const handleConfirmReallocate = async () => {
-        if (!workItem || !newAssigneeId || !firestore || !currentUser) return;
+        if (!itemToReallocate || !newAssigneeId || !firestore || !currentUser) return;
 
-        const workItemRef = doc(firestore, 'work_items', workItem.id);
-        const notesCollectionRef = collection(firestore, `work_items/${workItem.id}/notes`);
+        const workItemRef = doc(firestore, 'work_items', itemToReallocate.id);
+        const notesCollectionRef = collection(firestore, `work_items/${itemToReallocate.id}/notes`);
         const newAssigneeName = usersMap.get(newAssigneeId) || 'Unknown User';
 
-        const newTasks = [...(workItem.tasks || [])];
+        const newTasks = [...(itemToReallocate.tasks || [])];
         if (reallocationTask) {
             newTasks.push({ id: `task-${Date.now()}`, text: reallocationTask, completed: false });
         }
@@ -170,14 +170,14 @@ function ReallocateDialog({ isOpen, onClose, workItem }: ReallocateDialogProps) 
                 authorId: currentUser.uid,
                 text: `Work item reallocated to ${newAssigneeName}. ${reallocationNote}`,
                 createdAt: new Date().toISOString(),
-                workItemId: workItem.id,
+                workItemId: itemToReallocate.id,
                 category: 'Reallocation',
                 subject: 'Work Item Reallocated',
             });
 
             toast({
                 title: 'Work Item Reallocated',
-                description: `Work item "${workItem.customId}" has been reallocated to ${newAssigneeName}.`,
+                description: `Work item "${itemToReallocate.customId}" has been reallocated to ${newAssigneeName}.`,
             });
         } catch (error: any) {
             toast({
@@ -197,7 +197,7 @@ function ReallocateDialog({ isOpen, onClose, workItem }: ReallocateDialogProps) 
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Reallocate Work Item: {workItem?.customId}</DialogTitle>
+                    <DialogTitle>Reallocate Work Item: {itemToReallocate?.customId}</DialogTitle>
                     <DialogDescription>
                         Assign this work item to a different user.
                     </DialogDescription>
@@ -448,7 +448,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[50px]"></TableHead>
+                <TableHead className="w-[50px] text-xs"></TableHead>
                 <TableHead className="w-[120px] text-xs">ID</TableHead>
                 <TableHead className="w-[150px] text-xs">Status</TableHead>
                 <TableHead className="text-xs">Subject</TableHead>
@@ -518,8 +518,10 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
        <ReallocateDialog 
           isOpen={!!itemToReallocate}
           onClose={() => setItemToReallocate(null)}
-          workItem={itemToReallocate}
+          itemToReallocate={itemToReallocate}
        />
     </>
   );
 }
+
+    
