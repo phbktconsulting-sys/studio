@@ -113,21 +113,24 @@ const batchCreateWorkItemsFlow = ai.defineFlow(
         let workItemCounter = workItemCounterDoc.exists ? workItemCounterDoc.data()!.count : 10001;
         let customerCounter = customerCounterDoc.exists ? customerCounterDoc.data()!.count : 24000;
         
-        const customerCache = new Map<string, string>();
+        const customerCache = new Map<string, { customerUniqueId: string, docExists: boolean }>();
         existingCustomerDocs.forEach(doc => {
             if (doc.exists) {
-                customerCache.set(doc.id, doc.data()!.customerUniqueId);
+                customerCache.set(doc.id, { customerUniqueId: doc.data()!.customerUniqueId, docExists: true });
             }
         });
 
         for (const item of payload.items) {
           const customerEmail = item.customerEmail.toLowerCase();
-          let customerUniqueId = customerCache.get(customerEmail);
-          const isNewCustomer = !customerUniqueId;
+          let customerInfo = customerCache.get(customerEmail);
+          const isNewCustomer = !customerInfo;
+          let customerUniqueId;
 
           if (isNewCustomer) {
             customerUniqueId = customerCounter.toString();
             customerCounter++;
+          } else {
+            customerUniqueId = customerInfo!.customerUniqueId;
           }
           
           const newWorkItemRef = workItemsRef.doc();
@@ -190,3 +193,5 @@ const batchCreateWorkItemsFlow = ai.defineFlow(
     }
   }
 );
+
+    
