@@ -154,8 +154,8 @@ export function MyWorkDashboard() {
             <SelectValue placeholder="Filter by Status" />
           </SelectTrigger>
           <SelectContent>
-             <SelectItem value="all">All Statuses</SelectItem>
-             {statusTypes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+             <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
+             {statusTypes.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
           </SelectContent>
         </Select>
 
@@ -164,8 +164,8 @@ export function MyWorkDashboard() {
             <SelectValue placeholder="Filter by Process" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Processes</SelectItem>
-            {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+            <SelectItem value="all" className="text-xs">All Processes</SelectItem>
+            {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
           </SelectContent>
         </Select>
 
@@ -228,3 +228,4 @@ export function MyWorkDashboard() {
   );
 
     
+
