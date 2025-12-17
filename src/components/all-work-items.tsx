@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
 import { collection, doc, query, updateDoc, addDoc } from 'firebase/firestore';
-import { useCollection, useFirebase, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User, Task } from '@/lib/types';
 import {
   Table,
@@ -166,8 +165,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
             newTasks.push({ id: `task-${Date.now()}`, text: reallocateTask, completed: false });
         }
         
-        // Use non-blocking updates
-        updateDocumentNonBlocking(workItemRef, {
+        await updateDoc(workItemRef, {
             assignedTo: reallocateTo,
             updatedAt: new Date().toISOString(),
             tasks: newTasks
@@ -181,7 +179,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
             category: 'Reallocation',
             subject: 'Work Item Reallocated'
         };
-        addDocumentNonBlocking(notesCollectionRef, newNote);
+        await addDoc(notesCollectionRef, newNote);
 
         toast({
             title: 'Work Item Reallocated',
