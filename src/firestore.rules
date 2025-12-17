@@ -106,7 +106,12 @@ service cloud.firestore {
       allow create: if isSignedIn() && (isAssignedToSelf() || isCreatedBySelf());
 
       // The assigned user, creator, or an admin can read a work item.
-      allow get: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || resource.data.createdBy == request.auth.uid || isAdmin());
+      // Also allow a get if the user is listing the notes subcollection.
+      allow get: if isSignedIn() && 
+                    (resource.data.assignedTo == request.auth.uid || 
+                     resource.data.createdBy == request.auth.uid || 
+                     isAdmin() ||
+                     (request.path[5] == 'notes' && request.method == 'list'));
       
       // The assigned user or an admin can update a work item.
       allow update: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
@@ -121,7 +126,8 @@ service cloud.firestore {
        * @principle Access is broad for collaboration, but modification is restricted.
        */
       match /notes/{noteId} {
-        allow get, list: if isSignedIn();
+        allow get: if isSignedIn();
+        allow list: if isSignedIn();
         allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
         allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
       }
@@ -133,6 +139,15 @@ service cloud.firestore {
      */
     match /{path=**}/notes/{noteId} {
       allow list: if isSignedIn();
+    }
+    
+    /**
+     * @description Rule for the 'global_notes' collection.
+     * Allows any signed-in user to create and read global notes.
+     */
+    match /global_notes/{globalNoteId} {
+        allow read, list, create: if isSignedIn();
+        allow update, delete: if isAdmin() || (resource.data.authorId == request.auth.uid);
     }
 
     /**
