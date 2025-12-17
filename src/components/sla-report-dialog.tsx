@@ -33,6 +33,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import type { WorkItem, User } from '@/lib/types';
 import { SlaInfo, calculateSla } from './sla-tracking-dashboard';
+import { Download } from 'lucide-react';
 
 interface SlaReportDialogProps {
   isOpen: boolean;
