@@ -565,16 +565,48 @@ function ClosedWorkItemInfo({ workItem, lastNote }: { workItem: WorkItem; lastNo
     );
 }
 
-function PendingWorkItemInfo({ note }: { note: Note | undefined }) {
+function PendingWorkItemInfo({ workItemId, note }: { workItemId: string, note: Note | undefined }) {
+  const { firestore, user } = useFirebase();
+  const { toast } = useToast();
+
+  const handleResume = () => {
+    if (!firestore || !user) return;
+    const workItemRef = doc(firestore, 'work_items', workItemId);
+    const notesRef = collection(firestore, `work_items/${workItemId}/notes`);
+
+    updateDocumentNonBlocking(workItemRef, {
+      status: 'Open',
+      updatedAt: new Date().toISOString(),
+    });
+
+    addDocumentNonBlocking(notesRef, {
+      authorId: user.uid,
+      author: user.displayName,
+      text: 'Work resumed from pending status.',
+      createdAt: new Date().toISOString(),
+      workItemId: workItemId,
+      category: 'Status Change',
+      subject: 'Work Resumed',
+    });
+
+    toast({
+      title: 'Work Resumed',
+      description: 'The work item status has been set to "Open".',
+    });
+  };
+
   const reason = note?.text.match(/Reason: (.*?)\./)?.[1] || 'Not specified';
   const untilDate = note?.text.match(/Pend until: (.*?)\./)?.[1] || 'N/A';
 
   return (
-    <div className="flex items-center gap-4 text-xs py-2">
-      <Clock className="h-5 w-5 text-orange-500" />
-      <span className="font-medium">Case Pended until {untilDate}:</span>
-      <Separator orientation="vertical" className="h-4" />
-      <span className="text-muted-foreground">{reason}</span>
+    <div className="flex items-center justify-between gap-4 text-xs py-2">
+        <div className="flex items-center gap-4">
+            <Clock className="h-5 w-5 text-orange-500" />
+            <span className="font-medium">Case Pended until {untilDate}:</span>
+            <Separator orientation="vertical" className="h-4" />
+            <span className="text-muted-foreground">{reason}</span>
+        </div>
+        <Button onClick={handleResume} size="sm" className="h-7 text-xs">Resume Work</Button>
     </div>
   );
 }
@@ -712,7 +744,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             ) : isClosed ? (
                 <ClosedWorkItemInfo workItem={item} lastNote={latestNote} />
             ) : isPended ? (
-                <PendingWorkItemInfo note={lastPendedNote} />
+                <PendingWorkItemInfo workItemId={item.id} note={lastPendedNote} />
             ) : isLockedByOther ? (
                 <CaseLockedInfo lockInfo={item.lockInfo!} />
             ) : (
