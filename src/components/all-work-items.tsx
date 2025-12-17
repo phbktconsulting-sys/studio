@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { collection, doc, query, updateDoc, addDoc } from 'firebase/firestore';
+import { useMemo, useState, useEffect } from 'react';
+import { collection, doc, query, updateDoc, addDoc, getDocs } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User, Task } from '@/lib/types';
 import {
@@ -87,22 +87,139 @@ const StatusBadge = ({ status }: { status: WorkItem['status'] }) => {
   );
 };
 
+interface ReallocateDialogProps {
+  item: WorkItem | null;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
+}
+
+function ReallocateDialog({ item, onOpenChange, onSuccess }: ReallocateDialogProps) {
+    const { firestore, user: currentUser } = useFirebase();
+    const { toast } = useToast();
+    const [reallocateTo, setReallocateTo] = useState('');
+    const [reallocateTask, setReallocateTask] = useState('');
+    const [reallocateNote, setReallocateNote] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [users, setUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+        if (item && firestore) {
+            const fetchUsers = async () => {
+                const usersSnapshot = await getDocs(collection(firestore, 'users'));
+                const usersList = usersSnapshot.docs.map(d => d.data() as User);
+                setUsers(usersList);
+            };
+            fetchUsers();
+        }
+    }, [item, firestore]);
+
+    if (!item) return null;
+
+    const usersMap = new Map(users.map(u => [u.uid, u.displayName]));
+
+    const handleConfirmReallocate = async () => {
+        if (!reallocateTo || !currentUser || !firestore) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Please select a user to reallocate to.' });
+            return;
+        }
+        setIsSubmitting(true);
+
+        try {
+            const workItemRef = doc(firestore, 'work_items', item.id);
+            const notesCollectionRef = collection(firestore, `work_items/${item.id}/notes`);
+
+            const newTasks: Task[] = [...(item.tasks || [])];
+            if (reallocateTask) {
+                newTasks.push({ id: `task-${Date.now()}`, text: reallocateTask, completed: false });
+            }
+            
+            // Use direct, non-blocking updates
+            await updateDoc(workItemRef, {
+                assignedTo: reallocateTo,
+                updatedAt: new Date().toISOString(),
+                tasks: newTasks
+            });
+
+            const newNote = {
+                authorId: currentUser.uid,
+                text: `Work item reallocated from ${usersMap.get(item.assignedTo)} to ${usersMap.get(reallocateTo)}. Note: ${reallocateNote}`,
+                createdAt: new Date().toISOString(),
+                workItemId: item.id,
+                category: 'Reallocation',
+                subject: 'Work Item Reallocated'
+            };
+            await addDoc(notesCollectionRef, newNote);
+
+            toast({
+                title: 'Work Item Reallocated',
+                description: `Work item "${item.customId}" has been reallocated.`,
+            });
+            onSuccess();
+
+        } catch (error: any) {
+            toast({
+                variant: 'destructive',
+                title: 'Reallocation Failed',
+                description: error.message || 'An unexpected error occurred.',
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+    
+    return (
+        <Dialog open={!!item} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Reallocate Work Item: {item?.customId}</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="reallocate-user" className="text-right text-xs">Reallocate To</Label>
+                        <Select onValueChange={setReallocateTo} value={reallocateTo}>
+                            <SelectTrigger id="reallocate-user" className="col-span-3 h-8 text-xs">
+                                <SelectValue placeholder="Select a user" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {users.map(user => (
+                                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="reallocate-task" className="text-right text-xs">Add Task</Label>
+                        <Input id="reallocate-task" value={reallocateTask} onChange={(e) => setReallocateTask(e.target.value)} className="col-span-3 h-8 text-xs" placeholder="Optional: Add a task for the new user"/>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="reallocate-note" className="text-right text-xs self-start">Note</Label>
+                        <Textarea id="reallocate-note" value={reallocateNote} onChange={(e) => setReallocateNote(e.target.value)} className="col-span-3 text-xs" placeholder="Reason for reallocation..."/>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button type="button" variant="outline" className="h-8 text-xs">Cancel</Button>
+                    </DialogClose>
+                    <Button onClick={handleConfirmReallocate} disabled={isSubmitting || !reallocateTo} className="h-8 text-xs">
+                        {isSubmitting ? 'Reallocating...' : 'Reallocate'}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 interface AllWorkItemsProps {
   onBack: () => void;
 }
 
 export function AllWorkItems({ onBack }: AllWorkItemsProps) {
-  const { firestore, user: currentUser } = useFirebase();
+  const { firestore } = useFirebase();
   const { openTab } = useTabs();
   const { toast } = useToast();
 
   const [itemToDelete, setItemToDelete] = useState<WorkItem | null>(null);
   const [itemToReallocate, setItemToReallocate] = useState<WorkItem | null>(null);
-  const [reallocateTo, setReallocateTo] = useState('');
-  const [reallocateTask, setReallocateTask] = useState('');
-  const [reallocateNote, setReallocateNote] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -116,12 +233,12 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     return query(collection(firestore, 'users'));
   }, [firestore]);
 
-  const { data: users, isLoading: usersLoading } = useCollection<User>(usersQuery);
+  const { data: usersData, isLoading: usersLoading } = useCollection<User>(usersQuery);
 
   const usersMap = useMemo(() => {
-    if (!users) return new Map();
-    return new Map(users.map(u => [u.uid, u.displayName]));
-  }, [users]);
+    if (!usersData) return new Map();
+    return new Map(usersData.map(u => [u.uid, u.displayName]));
+  }, [usersData]);
 
   const handleRowClick = (item: WorkItem) => {
     openTab({
@@ -149,56 +266,8 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     setItemToDelete(null);
   };
   
-  const handleConfirmReallocate = async () => {
-    if (!itemToReallocate || !reallocateTo || !currentUser || !firestore) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Please select a user to reallocate to.' });
-        return;
-    }
-    setIsSubmitting(true);
-
-    try {
-        const workItemRef = doc(firestore, 'work_items', itemToReallocate.id);
-        const notesCollectionRef = collection(firestore, `work_items/${itemToReallocate.id}/notes`);
-
-        const newTasks: Task[] = [...(itemToReallocate.tasks || [])];
-        if (reallocateTask) {
-            newTasks.push({ id: `task-${Date.now()}`, text: reallocateTask, completed: false });
-        }
-        
-        await updateDoc(workItemRef, {
-            assignedTo: reallocateTo,
-            updatedAt: new Date().toISOString(),
-            tasks: newTasks
-        });
-
-        const newNote = {
-            authorId: currentUser.uid,
-            text: `Work item reallocated from ${usersMap.get(itemToReallocate.assignedTo)} to ${usersMap.get(reallocateTo)}. Note: ${reallocateNote}`,
-            createdAt: new Date().toISOString(),
-            workItemId: itemToReallocate.id,
-            category: 'Reallocation',
-            subject: 'Work Item Reallocated'
-        };
-        await addDoc(notesCollectionRef, newNote);
-
-        toast({
-            title: 'Work Item Reallocated',
-            description: `Work item "${itemToReallocate.customId}" has been reallocated.`,
-        });
-
-    } catch (error: any) {
-        toast({
-            variant: 'destructive',
-            title: 'Reallocation Failed',
-            description: error.message || 'An unexpected error occurred.',
-        });
-    } finally {
-        setItemToReallocate(null);
-        setReallocateTo('');
-        setReallocateTask('');
-        setReallocateNote('');
-        setIsSubmitting(false);
-    }
+  const handleReallocateSuccess = () => {
+    setItemToReallocate(null);
   };
 
 
@@ -270,12 +339,12 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setItemToReallocate(item)}>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setItemToReallocate(item); }}>
                           Reallocate
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-red-600 focus:text-red-600"
-                          onClick={() => setItemToDelete(item)}
+                          onClick={(e) => { e.stopPropagation(); setItemToDelete(item); }}
                         >
                           Delete
                         </DropdownMenuItem>
@@ -308,44 +377,11 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     </AlertDialog>
     
     {/* Reallocate Dialog */}
-    <Dialog open={!!itemToReallocate} onOpenChange={(open) => !open && setItemToReallocate(null)}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Reallocate Work Item: {itemToReallocate?.customId}</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="reallocate-user" className="text-right text-xs">Reallocate To</Label>
-                    <Select onValueChange={setReallocateTo} value={reallocateTo}>
-                        <SelectTrigger id="reallocate-user" className="col-span-3 h-8 text-xs">
-                            <SelectValue placeholder="Select a user" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {users?.map(user => (
-                                <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="reallocate-task" className="text-right text-xs">Add Task</Label>
-                    <Input id="reallocate-task" value={reallocateTask} onChange={(e) => setReallocateTask(e.target.value)} className="col-span-3 h-8 text-xs" placeholder="Optional: Add a task for the new user"/>
-                </div>
-                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="reallocate-note" className="text-right text-xs self-start">Note</Label>
-                    <Textarea id="reallocate-note" value={reallocateNote} onChange={(e) => setReallocateNote(e.target.value)} className="col-span-3 text-xs" placeholder="Reason for reallocation..."/>
-                </div>
-            </div>
-            <DialogFooter>
-                 <DialogClose asChild>
-                    <Button type="button" variant="outline" className="h-8 text-xs">Cancel</Button>
-                </DialogClose>
-                <Button onClick={handleConfirmReallocate} disabled={isSubmitting || !reallocateTo} className="h-8 text-xs">
-                    {isSubmitting ? 'Reallocating...' : 'Reallocate'}
-                </Button>
-            </DialogFooter>
-        </DialogContent>
-    </Dialog>
+    <ReallocateDialog 
+        item={itemToReallocate}
+        onOpenChange={(open) => !open && setItemToReallocate(null)}
+        onSuccess={handleReallocateSuccess}
+    />
     </>
   );
 }
