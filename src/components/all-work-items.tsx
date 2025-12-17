@@ -397,8 +397,8 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                     <SelectValue placeholder="Filter by User" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="all">All Users</SelectItem>
-                    {usersData?.map(user => <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>)}
+                    <SelectItem value="all" className="text-xs">All Users</SelectItem>
+                    {usersData?.map(user => <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>)}
                 </SelectContent>
             </Select>
             <Select value={processFilter} onValueChange={setProcessFilter}>
@@ -406,8 +406,8 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                     <SelectValue placeholder="Filter by Process" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="all">All Processes</SelectItem>
-                    {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                    <SelectItem value="all" className="text-xs">All Processes</SelectItem>
+                    {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
                 </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -415,8 +415,8 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                     <SelectValue placeholder="Filter by Status" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    {statusTypes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
+                    {statusTypes.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
                 </SelectContent>
             </Select>
             <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
@@ -424,8 +424,8 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                     <SelectValue placeholder="Filter by Urgency" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="all">All Urgencies</SelectItem>
-                    {urgencyTypes.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    <SelectItem value="all" className="text-xs">All Urgencies</SelectItem>
+                    {urgencyTypes.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}
                 </SelectContent>
             </Select>
             <Popover>
@@ -523,5 +523,3 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     </>
   );
 }
-
-    
