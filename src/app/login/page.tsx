@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -51,18 +50,18 @@ export default function LoginPage() {
             <Fingerprint className="h-12 w-12 text-primary" />
           </div>
         </div>
-        <Card>
+        <Card className="py-4">
           <CardHeader className="text-center pb-4">
             <CardTitle className="font-headline text-xl">Welcome Back</CardTitle>
             <CardDescription className="text-sm">Sign in to continue</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-3">
-              <div className="space-y-1">
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
                   <Link href="#" className="text-xs text-primary hover:underline">
