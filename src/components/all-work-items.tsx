@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import { collection, query, updateDoc, addDoc, doc } from 'firebase/firestore';
+import { collection, query, updateDoc, addDoc, doc, getDocs } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import {
@@ -46,14 +46,17 @@ import {
   ChevronUp,
   RefreshCw,
   Trash2,
+  X,
 } from 'lucide-react';
 import { useTabs } from '@/contexts/tab-context';
-import { format } from 'date-fns';
+import { format, isSameDay, parseISO } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { deleteWorkItem } from '@/ai/flows/delete-work-item-flow';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from './ui/calendar';
 
 const UrgencyIcon = ({ urgency }: { urgency: WorkItem['urgency'] }) => {
   switch (urgency) {
@@ -87,6 +90,18 @@ const StatusBadge = ({ status }: { status: WorkItem['status'] }) => {
   );
 };
 
+const processTypes = [
+  'Request Information',
+  'Request Quotation',
+  'Request Application',
+  'Request Website',
+  'Request inquiry',
+  'Request Backend Support',
+  'Request Other',
+];
+const statusTypes: WorkItem['status'][] = ['Open', 'In Progress', 'Pending', 'Closed', 'Re-indexed'];
+const urgencyTypes: WorkItem['urgency'][] = ['Low', 'Medium', 'High'];
+
 const initialTaskOptions = [
     'Follow up with customer',
     'Gather required documents',
@@ -100,21 +115,160 @@ const initialTaskOptions = [
     'Close work item'
 ];
 
+interface ReallocateDialogProps {
+    isOpen: boolean;
+    onClose: () => void;
+    workItem: WorkItem | null;
+}
+
+function ReallocateDialog({ isOpen, onClose, workItem }: ReallocateDialogProps) {
+    const { firestore, user: currentUser } = useFirebase();
+    const { toast } = useToast();
+    const [usersForReallocation, setUsersForReallocation] = useState<User[]>([]);
+    const [newAssigneeId, setNewAssigneeId] = useState('');
+    const [reallocationNote, setReallocationNote] = useState('');
+    const [reallocationTask, setReallocationTask] = useState('');
+
+    useEffect(() => {
+        async function fetchUsers() {
+            if (firestore && isOpen) {
+                const usersCol = collection(firestore, 'users');
+                const userSnapshot = await getDocs(usersCol);
+                const userList = userSnapshot.docs.map(doc => doc.data() as User);
+                setUsersForReallocation(userList);
+            }
+        }
+        fetchUsers();
+    }, [firestore, isOpen]);
+    
+    const usersMap = useMemo(() => {
+      if (!usersForReallocation) return new Map();
+      return new Map(usersForReallocation.map((u) => [u.uid, u.displayName]));
+    }, [usersForReallocation]);
+
+    const handleConfirmReallocate = async () => {
+        if (!workItem || !newAssigneeId || !firestore || !currentUser) return;
+
+        const workItemRef = doc(firestore, 'work_items', workItem.id);
+        const notesCollectionRef = collection(firestore, `work_items/${workItem.id}/notes`);
+        const newAssigneeName = usersMap.get(newAssigneeId) || 'Unknown User';
+
+        const newTasks = [...(workItem.tasks || [])];
+        if (reallocationTask) {
+            newTasks.push({ id: `task-${Date.now()}`, text: reallocationTask, completed: false });
+        }
+
+        try {
+            updateDoc(workItemRef, {
+                assignedTo: newAssigneeId,
+                status: 'Open',
+                updatedAt: new Date().toISOString(),
+                tasks: newTasks,
+            });
+
+            addDoc(notesCollectionRef, {
+                authorId: currentUser.uid,
+                text: `Work item reallocated to ${newAssigneeName}. ${reallocationNote}`,
+                createdAt: new Date().toISOString(),
+                workItemId: workItem.id,
+                category: 'Reallocation',
+                subject: 'Work Item Reallocated',
+            });
+
+            toast({
+                title: 'Work Item Reallocated',
+                description: `Work item "${workItem.customId}" has been reallocated to ${newAssigneeName}.`,
+            });
+        } catch (error: any) {
+            toast({
+                variant: 'destructive',
+                title: 'Error Reallocating Item',
+                description: error.message,
+            });
+        } finally {
+            setNewAssigneeId('');
+            setReallocationNote('');
+            setReallocationTask('');
+            onClose();
+        }
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Reallocate Work Item: {workItem?.customId}</DialogTitle>
+                    <DialogDescription>
+                        Assign this work item to a different user.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="assignee">New Assignee</Label>
+                        <Select onValueChange={setNewAssigneeId} value={newAssigneeId}>
+                            <SelectTrigger id="assignee">
+                                <SelectValue placeholder="Select a user to assign" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {usersForReallocation.map((user) => (
+                                    <SelectItem key={user.uid} value={user.uid}>
+                                        {user.displayName}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="task">Initial Task</Label>
+                        <Select onValueChange={setReallocationTask} value={reallocationTask}>
+                            <SelectTrigger id="task">
+                                <SelectValue placeholder="Select an initial task (optional)" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {initialTaskOptions.map((task) => (
+                                    <SelectItem key={task} value={task}>
+                                        {task}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="note">Reallocation Note</Label>
+                        <Textarea
+                            id="note"
+                            placeholder="Provide a reason for reallocating (optional)..."
+                            value={reallocationNote}
+                            onChange={(e) => setReallocationNote(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleConfirmReallocate} disabled={!newAssigneeId}>Reallocate</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 interface AllWorkItemsProps {
   onBack: () => void;
 }
 
 export function AllWorkItems({ onBack }: AllWorkItemsProps) {
-  const { firestore, user: currentUser } = useFirebase();
+  const { firestore } = useFirebase();
   const { openTab } = useTabs();
   const { toast } = useToast();
 
   const [itemToDelete, setItemToDelete] = useState<WorkItem | null>(null);
   const [itemToReallocate, setItemToReallocate] = useState<WorkItem | null>(null);
-  const [usersForReallocation, setUsersForReallocation] = useState<User[]>([]);
-  const [newAssigneeId, setNewAssigneeId] = useState('');
-  const [reallocationNote, setReallocationNote] = useState('');
-  const [reallocationTask, setReallocationTask] = useState('');
+  
+  const [userFilter, setUserFilter] = useState<string>('all');
+  const [processFilter, setProcessFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<Date | undefined>();
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -129,12 +283,6 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   }, [firestore]);
 
   const { data: usersData, isLoading: usersLoading } = useCollection<User>(usersQuery);
-
-  useEffect(() => {
-    if (usersData) {
-      setUsersForReallocation(usersData);
-    }
-  }, [usersData]);
 
 
   const usersMap = useMemo(() => {
@@ -151,7 +299,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   };
 
   const handleDeleteClick = (e: React.MouseEvent, item: WorkItem) => {
-    e.stopPropagation(); // Prevent row click from firing
+    e.stopPropagation(); 
     setItemToDelete(item);
   };
 
@@ -184,60 +332,38 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     }
   };
 
-  const handleConfirmReallocate = async () => {
-    if (!itemToReallocate || !newAssigneeId || !firestore || !currentUser) return;
+  const filteredAndSortedWorkItems = useMemo(() => {
+    if (!workItems) return [];
+    
+    let filtered = workItems;
 
-    const workItemRef = doc(firestore, 'work_items', itemToReallocate.id);
-    const notesCollectionRef = collection(firestore, `work_items/${itemToReallocate.id}/notes`);
-    const newAssigneeName = usersMap.get(newAssigneeId) || 'Unknown User';
-
-    const newTasks = [...(itemToReallocate.tasks || [])];
-    if (reallocationTask) {
-        newTasks.push({ id: `task-${Date.now()}`, text: reallocationTask, completed: false });
+    if (userFilter !== 'all') {
+      filtered = filtered.filter(item => item.assignedTo === userFilter);
     }
-
-    try {
-      // Non-blocking update
-      updateDoc(workItemRef, {
-        assignedTo: newAssigneeId,
-        status: 'Open',
-        updatedAt: new Date().toISOString(),
-        tasks: newTasks,
-      });
-
-      addDoc(notesCollectionRef, {
-        authorId: currentUser.uid,
-        text: `Work item reallocated to ${newAssigneeName}. ${reallocationNote}`,
-        createdAt: new Date().toISOString(),
-        workItemId: itemToReallocate.id,
-        category: 'Reallocation',
-        subject: 'Work Item Reallocated',
-      });
-      
-      toast({
-        title: 'Work Item Reallocated',
-        description: `Work item "${itemToReallocate.customId}" has been reallocated to ${newAssigneeName}.`,
-      });
-
-    } catch (error: any) {
-       toast({
-        variant: 'destructive',
-        title: 'Error Reallocating Item',
-        description: error.message,
-      });
-    } finally {
-      setItemToReallocate(null);
-      setNewAssigneeId('');
-      setReallocationNote('');
-      setReallocationTask('');
+    if (processFilter !== 'all') {
+      filtered = filtered.filter(item => item.process === processFilter);
     }
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(item => item.status === statusFilter);
+    }
+    if (urgencyFilter !== 'all') {
+      filtered = filtered.filter(item => item.urgency === urgencyFilter);
+    }
+    if (dateFilter) {
+      filtered = filtered.filter(item => isSameDay(parseISO(item.createdAt), dateFilter));
+    }
+    
+    return [...filtered].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  }, [workItems, userFilter, processFilter, statusFilter, urgencyFilter, dateFilter]);
+  
+  const clearFilters = () => {
+    setUserFilter('all');
+    setProcessFilter('all');
+    setStatusFilter('all');
+    setUrgencyFilter('all');
+    setDateFilter(undefined);
   };
 
-
-  const sortedWorkItems = useMemo(() => {
-    if (!workItems) return [];
-    return [...workItems].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }, [workItems]);
 
   const isLoading = workItemsLoading || usersLoading;
 
@@ -264,6 +390,60 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
             </div>
           </div>
         </div>
+        
+        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border bg-card p-2">
+            <Select value={userFilter} onValueChange={setUserFilter}>
+                <SelectTrigger className="h-8 w-full flex-1 min-w-[150px] text-xs">
+                    <SelectValue placeholder="Filter by User" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Users</SelectItem>
+                    {usersData?.map(user => <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>)}
+                </SelectContent>
+            </Select>
+            <Select value={processFilter} onValueChange={setProcessFilter}>
+                <SelectTrigger className="h-8 w-full flex-1 min-w-[150px] text-xs">
+                    <SelectValue placeholder="Filter by Process" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Processes</SelectItem>
+                    {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="h-8 w-full flex-1 min-w-[150px] text-xs">
+                    <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    {statusTypes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+            </Select>
+            <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
+                <SelectTrigger className="h-8 w-full flex-1 min-w-[150px] text-xs">
+                    <SelectValue placeholder="Filter by Urgency" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Urgencies</SelectItem>
+                    {urgencyTypes.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                </SelectContent>
+            </Select>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="outline" className="h-8 w-full flex-1 min-w-[150px] justify-start text-left font-normal text-xs">
+                        {dateFilter ? format(dateFilter, 'PPP') : <span>Filter by Date</span>}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
+                </PopoverContent>
+            </Popover>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearFilters}>
+                <X className="h-4 w-4" />
+                <span className="sr-only">Clear filters</span>
+            </Button>
+        </div>
+        
         <div className="mt-6 rounded-lg border bg-card">
           <Table>
             <TableHeader>
@@ -279,8 +459,8 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedWorkItems &&
-                sortedWorkItems.map((item) => (
+              {filteredAndSortedWorkItems &&
+                filteredAndSortedWorkItems.map((item) => (
                   <TableRow key={item.id} className="cursor-pointer group" onClick={() => handleRowClick(item)}>
                     <TableCell className="text-center py-1 px-4">
                       <UrgencyIcon urgency={item.urgency} />
@@ -307,6 +487,13 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                     </TableCell>
                   </TableRow>
                 ))}
+                 {(!filteredAndSortedWorkItems || filteredAndSortedWorkItems.length === 0) && !isLoading && (
+                    <TableRow>
+                        <TableCell colSpan={8} className="text-center text-muted-foreground py-4 text-xs">
+                        No work items match the current filters.
+                        </TableCell>
+                    </TableRow>
+                )}
             </TableBody>
           </Table>
         </div>
@@ -328,63 +515,11 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-       <Dialog open={!!itemToReallocate} onOpenChange={(open) => { if (!open) { setItemToReallocate(null); setNewAssigneeId(''); setReallocationNote(''); setReallocationTask('')} }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reallocate Work Item: {itemToReallocate?.customId}</DialogTitle>
-            <DialogDescription>
-              Assign this work item to a different user.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="assignee">New Assignee</Label>
-              <Select onValueChange={setNewAssigneeId} value={newAssigneeId}>
-                <SelectTrigger id="assignee">
-                  <SelectValue placeholder="Select a user to assign" />
-                </SelectTrigger>
-                <SelectContent>
-                  {usersForReallocation.map((user) => (
-                    <SelectItem key={user.uid} value={user.uid}>
-                      {user.displayName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="task">Initial Task</Label>
-                <Select onValueChange={setReallocationTask} value={reallocationTask}>
-                    <SelectTrigger id="task">
-                        <SelectValue placeholder="Select an initial task (optional)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {initialTaskOptions.map((task) => (
-                        <SelectItem key={task} value={task}>
-                            {task}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="note">Reallocation Note</Label>
-              <Textarea
-                id="note"
-                placeholder="Provide a reason for reallocating (optional)..."
-                value={reallocationNote}
-                onChange={(e) => setReallocationNote(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setItemToReallocate(null)}>Cancel</Button>
-            <Button onClick={handleConfirmReallocate} disabled={!newAssigneeId}>Reallocate</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+       <ReallocateDialog 
+          isOpen={!!itemToReallocate}
+          onClose={() => setItemToReallocate(null)}
+          workItem={itemToReallocate}
+       />
     </>
   );
 }
-
-    
