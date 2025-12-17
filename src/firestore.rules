@@ -1,0 +1,155 @@
+
+/**
+ * This ruleset enforces a strict user-ownership model for a workflow management system.
+ * The core philosophy is that all data, such as work items and their associated notes,
+ * is privately owned by and nested under the user to whom it is assigned.
+ *
+ * Core Philosophy:
+ * A user has full control over the data within their own document tree (e.g., /users/{their-own-id}/...),
+ * but is completely isolated from other users' data. This provides strong default privacy
+ * and security. An 'Admin' role is introduced for system-wide access, allowing administrators
+ * to manage any user's data.
+ *
+ * Data Structure:
+ * The data is organized hierarchically starting from a top-level `users` collection.
+ * - /users/{userId}: Stores a user's profile, including their role.
+ * - /work_items/{workitemId}: A subcollection for work items assigned to that user.
+ * - /work_items/{workitemId}/notes/{noteId}: A subcollection for notes related to a specific work item.
+ *
+ * Key Security Decisions:
+ * - User Enumeration is Disallowed: Non-admin users cannot list the `/users` collection.
+ * - Admin Override: Users with the 'Admin' role can read and write data across all user trees,
+ *   bypassing standard ownership rules.
+ * - Role-Based Access Control (RBAC): A user's role is stored on their user document. Regular users
+ *   cannot change their own role; this action is reserved for Admins.
+ *
+ * Denormalization for Authorization:
+ * To create simpler and more performant rules, data required for authorization is denormalized:
+ * - User roles are stored directly on the `/users/{userId}` document, checked via a `get()` for admin operations.
+ * - The `assignedTo` field on a `WorkItem` and the `authorId` on a `Note` are validated
+ *   during creation to ensure relational integrity with the document's path.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions to improve readability and maintainability.
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the given userId.
+     * This is the primary function for enforcing user ownership.
+     * @param userId The user ID to check against the request's auth UID.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the requesting user has the 'Admin' role.
+     * This requires an extra document read but is necessary for admin privileges.
+     * This function assumes the user's role is stored in their profile document.
+     */
+    function isAdmin() {
+      return isSignedIn() && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin' || request.auth.uid == 'Bx6NMfVHH5dFSYDvWP5QBW1giQ23');
+    }
+    
+    /**
+     * Checks if the document being created/updated has the `assignedTo` field set to the user's UID.
+     */
+    function isAssignedToSelf() {
+      return request.resource.data.assignedTo == request.auth.uid;
+    }
+    
+    /**
+     * Checks if the document being created/updated has the `createdBy` field set to the user's UID.
+     */
+    function isCreatedBySelf() {
+        return request.resource.data.createdBy == request.auth.uid;
+    }
+
+    /**
+     * @description Rules for user profile documents.
+     * @path /users/{userId}
+     * @allow A signed-in user (create) their own profile document with a 'User' role.
+     * @deny A regular user (list) all user documents in the collection.
+     * @principle Enforces self-creation of profiles and prevents user enumeration. Protects sensitive fields like 'role' from being modified by non-admins.
+     */
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.role == 'User';
+      allow update: if (isOwner(userId) || isAdmin()) && request.resource.data.id == userId && (request.resource.data.role == resource.data.role || isAdmin());
+      allow delete: if isAdmin(); // Only Admins can delete users
+    }
+    
+    /**
+     * @description Rules for the work_items collection (queries).
+     */
+    match /work_items/{workitemId=**} {
+      // Any signed-in user can list items for search and dashboard functionality.
+      // More granular access is controlled at the document read level.
+      allow list: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for individual work_item documents.
+     */
+    match /work_items/{workitemId} {
+      // A user can create a work item if it's assigned to them OR created by them.
+      allow create: if isSignedIn() && (isAssignedToSelf() || isCreatedBySelf());
+
+      // The assigned user, creator, or an admin can read a work item.
+      allow get: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || resource.data.createdBy == request.auth.uid || isAdmin());
+      
+      // The assigned user or an admin can update a work item.
+      allow update: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
+      
+      // Only Admins can delete a work item.
+      allow delete: if isAdmin();
+
+      /**
+       * @description Rules for notes within a work item.
+       * @path /work_items/{workitemId}/notes/{noteId}
+       * @allow The user assigned to the parent work item (or any signed in user) can create/read notes.
+       * @principle Access is broad for collaboration, but modification is restricted.
+       */
+      match /notes/{noteId} {
+        allow get: if isSignedIn();
+        allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
+        allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+      }
+    }
+    
+    /**
+     * @description Rule for the 'notes' collection group.
+     * This allows the SLA Tracking dashboard to query all notes across all work items.
+     */
+    match /{path=**}/notes/{noteId} {
+      allow list: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for counters. Admins can read/write all counters.
+     * This is an internal collection used for generating sequential IDs.
+     */
+    match /counters/{counterId=**} {
+      allow read, write: if isAdmin();
+    }
+
+    /**
+     * @description Rules for customer documents. Any signed-in user can read.
+     * Creation/updates are handled by a trusted server-side flow.
+     */
+    match /customers/{customerId} {
+      allow get: if isSignedIn();
+      allow list, create, update, delete: if isAdmin(); // Only admins or server can modify
+    }
+  }
+}

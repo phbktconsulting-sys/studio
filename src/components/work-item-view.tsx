@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Note, Task, WorkItem, User, WorkItemFormValues } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
-import { collection, doc, query, orderBy, limit } from 'firebase/firestore';
+import { collection, doc, query, orderBy, limit, where, getDocs } from 'firebase/firestore';
 import {
   Table,
   TableBody,
@@ -47,60 +47,78 @@ const processTypes = [
   'Request Other',
 ];
 
-function TasksTab({ tasks, workItemId }: { tasks: Task[], workItemId: string }) {
+function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) {
   const { firestore } = useFirebase();
+  const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
 
-  const usersQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'users');
-  }, [firestore]);
+  useEffect(() => {
+    const fetchTaskUsers = async () => {
+      if (!firestore || !tasks || tasks.length === 0) return;
 
-  const { data: users } = useCollection<User>(usersQuery);
+      const userIds = [
+        ...new Set(tasks.map(task => task.completedBy).filter(Boolean) as string[]),
+      ];
+      
+      if (userIds.length === 0) return;
 
-  const usersMap = useMemo(() => {
-    if (!users) return new Map();
-    return new Map(users.map((u) => [u.uid, u.displayName]));
-  }, [users]);
+      const newUsersMap = new Map<string, string>();
+      const usersRef = collection(firestore, 'users');
+      
+      // Firestore 'in' query is limited to 30 items. 
+      // If you expect more, you'd need to batch this.
+      const q = query(usersRef, where('uid', 'in', userIds));
+      const querySnapshot = await getDocs(q);
+      
+      querySnapshot.forEach((doc) => {
+        const userData = doc.data() as User;
+        newUsersMap.set(userData.uid, userData.displayName || 'Unknown User');
+      });
+
+      setUsersMap(newUsersMap);
+    };
+
+    fetchTaskUsers();
+  }, [tasks, firestore]);
 
   const handleTaskCheck = (taskId: string, completed: boolean) => {
-      // This function is kept for potential future use but checkboxes are disabled
-      if (!firestore) return;
-      const workItemRef = doc(firestore, 'work_items', workItemId);
-      const currentTasks = tasks || [];
-      const updatedTasks = currentTasks.map(task => 
-          task.id === taskId ? { ...task, completed } : task
-      );
-      updateDocumentNonBlocking(workItemRef, { tasks: updatedTasks });
+    // This function is kept for potential future use but checkboxes are disabled
+    if (!firestore) return;
+    const workItemRef = doc(firestore, 'work_items', workItemId);
+    const currentTasks = tasks || [];
+    const updatedTasks = currentTasks.map(task =>
+      task.id === taskId ? { ...task, completed } : task
+    );
+    updateDocumentNonBlocking(workItemRef, { tasks: updatedTasks });
   };
-  
+
   if (!tasks || tasks.length === 0) {
     return <p className="text-xs p-4 text-muted-foreground">No tasks for this work item.</p>;
   }
 
   return (
     <div className="space-y-4 p-4">
-       {tasks.map((task) => (
-          <div key={task.id} className="flex items-start justify-between rounded-md border p-4">
-            <div className="flex items-center space-x-3">
-              <Checkbox 
-                id={`task-${task.id}`} 
-                checked={task.completed} 
-                disabled // Disabling the checkbox
-              />
-              <label
-                htmlFor={`task-${task.id}`}
-                className={`text-xs font-medium leading-none ${task.completed ? 'line-through text-muted-foreground' : ''} ${!task.completed ? 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70' : ''}`}
-              >
-                {task.text}
-              </label>
-            </div>
-            {task.completed && (
-              <div className="text-xs text-muted-foreground">
-                Completed by {usersMap.get(task.completedBy || '') || '...'} on {task.completedAt ? format(parseISO(task.completedAt), 'MMM d, yyyy') : '...'}
-              </div>
-            )}
+      {tasks.map((task) => (
+        <div key={task.id} className="flex items-start justify-between rounded-md border p-4">
+          <div className="flex items-center space-x-3">
+            <Checkbox
+              id={`task-${task.id}`}
+              checked={task.completed}
+              disabled // Disabling the checkbox
+            />
+            <label
+              htmlFor={`task-${task.id}`}
+              className={`text-xs font-medium leading-none ${task.completed ? 'line-through text-muted-foreground' : ''} ${!task.completed ? 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70' : ''}`}
+            >
+              {task.text}
+            </label>
           </div>
-        ))}
+          {task.completed && (
+            <div className="text-xs text-muted-foreground">
+              Completed by {usersMap.get(task.completedBy || '') || '...'} on {task.completedAt ? format(parseISO(task.completedAt), 'MMM d, yyyy') : '...'}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
