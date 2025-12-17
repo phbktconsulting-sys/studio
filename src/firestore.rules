@@ -105,13 +105,9 @@ service cloud.firestore {
       // A user can create a work item if it's assigned to them OR created by them.
       allow create: if isSignedIn() && (isAssignedToSelf() || isCreatedBySelf());
 
-      // The assigned user, creator, or an admin can read a work item.
-      // Also allow a get if the user is listing the notes subcollection.
-      allow get: if isSignedIn() && 
-                    (resource.data.assignedTo == request.auth.uid || 
-                     resource.data.createdBy == request.auth.uid || 
-                     isAdmin() ||
-                     (request.path[5] == 'notes' && request.method == 'list'));
+      // Any signed-in user can get a work item. This is required to allow
+      // subcollection queries (like reading notes).
+      allow get: if isSignedIn();
       
       // The assigned user or an admin can update a work item.
       allow update: if isSignedIn() && (resource.data.assignedTo == request.auth.uid || isAdmin());
@@ -122,12 +118,11 @@ service cloud.firestore {
       /**
        * @description Rules for notes within a work item.
        * @path /work_items/{workitemId}/notes/{noteId}
-       * @allow The user assigned to the parent work item (or any signed in user) can create/read notes.
-       * @principle Access is broad for collaboration, but modification is restricted.
+       * @allow Any signed-in user can read notes for collaboration.
+       * @principle Access is broad for collaboration, but modification is restricted to author/admin.
        */
       match /notes/{noteId} {
-        allow get: if isSignedIn();
-        allow list: if isSignedIn();
+        allow get, list: if isSignedIn();
         allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
         allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
       }
