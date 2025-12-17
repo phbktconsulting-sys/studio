@@ -47,7 +47,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-center">
-          <Fingerprint className="h-12 w-12 text-primary" />
+          <div className="flex items-center justify-center rounded-full bg-primary/10 p-4 border-2 border-primary/20">
+            <Fingerprint className="h-12 w-12 text-primary" />
+          </div>
         </div>
         <Card>
           <CardHeader className="text-center pb-4">
