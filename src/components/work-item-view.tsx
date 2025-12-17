@@ -230,6 +230,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             noteText = `Work item resolved. Completed tasks: [${completedTaskTexts.join(', ') || 'None'}]. ${resolveCompleteNotes}`;
             workItemUpdate.status = 'Closed';
             workItemUpdate.tasks = updatedTasks;
+            workItemUpdate.lockInfo = null;
             break;
         }
         case 're-index':
@@ -527,20 +528,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   );
 }
 
-function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
+function ClosedWorkItemInfo({ workItem, lastNote }: { workItem: WorkItem; lastNote: Note | undefined; }) {
     const { firestore } = useFirebase();
-
-    const lastNoteQuery = useMemoFirebase(() => {
-        if (!firestore) return null;
-        return query(
-            collection(firestore, `work_items/${workItem.id}/notes`),
-            orderBy('createdAt', 'desc'),
-            limit(1)
-        );
-    }, [firestore, workItem.id]);
-
-    const { data: lastNoteArr } = useCollection<Note>(lastNoteQuery);
-    const lastNote = lastNoteArr?.[0];
 
     const authorUserRef = useMemoFirebase(() => {
         if (!firestore || !lastNote?.authorId) return null;
@@ -576,24 +565,9 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
     );
 }
 
-function PendingWorkItemInfo({ workItem }: { workItem: WorkItem }) {
-  const { firestore } = useFirebase();
-
-  const lastPendedNoteQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(
-      collection(firestore, `work_items/${workItem.id}/notes`),
-      where('category', '==', 'Pended'),
-      orderBy('createdAt', 'desc'),
-      limit(1)
-    );
-  }, [firestore, workItem.id]);
-
-  const { data: lastNoteArr } = useCollection<Note>(lastPendedNoteQuery);
-  const lastNote = lastNoteArr?.[0];
-
-  const reason = lastNote?.text.match(/Reason: (.*?)\./)?.[1] || 'Not specified';
-  const untilDate = lastNote?.text.match(/Pend until: (.*?)\./)?.[1] || 'N/A';
+function PendingWorkItemInfo({ note }: { note: Note | undefined }) {
+  const reason = note?.text.match(/Reason: (.*?)\./)?.[1] || 'Not specified';
+  const untilDate = note?.text.match(/Pend until: (.*?)\./)?.[1] || 'N/A';
 
   return (
     <div className="flex items-center gap-4 text-xs py-2">
@@ -693,6 +667,8 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   const isClosed = item.status === 'Closed' || item.status === 'Re-indexed';
   const isPended = item.status === 'Pending';
   const isLockedByOther = item.lockInfo && item.lockInfo.userId !== currentUser?.uid;
+  
+  const lastPendedNote = isPended ? latestNoteArr?.find(n => n.category === 'Pended') : undefined;
 
   return (
     <div className="flex h-full flex-col bg-slate-100">
@@ -734,9 +710,9 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
              {isVerifyingAuthority ? (
                 <VerifyAuthorityForm workItem={item} onCancel={handleCancelVerify} />
             ) : isClosed ? (
-                <ClosedWorkItemInfo workItem={item} />
+                <ClosedWorkItemInfo workItem={item} lastNote={latestNote} />
             ) : isPended ? (
-                <PendingWorkItemInfo workItem={item} />
+                <PendingWorkItemInfo note={lastPendedNote} />
             ) : isLockedByOther ? (
                 <CaseLockedInfo lockInfo={item.lockInfo!} />
             ) : (
