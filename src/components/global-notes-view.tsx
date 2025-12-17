@@ -191,7 +191,7 @@ export function GlobalNotesView() {
       {/* Add Note Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Add Global Note</CardTitle>
+          <CardTitle className="text-base">Add Global Note</CardTitle>
           <CardDescription>Add a note associated with a Customer ID.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -226,7 +226,7 @@ export function GlobalNotesView() {
       <div className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Search Customer Notes</CardTitle>
+            <CardTitle className="text-base">Search Customer Notes</CardTitle>
             <CardDescription>Find all notes related to a customer across all their work items.</CardDescription>
           </CardHeader>
           <CardContent>
