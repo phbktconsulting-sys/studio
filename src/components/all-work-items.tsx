@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { collection, query, updateDoc, addDoc, doc, getDocs } from 'firebase/firestore';
-import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirebase, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import {
   Table,
@@ -44,6 +44,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ChevronUp,
+  LockOpen,
   RefreshCw,
   Trash2,
   X,
@@ -308,6 +309,17 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     setItemToReallocate(item);
   };
   
+  const handleReleaseLockClick = (e: React.MouseEvent, item: WorkItem) => {
+    e.stopPropagation();
+    if (!firestore) return;
+    const workItemRef = doc(firestore, 'work_items', item.id);
+    updateDocumentNonBlocking(workItemRef, { lockInfo: null });
+    toast({
+      title: 'Case Unlocked',
+      description: `Case ${item.customId} has been manually unlocked.`,
+    });
+  };
+
   const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
 
@@ -475,6 +487,12 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                     <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                     <TableCell className="py-1 px-4 text-center">
                       <div className="flex justify-center items-center gap-2">
+                         {item.lockInfo && (
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => handleReleaseLockClick(e, item)}>
+                            <LockOpen className="h-4 w-4 text-green-600" />
+                            <span className="sr-only">Release Lock</span>
+                          </Button>
+                         )}
                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => handleReallocateClick(e, item)}>
                           <RefreshCw className="h-4 w-4 text-blue-600" />
                           <span className="sr-only">Reallocate</span>
