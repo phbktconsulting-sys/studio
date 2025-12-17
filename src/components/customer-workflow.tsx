@@ -5,26 +5,17 @@ import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { Customer } from '@/lib/types';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { ArrowLeft, Search } from 'lucide-react';
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { ArrowLeft, Search, Mail, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from './ui/input';
 
 interface CustomerWorkflowProps {
   onBack: () => void;
-}
-
-// We need a more detailed customer type for this view
-interface DetailedCustomer extends Customer {
-    name: string;
-    phone: string;
-    address: string;
 }
 
 export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
@@ -50,7 +41,6 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
       return (
         customer.name?.toLowerCase().includes(lowercasedFilter) ||
         customer.email?.toLowerCase().includes(lowercasedFilter) ||
-        customer.phone?.includes(lowercasedFilter) ||
         customer.customerUniqueId?.includes(lowercasedFilter)
       );
     });
@@ -65,62 +55,57 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
   }
 
   return (
-    <>
-      <div className="p-4 sm:p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={onBack}>
-              <ArrowLeft className="h-4 w-4" />
-              <span className="sr-only">Back</span>
-            </Button>
-            <div>
-              <h1 className="font-headline text-lg font-bold tracking-tight">Customer Workflow</h1>
-              <p className="text-xs text-muted-foreground">View and manage all customer records.</p>
-            </div>
+    <div className="p-4 sm:p-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">Back</span>
+          </Button>
+          <div>
+            <h1 className="font-headline text-lg font-bold tracking-tight">Customer Workflow</h1>
+            <p className="text-xs text-muted-foreground">View and manage all customer records.</p>
           </div>
         </div>
-        <div className="relative mt-4">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-                placeholder="Search by name, email, phone, or ID..."
-                className="w-full pl-9"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-        </div>
-        <div className="mt-6 rounded-lg border bg-card">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[120px] text-xs">Customer ID</TableHead>
-                <TableHead className="text-xs">Name</TableHead>
-                <TableHead className="text-xs">Email</TableHead>
-                <TableHead className="w-[150px] text-xs">Phone</TableHead>
-                <TableHead className="text-xs">Address</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCustomers &&
-                filteredCustomers.map((customer) => (
-                  <TableRow key={customer.id}>
-                    <TableCell className="font-mono text-xs py-1 px-4">{customer.customerUniqueId}</TableCell>
-                    <TableCell className="font-medium text-xs py-1 px-4">{customer.name}</TableCell>
-                    <TableCell className="text-xs py-1 px-4">{customer.email}</TableCell>
-                    <TableCell className="text-xs py-1 px-4">{customer.phone}</TableCell>
-                     <TableCell className="text-xs py-1 px-4">{customer.address}</TableCell>
-                  </TableRow>
-                ))}
-              {(!filteredCustomers || filteredCustomers.length === 0) && !isLoading && (
-                  <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-4 text-xs">
-                      {searchTerm ? "No customers match your search." : "No customers found."}
-                      </TableCell>
-                  </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
       </div>
-    </>
+      <div className="relative mt-4">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+              placeholder="Search by name, email, or ID..."
+              className="w-full pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+          />
+      </div>
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {filteredCustomers &&
+          filteredCustomers.map((customer) => (
+            <Card key={customer.id} className="group flex flex-col justify-between transition-all hover:shadow-md">
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-base font-bold">{customer.name || 'N/A'}</CardTitle>
+                     <p className="font-mono text-xs text-muted-foreground">{customer.customerUniqueId}</p>
+                  </div>
+                   <UserCircle className="h-8 w-8 text-muted-foreground" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2 text-xs">
+                    <Mail className="h-3 w-3 text-muted-foreground" />
+                    <a href={`mailto:${customer.email}`} className="text-primary hover:underline truncate">
+                        {customer.email}
+                    </a>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+      </div>
+       {(!filteredCustomers || filteredCustomers.length === 0) && !isLoading && (
+            <div className="mt-6 text-center text-sm text-muted-foreground">
+                <p>{searchTerm ? "No customers match your search." : "No customers found."}</p>
+            </div>
+        )}
+    </div>
   );
 }
