@@ -122,7 +122,7 @@ service cloud.firestore {
        * @principle Access is broad for collaboration, but modification is restricted to author/admin.
        */
       match /notes/{noteId} {
-        allow read, list: if isSignedIn();
+        allow read: if isSignedIn();
         allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
         allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
       }
@@ -130,7 +130,7 @@ service cloud.firestore {
     
     /**
      * @description Rule for the 'notes' collection group.
-     * This allows the SLA Tracking dashboard to query all notes across all work items.
+     * This allows the Global Notes search to query all notes across all work items.
      */
     match /{path=**}/notes/{noteId} {
       allow list: if isSignedIn();
