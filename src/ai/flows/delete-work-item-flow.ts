@@ -1,7 +1,8 @@
 'use server';
 /**
  * @fileOverview A server-side flow for securely deleting a Work Item.
- * This flow uses the Firebase Admin SDK to delete a work item document from Firestore.
+ * This flow uses the Firebase Admin SDK to delete a work item document from Firestore,
+ * ensuring its subcollections (like notes) are also deleted.
  *
  * - deleteWorkItem - The exported function to be called from the client.
  */
@@ -70,14 +71,17 @@ const deleteWorkItemFlow = ai.defineFlow(
   async (payload) => {
     await initializeAdmin();
     const adminFirestore = getFirestore(adminApp);
+    const workItemRef = adminFirestore.collection('work_items').doc(payload.id);
 
     try {
-      // Add logic to delete notes subcollection if necessary
-      await adminFirestore.collection('work_items').doc(payload.id).delete();
+      // Recursively delete subcollections (e.g., 'notes') before deleting the document.
+      // This is crucial for avoiding orphaned data and permission errors.
+      await adminFirestore.recursiveDelete(workItemRef);
+      
       return { success: true };
 
     } catch (error: any) {
-      console.error('Error deleting work item:', error);
+      console.error('Error deleting work item and its subcollections:', error);
       return { success: false, error: error.message || 'An unexpected error occurred.' };
     }
   }
