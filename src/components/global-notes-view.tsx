@@ -16,7 +16,7 @@ import { Label } from './ui/label';
 import { Search } from 'lucide-react';
 import { useFirebase, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { collection, query, where, getDocs, collectionGroup } from 'firebase/firestore';
-import type { WorkItem, Note, User } from '@/lib/types';
+import type { WorkItem, Note, User, GlobalNote } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
@@ -70,7 +70,11 @@ function SearchedNotesList({ notes, isLoading }: { notes: (Note & { workItemCust
               <div>
                 <CardTitle className="text-sm">{note.subject}</CardTitle>
                 <CardDescription className="text-xs">
-                  From Case: <span className="font-medium text-primary">{note.workItemCustomId}</span>
+                  {note.workItemId ? (
+                    <>From Case: <span className="font-medium text-primary">{note.workItemCustomId}</span></>
+                  ) : (
+                    <span className="font-medium text-purple-600">Global Note</span>
+                  )}
                 </CardDescription>
               </div>
                <p className="text-xs text-muted-foreground">{format(new Date(note.createdAt), 'dd MMM yyyy, HH:mm')}</p>
@@ -144,29 +148,37 @@ export function GlobalNotesView() {
     setSearchedNotes([]);
 
     try {
-        // 1. Find all work items for the given customer ID
-        const workItemsRef = collection(firestore, 'work_items');
-        const workItemsQuery = query(workItemsRef, where('relatedContact.customerUniqueId', '==', searchCustomerId.trim()));
-        const workItemsSnapshot = await getDocs(workItemsQuery);
-        
-        const workItemsFound = workItemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WorkItem));
-        const workItemIds = workItemsFound.map(item => item.id);
-        
-        if (workItemIds.length === 0) {
-            setSearchedNotes([]);
-            setIsSearching(false);
-            toast({ title: 'No Results', description: 'No work items found for this customer ID.'});
-            return;
-        }
-        
-        // 2. Fetch all notes for those work items using a collectionGroup query
+      const customerId = searchCustomerId.trim();
+
+      // 1. Fetch Global Notes
+      const globalNotesQuery = query(collection(firestore, 'global_notes'), where('customerUniqueId', '==', customerId));
+      const globalNotesSnapshot = await getDocs(globalNotesQuery);
+      const globalNotes = globalNotesSnapshot.docs.map(doc => {
+        const data = doc.data() as GlobalNote;
+        return {
+          ...data,
+          id: doc.id,
+          workItemCustomId: 'Global Note', // Identifier for global notes
+        } as Note & { workItemCustomId: string };
+      });
+      
+      // 2. Fetch Work Item Notes
+      const workItemsRef = collection(firestore, 'work_items');
+      const workItemsQuery = query(workItemsRef, where('relatedContact.customerUniqueId', '==', customerId));
+      const workItemsSnapshot = await getDocs(workItemsQuery);
+      
+      const workItemsFound = workItemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WorkItem));
+      const workItemIds = workItemsFound.map(item => item.id);
+      
+      let workItemNotes: (Note & { workItemCustomId: string })[] = [];
+      if (workItemIds.length > 0) {
         const notesRef = collectionGroup(firestore, 'notes');
         const notesQuery = query(notesRef, where('workItemId', 'in', workItemIds));
         const notesSnapshot = await getDocs(notesQuery);
 
         const workItemIdToCustomIdMap = new Map(workItemsFound.map(item => [item.id, item.customId]));
 
-        const allNotes = notesSnapshot.docs.map(doc => {
+        workItemNotes = notesSnapshot.docs.map(doc => {
             const note = doc.data() as Note;
             return {
                 ...note,
@@ -174,10 +186,17 @@ export function GlobalNotesView() {
                 workItemCustomId: workItemIdToCustomIdMap.get(note.workItemId) || 'N/A'
             };
         });
-        
-        // 3. Sort and set the notes
-        allNotes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        setSearchedNotes(allNotes);
+      }
+      
+      // 3. Combine and sort all notes
+      const allNotes = [...globalNotes, ...workItemNotes];
+      allNotes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      if (allNotes.length === 0) {
+        toast({ title: 'No Results', description: 'No notes found for this customer ID.'});
+      }
+
+      setSearchedNotes(allNotes);
 
     } catch (error: any) {
         toast({ variant: 'destructive', title: 'Search Failed', description: error.message });

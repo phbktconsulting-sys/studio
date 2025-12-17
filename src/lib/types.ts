@@ -60,7 +60,7 @@ export interface WorkItem {
 
 export interface Note {
   id: string;
-  author: string;
+  author?: string;
   authorId: string;
   text: string;
   createdAt: string; // ISO date string
@@ -68,6 +68,17 @@ export interface Note {
   category: string;
   subject: string;
 }
+
+export interface GlobalNote {
+  id: string;
+  customerUniqueId: string;
+  authorId: string;
+  text: string;
+  createdAt: string;
+  category: string;
+  subject: string;
+}
+
 
 export interface Customer {
   id: string; // This is the customer's email, used as the document ID
