@@ -20,6 +20,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -29,6 +37,8 @@ import {
 import { subDays, format } from 'date-fns';
 import { Button } from './ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { Badge } from './ui/badge';
+import { cn } from '@/lib/utils';
 
 interface AnalyticsDashboardProps {
   onBack: () => void;
@@ -43,6 +53,8 @@ const processTypes = [
   'Request Backend Support',
   'Request Other',
 ];
+
+const statusTypes: WorkItem['status'][] = ['Open', 'In Progress', 'Pending', 'Closed', 'Re-indexed'];
 
 export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
   const { firestore } = useFirebase();
@@ -132,6 +144,35 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
     return Object.entries(counts).map(([process, count]) => ({ process, count }));
   }, [filteredWorkItems]);
 
+  const pivotTableData = useMemo(() => {
+    if (!workItems || !users) return [];
+    
+    const userStats: { [key: string]: { [key: string]: number | string } } = {};
+
+    users.forEach(user => {
+      userStats[user.uid] = {
+        userName: user.displayName || 'Unknown',
+        'Open': 0,
+        'In Progress': 0,
+        'Pending': 0,
+        'Closed': 0,
+        'Re-indexed': 0,
+        'Total': 0,
+      };
+    });
+
+    workItems.forEach(item => {
+      if (userStats[item.assignedTo]) {
+        userStats[item.assignedTo][item.status] = (userStats[item.assignedTo][item.status] as number) + 1;
+        userStats[item.assignedTo]['Total'] = (userStats[item.assignedTo]['Total'] as number) + 1;
+      }
+    });
+
+    return Object.values(userStats).sort((a,b) => (b.Total as number) - (a.Total as number));
+  }, [workItems, users]);
+  
+  const maxTotal = useMemo(() => Math.max(...pivotTableData.map(d => d.Total as number)), [pivotTableData]);
+
 
   const chartConfig = {
     count: { label: 'Work Items' },
@@ -195,91 +236,142 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
             </Select>
         </div>
       </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+      
+      <div className="space-y-6">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Work Items by Assignee</CardTitle>
-            <CardDescription className="text-xs">Work items assigned to each user.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
-              <BarChart accessibilityLayer data={assigneeChartData} layout="vertical" margin={{ left: 10 }}>
-                <CartesianGrid horizontal={false} />
-                <YAxis dataKey="assignee" type="category" tickLine={false} tickMargin={10} axisLine={false} className="text-xs" />
-                <XAxis dataKey="count" type="number" hide />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={4}>
-                   {assigneeChartData.map((entry) => (
-                    <RechartsPrimitive.LabelList
-                      key={entry.assignee}
-                      dataKey="count"
-                      position="right"
-                      offset={8}
-                      className="fill-foreground text-xs"
-                      formatter={(value: number) => value.toLocaleString()}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Daily Created Work Items</CardTitle>
-            <CardDescription className="text-xs">Trend of new work items created.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={{ count: { label: 'Created Items', color: 'hsl(var(--accent))'}}} className="min-h-[250px] w-full">
-              <LineChart accessibilityLayer data={dailyChartData} margin={{ left: 12, right: 12 }}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
-                <YAxis dataKey="count" />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                <Line dataKey="count" type="monotone" stroke="var(--color-count)" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Work Items by Status</CardTitle>
-            <CardDescription className="text-xs">Distribution of work items by status.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={{count: {color: 'hsl(var(--chart-2))'}}} className="min-h-[250px] w-full">
-              <BarChart accessibilityLayer data={statusChartData}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="status" tickLine={false} tickMargin={10} axisLine={false} className="text-xs" />
-                <YAxis dataKey="count" />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--color-count)" radius={4} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
+            <CardHeader>
+                <CardTitle className="text-base">User Workload Pivot</CardTitle>
+                <CardDescription className="text-xs">
+                    Summary of work items by status for each user in the selected time range.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="text-xs">User</TableHead>
+                            {statusTypes.map(status => (
+                                <TableHead key={status} className="text-center text-xs">{status}</TableHead>
+                            ))}
+                            <TableHead className="text-center text-xs font-bold">Total</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {pivotTableData.map((data, index) => (
+                           <TableRow key={index} className={cn(data.Total === maxTotal && maxTotal > 0 && 'bg-primary/5')}>
+                                <TableCell className="font-medium text-xs py-2">{data.userName}</TableCell>
+                                <TableCell className="text-center text-xs py-2">
+                                  <Badge variant="outline" className="border-blue-500 text-blue-500">{data['Open']}</Badge>
+                                </TableCell>
+                                <TableCell className="text-center text-xs py-2">
+                                  <Badge variant="outline" className="border-yellow-500 text-yellow-500">{data['In Progress']}</Badge>
+                                </TableCell>
+                                <TableCell className="text-center text-xs py-2">
+                                  <Badge variant="outline" className="border-orange-500 text-orange-500">{data['Pending']}</Badge>
+                                </TableCell>
+                                <TableCell className="text-center text-xs py-2">
+                                  <Badge variant="outline" className="border-green-600 text-green-600">{data['Closed']}</Badge>
+                                </TableCell>
+                                <TableCell className="text-center text-xs py-2">
+                                  <Badge variant="outline" className="border-purple-500 text-purple-500">{data['Re-indexed']}</Badge>
+                                </TableCell>
+                                <TableCell className="text-center text-xs font-bold py-2">
+                                   <Badge variant="secondary">{data['Total']}</Badge>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Work Items by Process</CardTitle>
-            <CardDescription className="text-xs">Distribution of work items by process.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <ChartContainer config={{count: {color: 'hsl(var(--chart-4))'}}} className="min-h-[250px] w-full">
-              <BarChart accessibilityLayer data={processChartData}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="process" tickLine={false} axisLine={false} tickMargin={10} angle={-45} textAnchor="end" height={80} className="text-xs" />
-                <YAxis dataKey="count" />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--color-count)" radius={4} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+        <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+            <CardHeader>
+                <CardTitle className="text-base">Work Items by Assignee</CardTitle>
+                <CardDescription className="text-xs">Work items assigned to each user.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
+                <BarChart accessibilityLayer data={assigneeChartData} layout="vertical" margin={{ left: 10 }}>
+                    <CartesianGrid horizontal={false} />
+                    <YAxis dataKey="assignee" type="category" tickLine={false} tickMargin={10} axisLine={false} className="text-xs" />
+                    <XAxis dataKey="count" type="number" hide />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                    <Bar dataKey="count" fill="hsl(var(--primary))" radius={4}>
+                    {assigneeChartData.map((entry) => (
+                        <RechartsPrimitive.LabelList
+                        key={entry.assignee}
+                        dataKey="count"
+                        position="right"
+                        offset={8}
+                        className="fill-foreground text-xs"
+                        formatter={(value: number) => value.toLocaleString()}
+                        />
+                    ))}
+                    </Bar>
+                </BarChart>
+                </ChartContainer>
+            </CardContent>
+            </Card>
+            
+            <Card>
+            <CardHeader>
+                <CardTitle className="text-base">Daily Created Work Items</CardTitle>
+                <CardDescription className="text-xs">Trend of new work items created.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={{ count: { label: 'Created Items', color: 'hsl(var(--accent))'}}} className="min-h-[250px] w-full">
+                <LineChart accessibilityLayer data={dailyChartData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
+                    <YAxis dataKey="count" />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                    <Line dataKey="count" type="monotone" stroke="var(--color-count)" strokeWidth={2} dot={false} />
+                </LineChart>
+                </ChartContainer>
+            </CardContent>
+            </Card>
+
+            <Card>
+            <CardHeader>
+                <CardTitle className="text-base">Work Items by Status</CardTitle>
+                <CardDescription className="text-xs">Distribution of work items by status.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={{count: {color: 'hsl(var(--chart-2))'}}} className="min-h-[250px] w-full">
+                <BarChart accessibilityLayer data={statusChartData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis dataKey="status" tickLine={false} tickMargin={10} axisLine={false} className="text-xs" />
+                    <YAxis dataKey="count" />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                </BarChart>
+                </ChartContainer>
+            </CardContent>
+            </Card>
+
+            <Card>
+            <CardHeader>
+                <CardTitle className="text-base">Work Items by Process</CardTitle>
+                <CardDescription className="text-xs">Distribution of work items by process.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={{count: {color: 'hsl(var(--chart-4))'}}} className="min-h-[250px] w-full">
+                <BarChart accessibilityLayer data={processChartData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis dataKey="process" tickLine={false} axisLine={false} tickMargin={10} angle={-45} textAnchor="end" height={80} className="text-xs" />
+                    <YAxis dataKey="count" />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                </BarChart>
+                </ChartContainer>
+            </CardContent>
+            </Card>
+        </div>
       </div>
     </div>
   );
 }
+
+    
