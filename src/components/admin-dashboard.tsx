@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { AllWorkItems } from './all-work-items';
 import { UserManagement } from './user-management';
 import { AnalyticsDashboard } from './analytics-dashboard';
-import { List, Users, BarChart2, Upload } from 'lucide-react';
+import { List, Users, BarChart2, Upload, TrendingUp } from 'lucide-react';
 import { BatchWorkCreate } from './batch-work-create';
+import { SlaTrackingDashboard } from './sla-tracking-dashboard';
 
-type AdminView = 'menu' | 'work-items' | 'users' | 'dashboard' | 'batch-create';
+type AdminView = 'menu' | 'work-items' | 'users' | 'dashboard' | 'batch-create' | 'sla-tracking';
 
 export function AdminDashboard() {
   const [view, setView] = useState<AdminView>('menu');
@@ -27,6 +28,10 @@ export function AdminDashboard() {
 
   if (view === 'batch-create') {
     return <BatchWorkCreate onBack={() => setView('menu')} />;
+  }
+  
+  if (view === 'sla-tracking') {
+    return <SlaTrackingDashboard onBack={() => setView('menu')} />;
   }
 
   return (
@@ -62,6 +67,12 @@ export function AdminDashboard() {
           description="Create multiple work items by uploading an Excel file."
           icon={<Upload className="h-6 w-6" />}
           onClick={() => setView('batch-create')}
+        />
+        <CardButton
+          title="SLA Tracking"
+          description="Track Service Level Agreement compliance for cases."
+          icon={<TrendingUp className="h-6 w-6" />}
+          onClick={() => setView('sla-tracking')}
         />
       </div>
     </div>
