@@ -1,10 +1,10 @@
 
 'use client';
 
-import { useMemo } from 'react';
-import type { Note } from '@/lib/types';
+import { useMemo, useState, useEffect } from 'react';
+import type { Note, User } from '@/lib/types';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, where, getDocs } from 'firebase/firestore';
 import {
   Table,
   TableBody,
@@ -23,6 +23,7 @@ import { format } from 'date-fns';
 
 export function NotesTab({ workItemId }: { workItemId: string }) {
   const { firestore } = useFirebase();
+  const [userMap, setUserMap] = useState<Map<string, string>>(new Map());
 
   const notesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -31,17 +32,40 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
 
   const { data: notes, isLoading } = useCollection<Note>(notesQuery);
 
-  const usersQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'users');
-  }, [firestore]);
+  useEffect(() => {
+    const fetchNoteAuthors = async () => {
+      if (!firestore || !notes || notes.length === 0) return;
 
-  const { data: users } = useCollection(usersQuery);
+      const authorIds = [...new Set(notes.map(note => note.authorId).filter(id => id && id !== 'system'))];
+      if (authorIds.length === 0) return;
 
-  const userMap = useMemo(() => {
-    if (!users) return new Map();
-    return new Map(users.map((u: any) => [u.uid, u.displayName]));
-  }, [users]);
+      const newUsersMap = new Map<string, string>(userMap);
+      const idsToFetch = authorIds.filter(id => !newUsersMap.has(id));
+
+      if (idsToFetch.length === 0) return;
+      
+      try {
+        const usersRef = collection(firestore, 'users');
+        // Firestore 'in' query is limited to 30 items per query.
+        // For larger sets of authors, batching would be needed.
+        const q = query(usersRef, where('uid', 'in', idsToFetch.slice(0,30)));
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data() as User;
+          newUsersMap.set(userData.uid, userData.displayName || 'Unknown User');
+        });
+
+        setUserMap(newUsersMap);
+
+      } catch (error) {
+          console.error("Error fetching note authors:", error)
+      }
+    };
+
+    fetchNoteAuthors();
+  }, [notes, firestore, userMap]);
+
 
   return (
     <div className="space-y-6">
@@ -67,7 +91,7 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
                   <TableCell className="font-medium py-1 px-4 text-xs">{note.category}</TableCell>
                   <TableCell className="font-medium py-1 px-4 text-xs">{note.subject}</TableCell>
                   <TableCell className="py-1 px-4 text-xs">{note.text}</TableCell>
-                  <TableCell className="font-medium py-1 px-4 text-xs">{userMap.get(note.authorId) || 'System'}</TableCell>
+                  <TableCell className="font-medium py-1 px-4 text-xs">{userMap.get(note.authorId) || note.authorId}</TableCell>
                   <TableCell className="py-1 px-4 text-xs">{format(new Date(note.createdAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
                 </TableRow>
               ))}

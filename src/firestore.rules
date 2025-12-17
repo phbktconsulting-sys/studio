@@ -82,7 +82,7 @@ service cloud.firestore {
      * @principle Enforces self-creation of profiles and prevents user enumeration. Protects sensitive fields like 'role' from being modified by non-admins.
      */
     match /users/{userId} {
-      allow get: if isSignedIn();
+      allow get: if isSignedIn() && (isOwner(userId) || isAdmin());
       allow list: if isAdmin();
       allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.role == 'User';
       allow update: if (isOwner(userId) || isAdmin()) && request.resource.data.id == userId && (request.resource.data.role == resource.data.role || isAdmin());
