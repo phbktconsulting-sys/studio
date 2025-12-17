@@ -8,13 +8,14 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit } from 'firebase/firestore';
@@ -507,10 +508,28 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     if (!firestore || !item?.assignedTo) return null;
     return doc(firestore, 'users', item.assignedTo);
   }, [firestore, item?.assignedTo]);
+  
+  const createdByUserRef = useMemoFirebase(() => {
+    if (!firestore || !item?.createdBy) return null;
+    return doc(firestore, 'users', item.createdBy);
+  }, [firestore, item?.createdBy]);
+
+  const latestNoteQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(
+        collection(firestore, `work_items/${workItemId}/notes`),
+        orderBy('createdAt', 'desc'),
+        limit(1)
+    );
+  }, [firestore, workItemId]);
 
   const { data: assignedUser, isLoading: isUserLoading } = useDoc<User>(assignedUserRef);
+  const { data: createdByUser, isLoading: isCreatorLoading } = useDoc<User>(createdByUserRef);
+  const { data: latestNoteArr, isLoading: isNoteLoading } = useCollection<Note>(latestNoteQuery);
+  const latestNote = latestNoteArr?.[0];
 
-  const isLoading = isWorkItemLoading || isUserLoading;
+
+  const isLoading = isWorkItemLoading || isUserLoading || isCreatorLoading || isNoteLoading;
 
   const caseAge = item ? differenceInDays(new Date(), parseISO(item.createdAt)) : 0;
   
@@ -618,15 +637,82 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
           </TabsList>
           
           <div className="mt-0 bg-card px-2 border-t-0">
-            <TabsContent value="overview" className="mt-0">
-              <Card className="border-0 shadow-none">
-                <CardHeader className="p-4">
-                  <CardTitle className="text-xs">Overview</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                    <p className="text-xs text-muted-foreground">{item.overview}</p>
-                </CardContent>
-              </Card>
+             <TabsContent value="overview" className="mt-0">
+              <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Work Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-start text-xs">
+                        <UserIcon className="h-4 w-4 mr-3 mt-0.5 text-muted-foreground" />
+                        <div className="flex-1">
+                          <p className="font-medium">Created By</p>
+                          <p className="text-muted-foreground">{createdByUser?.displayName || 'N/A'}</p>
+                        </div>
+                    </div>
+                     <div className="flex items-start text-xs">
+                        <CalendarIcon className="h-4 w-4 mr-3 mt-0.5 text-muted-foreground" />
+                        <div className="flex-1">
+                          <p className="font-medium">Created On</p>
+                          <p className="text-muted-foreground">{format(parseISO(item.createdAt), "PPP p")}</p>
+                        </div>
+                    </div>
+                     <div className="flex items-start text-xs">
+                        <History className="h-4 w-4 mr-3 mt-0.5 text-muted-foreground" />
+                        <div className="flex-1">
+                          <p className="font-medium">Last Updated</p>
+                          <p className="text-muted-foreground">{format(parseISO(item.updatedAt), "PPP p")}</p>
+                        </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                   <CardHeader>
+                    <CardTitle className="text-sm">Overview</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                     <p className="text-xs text-muted-foreground whitespace-pre-wrap">{item.overview}</p>
+                  </CardContent>
+                </Card>
+
+                {(item.tasks?.length > 0 || latestNote) && (
+                   <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {item.tasks?.length > 0 && (
+                      <Card>
+                          <CardHeader>
+                              <CardTitle className="text-sm">Initial Task</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <p className="text-xs text-muted-foreground">{item.tasks[0].text}</p>
+                          </CardContent>
+                      </Card>
+                    )}
+                    
+                    {latestNote && (
+                        <Card>
+                           <CardHeader>
+                                <CardTitle className="text-sm">Latest Update</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2">
+                                <div className="flex items-start text-xs">
+                                    <MessageSquare className="h-4 w-4 mr-3 mt-0.5 text-muted-foreground" />
+                                    <div className="flex-1">
+                                        <p className="font-medium">{latestNote.subject}</p>
+                                        <p className="text-muted-foreground">{latestNote.text}</p>
+                                        <p className="text-xs text-muted-foreground/70 pt-1">
+                                            - {latestNote.author} on {format(parseISO(latestNote.createdAt), 'MMM d, yyyy')}
+                                        </p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+                   </div>
+                )}
+              </div>
             </TabsContent>
 
             <TabsContent value="notes" className="mt-0">
