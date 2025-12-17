@@ -77,12 +77,12 @@ service cloud.firestore {
     /**
      * @description Rules for user profile documents.
      * @path /users/{userId}
-     * @allow A signed-in user (create) their own profile document with a 'User' role.
+     * @allow A signed-in user (get) their own profile, or any signed-in user to get any profile (for display names). Admins can get any.
      * @deny A regular user (list) all user documents in the collection.
      * @principle Enforces self-creation of profiles and prevents user enumeration. Protects sensitive fields like 'role' from being modified by non-admins.
      */
     match /users/{userId} {
-      allow get: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow get: if isSignedIn();
       allow list: if isAdmin();
       allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.role == 'User';
       allow update: if (isOwner(userId) || isAdmin()) && request.resource.data.id == userId && (request.resource.data.role == resource.data.role || isAdmin());
@@ -121,7 +121,7 @@ service cloud.firestore {
        * @principle Access is broad for collaboration, but modification is restricted.
        */
       match /notes/{noteId} {
-        allow get: if isSignedIn();
+        allow get, list: if isSignedIn();
         allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
         allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
       }

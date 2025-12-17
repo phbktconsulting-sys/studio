@@ -55,30 +55,41 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
     const fetchTaskUsers = async () => {
       if (!firestore || !tasks || tasks.length === 0) return;
 
-      const userIds = [
-        ...new Set(tasks.map(task => task.completedBy).filter(Boolean) as string[]),
-      ];
+      const userIds = [...new Set(tasks.map(task => task.completedBy).filter(Boolean) as string[])];
+      const idsToFetch = userIds.filter(id => !usersMap.has(id));
       
-      if (userIds.length === 0) return;
+      if (idsToFetch.length === 0) return;
 
-      const newUsersMap = new Map<string, string>();
-      const usersRef = collection(firestore, 'users');
+      const newUsersMap = new Map<string, string>(usersMap);
       
       // Firestore 'in' query is limited to 30 items. 
       // If you expect more, you'd need to batch this.
-      const q = query(usersRef, where('uid', 'in', userIds));
-      const querySnapshot = await getDocs(q);
+      const usersRef = collection(firestore, 'users');
+      const q = query(usersRef, where('uid', 'in', idsToFetch.slice(0,30)));
       
-      querySnapshot.forEach((doc) => {
-        const userData = doc.data() as User;
-        newUsersMap.set(userData.uid, userData.displayName || 'Unknown User');
-      });
-
-      setUsersMap(newUsersMap);
+      try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data() as User;
+          newUsersMap.set(userData.uid, userData.displayName || 'Unknown User');
+        });
+        setUsersMap(newUsersMap);
+      } catch (error) {
+        // This will fail for non-admins due to security rules, but we can degrade gracefully.
+        console.warn("Could not fetch user profiles for tasks:", error);
+        // For users that couldn't be fetched, just show their ID
+        idsToFetch.forEach(id => {
+          if (!newUsersMap.has(id)) {
+            newUsersMap.set(id, id);
+          }
+        });
+        setUsersMap(newUsersMap);
+      }
     };
 
     fetchTaskUsers();
-  }, [tasks, firestore]);
+  }, [tasks, firestore, usersMap]);
+
 
   const handleTaskCheck = (taskId: string, completed: boolean) => {
     // This function is kept for potential future use but checkboxes are disabled
@@ -124,7 +135,7 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
 }
 
 function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCancel: () => void }) {
-  const { firestore, user } = useFirebase();
+  const { firestore, user, role } = useFirebase();
   const { openTab } = useTabs();
   const { toast } = useToast();
 
@@ -147,13 +158,23 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [pendUntilDate, setPendUntilDate] = useState<Date>();
   const [pendReason, setPendReason] = useState('');
   const [pendNotes, setPendNotes] = useState('');
-
-  const usersQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'users'));
-  }, [firestore]);
-
-  const { data: users } = useCollection<User>(usersQuery);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  
+  // Fetch users only when transfer action is selected by an admin
+  useEffect(() => {
+    async function fetchUsers() {
+      if (selectedAction === 'transfer' && role === 'Admin' && firestore) {
+        setIsLoadingUsers(true);
+        const usersCol = collection(firestore, 'users');
+        const userSnapshot = await getDocs(usersCol);
+        const userList = userSnapshot.docs.map(doc => doc.data() as User);
+        setUsers(userList);
+        setIsLoadingUsers(false);
+      }
+    }
+    fetchUsers();
+  }, [selectedAction, role, firestore]);
   
   const getActionDisplayName = (actionValue: string) => {
     const actionMap: { [key: string]: string } = {
@@ -403,6 +424,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           </div>
         );
       case 'transfer':
+        if (role !== 'Admin') {
+            return <p className="text-xs text-muted-foreground p-4 text-center">You do not have permission to transfer work items.</p>;
+        }
+        if (isLoadingUsers) {
+            return <p className="text-xs text-muted-foreground p-4 text-center">Loading users...</p>;
+        }
         return (
           <div className="grid grid-cols-['max-content'_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Transfer to User</Label>
@@ -411,7 +438,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <SelectValue placeholder="Select user..." />
               </SelectTrigger>
               <SelectContent>
-                 {users?.map(user => (
+                 {users.map(user => (
                   <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
                 ))}
               </SelectContent>
@@ -450,9 +477,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       { value: 're-index', label: 'Re-Index' },
       { value: 'terminate', label: 'Terminate' },
       { value: 'resolve-close', label: 'Resolve Close' },
-      { value: 'transfer', label: 'Transfer' },
+      { value: 'transfer', label: 'Transfer', adminOnly: true },
       { value: 'pend', label: 'Pend' }
   ];
+  
+  const availableActions = actionOptions.filter(opt => !(opt.adminOnly && role !== 'Admin'));
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -466,7 +496,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <SelectValue placeholder="-- Or select a different action --" />
             </SelectTrigger>
             <SelectContent>
-                {actionOptions.map(opt => (
+                {availableActions.map(opt => (
                     <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
             </SelectContent>

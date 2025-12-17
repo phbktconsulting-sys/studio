@@ -85,9 +85,14 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       auth,
       async (firebaseUser) => { // Auth state determined
         if (firebaseUser) {
-            const idTokenResult = await getIdTokenResult(firebaseUser);
-            const userRole = idTokenResult.claims.role as 'Admin' | 'User' | null;
-            setUserAuthState({ user: firebaseUser, role: userRole, isUserLoading: false, userError: null });
+            try {
+              const idTokenResult = await getIdTokenResult(firebaseUser);
+              const userRole = idTokenResult.claims.role as 'Admin' | 'User' | null;
+              setUserAuthState({ user: firebaseUser, role: userRole, isUserLoading: false, userError: null });
+            } catch (error) {
+               console.error("FirebaseProvider: Error getting ID token:", error);
+               setUserAuthState({ user: firebaseUser, role: null, isUserLoading: false, userError: error as Error });
+            }
         } else {
             setUserAuthState({ user: null, role: null, isUserLoading: false, userError: null });
         }

@@ -33,25 +33,27 @@ export function TabProvider({ children }: { children: ReactNode }) {
   const [activeTab, setActiveTab] = useState<string>('my-work');
 
   useEffect(() => {
-    if (!isUserLoading && user) {
-      const isAdmin = role === 'Admin';
-      const hasAdminTab = tabs.some(tab => tab.id === 'admin');
+    // Wait until user loading is complete
+    if (isUserLoading) return;
+  
+    const isAdmin = role === 'Admin';
+    const hasAdminTab = tabs.some(tab => tab.id === 'admin');
 
-      if (isAdmin && !hasAdminTab) {
-        const newTabs = [adminTab, ...baseStaticTabs];
-        setTabs(newTabs);
-        // Only set active tab to admin if it's not already something else
-        if (!tabs.find(t => t.id === activeTab)) {
-           setActiveTab('admin');
-        }
-      } else if (!isAdmin && hasAdminTab) {
-        setTabs(baseStaticTabs);
-        if (activeTab === 'admin') {
-          setActiveTab('my-work');
-        }
+    if (isAdmin && !hasAdminTab) {
+      const newTabs = [adminTab, ...baseStaticTabs];
+      setTabs(newTabs);
+      // If the current user logs in and they are an admin,
+      // set the active tab to 'admin'.
+      setActiveTab('admin');
+    } else if (!isAdmin && hasAdminTab) {
+      // If a non-admin user is detected and the admin tab is present, remove it.
+      setTabs(baseStaticTabs);
+      // If the active tab was the admin tab, switch to 'my-work'.
+      if (activeTab === 'admin') {
+        setActiveTab('my-work');
       }
     }
-  }, [user, role, isUserLoading, tabs, activeTab]);
+  }, [role, isUserLoading, tabs, activeTab]);
 
   const openTab = useCallback((newTab: Tab) => {
     setTabs((prevTabs) => {
