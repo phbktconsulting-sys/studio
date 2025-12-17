@@ -203,7 +203,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     let category = '';
     let workItemUpdate: Partial<WorkItem> & { [key: string]: any } = { 
         updatedAt: new Date().toISOString(),
-        lockInfo: null // Unlock on submit
+        lockInfo: null // Unlock on any submission
     };
     let subjectForNote = getActionDisplayName(selectedAction).replace(/\s+/g, ' ').trim();
 
@@ -889,5 +889,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    
