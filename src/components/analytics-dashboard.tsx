@@ -165,9 +165,9 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
                 <SelectValue placeholder="Filter by User" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="all">All Users</SelectItem>
+                <SelectItem value="all" className="text-xs">All Users</SelectItem>
                 {users?.map(user => (
-                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                    <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>
                 ))}
             </SelectContent>
             </Select>
@@ -177,8 +177,8 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
                 <SelectValue placeholder="Filter by Process" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="all">All Processes</SelectItem>
-                {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                <SelectItem value="all" className="text-xs">All Processes</SelectItem>
+                {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
             </SelectContent>
             </Select>
             
@@ -187,10 +187,10 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
                 <SelectValue placeholder="Select time range" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="7">Last 7 Days</SelectItem>
-                <SelectItem value="30">Last 30 Days</SelectItem>
-                <SelectItem value="90">Last 90 Days</SelectItem>
-                <SelectItem value="365">Last 365 Days</SelectItem>
+                <SelectItem value="7" className="text-xs">Last 7 Days</SelectItem>
+                <SelectItem value="30" className="text-xs">Last 30 Days</SelectItem>
+                <SelectItem value="90" className="text-xs">Last 90 Days</SelectItem>
+                <SelectItem value="365" className="text-xs">Last 365 Days</SelectItem>
             </SelectContent>
             </Select>
         </div>
