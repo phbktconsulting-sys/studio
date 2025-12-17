@@ -63,6 +63,7 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[], workItemId: string }) 
   }, [users]);
 
   const handleTaskCheck = (taskId: string, completed: boolean) => {
+      // This function is kept for potential future use but checkboxes are disabled
       if (!firestore) return;
       const workItemRef = doc(firestore, 'work_items', workItemId);
       const currentTasks = tasks || [];
@@ -81,10 +82,14 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[], workItemId: string }) 
        {tasks.map((task) => (
           <div key={task.id} className="flex items-start justify-between rounded-md border p-4">
             <div className="flex items-center space-x-3">
-              <Checkbox id={`task-${task.id}`} checked={task.completed} onCheckedChange={(checked) => handleTaskCheck(task.id, !!checked)} />
+              <Checkbox 
+                id={`task-${task.id}`} 
+                checked={task.completed} 
+                disabled // Disabling the checkbox
+              />
               <label
                 htmlFor={`task-${task.id}`}
-                className={`text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
+                className={`text-xs font-medium leading-none ${task.completed ? 'line-through text-muted-foreground' : ''} ${!task.completed ? 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70' : ''}`}
               >
                 {task.text}
               </label>
@@ -364,7 +369,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'resolve-close':
          return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-['max-content'_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Customer request resolved?</Label>
             <Select onValueChange={setResolveCloseResolved} value={resolveCloseResolved}>
               <SelectTrigger className="text-xs h-6">
@@ -381,7 +386,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'transfer':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-['max-content'_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Transfer to User</Label>
             <Select onValueChange={setTransferToUser} value={transferToUser}>
               <SelectTrigger className="text-xs h-6">
@@ -399,7 +404,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'pend':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-['max-content'_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Pend until date</Label>
             <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
             <Label className="text-xs font-normal text-right">Reason for pend</Label>
