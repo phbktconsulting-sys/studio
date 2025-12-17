@@ -42,7 +42,7 @@ export function AppHeader() {
   return (
     <div className="contents">
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
-        <div className="flex w-1/3 items-center">
+        <div className="flex items-center">
             <Link href="/" className="flex items-center gap-4">
                 <LogoIcon className="h-16 w-16" />
                 <div className="flex flex-col font-headline text-lg font-bold leading-tight">
@@ -53,14 +53,12 @@ export function AppHeader() {
             </Link>
         </div>
 
-        <div className="flex w-1/3 justify-center">
-           <div className="text-center">
-              <h1 className="font-headline text-lg font-bold">PHBKT - WorkFlow Management</h1>
-              <p className="text-sm text-muted-foreground">{user?.displayName} - Home Page</p>
-          </div>
+        <div className="flex-1 text-center">
+           <h1 className="font-headline text-xl font-bold">PHBKT - WorkFlow Management</h1>
+           <p className="text-sm text-muted-foreground">{user?.displayName} - Home Page</p>
         </div>
 
-        <div className="flex w-1/3 items-center justify-end gap-4">
+        <div className="flex items-center justify-end gap-4">
           <Button onClick={handleNewWork} className="h-8 bg-black text-white hover:bg-black/80 text-xs">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Work

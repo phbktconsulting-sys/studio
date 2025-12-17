@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LogoIcon } from '@/components/icons';
+import { Fingerprint } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useFirebase, initiateEmailSignIn } from '@/firebase';
@@ -45,43 +45,35 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex justify-center">
-          <LogoIcon className="h-16 w-16" />
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex justify-center">
+          <Fingerprint className="h-12 w-12 text-primary" />
         </div>
         <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-            <CardDescription>Sign in to your PHBKT Group account</CardDescription>
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="font-headline text-xl">Welcome Back</CardTitle>
+            <CardDescription className="text-sm">Sign in to continue</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
+            <form onSubmit={handleLogin} className="space-y-3">
+              <div className="space-y-1">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link href="#" className="text-sm text-primary hover:underline">
+                  <Link href="#" className="text-xs text-primary hover:underline">
                     Forgot password?
                   </Link>
                 </div>
                 <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full mt-4">
                 Sign In
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Link href="/signup" className="text-primary hover:underline">
-                Sign Up
-              </Link>
-            </p>
-          </CardFooter>
         </Card>
       </div>
     </div>
