@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
@@ -13,24 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertCircle,
@@ -38,14 +20,10 @@ import {
   ArrowLeft,
   ArrowRight,
   ChevronUp,
-  Trash2,
-  MoreVertical,
 } from 'lucide-react';
 import { useTabs } from '@/contexts/tab-context';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { deleteWorkItem } from '@/ai/flows/delete-work-item-flow';
 
 const UrgencyIcon = ({ urgency }: { urgency: WorkItem['urgency'] }) => {
   switch (urgency) {
@@ -85,12 +63,7 @@ interface AllWorkItemsProps {
 
 export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   const { firestore } = useFirebase();
-  const { openTab, closeTab } = useTabs();
-  const { toast } = useToast();
-  
-  const [selectedItem, setSelectedItem] = useState<WorkItem | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { openTab } = useTabs();
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -117,33 +90,6 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
       title: item.customId,
       type: 'work-item',
     });
-  };
-
-  const handleDelete = async () => {
-    if (!selectedItem) return;
-    setIsDeleting(true);
-    try {
-      const result = await deleteWorkItem({ id: selectedItem.id });
-      if (result.success) {
-        toast({
-          title: 'Work Item Deleted',
-          description: `Work item ${selectedItem.customId} has been successfully deleted.`,
-        });
-        closeTab(selectedItem.id);
-      } else {
-        throw new Error(result.error || 'An unknown error occurred.');
-      }
-    } catch (error: any) {
-       toast({
-        variant: 'destructive',
-        title: 'Error Deleting Work Item',
-        description: error.message || 'An unexpected error occurred.',
-      });
-    } finally {
-      setIsDeleting(false);
-      setIsDeleteDialogOpen(false);
-      setSelectedItem(null);
-    }
   };
 
   const sortedWorkItems = useMemo(() => {
@@ -184,68 +130,28 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
               <TableHead className="w-[180px] text-xs">Customer Name</TableHead>
               <TableHead className="w-[180px] text-xs">Assigned To</TableHead>
               <TableHead className="w-[180px] text-xs">Date</TableHead>
-              <TableHead className="w-[100px] text-right text-xs">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedWorkItems &&
               sortedWorkItems.map((item) => (
-                <TableRow key={item.id} className="group">
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer text-center py-1 px-4">
+                <TableRow key={item.id} onClick={() => handleRowClick(item)} className="cursor-pointer group">
+                  <TableCell className="text-center py-1 px-4">
                     <UrgencyIcon urgency={item.urgency} />
                   </TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="font-medium cursor-pointer py-1 px-4 text-xs">{item.customId}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">
+                  <TableCell className="font-medium py-1 px-4 text-xs">{item.customId}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">
                     <StatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{item.subject}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="cursor-pointer py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
-                  <TableCell className="text-right py-1 px-4">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                          <span className="sr-only">More actions</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onSelect={() => { setSelectedItem(item); setIsDeleteDialogOpen(true); }} className="text-destructive focus:text-destructive">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Delete Permanently</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{item.subject}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                 </TableRow>
               ))}
           </TableBody>
         </Table>
       </div>
-      
-       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the work item{' '}
-              <span className="font-bold">{selectedItem?.customId}</span>.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setSelectedItem(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
