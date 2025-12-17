@@ -11,6 +11,7 @@ import { AdminDashboard } from './admin-dashboard';
 import { NewWorkItemView } from './new-work-item-view';
 import { SearchView } from './search-view';
 import { BatchWorkCreate } from './batch-work-create';
+import { GlobalNotesView } from './global-notes-view';
 
 export function MainView() {
   const { tabs, activeTab, setActiveTab, closeTab } = useTabs();
@@ -24,7 +25,7 @@ export function MainView() {
       case 'search':
         return <SearchView />;
       case 'global-notes':
-        return <div className="p-6 text-xs">Global Notes (Not Implemented)</div>;
+        return <GlobalNotesView />;
       case 'new-work-item':
         return <NewWorkItemView />;
       case 'batch-create':

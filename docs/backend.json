@@ -184,6 +184,21 @@
         "subject"
       ]
     },
+    "GlobalNote": {
+      "title": "GlobalNote",
+      "type": "object",
+      "description": "Represents a general note associated with a customer, not tied to a specific work item.",
+      "properties": {
+        "id": { "type": "string" },
+        "customerUniqueId": { "type": "string", "description": "The unique ID of the customer this note is about." },
+        "authorId": { "type": "string", "description": "The UID of the user who wrote the note." },
+        "text": { "type": "string", "description": "The content of the note." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "category": { "type": "string" },
+        "subject": { "type": "string" }
+      },
+      "required": ["id", "customerUniqueId", "authorId", "text", "createdAt"]
+    },
     "Customer": {
       "title": "Customer",
       "type": "object",
@@ -230,6 +245,10 @@
     "/work_items/{workitemId}/notes/{noteId}": {
       "schema": { "$ref": "#/entities/Note" },
       "description": "Stores notes associated with a specific work item. Access is inherited from the parent work item."
+    },
+    "/global_notes/{globalNoteId}": {
+        "schema": { "$ref": "#/entities/GlobalNote" },
+        "description": "Stores general notes about a customer, not tied to a specific work item."
     },
     "/counters/user_employee_id": {
       "schema": { "$ref": "#/entities/Counter" },
