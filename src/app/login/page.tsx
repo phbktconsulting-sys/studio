@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Fingerprint } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useFirebase, initiateEmailSignIn } from '@/firebase';
@@ -44,15 +43,9 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex flex-col items-center gap-4 text-center">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 border-4 border-primary/20">
-                <Fingerprint className="h-12 w-12 text-primary" />
-            </div>
-            <h1 className="font-headline text-2xl font-bold text-primary">PHBKT WorkFlow</h1>
-        </div>
         <Card className="py-6">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="font-headline text-xl">Sign In</CardTitle>
+            <CardTitle className="font-headline text-2xl">Sign In</CardTitle>
             <CardDescription className="text-sm">Enter your credentials to access your account.</CardDescription>
           </CardHeader>
           <CardContent>
