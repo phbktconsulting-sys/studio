@@ -91,7 +91,7 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
                   <TableCell className="font-medium py-1 px-4 text-xs">{note.category}</TableCell>
                   <TableCell className="font-medium py-1 px-4 text-xs">{note.subject}</TableCell>
                   <TableCell className="py-1 px-4 text-xs">{note.text}</TableCell>
-                  <TableCell className="font-medium py-1 px-4 text-xs">{userMap.get(note.authorId) || note.authorId}</TableCell>
+                  <TableCell className="font-medium py-1 px-4 text-xs">{userMap.get(note.authorId) || note.author}</TableCell>
                   <TableCell className="py-1 px-4 text-xs">{format(new Date(note.createdAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
                 </TableRow>
               ))}
