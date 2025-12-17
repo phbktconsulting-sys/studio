@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -60,13 +61,13 @@ export function AppHeader() {
         </div>
 
         <div className="flex w-1/3 items-center justify-end gap-4">
-          <Button onClick={handleNewWork} className="h-8 bg-black text-white hover:bg-black/80">
+          <Button onClick={handleNewWork} className="h-8 bg-black text-white hover:bg-black/80 text-xs">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Work
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="relative h-8 w-auto px-4 bg-black text-white hover:bg-black/80">
+              <Button className="relative h-8 w-auto px-4 bg-black text-white hover:bg-black/80 text-xs">
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>{user?.displayName || 'User Menu'}</span>
               </Button>
