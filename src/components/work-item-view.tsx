@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -49,6 +50,18 @@ const processTypes = [
 function TasksTab({ tasks, workItemId }: { tasks: Task[], workItemId: string }) {
   const { firestore } = useFirebase();
 
+  const usersQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'users');
+  }, [firestore]);
+
+  const { data: users } = useCollection<User>(usersQuery);
+
+  const usersMap = useMemo(() => {
+    if (!users) return new Map();
+    return new Map(users.map((u) => [u.uid, u.displayName]));
+  }, [users]);
+
   const handleTaskCheck = (taskId: string, completed: boolean) => {
       if (!firestore) return;
       const workItemRef = doc(firestore, 'work_items', workItemId);
@@ -66,14 +79,21 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[], workItemId: string }) 
   return (
     <div className="space-y-4 p-4">
        {tasks.map((task) => (
-          <div key={task.id} className="flex items-center space-x-3 rounded-md border p-4">
-            <Checkbox id={`task-${task.id}`} checked={task.completed} onCheckedChange={(checked) => handleTaskCheck(task.id, !!checked)} />
-            <label
-              htmlFor={`task-${task.id}`}
-              className={`text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
-            >
-              {task.text}
-            </label>
+          <div key={task.id} className="flex items-start justify-between rounded-md border p-4">
+            <div className="flex items-center space-x-3">
+              <Checkbox id={`task-${task.id}`} checked={task.completed} onCheckedChange={(checked) => handleTaskCheck(task.id, !!checked)} />
+              <label
+                htmlFor={`task-${task.id}`}
+                className={`text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
+              >
+                {task.text}
+              </label>
+            </div>
+            {task.completed && (
+              <div className="text-xs text-muted-foreground">
+                Completed by {usersMap.get(task.completedBy || '') || '...'} on {task.completedAt ? format(parseISO(task.completedAt), 'MMM d, yyyy') : '...'}
+              </div>
+            )}
           </div>
         ))}
     </div>
@@ -88,11 +108,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [selectedAction, setSelectedAction] = useState<string>('resolve-complete');
   
   // Form field states
-  const [resolveCompleteStatus, setResolveCompleteStatus] = useState('');
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
-  const [resolveCompleteTask, setResolveCompleteTask] = useState('');
-  const [resolveCompleteTaskCompleted, setResolveCompleteTaskCompleted] = useState('');
-  
+  const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
+
   const [reindexToProcess, setReindexToProcess] = useState('');
   const [reindexReason, setReindexReason] = useState('');
   const [reindexNotes, setReindexNotes] = useState('');
@@ -126,6 +144,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     return actionMap[actionValue] || 'VERIFY CUSTOMER AUTHORITY';
   }
 
+  const handleTaskToggle = (taskId: string) => {
+    setCompletedTasks(prev => ({ ...prev, [taskId]: !prev[taskId] }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !firestore || !selectedAction) return;
@@ -143,11 +165,29 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
     try {
         switch(selectedAction) {
-        case 'resolve-complete':
+        case 'resolve-complete': {
             category = 'Resolved/Completed';
-            noteText = `Resolve Complete: ${resolveCompleteStatus}. Task: ${resolveCompleteTask} (Completed: ${resolveCompleteTaskCompleted}). ${resolveCompleteNotes}`;
+            const now = new Date().toISOString();
+            const completedTaskIds = Object.keys(completedTasks).filter(id => completedTasks[id]);
+            const completedTaskTexts = workItem.tasks.filter(t => completedTaskIds.includes(t.id)).map(t => t.text);
+
+            const updatedTasks = workItem.tasks.map(task => {
+                if (completedTaskIds.includes(task.id) && !task.completed) {
+                    return {
+                        ...task,
+                        completed: true,
+                        completedBy: user.uid,
+                        completedAt: now,
+                    };
+                }
+                return task;
+            });
+
+            noteText = `Work item resolved. Completed tasks: [${completedTaskTexts.join(', ') || 'None'}]. ${resolveCompleteNotes}`;
             workItemUpdate.status = 'Closed';
+            workItemUpdate.tasks = updatedTasks;
             break;
+        }
         case 're-index':
             if (!reindexToProcess) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Please select a process to re-index to.' });
@@ -235,47 +275,43 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   const renderActionForm = () => {
     switch (selectedAction) {
-      case 'resolve-complete':
-        return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
-            <Label className="text-xs font-normal text-right">Resolve Complete</Label>
-            <Select onValueChange={setResolveCompleteStatus} value={resolveCompleteStatus}>
-              <SelectTrigger className="text-xs h-6">
-                <SelectValue placeholder="Select..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Yes">Yes</SelectItem>
-                <SelectItem value="No">No</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Label className="text-xs font-normal text-right">Task</Label>
-            <Select onValueChange={setResolveCompleteTask} value={resolveCompleteTask}>
-              <SelectTrigger className="text-xs h-6">
-                <SelectValue placeholder="Select a task..." />
-              </SelectTrigger>
-              <SelectContent>
-                {workItem.tasks?.map(task => (
-                  <SelectItem key={task.id} value={task.text}>{task.text}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Label className="text-xs font-normal text-right">Completed</Label>
-            <Select onValueChange={setResolveCompleteTaskCompleted} value={resolveCompleteTaskCompleted} disabled={!resolveCompleteTask}>
-              <SelectTrigger className="text-xs h-6">
-                <SelectValue placeholder="Select..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Yes">Yes</SelectItem>
-                <SelectItem value="No">No</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-resolve-complete">Notes</Label>
-            <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} className="text-xs min-h-[60px]" />
-          </div>
-        );
+      case 'resolve-complete': {
+          const openTasks = workItem.tasks.filter(task => !task.completed);
+          if (openTasks.length === 0) {
+              return (
+                  <div className="space-y-2">
+                     <p className="text-xs text-muted-foreground">All tasks for this work item are already completed.</p>
+                     <Label className="text-xs font-normal" htmlFor="notes-resolve-complete">Notes</Label>
+                     <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} className="text-xs min-h-[60px]" />
+                  </div>
+              )
+          }
+          return (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs font-semibold">Complete Tasks</Label>
+                <div className="mt-2 space-y-2 rounded-md border p-2">
+                  {openTasks.map(task => (
+                    <div key={task.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`task-complete-${task.id}`}
+                        checked={!!completedTasks[task.id]}
+                        onCheckedChange={() => handleTaskToggle(task.id)}
+                      />
+                      <label htmlFor={`task-complete-${task.id}`} className="text-xs text-muted-foreground">
+                        {task.text}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
+                <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} className="text-xs min-h-[60px] mt-1" />
+              </div>
+            </div>
+          );
+      }
       case 're-index':
         return (
           <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">

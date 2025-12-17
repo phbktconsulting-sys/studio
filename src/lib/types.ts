@@ -26,6 +26,8 @@ export interface Task {
   id: string;
   text: string;
   completed: boolean;
+  completedBy?: string; // User UID
+  completedAt?: string; // ISO date string
 }
 
 export interface WorkItem {
