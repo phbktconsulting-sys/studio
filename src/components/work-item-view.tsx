@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit, where, getDocs } from 'firebase/firestore';
@@ -256,6 +256,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
             noteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
+            workItemUpdate.lockInfo = null;
+
 
              toast({
                 title: 'Work Item Re-Indexed',
@@ -268,11 +270,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             category = 'Terminated';
             noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
             workItemUpdate.status = 'Closed';
+            workItemUpdate.lockInfo = null;
             break;
         case 'resolve-close':
             category = 'Resolved/Closed';
             noteText = `Customer request resolved: ${resolveCloseResolved}. ${resolveCloseNotes}`;
             workItemUpdate.status = 'Closed';
+            workItemUpdate.lockInfo = null;
             break;
         case 'transfer':
             category = 'Transferred';
@@ -572,6 +576,36 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
     );
 }
 
+function PendingWorkItemInfo({ workItem }: { workItem: WorkItem }) {
+  const { firestore } = useFirebase();
+
+  const lastPendedNoteQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(
+      collection(firestore, `work_items/${workItem.id}/notes`),
+      where('category', '==', 'Pended'),
+      orderBy('createdAt', 'desc'),
+      limit(1)
+    );
+  }, [firestore, workItem.id]);
+
+  const { data: lastNoteArr } = useCollection<Note>(lastPendedNoteQuery);
+  const lastNote = lastNoteArr?.[0];
+
+  const reason = lastNote?.text.match(/Reason: (.*?)\./)?.[1] || 'Not specified';
+  const untilDate = lastNote?.text.match(/Pend until: (.*?)\./)?.[1] || 'N/A';
+
+  return (
+    <div className="flex items-center gap-4 text-xs py-2">
+      <Clock className="h-5 w-5 text-orange-500" />
+      <span className="font-medium">Case Pended until {untilDate}:</span>
+      <Separator orientation="vertical" className="h-4" />
+      <span className="text-muted-foreground">{reason}</span>
+    </div>
+  );
+}
+
+
 function CaseLockedInfo({ lockInfo }: { lockInfo: WorkItem['lockInfo'] }) {
     return (
         <div className="flex items-center gap-4 text-xs py-2 text-destructive">
@@ -657,6 +691,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   );
 
   const isClosed = item.status === 'Closed' || item.status === 'Re-indexed';
+  const isPended = item.status === 'Pending';
   const isLockedByOther = item.lockInfo && item.lockInfo.userId !== currentUser?.uid;
 
   return (
@@ -697,19 +732,21 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <h2 className="text-base font-semibold">Processes</h2>
             <Separator className="bg-[#A60A0A] h-[2px]" />
              {isVerifyingAuthority ? (
-              <VerifyAuthorityForm workItem={item} onCancel={handleCancelVerify} />
+                <VerifyAuthorityForm workItem={item} onCancel={handleCancelVerify} />
             ) : isClosed ? (
-              <ClosedWorkItemInfo workItem={item} />
+                <ClosedWorkItemInfo workItem={item} />
+            ) : isPended ? (
+                <PendingWorkItemInfo workItem={item} />
             ) : isLockedByOther ? (
                 <CaseLockedInfo lockInfo={item.lockInfo!} />
             ) : (
-              <div className="flex items-center gap-4 text-sm py-2">
-                  <span className="font-medium">Assigned To:</span>
-                  <span>{assignedUser?.displayName || '...'}</span>
-                  <Button onClick={handleVerifyClick} className="h-7 text-xs bg-black text-white hover:bg-black/80">
-                    Verify Customer Authority
-                  </Button>
-              </div>
+                <div className="flex items-center gap-4 text-sm py-2">
+                    <span className="font-medium">Assigned To:</span>
+                    <span>{assignedUser?.displayName || '...'}</span>
+                    <Button onClick={handleVerifyClick} className="h-7 text-xs bg-black text-white hover:bg-black/80">
+                        Verify Customer Authority
+                    </Button>
+                </div>
             )}
          </div>
         
