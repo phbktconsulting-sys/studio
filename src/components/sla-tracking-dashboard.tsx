@@ -287,6 +287,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
                         <TableRow>
                             <TableHead className='w-12 text-xs'>SLA</TableHead>
                             <TableHead className="text-xs">Case ID</TableHead>
+                            <TableHead className="text-xs">Process</TableHead>
                             <TableHead className="text-xs">Assigned To</TableHead>
                             <TableHead className="text-xs">Status</TableHead>
                              <TableHead className="text-xs">Created</TableHead>
@@ -300,6 +301,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
                                     <Flag className={`h-4 w-4 ${item.sla.slaMet ? 'text-green-500' : 'text-red-500'}`} />
                                 </TableCell>
                                 <TableCell className="text-xs font-medium py-1">{item.customId}</TableCell>
+                                <TableCell className="text-xs py-1">{item.process}</TableCell>
                                 <TableCell className="text-xs py-1">{usersMap.get(item.assignedTo)}</TableCell>
                                 <TableCell className="text-xs py-1">{item.status}</TableCell>
                                 <TableCell className="text-xs py-1">{format(parseISO(item.createdAt), 'MMM d, yyyy')}</TableCell>
@@ -308,7 +310,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
                         ))}
                         {slaData.length === 0 && (
                              <TableRow>
-                                <TableCell colSpan={6} className="text-center text-muted-foreground py-4 text-xs">
+                                <TableCell colSpan={7} className="text-center text-muted-foreground py-4 text-xs">
                                 No work items found for the selected criteria.
                                 </TableCell>
                             </TableRow>
