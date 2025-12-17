@@ -134,7 +134,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     
     let noteText = '';
     let category = '';
-    let workItemUpdate: Partial<WorkItem> = { updatedAt: new Date().toISOString() };
+    let workItemUpdate: Partial<WorkItem> & { [key: string]: any } = { 
+        updatedAt: new Date().toISOString(),
+        lockInfo: null // Unlock on submit
+    };
     let subjectForNote = getActionDisplayName(selectedAction).replace(/\s+/g, ' ').trim();
 
     try {
@@ -479,8 +482,18 @@ function ClosedWorkItemInfo({ workItem }: { workItem: WorkItem }) {
     );
 }
 
+function CaseLockedInfo({ lockInfo }: { lockInfo: WorkItem['lockInfo'] }) {
+    return (
+        <div className="flex items-center gap-4 text-xs py-2 text-destructive">
+            <Lock className="h-5 w-5" />
+            <span className="font-bold">Case is currently locked by:</span>
+            <span className="font-medium">{lockInfo?.userName || 'another user'}</span>
+        </div>
+    );
+}
+
 export function WorkItemView({ workItemId, customId }: { workItemId: string, customId: string }) {
-  const { firestore } = useFirebase();
+  const { firestore, user: currentUser } = useFirebase();
   const [isVerifyingAuthority, setIsVerifyingAuthority] = useState(false);
 
   const workItemRef = useMemoFirebase(() => {
@@ -500,7 +513,26 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   const isLoading = isWorkItemLoading || isUserLoading;
 
   const caseAge = item ? differenceInDays(new Date(), parseISO(item.createdAt)) : 0;
-
+  
+  const handleVerifyClick = () => {
+    if (!item || !currentUser || !workItemRef) return;
+    
+    // Case is not locked, so lock it for the current user
+    const lockInfo = {
+        userId: currentUser.uid,
+        userName: currentUser.displayName || 'Unknown User',
+        timestamp: new Date().toISOString()
+    };
+    updateDocumentNonBlocking(workItemRef, { lockInfo });
+    setIsVerifyingAuthority(true);
+  };
+  
+  const handleCancelVerify = () => {
+    if (!workItemRef) return;
+    // Unlock the case
+    updateDocumentNonBlocking(workItemRef, { lockInfo: null });
+    setIsVerifyingAuthority(false);
+  }
 
   if (isLoading || !item) {
     return (
@@ -517,6 +549,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   );
 
   const isClosed = item.status === 'Closed' || item.status === 'Re-indexed';
+  const isLockedByOther = item.lockInfo && item.lockInfo.userId !== currentUser?.uid;
 
   return (
     <div className="flex h-full flex-col bg-slate-100">
@@ -556,14 +589,16 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <h2 className="text-base font-semibold">Processes</h2>
             <Separator className="bg-[#A60A0A] h-[2px]" />
              {isVerifyingAuthority ? (
-              <VerifyAuthorityForm workItem={item} onCancel={() => setIsVerifyingAuthority(false)} />
+              <VerifyAuthorityForm workItem={item} onCancel={handleCancelVerify} />
             ) : isClosed ? (
               <ClosedWorkItemInfo workItem={item} />
+            ) : isLockedByOther ? (
+                <CaseLockedInfo lockInfo={item.lockInfo} />
             ) : (
               <div className="flex items-center gap-4 text-sm py-2">
                   <span className="font-medium">Assigned To:</span>
                   <span>{assignedUser?.displayName || '...'}</span>
-                  <Button onClick={() => setIsVerifyingAuthority(true)} className="h-7 text-xs bg-black text-white hover:bg-black/80">
+                  <Button onClick={handleVerifyClick} className="h-7 text-xs bg-black text-white hover:bg-black/80">
                     Verify Customer Authority
                   </Button>
               </div>
@@ -679,5 +714,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    

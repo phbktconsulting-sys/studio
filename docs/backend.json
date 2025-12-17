@@ -62,6 +62,25 @@
             "customerUniqueId": { "type": "string" }
           },
           "required": ["name", "email", "phone"]
+        },
+        "lockInfo": {
+          "type": "object",
+          "description": "Information about who has locked the work item for editing.",
+          "properties": {
+            "userId": {
+              "type": "string",
+              "description": "The UID of the user who locked the item."
+            },
+            "userName": {
+              "type": "string",
+              "description": "The display name of the user who locked the item."
+            },
+            "timestamp": {
+              "type": "string",
+              "description": "The ISO timestamp of when the lock was acquired.",
+              "format": "date-time"
+            }
+          }
         }
       },
       "required": [

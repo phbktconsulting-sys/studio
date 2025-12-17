@@ -49,6 +49,11 @@ export interface WorkItem {
   };
   overview: string;
   tasks: Task[];
+  lockInfo?: {
+    userId: string;
+    userName: string;
+    timestamp: string;
+  } | null;
 }
 
 export interface Note {
