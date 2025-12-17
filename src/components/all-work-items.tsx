@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
@@ -15,15 +14,28 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   AlertCircle,
   ArrowDown,
   ArrowLeft,
   ArrowRight,
   ChevronUp,
+  Trash2,
 } from 'lucide-react';
 import { useTabs } from '@/contexts/tab-context';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { deleteWorkItem } from '@/ai/flows/delete-work-item-flow';
 
 const UrgencyIcon = ({ urgency }: { urgency: WorkItem['urgency'] }) => {
   switch (urgency) {
@@ -64,6 +76,9 @@ interface AllWorkItemsProps {
 export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   const { firestore } = useFirebase();
   const { openTab } = useTabs();
+  const { toast } = useToast();
+
+  const [itemToDelete, setItemToDelete] = useState<WorkItem | null>(null);
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -71,7 +86,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   }, [firestore]);
 
   const { data: workItems, isLoading: workItemsLoading } = useCollection<WorkItem>(workItemsQuery);
-  
+
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'users'));
@@ -81,7 +96,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
 
   const usersMap = useMemo(() => {
     if (!usersData) return new Map();
-    return new Map(usersData.map(u => [u.uid, u.displayName]));
+    return new Map(usersData.map((u) => [u.uid, u.displayName]));
   }, [usersData]);
 
   const handleRowClick = (item: WorkItem) => {
@@ -91,6 +106,36 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
       type: 'work-item',
     });
   };
+
+  const handleDeleteClick = (e: React.MouseEvent, item: WorkItem) => {
+    e.stopPropagation(); // Prevent row click from firing
+    setItemToDelete(item);
+  };
+  
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      const result = await deleteWorkItem({ id: itemToDelete.id });
+      if (result.success) {
+        toast({
+          title: 'Work Item Deleted',
+          description: `Work Item "${itemToDelete.customId}" has been permanently deleted.`,
+        });
+      } else {
+        throw new Error(result.error || 'An unknown error occurred.');
+      }
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error Deleting Work Item',
+        description: error.message,
+      });
+    } finally {
+      setItemToDelete(null);
+    }
+  };
+
 
   const sortedWorkItems = useMemo(() => {
     if (!workItems) return [];
@@ -108,52 +153,76 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   }
 
   return (
-    <div className="p-4 sm:p-6">
-      <div className="flex items-center justify-between">
-        <div className='flex items-center gap-4'>
-           <Button variant="outline" size="icon" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
-            <span className="sr-only">Back</span>
-          </Button>
-          <div>
-            <h1 className="font-headline text-lg font-bold tracking-tight">All Work Items</h1>
-            <p className="text-xs text-muted-foreground">A view of all work items in the system.</p>
+    <>
+      <div className="p-4 sm:p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" onClick={onBack}>
+              <ArrowLeft className="h-4 w-4" />
+              <span className="sr-only">Back</span>
+            </Button>
+            <div>
+              <h1 className="font-headline text-lg font-bold tracking-tight">All Work Items</h1>
+              <p className="text-xs text-muted-foreground">A view of all work items in the system.</p>
+            </div>
           </div>
         </div>
+        <div className="mt-6 rounded-lg border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[50px]"></TableHead>
+                <TableHead className="w-[120px] text-xs">ID</TableHead>
+                <TableHead className="w-[150px] text-xs">Status</TableHead>
+                <TableHead className="text-xs">Subject</TableHead>
+                <TableHead className="w-[180px] text-xs">Customer Name</TableHead>
+                <TableHead className="w-[180px] text-xs">Assigned To</TableHead>
+                <TableHead className="w-[180px] text-xs">Date</TableHead>
+                <TableHead className="w-[80px] text-center text-xs">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedWorkItems &&
+                sortedWorkItems.map((item) => (
+                  <TableRow key={item.id} className="cursor-pointer group" onClick={() => handleRowClick(item)}>
+                    <TableCell className="text-center py-1 px-4">
+                      <UrgencyIcon urgency={item.urgency} />
+                    </TableCell>
+                    <TableCell className="font-medium py-1 px-4 text-xs">{item.customId}</TableCell>
+                    <TableCell className="py-1 px-4 text-xs">
+                      <StatusBadge status={item.status} />
+                    </TableCell>
+                    <TableCell className="py-1 px-4 text-xs">{item.subject}</TableCell>
+                    <TableCell className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
+                    <TableCell className="py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
+                    <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
+                    <TableCell className="py-1 px-4 text-center">
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => handleDeleteClick(e, item)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-      <div className="mt-6 rounded-lg border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]"></TableHead>
-              <TableHead className="w-[120px] text-xs">ID</TableHead>
-              <TableHead className="w-[150px] text-xs">Status</TableHead>
-              <TableHead className='text-xs'>Subject</TableHead>
-              <TableHead className="w-[180px] text-xs">Customer Name</TableHead>
-              <TableHead className="w-[180px] text-xs">Assigned To</TableHead>
-              <TableHead className="w-[180px] text-xs">Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedWorkItems &&
-              sortedWorkItems.map((item) => (
-                <TableRow key={item.id} className="cursor-pointer group" onClick={() => handleRowClick(item)}>
-                  <TableCell className="text-center py-1 px-4">
-                    <UrgencyIcon urgency={item.urgency} />
-                  </TableCell>
-                  <TableCell className="font-medium py-1 px-4 text-xs">{item.customId}</TableCell>
-                  <TableCell className="py-1 px-4 text-xs">
-                    <StatusBadge status={item.status} />
-                  </TableCell>
-                  <TableCell className="py-1 px-4 text-xs">{item.subject}</TableCell>
-                  <TableCell className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
-                  <TableCell className="py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
-                  <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+      <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the work item "{itemToDelete?.customId}" and all of its associated notes.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
