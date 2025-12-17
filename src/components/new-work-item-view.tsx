@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -68,7 +69,7 @@ export function NewWorkItemView() {
       customerAddress: '',
       urgency: 'Medium',
       overview: '',
-      task: '',
+      tasks: [],
     },
   });
 
@@ -96,7 +97,7 @@ export function NewWorkItemView() {
           address: data.customerAddress || '',
         },
         overview: data.overview,
-        tasks: data.task ? [{ id: `task-${Date.now()}`, text: data.task, completed: false }] : [],
+        tasks: data.tasks ? data.tasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })) : [],
       };
       
       const result = await createWorkItem(payload);
@@ -260,7 +261,7 @@ export function NewWorkItemView() {
                   )}
                 />
               </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="customerAddress"
@@ -295,35 +296,56 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
-                
-                <FormField
-                    control={form.control}
-                    name="task"
-                    render={({ field }) => (
-                      <FormItem className="md:col-span-1">
-                        <FormLabel className="text-xs">Initial Task</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select an initial task (optional)" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {initialTaskOptions.map((task) => (
-                              <SelectItem key={task} value={task}>
-                                {task}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
               </div>
+
+               <FormField
+                control={form.control}
+                name="tasks"
+                render={() => (
+                    <FormItem>
+                    <div className="mb-4">
+                        <FormLabel className="text-xs">Initial Tasks (Optional)</FormLabel>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2">
+                    {initialTaskOptions.map((task) => (
+                        <FormField
+                        key={task}
+                        control={form.control}
+                        name="tasks"
+                        render={({ field }) => {
+                            return (
+                            <FormItem
+                                key={task}
+                                className="flex flex-row items-center space-x-2 space-y-0"
+                            >
+                                <FormControl>
+                                <Checkbox
+                                    checked={field.value?.includes(task)}
+                                    onCheckedChange={(checked) => {
+                                    return checked
+                                        ? field.onChange([...(field.value || []), task])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                                (value) => value !== task
+                                            )
+                                            );
+                                    }}
+                                />
+                                </FormControl>
+                                <FormLabel className="text-xs font-normal">
+                                {task}
+                                </FormLabel>
+                            </FormItem>
+                            );
+                        }}
+                        />
+                    ))}
+                    </div>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={handleCancel}>
                   Cancel
