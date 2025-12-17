@@ -31,9 +31,12 @@ import {
   parseISO
 } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import type { WorkItem, User } from '@/lib/types';
+import type { WorkItem, User, Note } from '@/lib/types';
 import { SlaInfo, calculateSla } from './sla-tracking-dashboard';
 import { Download } from 'lucide-react';
+import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
+import { collection, query } from 'firebase/firestore';
+
 
 interface SlaReportDialogProps {
   isOpen: boolean;
@@ -51,6 +54,7 @@ export function SlaReportDialog({
   usersMap,
 }: SlaReportDialogProps) {
   const { toast } = useToast();
+  const { firestore } = useFirebase();
   const [preset, setPreset] = useState<DateRangePreset>('lastWeek');
   const [customRange, setCustomRange] = useState([
     {
@@ -59,6 +63,14 @@ export function SlaReportDialog({
       key: 'selection',
     },
   ]);
+  
+  const allNotesQuery = useMemoFirebase(() => {
+    if(!firestore) return null;
+    return query(collection(firestore, 'work_items', ' ', 'notes').parent);
+  }, [firestore])
+  
+  const { data: allNotes } = useCollection<Note>(allNotesQuery)
+
 
   const handleDownload = () => {
     let startDate: Date;
@@ -110,7 +122,7 @@ export function SlaReportDialog({
 
     try {
       const reportData = filteredItems.map((item) => {
-        const slaInfo = calculateSla(item);
+        const slaInfo = calculateSla(item, allNotes);
         return {
           'Case ID': item.customId,
           Process: item.process,

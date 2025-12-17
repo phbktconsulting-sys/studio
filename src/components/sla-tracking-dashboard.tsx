@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { collection, query, where } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import type { WorkItem, User } from '@/lib/types';
+import type { WorkItem, User, Note } from '@/lib/types';
 import {
   Card,
   CardContent,
@@ -54,29 +54,32 @@ const processTypes = [
 ];
 
 // SLA Logic:
-// Met if closed_date is same as created_date.
-// Missed if not actioned (still 'Open') on the day after creation.
-// Missed if closed_date > created_date.
-export const calculateSla = (item: WorkItem): SlaInfo => {
-  const createdAt = parseISO(item.createdAt);
-  const now = new Date();
+// Met if closed_date is same as created_date/reallocation_date.
+// Missed if not actioned (still 'Open') on the day after creation/reallocation.
+export const calculateSla = (item: WorkItem, notes: Note[] | undefined): SlaInfo => {
+    const reallocationNotes = (notes || [])
+      .filter(note => note.category === 'Reallocation' && note.workItemId === item.id)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  // If closed, SLA is based on when it was updated vs created
-  if (item.status === 'Closed' || item.status === 'Re-indexed' || item.status === 'Terminated') {
-    const updatedAt = parseISO(item.updatedAt);
-    const days = differenceInCalendarDays(updatedAt, createdAt);
-    return { slaMet: days <= 0, days };
-  }
-  
-  // If still open, check if we are past the creation day
-  const daysOpen = differenceInCalendarDays(now, createdAt);
-  if (daysOpen > 0) {
-    // It's a day after creation and still not closed, so SLA is missed.
-    return { slaMet: false, days: daysOpen };
-  } else {
-    // It's still the same day it was created, so SLA is still met for now.
+    const slaStartDate = reallocationNotes.length > 0 ? parseISO(reallocationNotes[0].createdAt) : parseISO(item.createdAt);
+    const now = new Date();
+
+    if (item.status === 'Closed' || item.status === 'Re-indexed') {
+        const updatedAt = parseISO(item.updatedAt);
+        const days = differenceInCalendarDays(updatedAt, slaStartDate);
+        // If it was closed, it met the SLA if closed on the same day it started (created or reallocated).
+        return { slaMet: days <= 0, days };
+    }
+    
+    // If it's still open, check how many days have passed since it started.
+    const daysOpen = differenceInCalendarDays(now, slaStartDate);
+    // It's a day after creation/reallocation and still open, so SLA is missed.
+    if (daysOpen > 0) {
+        return { slaMet: false, days: daysOpen };
+    }
+    
+    // It's still the same day it was created/reallocated, so SLA is met for now.
     return { slaMet: true, days: 0 };
-  }
 };
 
 
@@ -94,6 +97,14 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
     if (!firestore) return null;
     return query(collection(firestore, 'work_items'));
   }, [firestore]);
+  
+  const allNotesQuery = useMemoFirebase(() => {
+    if(!firestore) return null;
+    return query(collection(firestore, 'work_items', ' ', 'notes').parent);
+  }, [firestore])
+  
+  const { data: allNotes, isLoading: notesLoading } = useCollection<Note>(allNotesQuery)
+
 
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -103,7 +114,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
   const { data: workItems, isLoading: workItemsLoading } = useCollection<WorkItem>(workItemsQuery);
   const { data: users, isLoading: usersLoading } = useCollection<User>(usersQuery);
 
-  const isLoading = workItemsLoading || usersLoading;
+  const isLoading = workItemsLoading || usersLoading || notesLoading;
 
   const usersMap = useMemo(() => {
     if (!users) return new Map<string, string>();
@@ -125,14 +136,14 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
     if (!filteredWorkItems) return [];
     return filteredWorkItems.map(item => ({
       ...item,
-      sla: calculateSla(item),
+      sla: calculateSla(item, allNotes),
     })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [filteredWorkItems]);
+  }, [filteredWorkItems, allNotes]);
   
   const userSlaStats = useMemo(() => {
     const stats: { [key: string]: { met: number, missed: number, name: string } } = {};
     (workItems || []).forEach(item => {
-        const sla = calculateSla(item);
+        const sla = calculateSla(item, allNotes);
         const userKey = item.assignedTo;
         if (!stats[userKey]) {
             stats[userKey] = { met: 0, missed: 0, name: usersMap.get(userKey) || 'Unassigned' };
@@ -144,12 +155,12 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
         }
     });
     return Object.values(stats).sort((a, b) => b.missed - a.missed);
-  }, [workItems, usersMap]);
+  }, [workItems, usersMap, allNotes]);
 
   const processSlaStats = useMemo(() => {
     const stats: { [key: string]: { met: number, missed: number } } = {};
     (workItems || []).forEach(item => {
-        const sla = calculateSla(item);
+        const sla = calculateSla(item, allNotes);
         const processKey = item.process;
         if (!stats[processKey]) {
             stats[processKey] = { met: 0, missed: 0 };
@@ -161,7 +172,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
         }
     });
     return Object.entries(stats).map(([process, data]) => ({ process, ...data }));
-  }, [workItems]);
+  }, [workItems, allNotes]);
 
   const clearFilters = () => {
     setUserFilter('all');
