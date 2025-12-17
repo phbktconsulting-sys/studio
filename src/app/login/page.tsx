@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -45,15 +44,16 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex justify-center">
-          <div className="flex items-center justify-center rounded-full bg-primary/10 p-4 border-2 border-primary/20">
-            <Fingerprint className="h-12 w-12 text-primary" />
-          </div>
+        <div className="mb-6 flex flex-col items-center gap-4 text-center">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 border-4 border-primary/20">
+                <Fingerprint className="h-12 w-12 text-primary" />
+            </div>
+            <h1 className="font-headline text-2xl font-bold text-primary">PHBKT WorkFlow</h1>
         </div>
-        <Card className="py-4">
+        <Card className="py-6">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="font-headline text-xl">Welcome Back</CardTitle>
-            <CardDescription className="text-sm">Sign in to continue</CardDescription>
+            <CardTitle className="font-headline text-xl">Sign In</CardTitle>
+            <CardDescription className="text-sm">Enter your credentials to access your account.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
