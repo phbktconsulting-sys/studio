@@ -181,6 +181,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
       // Non-blocking update
       updateDoc(workItemRef, {
         assignedTo: newAssigneeId,
+        status: 'Open',
         updatedAt: new Date().toISOString(),
       });
 
