@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -150,7 +151,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   };
   
   const handleConfirmReallocate = async () => {
-    if (!itemToReallocate || !reallocateTo || !currentUser) {
+    if (!itemToReallocate || !reallocateTo || !currentUser || !firestore) {
         toast({ variant: 'destructive', title: 'Error', description: 'Please select a user to reallocate to.' });
         return;
     }
