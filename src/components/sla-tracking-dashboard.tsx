@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
-import { differenceInCalendarDays, format, parseISO } from 'date-fns';
+import { differenceInCalendarDays, format, parseISO, isSameDay } from 'date-fns';
 import { Button } from './ui/button';
 import { ArrowLeft, Download, Flag, X } from 'lucide-react';
 import { useTabs } from '@/contexts/tab-context';
@@ -53,22 +53,32 @@ const processTypes = [
   'Request Other',
 ];
 
-// Assumes a same-day SLA.
+// SLA Logic:
 // Met if closed_date is same as created_date.
-// Missed if still open after created_date OR closed_date > created_date.
+// Missed if not actioned (still 'Open') on the day after creation.
+// Missed if closed_date > created_date.
 export const calculateSla = (item: WorkItem): SlaInfo => {
   const createdAt = parseISO(item.createdAt);
-  
+  const now = new Date();
+
+  // If closed, SLA is based on when it was updated vs created
   if (item.status === 'Closed' || item.status === 'Re-indexed' || item.status === 'Terminated') {
     const updatedAt = parseISO(item.updatedAt);
     const days = differenceInCalendarDays(updatedAt, createdAt);
     return { slaMet: days <= 0, days };
+  }
+  
+  // If still open, check if we are past the creation day
+  const daysOpen = differenceInCalendarDays(now, createdAt);
+  if (daysOpen > 0) {
+    // It's a day after creation and still not closed, so SLA is missed.
+    return { slaMet: false, days: daysOpen };
   } else {
-    // Still open
-    const days = differenceInCalendarDays(new Date(), createdAt);
-    return { slaMet: days <= 0, days };
+    // It's still the same day it was created, so SLA is still met for now.
+    return { slaMet: true, days: 0 };
   }
 };
+
 
 export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
   const { firestore } = useFirebase();
