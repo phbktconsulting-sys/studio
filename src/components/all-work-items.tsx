@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import { collection, query, updateDoc, addDoc, doc, getDocs } from 'firebase/firestore';
+import { collection, query, updateDoc, addDoc, doc } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import {
