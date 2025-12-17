@@ -91,10 +91,10 @@ service cloud.firestore {
     
     /**
      * @description Rules for the work_items collection (queries).
+     * Any signed-in user can list/query items for search and dashboard functionality.
+     * More granular access is controlled at the document read/write level.
      */
     match /work_items/{workitemId=**} {
-      // Any signed-in user can list items for search and dashboard functionality.
-      // More granular access is controlled at the document read level.
       allow list: if isSignedIn();
     }
 
