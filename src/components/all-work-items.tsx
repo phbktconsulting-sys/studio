@@ -1,9 +1,10 @@
+
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
-import { collection, doc, query, updateDoc, addDoc, getDocs } from 'firebase/firestore';
+import { useMemo } from 'react';
+import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import type { WorkItem, User, Task } from '@/lib/types';
+import type { WorkItem, User } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -19,41 +20,10 @@ import {
   ArrowLeft,
   ArrowRight,
   ChevronUp,
-  MoreHorizontal,
 } from 'lucide-react';
 import { useTabs } from '@/contexts/tab-context';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-import { deleteWorkItem } from '@/ai/flows/delete-work-item-flow';
-import { Label } from './ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
 
 const UrgencyIcon = ({ urgency }: { urgency: WorkItem['urgency'] }) => {
   switch (urgency) {
@@ -87,128 +57,6 @@ const StatusBadge = ({ status }: { status: WorkItem['status'] }) => {
   );
 };
 
-interface ReallocateDialogProps {
-  item: WorkItem | null;
-  onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
-}
-
-function ReallocateDialog({ item, onOpenChange, onSuccess }: ReallocateDialogProps) {
-    const { firestore, user: currentUser } = useFirebase();
-    const { toast } = useToast();
-    const [reallocateTo, setReallocateTo] = useState('');
-    const [reallocateTask, setReallocateTask] = useState('');
-    const [reallocateNote, setReallocateNote] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [users, setUsers] = useState<User[]>([]);
-
-    useEffect(() => {
-        if (item && firestore) {
-            const fetchUsers = async () => {
-                const usersSnapshot = await getDocs(collection(firestore, 'users'));
-                const usersList = usersSnapshot.docs.map(d => d.data() as User);
-                setUsers(usersList);
-            };
-            fetchUsers();
-        }
-    }, [item, firestore]);
-
-    if (!item) return null;
-
-    const usersMap = new Map(users.map(u => [u.uid, u.displayName]));
-
-    const handleConfirmReallocate = async () => {
-        if (!reallocateTo || !currentUser || !firestore) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Please select a user to reallocate to.' });
-            return;
-        }
-        setIsSubmitting(true);
-
-        try {
-            const workItemRef = doc(firestore, 'work_items', item.id);
-            const notesCollectionRef = collection(firestore, `work_items/${item.id}/notes`);
-
-            const newTasks: Task[] = [...(item.tasks || [])];
-            if (reallocateTask) {
-                newTasks.push({ id: `task-${Date.now()}`, text: reallocateTask, completed: false });
-            }
-            
-            // Use direct, non-blocking updates
-            await updateDoc(workItemRef, {
-                assignedTo: reallocateTo,
-                updatedAt: new Date().toISOString(),
-                tasks: newTasks
-            });
-
-            const newNote = {
-                authorId: currentUser.uid,
-                text: `Work item reallocated from ${usersMap.get(item.assignedTo)} to ${usersMap.get(reallocateTo)}. Note: ${reallocateNote}`,
-                createdAt: new Date().toISOString(),
-                workItemId: item.id,
-                category: 'Reallocation',
-                subject: 'Work Item Reallocated'
-            };
-            await addDoc(notesCollectionRef, newNote);
-
-            toast({
-                title: 'Work Item Reallocated',
-                description: `Work item "${item.customId}" has been reallocated.`,
-            });
-            onSuccess();
-
-        } catch (error: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Reallocation Failed',
-                description: error.message || 'An unexpected error occurred.',
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-    
-    return (
-        <Dialog open={!!item} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Reallocate Work Item: {item?.customId}</DialogTitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="reallocate-user" className="text-right text-xs">Reallocate To</Label>
-                        <Select onValueChange={setReallocateTo} value={reallocateTo}>
-                            <SelectTrigger id="reallocate-user" className="col-span-3 h-8 text-xs">
-                                <SelectValue placeholder="Select a user" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {users.map(user => (
-                                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="reallocate-task" className="text-right text-xs">Add Task</Label>
-                        <Input id="reallocate-task" value={reallocateTask} onChange={(e) => setReallocateTask(e.target.value)} className="col-span-3 h-8 text-xs" placeholder="Optional: Add a task for the new user"/>
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="reallocate-note" className="text-right text-xs self-start">Note</Label>
-                        <Textarea id="reallocate-note" value={reallocateNote} onChange={(e) => setReallocateNote(e.target.value)} className="col-span-3 text-xs" placeholder="Reason for reallocation..."/>
-                    </div>
-                </div>
-                <DialogFooter>
-                    <DialogClose asChild>
-                        <Button type="button" variant="outline" className="h-8 text-xs">Cancel</Button>
-                    </DialogClose>
-                    <Button onClick={handleConfirmReallocate} disabled={isSubmitting || !reallocateTo} className="h-8 text-xs">
-                        {isSubmitting ? 'Reallocating...' : 'Reallocate'}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    );
-}
-
 interface AllWorkItemsProps {
   onBack: () => void;
 }
@@ -216,10 +64,6 @@ interface AllWorkItemsProps {
 export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   const { firestore } = useFirebase();
   const { openTab } = useTabs();
-  const { toast } = useToast();
-
-  const [itemToDelete, setItemToDelete] = useState<WorkItem | null>(null);
-  const [itemToReallocate, setItemToReallocate] = useState<WorkItem | null>(null);
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -248,29 +92,6 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     });
   };
 
-  const handleConfirmDelete = async () => {
-    if (!itemToDelete) return;
-    const result = await deleteWorkItem({ id: itemToDelete.id });
-    if (result.success) {
-      toast({
-        title: 'Work Item Deleted',
-        description: `Work item "${itemToDelete.customId}" has been permanently deleted.`,
-      });
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error Deleting Item',
-        description: result.error || 'An unexpected error occurred.',
-      });
-    }
-    setItemToDelete(null);
-  };
-  
-  const handleReallocateSuccess = () => {
-    setItemToReallocate(null);
-  };
-
-
   const sortedWorkItems = useMemo(() => {
     if (!workItems) return [];
     return [...workItems].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
@@ -287,7 +108,6 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   }
 
   return (
-    <>
     <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <div className='flex items-center gap-4'>
@@ -312,76 +132,28 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
               <TableHead className="w-[180px] text-xs">Customer Name</TableHead>
               <TableHead className="w-[180px] text-xs">Assigned To</TableHead>
               <TableHead className="w-[180px] text-xs">Date</TableHead>
-              <TableHead className="w-[80px] text-center text-xs">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedWorkItems &&
               sortedWorkItems.map((item) => (
-                <TableRow key={item.id} className="cursor-pointer group">
-                  <TableCell onClick={() => handleRowClick(item)} className="text-center py-1 px-4">
+                <TableRow key={item.id} className="cursor-pointer group" onClick={() => handleRowClick(item)}>
+                  <TableCell className="text-center py-1 px-4">
                     <UrgencyIcon urgency={item.urgency} />
                   </TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="font-medium py-1 px-4 text-xs">{item.customId}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="py-1 px-4 text-xs">
+                  <TableCell className="font-medium py-1 px-4 text-xs">{item.customId}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">
                     <StatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="py-1 px-4 text-xs">{item.subject}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
-                  <TableCell onClick={() => handleRowClick(item)} className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
-                   <TableCell className="py-1 px-4 text-center">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setItemToReallocate(item); }}>
-                          Reallocate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-red-600 focus:text-red-600"
-                          onClick={(e) => { e.stopPropagation(); setItemToDelete(item); }}
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{item.subject}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                 </TableRow>
               ))}
           </TableBody>
         </Table>
       </div>
     </div>
-    
-     {/* Delete Confirmation Dialog */}
-    <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the work item "{itemToDelete?.customId}" and all of its associated data.
-            </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">
-                Delete
-            </AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-    </AlertDialog>
-    
-    {/* Reallocate Dialog */}
-    <ReallocateDialog 
-        item={itemToReallocate}
-        onOpenChange={(open) => !open && setItemToReallocate(null)}
-        onSuccess={handleReallocateSuccess}
-    />
-    </>
   );
 }
