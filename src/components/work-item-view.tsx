@@ -169,9 +169,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             category = 'Resolved/Completed';
             const now = new Date().toISOString();
             const completedTaskIds = Object.keys(completedTasks).filter(id => completedTasks[id]);
-            const completedTaskTexts = workItem.tasks.filter(t => completedTaskIds.includes(t.id)).map(t => t.text);
+            const completedTaskTexts = (workItem.tasks || []).filter(t => completedTaskIds.includes(t.id)).map(t => t.text);
 
-            const updatedTasks = workItem.tasks.map(task => {
+            const updatedTasks = (workItem.tasks || []).map(task => {
                 if (completedTaskIds.includes(task.id) && !task.completed) {
                     return {
                         ...task,
@@ -276,7 +276,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const renderActionForm = () => {
     switch (selectedAction) {
       case 'resolve-complete': {
-          const openTasks = workItem.tasks.filter(task => !task.completed);
+          const openTasks = (workItem.tasks || []).filter(task => !task.completed);
           if (openTasks.length === 0) {
               return (
                   <div className="space-y-2">
@@ -648,7 +648,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             ) : isClosed ? (
               <ClosedWorkItemInfo workItem={item} />
             ) : isLockedByOther ? (
-                <CaseLockedInfo lockInfo={item.lockInfo} />
+                <CaseLockedInfo lockInfo={item.lockInfo!} />
             ) : (
               <div className="flex items-center gap-4 text-sm py-2">
                   <span className="font-medium">Assigned To:</span>
@@ -797,7 +797,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             </TabsContent>
 
             <TabsContent value="tasks" className="mt-0">
-              <TasksTab tasks={item.tasks} workItemId={item.id} />
+              <TasksTab tasks={item.tasks || []} workItemId={item.id} />
             </TabsContent>
 
             <TabsContent value="images" className="mt-0">
