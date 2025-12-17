@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -46,19 +45,31 @@ const processTypes = [
   'Request Other',
 ];
 
-function TasksTab({ tasks }: { tasks: Task[] }) {
+function TasksTab({ tasks, workItemId }: { tasks: Task[], workItemId: string }) {
+  const { firestore } = useFirebase();
+
+  const handleTaskCheck = (taskId: string, completed: boolean) => {
+      if (!firestore) return;
+      const workItemRef = doc(firestore, 'work_items', workItemId);
+      const currentTasks = tasks || [];
+      const updatedTasks = currentTasks.map(task => 
+          task.id === taskId ? { ...task, completed } : task
+      );
+      updateDocumentNonBlocking(workItemRef, { tasks: updatedTasks });
+  };
+  
   if (!tasks || tasks.length === 0) {
-    return <p className="text-xs p-4">No tasks for this work item.</p>;
+    return <p className="text-xs p-4 text-muted-foreground">No tasks for this work item.</p>;
   }
 
   return (
     <div className="space-y-4 p-4">
        {tasks.map((task) => (
           <div key={task.id} className="flex items-center space-x-3 rounded-md border p-4">
-            <Checkbox id={`task-${task.id}`} checked={task.completed} />
+            <Checkbox id={`task-${task.id}`} checked={task.completed} onCheckedChange={(checked) => handleTaskCheck(task.id, !!checked)} />
             <label
               htmlFor={`task-${task.id}`}
-              className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className={`text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${task.completed ? 'line-through text-muted-foreground' : ''}`}
             >
               {task.text}
             </label>
@@ -629,7 +640,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             </TabsContent>
 
             <TabsContent value="tasks" className="mt-0">
-              <TasksTab tasks={item.tasks} />
+              <TasksTab tasks={item.tasks} workItemId={item.id} />
             </TabsContent>
 
             <TabsContent value="images" className="mt-0">
@@ -668,3 +679,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    

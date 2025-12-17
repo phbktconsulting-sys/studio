@@ -87,6 +87,19 @@ const StatusBadge = ({ status }: { status: WorkItem['status'] }) => {
   );
 };
 
+const initialTaskOptions = [
+    'Follow up with customer',
+    'Gather required documents',
+    'Process application',
+    'Send quotation',
+    'Schedule a meeting',
+    'Verify information',
+    'Update customer records',
+    'Escalate to manager',
+    'Prepare report',
+    'Close work item'
+];
+
 interface AllWorkItemsProps {
   onBack: () => void;
 }
@@ -101,6 +114,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   const [usersForReallocation, setUsersForReallocation] = useState<User[]>([]);
   const [newAssigneeId, setNewAssigneeId] = useState('');
   const [reallocationNote, setReallocationNote] = useState('');
+  const [reallocationTask, setReallocationTask] = useState('');
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -177,12 +191,18 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     const notesCollectionRef = collection(firestore, `work_items/${itemToReallocate.id}/notes`);
     const newAssigneeName = usersMap.get(newAssigneeId) || 'Unknown User';
 
+    const newTasks = [...(itemToReallocate.tasks || [])];
+    if (reallocationTask) {
+        newTasks.push({ id: `task-${Date.now()}`, text: reallocationTask, completed: false });
+    }
+
     try {
       // Non-blocking update
       updateDoc(workItemRef, {
         assignedTo: newAssigneeId,
         status: 'Open',
         updatedAt: new Date().toISOString(),
+        tasks: newTasks,
       });
 
       addDoc(notesCollectionRef, {
@@ -209,6 +229,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
       setItemToReallocate(null);
       setNewAssigneeId('');
       setReallocationNote('');
+      setReallocationTask('');
     }
   };
 
@@ -307,7 +328,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-       <Dialog open={!!itemToReallocate} onOpenChange={(open) => { if (!open) { setItemToReallocate(null); setNewAssigneeId(''); setReallocationNote(''); } }}>
+       <Dialog open={!!itemToReallocate} onOpenChange={(open) => { if (!open) { setItemToReallocate(null); setNewAssigneeId(''); setReallocationNote(''); setReallocationTask('')} }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Reallocate Work Item: {itemToReallocate?.customId}</DialogTitle>
@@ -332,6 +353,21 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
               </Select>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="task">Initial Task</Label>
+                <Select onValueChange={setReallocationTask} value={reallocationTask}>
+                    <SelectTrigger id="task">
+                        <SelectValue placeholder="Select an initial task (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {initialTaskOptions.map((task) => (
+                        <SelectItem key={task} value={task}>
+                            {task}
+                        </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="note">Reallocation Note</Label>
               <Textarea
                 id="note"
@@ -350,3 +386,5 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     </>
   );
 }
+
+    
