@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, collectionGroup } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { WorkItem, User, Note } from '@/lib/types';
 import {
@@ -100,7 +100,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
   
   const allNotesQuery = useMemoFirebase(() => {
     if(!firestore) return null;
-    return query(collection(firestore, 'work_items', ' ', 'notes').parent);
+    return query(collectionGroup(firestore, 'notes'));
   }, [firestore])
   
   const { data: allNotes, isLoading: notesLoading } = useCollection<Note>(allNotesQuery)

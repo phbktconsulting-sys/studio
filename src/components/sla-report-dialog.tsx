@@ -35,7 +35,7 @@ import type { WorkItem, User, Note } from '@/lib/types';
 import { SlaInfo, calculateSla } from './sla-tracking-dashboard';
 import { Download } from 'lucide-react';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
+import { collectionGroup, query } from 'firebase/firestore';
 
 
 interface SlaReportDialogProps {
@@ -66,7 +66,7 @@ export function SlaReportDialog({
   
   const allNotesQuery = useMemoFirebase(() => {
     if(!firestore) return null;
-    return query(collection(firestore, 'work_items', ' ', 'notes').parent);
+    return query(collectionGroup(firestore, 'notes'));
   }, [firestore])
   
   const { data: allNotes } = useCollection<Note>(allNotesQuery)

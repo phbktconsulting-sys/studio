@@ -76,6 +76,12 @@ export function useCollection<T = any>(
     const unsubscribe = onSnapshot(
       memoizedTargetRefOrQuery,
       (snapshot: QuerySnapshot<DocumentData>) => {
+        if (!snapshot.docs) {
+          setData([]);
+          setError(null);
+          setIsLoading(false);
+          return;
+        }
         const results: ResultItemType[] = [];
         for (const doc of snapshot.docs) {
           results.push({ ...(doc.data() as T), id: doc.id });
@@ -85,11 +91,16 @@ export function useCollection<T = any>(
         setIsLoading(false);
       },
       (error: FirestoreError) => {
-        // This logic extracts the path from either a ref or a query
-        const path: string =
-          memoizedTargetRefOrQuery.type === 'collection'
-            ? (memoizedTargetRefOrQuery as CollectionReference).path
-            : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString()
+        let path = '[unknown path]';
+        try {
+           if (memoizedTargetRefOrQuery.type === 'collection') {
+             path = (memoizedTargetRefOrQuery as CollectionReference).path
+           } else if (memoizedTargetRefOrQuery.type === 'query') {
+              path = (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString()
+           }
+        } catch (e) {
+            // Could not determine path
+        }
 
         const contextualError = new FirestorePermissionError({
           operation: 'list',
