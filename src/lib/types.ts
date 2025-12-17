@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export interface User {
@@ -6,7 +5,7 @@ export interface User {
   id: string;
   email: string | null;
   displayName: string | null;
-  role: 'admin' | 'user' | 'User' | 'Admin';
+  role: 'Admin' | 'User';
   employeeId?: string;
   firstName?: string;
   middleName?: string;
@@ -68,6 +67,18 @@ export interface Note {
   category: string;
   subject: string;
 }
+
+export interface Customer {
+  id: string; // This is the customer's email, used as the document ID
+  email: string;
+  customerUniqueId: string;
+  createdAt: string;
+  // Denormalized fields for easier access, populated from the latest work item
+  name?: string;
+  phone?: string;
+  address?: string;
+}
+
 
 export const CreateUserInputSchema = z.object({
   email: z.string().email(),

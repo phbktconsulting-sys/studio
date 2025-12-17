@@ -135,14 +135,26 @@ const createWorkItemFlow = ai.defineFlow(
         }
 
         // 2. Now perform all write operations.
-        if (isNewCustomer) {
-          transaction.set(customerDocRef, {
+        const customerDataToSet = {
             id: customerEmail,
             email: customerEmail,
             customerUniqueId: customerUniqueId,
-            createdAt: new Date().toISOString(),
-          });
-          transaction.set(customerCounterRef, { count: parseInt(customerUniqueId, 10) + 1 }, { merge: true });
+            createdAt: customerDoc.exists ? customerDoc.data()!.createdAt : new Date().toISOString(),
+            name: payload.relatedContact.name,
+            phone: payload.relatedContact.phone,
+            address: payload.relatedContact.address,
+        };
+
+        if (isNewCustomer) {
+            transaction.set(customerDocRef, customerDataToSet);
+            transaction.set(customerCounterRef, { count: parseInt(customerUniqueId, 10) + 1 }, { merge: true });
+        } else {
+            // Always update customer details on new work item creation to keep them fresh
+            transaction.update(customerDocRef, {
+                name: payload.relatedContact.name,
+                phone: payload.relatedContact.phone,
+                address: payload.relatedContact.address,
+            });
         }
         
         // Update work item counter

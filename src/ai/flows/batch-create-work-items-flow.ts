@@ -104,8 +104,9 @@ const batchCreateWorkItemsFlow = ai.defineFlow(
     try {
       await adminFirestore.runTransaction(async (transaction) => {
         // Pre-fetch all documents needed to avoid contention
-        const customerDocsToFetch = payload.items.map(item => customersRef.doc(item.customerEmail.toLowerCase()));
-        const existingCustomerDocs = await transaction.getAll(...customerDocsToFetch);
+        const customerEmails = payload.items.map(item => item.customerEmail.toLowerCase());
+        const customerDocsToFetch = customerEmails.length > 0 ? customerEmails.map(email => customersRef.doc(email)) : [];
+        const existingCustomerDocs = customerDocsToFetch.length > 0 ? await transaction.getAll(...customerDocsToFetch) : [];
         const workItemCounterDoc = await transaction.get(workItemCounterRef);
         const customerCounterDoc = await transaction.get(customerCounterRef);
 
@@ -122,18 +123,11 @@ const batchCreateWorkItemsFlow = ai.defineFlow(
         for (const item of payload.items) {
           const customerEmail = item.customerEmail.toLowerCase();
           let customerUniqueId = customerCache.get(customerEmail);
+          const isNewCustomer = !customerUniqueId;
 
-          if (!customerUniqueId) {
+          if (isNewCustomer) {
             customerUniqueId = customerCounter.toString();
             customerCounter++;
-            const newCustomerRef = customersRef.doc(customerEmail);
-            transaction.set(newCustomerRef, {
-              id: customerEmail,
-              email: customerEmail,
-              customerUniqueId,
-              createdAt: new Date().toISOString(),
-            });
-            customerCache.set(customerEmail, customerUniqueId);
           }
           
           const newWorkItemRef = workItemsRef.doc();
@@ -162,6 +156,25 @@ const batchCreateWorkItemsFlow = ai.defineFlow(
             overview: item.overview,
             tasks: [],
           });
+
+          // Update customer record
+          const customerDocRef = customersRef.doc(customerEmail);
+          const customerDataToSet = {
+                id: customerEmail,
+                email: customerEmail,
+                customerUniqueId: customerUniqueId,
+                name: item.customerName,
+                phone: item.customerPhone,
+                address: item.customerAddress || '',
+          };
+           if (isNewCustomer) {
+                transaction.set(customerDocRef, {
+                    ...customerDataToSet,
+                    createdAt: new Date().toISOString(),
+                });
+            } else {
+                transaction.update(customerDocRef, customerDataToSet);
+            }
         }
 
         // Update counters at the end

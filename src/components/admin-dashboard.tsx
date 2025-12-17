@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { AllWorkItems } from './all-work-items';
 import { UserManagement } from './user-management';
 import { AnalyticsDashboard } from './analytics-dashboard';
-import { List, Users, BarChart2, Upload, TrendingUp } from 'lucide-react';
+import { List, Users, BarChart2, Upload, TrendingUp, Contact } from 'lucide-react';
 import { BatchWorkCreate } from './batch-work-create';
 import { SlaTrackingDashboard } from './sla-tracking-dashboard';
+import { CustomerWorkflow } from './customer-workflow';
 
-type AdminView = 'menu' | 'work-items' | 'users' | 'dashboard' | 'batch-create' | 'sla-tracking';
+type AdminView = 'menu' | 'work-items' | 'users' | 'dashboard' | 'batch-create' | 'sla-tracking' | 'customer-workflow';
 
 export function AdminDashboard() {
   const [view, setView] = useState<AdminView>('menu');
@@ -32,6 +33,10 @@ export function AdminDashboard() {
   
   if (view === 'sla-tracking') {
     return <SlaTrackingDashboard onBack={() => setView('menu')} />;
+  }
+  
+  if (view === 'customer-workflow') {
+    return <CustomerWorkflow onBack={() => setView('menu')} />;
   }
 
   return (
@@ -73,6 +78,12 @@ export function AdminDashboard() {
           description="Track Service Level Agreement compliance for cases."
           icon={<TrendingUp className="h-6 w-6" />}
           onClick={() => setView('sla-tracking')}
+        />
+         <CardButton
+          title="Customer Workflow"
+          description="View and manage all customer records in the system."
+          icon={<Contact className="h-6 w-6" />}
+          onClick={() => setView('customer-workflow')}
         />
       </div>
     </div>
