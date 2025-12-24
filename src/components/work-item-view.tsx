@@ -159,8 +159,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [reindexToProcess, setReindexToProcess] = useState('');
   const [reindexReason, setReindexReason] = useState('');
   const [reindexNotes, setReindexNotes] = useState('');
-  const [tasksToComplete, setTasksToComplete] = useState<Record<string, boolean>>({});
-  const [tasksToCopy, setTasksToCopy] = useState<Record<string, boolean>>({});
+  const [shouldCopyTasks, setShouldCopyTasks] = useState(false);
   const [selectedNewTasks, setSelectedNewTasks] = useState<string[]>([]);
 
 
@@ -257,25 +256,22 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 return;
             }
             category = 'Re-Indexed';
-            const now = new Date().toISOString();
-
-            // Prepare tasks for the NEW work item
-            const copiedTaskObjects = Object.keys(tasksToCopy)
-              .filter(taskId => tasksToCopy[taskId])
-              .map(taskId => workItem.tasks.find(t => t.id === taskId))
-              .filter(Boolean)
-              .map(task => ({
-                  id: `task-copy-${task!.id}-${Math.random()}`,
-                  text: task!.text,
+            
+            const openTasksFromOldItem = (workItem.tasks || []).filter(t => !t.completed);
+            
+            const copiedTaskObjects = shouldCopyTasks 
+              ? openTasksFromOldItem.map(task => ({
+                  id: `task-copy-${task.id}-${Math.random()}`,
+                  text: task.text,
                   completed: false, // Copied tasks are always reset to incomplete
-              }));
-
+              }))
+              : [];
+            
             const newTasksForWorkItem = [
                 ...selectedNewTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
                 ...copiedTaskObjects,
             ];
             
-            // Prepare payload for creating the new work item
             const reindexPayload = {
               process: reindexToProcess,
               urgency: workItem.urgency,
@@ -290,19 +286,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             if (!newWorkItemResult.id || !newWorkItemResult.customId) {
                 throw new Error(newWorkItemResult.error || 'Failed to create new work item during re-index.');
             }
-
-            // Prepare updates for the OLD work item
-            const completedTaskIds = Object.keys(tasksToComplete).filter(taskId => tasksToComplete[taskId]);
-            const updatedOldTasks = (workItem.tasks || []).map(task => {
-                if (completedTaskIds.includes(task.id) && !task.completed) {
-                    return { ...task, completed: true, completedBy: user.uid, completedAt: now };
-                }
-                return task;
-            });
-
+            
             noteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
-            workItemUpdate.tasks = updatedOldTasks;
             workItemUpdate.lockInfo = null;
 
 
@@ -506,19 +492,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <div className="space-y-2">
                       <Label className="text-xs font-normal">Current Open Tasks</Label>
                       <div className="p-2 border rounded-md max-h-24 overflow-y-auto space-y-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                             <Checkbox id="copy-all-tasks" checked={shouldCopyTasks} onCheckedChange={(checked) => setShouldCopyTasks(!!checked)} />
+                             <Label htmlFor="copy-all-tasks" className="font-normal text-muted-foreground text-xs">Copy current task for new work item</Label>
+                          </div>
+                          <Separator />
                           {openTasks.map(task => (
-                            <div key={task.id} className='flex items-center justify-between text-xs p-1'>
-                                <span className='flex-1 pr-2'>{task.text}</span>
-                                <div className='flex items-center gap-3'>
-                                    <div className="flex items-center gap-1">
-                                        <Checkbox id={`complete-${task.id}`} checked={!!tasksToComplete[task.id]} onCheckedChange={() => setTasksToComplete(p => ({...p, [task.id]: !p[task.id]}))} />
-                                        <Label htmlFor={`complete-${task.id}`} className="font-normal text-muted-foreground text-xs">Task work Completed</Label>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Checkbox id={`copy-${task.id}`} checked={!!tasksToCopy[task.id]} onCheckedChange={() => setTasksToCopy(p => ({...p, [task.id]: !p[task.id]}))} />
-                                        <Label htmlFor={`copy-${task.id}`} className="font-normal text-muted-foreground text-xs">copy task for new work item</Label>
-                                    </div>
-                                </div>
+                            <div key={task.id} className='flex items-center justify-between text-xs p-1 text-muted-foreground'>
+                                <span>{task.text}</span>
                             </div>
                           ))}
                       </div>
