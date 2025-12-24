@@ -383,52 +383,38 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 're-index':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
-                <Label className="text-xs font-normal text-right">Re-Index to Process</Label>
-                <Select onValueChange={handleReindexProcessChange} value={reindexToProcess}>
-                <SelectTrigger className="text-xs h-6">
-                    <SelectValue placeholder="Select a new process..." />
-                </SelectTrigger>
-                <SelectContent>
-                    {processTypes
-                        .filter(type => type !== workItem.process)
-                        .map((type) => (
-                        <SelectItem key={type} value={type}>
-                            {type}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-                </Select>
-
-                <Label className="text-xs font-normal text-right">Reason *</Label>
-                <Select onValueChange={setReindexReason} value={reindexReason}>
-                <SelectTrigger className="text-xs h-6">
-                    <SelectValue placeholder="Select reason..." />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="Wrong Process">Wrong Process</SelectItem>
-                    <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
-                </SelectContent>
-                </Select>
-
-                <Label className="text-xs font-normal text-right self-start" htmlFor="notes-re-index">Note *</Label>
-                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[60px]" />
-             </div>
-
-             {reindexToProcess && (
-                 <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                    <Label className="text-xs font-normal">Re-Index to Process</Label>
+                    <Select onValueChange={handleReindexProcessChange} value={reindexToProcess}>
+                        <SelectTrigger className="text-xs h-8">
+                            <SelectValue placeholder="Select new process..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {processTypes
+                                .filter(type => type !== workItem.process)
+                                .map((type) => (
+                                <SelectItem key={type} value={type}>
+                                    {type}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="space-y-1">
                     <Label className="text-xs font-normal">Tasks for New Process</Label>
-                    <Popover>
+                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
                                 role="combobox"
+                                disabled={!reindexToProcess}
                                 className={cn(
                                     "w-full justify-between h-8 text-xs font-normal",
                                     !selectedNewTasks?.length && "text-muted-foreground"
                                 )}
                                 >
-                                {selectedNewTasks?.length > 0 ? `${selectedNewTasks.length} selected` : "Select new tasks"}
+                                {selectedNewTasks?.length > 0 ? `${selectedNewTasks.length} selected` : "Select new tasks..."}
                                 <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
                             </Button>
                         </PopoverTrigger>
@@ -461,29 +447,61 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                             </Command>
                         </PopoverContent>
                     </Popover>
-                 </div>
-             )}
-
-            {(workItem.tasks || []).length > 0 && (
-                <div className="space-y-2">
-                    <Label className="text-xs font-normal">Current Tasks</Label>
-                    <div className="p-2 border rounded-md max-h-24 overflow-y-auto">
-                        <ul className="list-disc list-inside text-xs text-muted-foreground">
-                            {workItem.tasks.map(task => <li key={task.id}>{task.text}</li>)}
-                        </ul>
-                    </div>
-                     <div className="flex items-center space-x-2">
-                        <Checkbox
-                            id="copy-tasks"
-                            checked={copyCurrentTasks}
-                            onCheckedChange={(checked) => setCopyCurrentTasks(checked as boolean)}
-                        />
-                        <Label htmlFor="copy-tasks" className="text-xs font-normal">
-                            Copy current tasks to new work item
-                        </Label>
-                    </div>
                 </div>
-            )}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-1">
+                    <Label className="text-xs font-normal">Reason *</Label>
+                     <Select onValueChange={setReindexReason} value={reindexReason}>
+                        <SelectTrigger className="text-xs h-8">
+                            <SelectValue placeholder="Select reason..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Wrong Process">Wrong Process</SelectItem>
+                            <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
+                        </SelectContent>
+                    </Select>
+                 </div>
+                 <div className="space-y-1">
+                     <Label className="text-xs font-normal" htmlFor="notes-re-index">Note *</Label>
+                    <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[40px] h-8" />
+                 </div>
+            </div>
+
+
+            <div className="grid grid-cols-2 gap-4">
+              {(workItem.tasks || []).length > 0 && (
+                  <div className="space-y-2">
+                      <Label className="text-xs font-normal">Current Tasks</Label>
+                      <div className="p-2 border rounded-md max-h-24 overflow-y-auto">
+                          <ul className="list-disc list-inside text-xs text-muted-foreground">
+                              {workItem.tasks.map(task => <li key={task.id}>{task.text}</li>)}
+                          </ul>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                          <Checkbox
+                              id="copy-tasks"
+                              checked={copyCurrentTasks}
+                              onCheckedChange={(checked) => setCopyCurrentTasks(checked as boolean)}
+                          />
+                          <Label htmlFor="copy-tasks" className="text-xs font-normal">
+                              Copy current tasks to new work item
+                          </Label>
+                      </div>
+                  </div>
+              )}
+               {selectedNewTasks.length > 0 && (
+                  <div className="space-y-2">
+                      <Label className="text-xs font-normal">Selected New Tasks</Label>
+                       <div className="p-2 border rounded-md max-h-24 overflow-y-auto">
+                          <ul className="list-disc list-inside text-xs text-muted-foreground">
+                              {selectedNewTasks.map(task => <li key={task}>{task}</li>)}
+                          </ul>
+                      </div>
+                  </div>
+              )}
+            </div>
             
           </div>
         );
