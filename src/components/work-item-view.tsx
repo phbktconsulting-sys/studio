@@ -261,16 +261,24 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             break;
         }
         case 're-index': {
-             if (!reindexNotes) {
+            if (!reindexNotes) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Notes are required for re-indexing.' });
                 return;
-             }
+            }
+            if (!reindexToProcess) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Please select a process for re-indexing.' });
+                return;
+            }
 
             if (reindexOption === 'initial') {
                 // Logic for "Return to initial Indexing"
+                const newTasks = reindexTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false }));
                 workItemUpdate.assignedTo = workItem.createdBy; // Assign to original creator
                 workItemUpdate.status = 'Open';
-                noteText = `Case returned to initial indexing by ${user.displayName}. Reason: ${reindexNotes}`;
+                workItemUpdate.process = reindexToProcess;
+                workItemUpdate.tasks = newTasks;
+
+                noteText = `Case returned to initial indexing by ${user.displayName}. New Process: '${reindexToProcess}'. Reason: ${reindexNotes}`;
                 category = 'Re-Indexed';
                 subjectForNote = 'RETURNED TO INDEX';
                 
@@ -290,11 +298,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             }
             
             // Logic for "Re-index case myself"
-            if (!reindexToProcess) {
-                toast({ variant: 'destructive', title: 'Error', description: 'Please select a process for re-indexing.' });
-                return;
-            }
-            
             const reindexPayload = {
               process: reindexToProcess,
               urgency: workItem.urgency,
@@ -511,7 +514,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                           placeholder="Add final notes..."
                           value={resolveCompleteNotes}
                           onChange={e => setResolveCompleteNotes(e.target.value)}
-                          className="mt-1 min-h-[100px] text-xs"
+                          className="min-h-[100px] text-xs"
                       />
                   </div>
               </div>
@@ -535,107 +538,105 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </RadioGroup>
               </div>
             </div>
-            {reindexOption === 'myself' && (
-              <>
-                <div className="flex items-center">
-                  <Label className="w-1/4 text-xs font-semibold">Process<span className="text-destructive">*</span></Label>
-                  <div className="w-1/4">
-                      <Select onValueChange={(value) => { setReindexToProcess(value); setReindexTasks([]); }} value={reindexToProcess}>
-                        <SelectTrigger className="h-7 text-xs">
-                            <SelectValue placeholder="Select a new process..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {processTypes.map((process) => (
-                            <SelectItem key={process} value={process} className="text-xs">
-                                {process}
-                            </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-                  <div className="flex w-3/4 items-start gap-2">
-                      <div className="w-1/2">
-                          <Popover>
-                              <PopoverTrigger asChild>
-                                  <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className={cn(
-                                      "w-full justify-between h-7 text-xs",
-                                      !reindexTasks?.length && "text-muted-foreground"
-                                  )}
-                                  >
-                                  {reindexTasks?.length > 0 ? `${reindexTasks.length} selected` : "Select tasks"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                  </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                  <Command>
-                                      <CommandInput placeholder="Search tasks..." />
-                                      <CommandList>
-                                      <CommandEmpty>No tasks found.</CommandEmpty>
-                                      <CommandGroup>
-                                          {(processTaskMap[reindexToProcess] || []).map((task) => (
-                                          <CommandItem
-                                              key={task}
-                                              className="text-xs"
-                                              onSelect={() => {
-                                                  const isSelected = reindexTasks.includes(task);
-                                                  const newTasks = isSelected
-                                                  ? reindexTasks.filter((t) => t !== task)
-                                                  : [...reindexTasks, task];
-                                                  setReindexTasks(newTasks);
-                                              }}
-                                              >
-                                              <Checkbox
-                                                  checked={reindexTasks.includes(task)}
-                                                  className="mr-2"
-                                              />
-                                              {task}
-                                          </CommandItem>
-                                          ))}
-                                      </CommandGroup>
-                                      </CommandList>
-                                  </Command>
-                              </PopoverContent>
-                          </Popover>
-                      </div>
-                       <div className="flex-1 flex flex-wrap gap-1 items-center">
-                        {reindexTasks.map((task) => (
-                          <Badge key={task} variant="secondary" className="flex items-center gap-1 py-0.5 text-xs">
-                            {task}
-                            <button
-                              type="button"
-                              onClick={() => setReindexTasks(reindexTasks.filter((t) => t !== task))}
-                              className="p-0.5 rounded-full hover:bg-muted-foreground/20"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
+            
+            <div className="flex items-center">
+              <Label className="w-1/4 text-xs font-semibold">Process<span className="text-destructive">*</span></Label>
+              <div className="w-1/4">
+                  <Select onValueChange={(value) => { setReindexToProcess(value); setReindexTasks([]); }} value={reindexToProcess}>
+                    <SelectTrigger className="h-7 text-xs">
+                        <SelectValue placeholder="Select a new process..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {processTypes.map((process) => (
+                        <SelectItem key={process} value={process} className="text-xs">
+                            {process}
+                        </SelectItem>
                         ))}
-                      </div>
+                    </SelectContent>
+                  </Select>
+              </div>
+            </div>
+            <div className="flex items-start">
+              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
+              <div className="flex w-3/4 items-start gap-2">
+                  <div className="w-1/2">
+                      <Popover>
+                          <PopoverTrigger asChild>
+                              <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                  "w-full justify-between h-7 text-xs",
+                                  !reindexTasks?.length && "text-muted-foreground"
+                              )}
+                              >
+                              {reindexTasks?.length > 0 ? `${reindexTasks.length} selected` : "Select tasks"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                              <Command>
+                                  <CommandInput placeholder="Search tasks..." />
+                                  <CommandList>
+                                  <CommandEmpty>No tasks found.</CommandEmpty>
+                                  <CommandGroup>
+                                      {(processTaskMap[reindexToProcess] || []).map((task) => (
+                                      <CommandItem
+                                          key={task}
+                                          className="text-xs"
+                                          onSelect={() => {
+                                              const isSelected = reindexTasks.includes(task);
+                                              const newTasks = isSelected
+                                              ? reindexTasks.filter((t) => t !== task)
+                                              : [...reindexTasks, task];
+                                              setReindexTasks(newTasks);
+                                          }}
+                                          >
+                                          <Checkbox
+                                              checked={reindexTasks.includes(task)}
+                                              className="mr-2"
+                                          />
+                                          {task}
+                                      </CommandItem>
+                                      ))}
+                                  </CommandGroup>
+                                  </CommandList>
+                              </Command>
+                          </PopoverContent>
+                      </Popover>
                   </div>
-                </div>
-                 <div className="flex items-center">
-                  <Label className="w-1/4 text-xs font-semibold">Copy notes to new case?</Label>
-                  <div className="w-3/4">
-                     <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="copy-yes" />
-                        <Label htmlFor="copy-yes" className="flex h-7 items-center text-xs font-normal">Yes</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="copy-no" />
-                        <Label htmlFor="copy-no" className="flex h-7 items-center text-xs font-normal">No</Label>
-                      </div>
-                    </RadioGroup>
+                   <div className="flex-1 flex flex-wrap gap-1 items-center">
+                    {reindexTasks.map((task) => (
+                      <Badge key={task} variant="secondary" className="flex items-center gap-1 py-0.5 text-xs">
+                        {task}
+                        <button
+                          type="button"
+                          onClick={() => setReindexTasks(reindexTasks.filter((t) => t !== task))}
+                          className="p-0.5 rounded-full hover:bg-muted-foreground/20"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
                   </div>
-                </div>
-              </>
-            )}
+              </div>
+            </div>
+             <div className="flex items-center">
+              <Label className="w-1/4 text-xs font-semibold">Copy notes to new case?</Label>
+              <div className="w-3/4">
+                 <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="copy-yes" />
+                    <Label htmlFor="copy-yes" className="flex h-7 items-center text-xs font-normal">Yes</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="copy-no" />
+                    <Label htmlFor="copy-no" className="flex h-7 items-center text-xs font-normal">No</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+
             <div className="flex items-start">
               <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-re-index">Notes<span className="text-destructive">*</span></Label>
               <div className="w-1/2">
