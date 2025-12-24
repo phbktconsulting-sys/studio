@@ -159,7 +159,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
 
   const [reindexToProcess, setReindexToProcess] = useState('');
-  const [reindexReason, setReindexReason] = useState('Wrong Process');
+  const [reindexReason, setReindexReason] = useState(processTypes[0]);
   const [reindexNotes, setReindexNotes] = useState('');
   const [shouldCopyNotes, setShouldCopyNotes] = useState<'yes' | 'no'>('yes');
   const [reindexOption, setReindexOption] = useState<'myself' | 'initial'>('myself');
@@ -250,7 +250,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
              }
             
             const reindexPayload = {
-              process: 'Request Information', // Defaulting for "Re-index case myself"
+              process: reindexReason, // Use the selected reason as the new process
               urgency: workItem.urgency,
               assignedTo: user.uid,
               createdBy: user.uid,
@@ -420,8 +420,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Wrong Process" className="text-xs">Wrong Process</SelectItem>
-                      <SelectItem value="Incorrect Category Selected" className="text-xs">Incorrect Category Selected</SelectItem>
+                      {processTypes.map((process) => (
+                        <SelectItem key={process} value={process} className="text-xs">
+                          {process}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
               </div>
@@ -1021,6 +1024,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
 
 
 
