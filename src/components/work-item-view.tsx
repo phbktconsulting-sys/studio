@@ -361,7 +361,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-             <div className="space-y-2">
+            <div className="space-y-2">
                 <Label className="text-xs font-semibold">All Tasks Completed?</Label>
                 <RadioGroup
                   value={allTasksCompleted}
@@ -558,29 +558,33 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'terminate':
         return (
-          <div className="grid grid-cols-['max-content'_1fr] items-center gap-x-4 gap-y-2">
-            <Label className="text-xs font-normal text-right">Reason</Label>
-            <Select onValueChange={setTerminateReason} value={terminateReason}>
-              <SelectTrigger className="text-xs h-6">
-                <SelectValue placeholder="Select reason..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Duplicate Work Item">Duplicate Work Item</SelectItem>
-                <SelectItem value="Already Processed in Another Work Item">Already Processed in Another Work Item</SelectItem>
-                <SelectItem value="Previously Resolved">Previously Resolved</SelectItem>
-                <SelectItem value="Superseded by Newer Request">Superseded by Newer Request</SelectItem>
-                <SelectItem value="Handled Offline / Verbally">Handled Offline / Verbally</SelectItem>
-                <SelectItem value="Invalid Entry / Test Data">Invalid Entry / Test Data</SelectItem>
-                <SelectItem value="Accidental Creation">Accidental Creation</SelectItem>
-                <SelectItem value="Request No Longer Needed">Request No Longer Needed</SelectItem>
-                <SelectItem value="Out of Service Scope">Out of Service Scope</SelectItem>
-                <SelectItem value="System Auto-Generated Error">System Auto-Generated Error</SelectItem>
-                <SelectItem value="Information Insufficient to Process">Information Insufficient to Process</SelectItem>
-                <SelectItem value="Internal Decision no Longer Require">Internal Decision no Longer Require</SelectItem>
-              </SelectContent>
-            </Select>
-            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-terminate">Notes</Label>
-            <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[60px]" />
+          <div className="grid grid-cols-2 gap-4 items-start">
+            <div className="space-y-1">
+                <Label className="text-xs font-normal">Reason</Label>
+                <Select onValueChange={setTerminateReason} value={terminateReason}>
+                <SelectTrigger className="text-xs h-8">
+                    <SelectValue placeholder="Select reason..." />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="Duplicate Work Item">Duplicate Work Item</SelectItem>
+                    <SelectItem value="Already Processed in Another Work Item">Already Processed in Another Work Item</SelectItem>
+                    <SelectItem value="Previously Resolved">Previously Resolved</SelectItem>
+                    <SelectItem value="Superseded by Newer Request">Superseded by Newer Request</SelectItem>
+                    <SelectItem value="Handled Offline / Verbally">Handled Offline / Verbally</SelectItem>
+                    <SelectItem value="Invalid Entry / Test Data">Invalid Entry / Test Data</SelectItem>
+                    <SelectItem value="Accidental Creation">Accidental Creation</SelectItem>
+                    <SelectItem value="Request No Longer Needed">Request No Longer Needed</SelectItem>
+                    <SelectItem value="Out of Service Scope">Out of Service Scope</SelectItem>
+                    <SelectItem value="System Auto-Generated Error">System Auto-Generated Error</SelectItem>
+                    <SelectItem value="Information Insufficient to Process">Information Insufficient to Process</SelectItem>
+                    <SelectItem value="Internal Decision no Longer Require">Internal Decision no Longer Require</SelectItem>
+                </SelectContent>
+                </Select>
+            </div>
+            <div className="space-y-1">
+                <Label className="text-xs font-normal" htmlFor="notes-terminate">Notes</Label>
+                <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[60px]" />
+            </div>
           </div>
         );
       case 'transfer':
