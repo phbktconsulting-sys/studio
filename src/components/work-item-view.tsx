@@ -361,50 +361,50 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold">All Tasks Completed?</Label>
-              <RadioGroup
-                value={allTasksCompleted}
-                onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
-                className="flex items-center space-x-4 pt-1"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="yes" id="tasks-yes" />
-                  <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no" id="tasks-no" />
-                  <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            <div className="grid grid-cols-2 gap-4 items-start">
-                <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Tasks</Label>
-                    <div className="mt-1 space-y-2 rounded-md border p-2 max-h-32 overflow-y-auto">
-                        {(workItem.tasks || []).map(task => (
-                        <div key={task.id} className="flex items-center text-xs">
-                            <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
-                            <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
-                            {task.text}
-                            </label>
-                        </div>
-                        ))}
-                        {(workItem.tasks || []).length === 0 && (
-                        <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
-                        )}
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
-                    <Textarea
-                        id="notes-resolve-complete"
-                        placeholder="Add final notes..."
-                        value={resolveCompleteNotes}
-                        onChange={e => setResolveCompleteNotes(e.target.value)}
-                        className="text-xs min-h-[100px] mt-1"
-                    />
-                </div>
+             <div className="grid grid-cols-3 gap-4 items-start">
+              <div className="space-y-2">
+                  <Label className="text-xs font-semibold">Tasks</Label>
+                  <div className="mt-1 space-y-2 rounded-md border p-2 max-h-32 overflow-y-auto">
+                      {(workItem.tasks || []).map(task => (
+                      <div key={task.id} className="flex items-center text-xs">
+                          <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
+                          <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
+                          {task.text}
+                          </label>
+                      </div>
+                      ))}
+                      {(workItem.tasks || []).length === 0 && (
+                      <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
+                      )}
+                  </div>
+              </div>
+               <div className="space-y-2">
+                <Label className="text-xs font-semibold">All Tasks Completed?</Label>
+                <RadioGroup
+                  value={allTasksCompleted}
+                  onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
+                  className="flex items-center space-x-4 pt-1"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="tasks-yes" />
+                    <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="tasks-no" />
+                    <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              <div className="space-y-2">
+                  <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
+                  <Textarea
+                      id="notes-resolve-complete"
+                      placeholder="Add final notes..."
+                      value={resolveCompleteNotes}
+                      onChange={e => setResolveCompleteNotes(e.target.value)}
+                      className="text-xs min-h-[100px] mt-1"
+                  />
+              </div>
             </div>
           </div>
         );
@@ -625,7 +625,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="space-y-1">
                 <Label className="text-xs font-normal">Reason for pend</Label>
                 <Select onValueChange={setPendReason} value={pendReason}>
-                  <SelectTrigger className="text-xs h-9">
+                  <SelectTrigger className="text-xs h-8">
                     <SelectValue placeholder="Select reason..." />
                   </SelectTrigger>
                   <SelectContent>
