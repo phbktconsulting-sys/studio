@@ -261,7 +261,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             workItemUpdate.tasks = finalTasks;
             break;
         }
-        case 're-index': {
+       case 're-index': {
             if (!reindexNotes) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Notes are required for re-indexing.' });
                 return;
@@ -271,36 +271,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 return;
             }
 
-            if (reindexOption === 'initial') {
-                const newTasks = reindexTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false }));
-                workItemUpdate.status = 'Open';
-                workItemUpdate.process = reindexToProcess;
-                workItemUpdate.assignedTo = reindexToProcess; // Assign to the process name
-                workItemUpdate.tasks = [...(workItem.tasks || []), ...newTasks]; 
-                
-                noteText = `Case process changed to '${reindexToProcess}'. Reason: ${reindexNotes}`;
-                category = 'Process Change';
-                subjectForNote = 'PROCESS CHANGE';
-                
-                addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
-                    authorId: user.uid,
-                    text: noteText,
-                    createdAt: new Date().toISOString(),
-                    workItemId: workItem.id,
-                    category,
-                    subject: subjectForNote,
-                });
-                updateDocumentNonBlocking(workItemRef, workItemUpdate);
-                toast({ title: "Process Changed", description: "The work item's process has been updated and moved to the process queue." });
-                onCancel();
-                return;
-            }
-            
-            // Logic for "Re-index case myself"
+            const isAssigningToQueue = reindexOption === 'initial';
+            const assignedTo = isAssigningToQueue ? reindexToProcess : user.uid;
+
+            // Common payload for creating the new work item
             const reindexPayload = {
               process: reindexToProcess,
               urgency: workItem.urgency,
-              assignedTo: user.uid, // Assign to current user
+              assignedTo: assignedTo,
               createdBy: user.uid,
               relatedContact: workItem.relatedContact,
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
@@ -315,8 +293,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 throw new Error(newWorkItemResult.error || 'Failed to create new work item during re-index.');
             }
             
-            // Update old work item
-            const oldItemNoteText = `Case re-indexed to new Process '${reindexPayload.process}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexToProcess}. ${reindexNotes}`;
+            // Update old work item status to 'Re-indexed' and add a note
+            const oldItemNoteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
             
             addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
@@ -330,7 +308,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             await updateDoc(workItemRef, workItemUpdate);
 
             toast({ title: 'Work Item Re-Indexed', description: `Successfully created new work item ${newWorkItemResult.customId}.` });
-            openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
+            
+            if (!isAssigningToQueue) {
+              openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
+            }
             
             onCancel(); 
             return;
@@ -384,7 +365,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 title: 'Work Item Cloned',
                 description: `Successfully created new work item ${newWorkItemResult.customId}.`,
             });
-            openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
+
+            if (cloneOption === 'myself') {
+              openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
+            }
+
             onCancel(); 
             return; // Exit after handling
         }
