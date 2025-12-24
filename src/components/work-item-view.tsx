@@ -595,20 +595,24 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             return <p className="text-xs text-muted-foreground p-4 text-center">Loading users...</p>;
         }
         return (
-          <div className="grid grid-cols-['max-content'_1fr] items-center gap-x-4 gap-y-2">
-            <Label className="text-xs font-normal text-right">Transfer to User</Label>
-            <Select onValueChange={setTransferToUser} value={transferToUser}>
-              <SelectTrigger className="text-xs h-6">
-                <SelectValue placeholder="Select user..." />
-              </SelectTrigger>
-              <SelectContent>
-                 {users.map(user => (
-                  <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-transfer">Notes</Label>
-            <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[60px]" />
+          <div className="grid grid-cols-2 gap-4 items-start">
+            <div className="space-y-1">
+              <Label className="text-xs font-normal">Transfer to User</Label>
+              <Select onValueChange={setTransferToUser} value={transferToUser}>
+                <SelectTrigger className="text-xs h-8">
+                  <SelectValue placeholder="Select user..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map(user => (
+                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-normal" htmlFor="notes-transfer">Notes</Label>
+              <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[60px]" />
+            </div>
           </div>
         );
       case 'pend':
