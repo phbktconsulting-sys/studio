@@ -565,9 +565,18 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <SelectValue placeholder="Select reason..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Customer Request">Customer Request</SelectItem>
-                <SelectItem value="Potential Fraud">Potential Fraud</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
+                <SelectItem value="Duplicate Work Item">Duplicate Work Item</SelectItem>
+                <SelectItem value="Already Processed in Another Work Item">Already Processed in Another Work Item</SelectItem>
+                <SelectItem value="Previously Resolved">Previously Resolved</SelectItem>
+                <SelectItem value="Superseded by Newer Request">Superseded by Newer Request</SelectItem>
+                <SelectItem value="Handled Offline / Verbally">Handled Offline / Verbally</SelectItem>
+                <SelectItem value="Invalid Entry / Test Data">Invalid Entry / Test Data</SelectItem>
+                <SelectItem value="Accidental Creation">Accidental Creation</SelectItem>
+                <SelectItem value="Request No Longer Needed">Request No Longer Needed</SelectItem>
+                <SelectItem value="Out of Service Scope">Out of Service Scope</SelectItem>
+                <SelectItem value="System Auto-Generated Error">System Auto-Generated Error</SelectItem>
+                <SelectItem value="Information Insufficient to Process">Information Insufficient to Process</SelectItem>
+                <SelectItem value="Internal Decision no Longer Require">Internal Decision no Longer Require</SelectItem>
               </SelectContent>
             </Select>
             <Label className="text-xs font-normal text-right self-start" htmlFor="notes-terminate">Notes</Label>
