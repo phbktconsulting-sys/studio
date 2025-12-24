@@ -248,7 +248,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 toast({ variant: 'destructive', title: 'Error', description: 'Please select a process to re-index to.' });
                 return;
             }
-            category = 'Re-Indexed';
             
             const openTasksFromOldItem = (workItem.tasks || []).filter(t => !t.completed);
             
@@ -295,8 +294,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 text: oldItemNoteText,
                 createdAt: new Date().toISOString(),
                 workItemId: workItem.id,
-                category,
-                subject: subjectForNote,
+                category: 'Re-Indexed',
+                subject: 'RE-INDEX',
             });
 
             toast({
@@ -501,7 +500,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                  </div>
                  <div className="space-y-1">
                      <Label className="text-xs font-normal" htmlFor="notes-re-index">Note *</Label>
-                    <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[40px] h-8" />
+                    <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[60px]" />
                  </div>
             </div>
 
