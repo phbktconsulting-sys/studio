@@ -213,7 +213,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     if (!user || !firestore || !selectedAction) return;
 
     const workItemRef = doc(firestore, 'work_items', workItem.id);
-    const notesCollectionRef = collection(firestore, `work_items/${workItem.id}/notes`);
     
     let noteText = '';
     let category = '';
@@ -284,15 +283,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 throw new Error(newWorkItemResult.error || 'Failed to create new work item during re-index.');
             }
             
-            noteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
+            // This is the note for the OLD work item.
+            const oldItemNoteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
             workItemUpdate.lockInfo = null;
 
             // Log the re-index action on the OLD work item for traceability
-             addDocumentNonBlocking(notesCollectionRef, {
+             addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
                 authorId: user.uid,
                 author: user.displayName || user.email,
-                text: noteText,
+                text: oldItemNoteText,
                 createdAt: new Date().toISOString(),
                 workItemId: workItem.id,
                 category,
@@ -304,8 +304,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 description: `Successfully created new work item ${newWorkItemResult.customId}.`,
             });
             openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
-
-            break;
+            
+            // This action is special, it doesn't add another note, it just updates the old item's status.
+            updateDocumentNonBlocking(workItemRef, workItemUpdate);
+            onCancel(); // Hide form after submission
+            return; // Exit early
         }
         case 'terminate':
             category = 'Terminated';
@@ -327,19 +330,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             return;
         }
 
-        if (selectedAction !== 're-index') {
-          addDocumentNonBlocking(notesCollectionRef, {
-            authorId: user.uid,
-            author: user.displayName || user.email,
-            text: noteText,
-            createdAt: new Date().toISOString(),
-            workItemId: workItem.id,
-            category,
-            subject: subjectForNote,
-          });
-        }
+        addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
+          authorId: user.uid,
+          author: user.displayName || user.email,
+          text: noteText,
+          createdAt: new Date().toISOString(),
+          workItemId: workItem.id,
+          category,
+          subject: subjectForNote,
+        });
         
-        // Update the original work item status
         updateDocumentNonBlocking(workItemRef, workItemUpdate);
 
         toast({
@@ -362,21 +362,33 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-            <div>
-              <Label className="text-xs font-semibold">Tasks</Label>
-              <div className="mt-1 space-y-2 rounded-md border p-2 max-h-32 overflow-y-auto">
-                {(workItem.tasks || []).map(task => (
-                  <div key={task.id} className="flex items-center text-xs">
-                    <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
-                    <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
-                      {task.text}
-                    </label>
-                  </div>
-                ))}
-                {(workItem.tasks || []).length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
-                )}
-              </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <Label className="text-xs font-semibold">Tasks</Label>
+                    <div className="mt-1 space-y-2 rounded-md border p-2 max-h-32 overflow-y-auto">
+                        {(workItem.tasks || []).map(task => (
+                        <div key={task.id} className="flex items-center text-xs">
+                            <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
+                            <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
+                            {task.text}
+                            </label>
+                        </div>
+                        ))}
+                        {(workItem.tasks || []).length === 0 && (
+                        <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
+                        )}
+                    </div>
+                </div>
+                 <div>
+                    <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
+                    <Textarea
+                        id="notes-resolve-complete"
+                        placeholder="Add final notes..."
+                        value={resolveCompleteNotes}
+                        onChange={e => setResolveCompleteNotes(e.target.value)}
+                        className="text-xs min-h-[135px] mt-1"
+                    />
+                </div>
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-semibold">All Tasks Completed?</Label>
@@ -394,16 +406,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
                 </div>
               </RadioGroup>
-            </div>
-            <div>
-              <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
-              <Textarea
-                id="notes-resolve-complete"
-                placeholder="Add final notes..."
-                value={resolveCompleteNotes}
-                onChange={e => setResolveCompleteNotes(e.target.value)}
-                className="text-xs min-h-[60px] mt-1"
-              />
             </div>
           </div>
         );
