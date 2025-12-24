@@ -398,11 +398,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex gap-4">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="myself" id="reindex-myself" />
-                      <Label htmlFor="reindex-myself" className="font-normal">Re-index case myself</Label>
+                      <Label htmlFor="reindex-myself" className="font-normal h-8 flex items-center">Re-index case myself</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="initial" id="reindex-initial" />
-                      <Label htmlFor="reindex-initial" className="font-normal">Return to initial Indexing</Label>
+                      <Label htmlFor="reindex-initial" className="font-normal h-8 flex items-center">Return to initial Indexing</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -423,11 +423,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                    <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex gap-4">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="copy-yes" />
-                      <Label htmlFor="copy-yes" className="font-normal">Yes</Label>
+                      <Label htmlFor="copy-yes" className="font-normal h-8 flex items-center">Yes</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="no" id="copy-no" />
-                      <Label htmlFor="copy-no" className="font-normal">No</Label>
+                      <Label htmlFor="copy-no" className="font-normal h-8 flex items-center">No</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -499,33 +499,33 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'pend':
         return (
-          <div className="grid grid-cols-2 gap-x-8">
+          <div className="grid grid-cols-3 gap-x-8">
             <div className="space-y-4">
                 <div className="space-y-2">
                     <Label className="text-xs font-semibold">Pend until date</Label>
                     <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
                 </div>
-                 <div className="space-y-2">
-                    <Label className="text-xs font-semibold">Reason for pend</Label>
-                    <Select onValueChange={setPendReason} value={pendReason}>
-                      <SelectTrigger className="text-xs h-8">
-                        <SelectValue placeholder="Select reason..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Pending Internal Action">Pending Internal Action</SelectItem>
-                        <SelectItem value="Awaiting Other Team Response">Awaiting Other Team Response</SelectItem>
-                        <SelectItem value="Awaiting Client Feedback">Awaiting Client Feedback</SelectItem>
-                        <SelectItem value="Blocked by Another Task">Blocked by Another Task</SelectItem>
-                        <SelectItem value="Pending Final Review">Pending Final Review</SelectItem>
-                        <SelectItem value="Scheduled for Later">Scheduled for Later</SelectItem>
-                        <SelectItem value="Under Technical Investigation">Under Technical Investigation</SelectItem>
-                        <SelectItem value="Clarification Needed">Clarification Needed</SelectItem>
-                        <SelectItem value="On Hold by Request">On Hold by Request</SelectItem>
-                        <SelectItem value="Awaiting Developer Action">Awaiting Developer Action</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                </div>
+              </div>
+            <div className="space-y-2">
+                <Label className="text-xs font-semibold">Reason for pend</Label>
+                <Select onValueChange={setPendReason} value={pendReason}>
+                  <SelectTrigger className="text-xs h-8">
+                    <SelectValue placeholder="Select reason..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pending Internal Action">Pending Internal Action</SelectItem>
+                    <SelectItem value="Awaiting Other Team Response">Awaiting Other Team Response</SelectItem>
+                    <SelectItem value="Awaiting Client Feedback">Awaiting Client Feedback</SelectItem>
+                    <SelectItem value="Blocked by Another Task">Blocked by Another Task</SelectItem>
+                    <SelectItem value="Pending Final Review">Pending Final Review</SelectItem>
+                    <SelectItem value="Scheduled for Later">Scheduled for Later</SelectItem>
+                    <SelectItem value="Under Technical Investigation">Under Technical Investigation</SelectItem>
+                    <SelectItem value="Clarification Needed">Clarification Needed</SelectItem>
+                    <SelectItem value="On Hold by Request">On Hold by Request</SelectItem>
+                    <SelectItem value="Awaiting Developer Action">Awaiting Developer Action</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
             </div>
              <div className="space-y-2">
                 <Label className="text-xs font-semibold" htmlFor="notes-pend">Notes</Label>
