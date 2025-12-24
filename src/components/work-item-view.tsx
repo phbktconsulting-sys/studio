@@ -349,7 +349,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <RadioGroup
                     value={allTasksCompleted}
                     onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
-                    className="flex items-center space-x-4 pt-1 h-7"
+                    className="flex items-center space-x-4 h-7"
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="tasks-yes" />
@@ -455,6 +455,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                                     {(processTaskMap[reindexToProcess] || []).map((task) => (
                                     <CommandItem
                                         key={task}
+                                        className="text-xs"
                                         onSelect={() => {
                                             const isSelected = reindexTasks.includes(task);
                                             const newTasks = isSelected
@@ -1068,18 +1069,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-    
