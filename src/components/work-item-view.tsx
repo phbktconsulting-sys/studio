@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
-import { collection, doc, query, orderBy, limit, where, getDocs } from 'firebase/firestore';
+import { collection, doc, query, orderBy, limit, where, getDocs, updateDoc } from 'firebase/firestore';
 import {
   Table,
   TableBody,
@@ -327,7 +327,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 category: 'Re-Indexed',
                 subject: 'RE-INDEX',
             });
-            updateDocumentNonBlocking(workItemRef, workItemUpdate);
+            await updateDoc(workItemRef, workItemUpdate);
 
             toast({ title: 'Work Item Re-Indexed', description: `Successfully created new work item ${newWorkItemResult.customId}.` });
             openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
@@ -1041,7 +1041,9 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       timestamp: new Date().toISOString(),
     };
     
-    if (item.assignedTo !== currentUser.uid) {
+    const isAssignedToProcess = item.assignedTo.length < 20;
+
+    if (isAssignedToProcess || item.assignedTo !== currentUser.uid) {
       updateDocumentNonBlocking(workItemRef, {
         assignedTo: currentUser.uid,
         updatedAt: new Date().toISOString(),
@@ -1050,7 +1052,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
 
       addDocumentNonBlocking(collection(firestore, `work_items/${item.id}/notes`), {
         authorId: currentUser.uid,
-        text: `Work item taken over from ${assignedUser?.displayName || item.assignedTo} by ${currentUser.displayName}.`,
+        text: `Work item taken over from ${isAssignedToProcess ? `process queue '${item.assignedTo}'` : (assignedUser?.displayName || item.assignedTo)} by ${currentUser.displayName}.`,
         createdAt: new Date().toISOString(),
         workItemId: item.id,
         category: 'Assignment',
@@ -1058,8 +1060,8 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       });
       
       toast({
-          title: "Case Reassigned",
-          description: `Case ${item.customId} has been reassigned to you.`,
+          title: "Case Assigned to You",
+          description: `You have taken ownership of case ${item.customId}.`,
       });
 
     } else {
