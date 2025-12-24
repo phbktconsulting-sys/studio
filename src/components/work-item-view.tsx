@@ -224,6 +224,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               toast({ variant: 'destructive', title: 'Action Required', description: 'You must confirm all tasks are completed before resolving.' });
               return;
             }
+             if (!resolveCompleteNotes) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Notes are required.' });
+                return;
+            }
             const completedTasks = workItem.tasks.map(task => ({
               ...task,
               completed: true,
@@ -300,6 +304,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               toast({ variant: 'destructive', title: 'Error', description: 'A reason is required to terminate.' });
               return;
             }
+            if (!terminateNotes) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Notes are required.' });
+                return;
+            }
             category = 'Terminated';
             noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
             workItemUpdate.status = 'Closed';
@@ -310,6 +318,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               toast({ variant: 'destructive', title: 'Error', description: 'You must select a user to transfer to.' });
               return;
             }
+            if (!transferNotes) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Notes are required.' });
+                return;
+            }
             category = 'Transferred';
             noteText = `${transferNotes}`;
             workItemUpdate.assignedTo = transferToUser;
@@ -318,6 +330,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             if (!pendReason) {
               toast({ variant: 'destructive', title: 'Error', description: 'A reason is required to pend.' });
               return;
+            }
+             if (!pendNotes) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Notes are required.' });
+                return;
             }
             category = 'Pended';
             noteText = `Pend until: ${pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A'}. Reason: ${pendReason}. ${pendNotes}`;
@@ -397,7 +413,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
              <div className="flex items-start">
-                <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-resolve-complete">Notes</Label>
+                <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-resolve-complete">Notes<span className="text-destructive">*</span></Label>
                  <div className="w-3/5">
                     <Textarea
                         id="notes-resolve-complete"
@@ -561,7 +577,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </div>
             </div>
             <div className="flex items-start">
-                <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-terminate">Notes</Label>
+                <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-terminate">Notes<span className="text-destructive">*</span></Label>
                  <div className="w-3/5">
                     <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[60px]" />
                 </div>
@@ -593,7 +609,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-transfer">Notes</Label>
+              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-transfer">Notes<span className="text-destructive">*</span></Label>
               <div className="w-3/5">
                 <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[60px]" />
               </div>
@@ -633,7 +649,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-pend">Notes</Label>
+              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-pend">Notes<span className="text-destructive">*</span></Label>
               <div className="w-3/5">
                 <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[60px]" />
               </div>
