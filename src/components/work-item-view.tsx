@@ -154,7 +154,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   
   // Form field states
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
-  const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
 
   const [reindexToProcess, setReindexToProcess] = useState('');
   const [reindexReason, setReindexReason] = useState('');
@@ -199,9 +198,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     return actionMap[actionValue] || 'VERIFY CUSTOMER AUTHORITY';
   }
 
-  const handleTaskToggle = (taskId: string) => {
-    setCompletedTasks(prev => ({ ...prev, [taskId]: !prev[taskId] }));
-  };
   
   const handleReindexProcessChange = (process: string) => {
       setReindexToProcess(process);
@@ -228,25 +224,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         switch(selectedAction) {
         case 'resolve-complete': {
             category = 'Resolved/Completed';
-            const now = new Date().toISOString();
-            const completedTaskIds = Object.keys(completedTasks).filter(id => completedTasks[id]);
-            const completedTaskTexts = (workItem.tasks || []).filter(t => completedTaskIds.includes(t.id)).map(t => t.text);
-
-            const updatedTasks = (workItem.tasks || []).map(task => {
-                if (completedTaskIds.includes(task.id) && !task.completed) {
-                    return {
-                        ...task,
-                        completed: true,
-                        completedBy: user.uid,
-                        completedAt: now,
-                    };
-                }
-                return task;
-            });
-
-            noteText = `Work item resolved. Completed tasks: [${completedTaskTexts.join(', ') || 'None'}]. ${resolveCompleteNotes}`;
+            noteText = `Work item resolved. ${resolveCompleteNotes}`;
             workItemUpdate.status = 'Closed';
-            workItemUpdate.tasks = updatedTasks;
             workItemUpdate.lockInfo = null;
             break;
         }
@@ -323,7 +302,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         // 1. Add the note to the original work item
         addDocumentNonBlocking(notesCollectionRef, {
         authorId: user.uid,
-        author: user.displayName || user.email || 'System',
+        author: user.displayName || user.email,
         text: noteText,
         createdAt: new Date().toISOString(),
         workItemId: workItem.id,
@@ -364,23 +343,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           }
           return (
             <div className="space-y-4">
-              <div>
-                <Label className="text-xs font-semibold">Complete Tasks</Label>
-                <div className="mt-2 space-y-2 rounded-md border p-2">
-                  {openTasks.map(task => (
-                    <div key={task.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`task-complete-${task.id}`}
-                        checked={!!completedTasks[task.id]}
-                        onCheckedChange={() => handleTaskToggle(task.id)}
-                      />
-                      <label htmlFor={`task-complete-${task.id}`} className="text-xs text-muted-foreground">
-                        {task.text}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <p className="text-xs text-muted-foreground">This action will close the work item. No tasks need to be completed.</p>
               <div>
                 <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
                 <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} className="text-xs min-h-[60px] mt-1" />
