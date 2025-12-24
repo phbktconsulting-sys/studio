@@ -168,6 +168,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [cloneToProcess, setCloneToProcess] = useState('');
   const [cloneTasks, setCloneTasks] = useState<string[]>([]);
   const [cloneNotes, setCloneNotes] = useState('');
+  const [cloneOption, setCloneOption] = useState<'myself' | 'initial'>('myself');
 
 
   const [terminateReason, setTerminateReason] = useState('');
@@ -343,11 +344,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 toast({ variant: 'destructive', title: 'Error', description: 'Notes are required for cloning.' });
                 return;
             }
+            
+            const assignedTo = cloneOption === 'myself' ? user.uid : cloneToProcess;
 
             const clonePayload = {
                 process: cloneToProcess,
                 urgency: workItem.urgency,
-                assignedTo: user.uid,
+                assignedTo: assignedTo,
                 createdBy: user.uid,
                 relatedContact: workItem.relatedContact,
                 overview: `Cloned from ${workItem.customId}. Original overview: ${workItem.overview}`,
@@ -647,6 +650,21 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2">
             <div className="flex items-center">
+              <Label className="w-1/4 text-xs font-semibold">Clone Option<span className="text-destructive">*</span></Label>
+              <div className="w-3/4">
+                <RadioGroup value={cloneOption} onValueChange={(v) => setCloneOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="myself" id="clone-myself" />
+                    <Label htmlFor="clone-myself" className="flex h-7 items-center text-xs font-normal">Clone case myself</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="initial" id="clone-initial" />
+                    <Label htmlFor="clone-initial" className="flex h-7 items-center text-xs font-normal">Return to initial Indexing</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+            <div className="flex items-center">
               <Label className="w-1/4 text-xs font-semibold">New Process<span className="text-destructive">*</span></Label>
               <div className="w-1/4">
                 <Select onValueChange={(value) => { setCloneToProcess(value); setCloneTasks([]); }} value={cloneToProcess}>
@@ -719,7 +737,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           <div className="space-y-2">
             <div className="flex items-center">
                 <Label className="w-1/4 text-xs font-semibold">Reason<span className="text-destructive">*</span></Label>
-                <div className="w-1/4">
+                <div className="w-2/5">
                   <Select onValueChange={setTerminateReason} value={terminateReason}>
                     <SelectTrigger className="h-7 text-xs">
                         <SelectValue placeholder="Select reason..." />
@@ -1112,7 +1130,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pt-0 sm:px-6">
-         <div className="mb-4 mt-4">
+         <div className="my-2">
             <h2 className="text-base font-semibold">Processes</h2>
             <Separator className="h-[2px] bg-[#A60A0A]" />
              {isVerifyingAuthority ? (
