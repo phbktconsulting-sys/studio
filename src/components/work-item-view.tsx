@@ -388,12 +388,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-               <div className="flex items-start">
+              <div className="flex items-start">
                   <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
                    <div className="w-2/5">
-                        <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
+                        <div className="mt-1 flex flex-col space-y-1 rounded-md border p-2 overflow-y-auto max-h-28">
                         {(workItem.tasks || []).length > 0 ? (
-                            <div className="space-y-2">
+                            <div className="space-y-1">
                                 {workItem.tasks.map(task => (
                                     <div key={task.id} className="flex items-center gap-1.5">
                                         <Checkbox
@@ -950,7 +950,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             ) : isLockedByOther ? (
                 <CaseLockedInfo lockInfo={item.lockInfo!} />
             ) : (
-                <div className="flex items-center gap-4 py-2 text-sm">
+                <div className="my-2 flex items-center gap-4 text-sm">
                     <span className="font-medium">Assigned To:</span>
                     <span>{assignedUser?.displayName || '...'}</span>
                     <Button onClick={handleVerifyClick} className="h-7 bg-black text-white hover:bg-black/80 text-xs">
