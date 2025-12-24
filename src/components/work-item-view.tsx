@@ -950,7 +950,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             ) : isLockedByOther ? (
                 <CaseLockedInfo lockInfo={item.lockInfo!} />
             ) : (
-                <div className="flex items-center gap-4 py-2 text-sm">
+                <div className="flex items-center justify-center gap-4 py-2 text-sm">
                     <span className="font-medium">Assigned To:</span>
                     <span>{assignedUser?.displayName || '...'}</span>
                     <Button onClick={handleVerifyClick} className="h-7 bg-black text-white hover:bg-black/80 text-xs">
