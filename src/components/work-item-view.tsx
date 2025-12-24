@@ -274,7 +274,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             const isAssigningToQueue = reindexOption === 'initial';
             const assignedTo = isAssigningToQueue ? reindexToProcess : user.uid;
 
-            // Common payload for creating the new work item
             const reindexPayload = {
               process: reindexToProcess,
               urgency: workItem.urgency,
@@ -293,23 +292,21 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 throw new Error(newWorkItemResult.error || 'Failed to create new work item during re-index.');
             }
             
-            // Update old work item status to 'Re-indexed' and add a note
-            const oldItemNoteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
+            await updateDoc(workItemRef, workItemUpdate);
             
             addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
                 authorId: user.uid,
-                text: oldItemNoteText,
+                text: `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexNotes}`,
                 createdAt: new Date().toISOString(),
                 workItemId: workItem.id,
                 category: 'Re-Indexed',
                 subject: 'RE-INDEX',
             });
-            await updateDoc(workItemRef, workItemUpdate);
 
             toast({ title: 'Work Item Re-Indexed', description: `Successfully created new work item ${newWorkItemResult.customId}.` });
             
-            if (!isAssigningToQueue) {
+            if (reindexOption === 'myself') {
               openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
             }
             
@@ -336,7 +333,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 relatedContact: workItem.relatedContact,
                 overview: `Cloned from ${workItem.customId}. Original overview: ${workItem.overview}`,
                 tasks: cloneTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
-                sourceWorkItemId: workItem.id, // This will copy the notes
+                sourceWorkItemId: workItem.id,
                 reindexReason: 'Cloned',
                 reindexNote: `Cloned from Case ID: ${workItem.customId}. ${cloneNotes}`,
             };
@@ -347,7 +344,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 throw new Error(newWorkItemResult.error || 'Failed to create cloned work item.');
             }
 
-            // Add a note to the original work item, but do not change its status.
             addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
                 authorId: user.uid,
                 author: user.displayName || user.email,
@@ -358,7 +354,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 subject: 'CLONE',
             });
             
-            // Only unlock the original item. Its status remains unchanged.
              updateDocumentNonBlocking(workItemRef, { lockInfo: null, updatedAt: new Date().toISOString() });
 
             toast({
