@@ -349,7 +349,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <RadioGroup
                     value={allTasksCompleted}
                     onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
-                    className="flex items-center space-x-4 pt-1 h-8"
+                    className="flex items-center space-x-4 pt-1 h-7"
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="tasks-yes" />
@@ -388,7 +388,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                         placeholder="Add final notes..."
                         value={resolveCompleteNotes}
                         onChange={e => setResolveCompleteNotes(e.target.value)}
-                        className="text-xs min-h-[100px] mt-1"
+                        className="text-xs min-h-[80px] mt-1"
                     />
                 </div>
             </div>
@@ -400,14 +400,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-center">
               <Label className="w-1/4 font-semibold text-xs">Re-index Option<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
-                <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex gap-4 h-8 items-center">
+                <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex gap-4 h-7 items-center">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="myself" id="reindex-myself" />
-                    <Label htmlFor="reindex-myself" className="font-normal h-8 flex items-center text-xs">Re-index case myself</Label>
+                    <Label htmlFor="reindex-myself" className="font-normal h-7 flex items-center text-xs">Re-index case myself</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="initial" id="reindex-initial" />
-                    <Label htmlFor="reindex-initial" className="font-normal h-8 flex items-center text-xs">Return to initial Indexing</Label>
+                    <Label htmlFor="reindex-initial" className="font-normal h-7 flex items-center text-xs">Return to initial Indexing</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -416,7 +416,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               <Label className="w-1/4 font-semibold text-xs">Reason<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                   <Select onValueChange={setReindexReason} value={reindexReason}>
-                    <SelectTrigger className="text-xs h-8">
+                    <SelectTrigger className="text-xs h-7">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -429,14 +429,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
              <div className="flex items-center">
               <Label className="w-1/4 font-semibold text-xs">Copy notes to new case?</Label>
               <div className="w-1/3">
-                 <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex gap-4 h-8 items-center">
+                 <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex gap-4 h-7 items-center">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="yes" id="copy-yes" />
-                    <Label htmlFor="copy-yes" className="font-normal h-8 flex items-center text-xs">Yes</Label>
+                    <Label htmlFor="copy-yes" className="font-normal h-7 flex items-center text-xs">Yes</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="no" id="copy-no" />
-                    <Label htmlFor="copy-no" className="font-normal h-8 flex items-center text-xs">No</Label>
+                    <Label htmlFor="copy-no" className="font-normal h-7 flex items-center text-xs">No</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -444,7 +444,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
               <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-re-index">Note<span className="text-destructive">*</span></Label>
               <div className="w-3/5">
-                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[100px]" />
+                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[80px]" />
               </div>
             </div>
           </div>
@@ -456,7 +456,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <Label className="w-1/4 font-semibold text-xs">Reason</Label>
                 <div className="w-1/3">
                   <Select onValueChange={setTerminateReason} value={terminateReason}>
-                    <SelectTrigger className="text-xs h-8">
+                    <SelectTrigger className="text-xs h-7">
                         <SelectValue placeholder="Select reason..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -479,7 +479,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
                 <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-terminate">Notes</Label>
                  <div className="w-3/5">
-                    <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[100px]" />
+                    <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[80px]" />
                 </div>
             </div>
           </div>
@@ -497,7 +497,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               <Label className="w-1/4 font-semibold text-xs">Transfer to User</Label>
               <div className="w-1/3">
                 <Select onValueChange={setTransferToUser} value={transferToUser}>
-                  <SelectTrigger className="text-xs h-8">
+                  <SelectTrigger className="text-xs h-7">
                     <SelectValue placeholder="Select user..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -511,7 +511,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
               <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-transfer">Notes</Label>
               <div className="w-3/5">
-                <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[100px]" />
+                <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[80px]" />
               </div>
             </div>
           </div>
@@ -529,7 +529,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               <Label className="w-1/4 font-semibold text-xs">Reason for pend</Label>
               <div className="w-1/3">
                 <Select onValueChange={setPendReason} value={pendReason}>
-                  <SelectTrigger className="text-xs h-8">
+                  <SelectTrigger className="text-xs h-7">
                     <SelectValue placeholder="Select reason..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -551,7 +551,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
               <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-pend">Notes</Label>
               <div className="w-3/5">
-                <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[100px]" />
+                <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[80px]" />
               </div>
             </div>
           </div>
@@ -1021,6 +1021,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
 
 
 
