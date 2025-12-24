@@ -402,7 +402,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                         placeholder="Add final notes..."
                         value={resolveCompleteNotes}
                         onChange={e => setResolveCompleteNotes(e.target.value)}
-                        className="text-xs min-h-[140px] mt-1"
+                        className="text-xs min-h-[100px] mt-1"
                     />
                 </div>
             </div>
@@ -611,7 +611,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
             <div className="space-y-1">
               <Label className="text-xs font-normal" htmlFor="notes-transfer">Notes</Label>
-              <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[60px]" />
+              <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[100px]" />
             </div>
           </div>
         );
@@ -632,7 +632,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </SelectContent>
             </Select>
             <Label className="text-xs font-normal text-right self-start" htmlFor="notes-pend">Notes</Label>
-            <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[60px]" />
+            <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[100px]" />
           </div>
         );
       default:
