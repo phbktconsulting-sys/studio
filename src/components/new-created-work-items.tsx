@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -53,7 +54,8 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
     return query(
       collection(firestore, 'work_items'),
       where('createdAt', '>=', todayStart),
-      where('createdAt', '<=', todayEnd)
+      where('createdAt', '<=', todayEnd),
+      where('status', '==', 'Open')
     );
   }, [firestore, todayStart, todayEnd]);
 
@@ -79,7 +81,15 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
   };
   
   const sortedItems = useMemo(() => {
-    return workItems?.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
+    if (!workItems) return [];
+
+    const unassignedItems = workItems.filter(item => {
+        // Heuristic: User UIDs are long (28 chars), process names are shorter.
+        // This filters for items assigned to a process queue.
+        return item.assignedTo.length < 28;
+    });
+
+    return unassignedItems.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
   }, [workItems]);
 
   const isLoading = workItemsLoading || usersLoading;
@@ -93,9 +103,9 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
             <span className="sr-only">Back</span>
           </Button>
           <div>
-            <h1 className="font-headline text-lg font-bold tracking-tight">New Work Items</h1>
+            <h1 className="font-headline text-lg font-bold tracking-tight">New Unassigned Work Items</h1>
             <p className="text-xs text-muted-foreground">
-              Showing work items created today, {format(new Date(), 'PPP')}.
+              Showing open, unassigned work items created today, {format(new Date(), 'PPP')}.
             </p>
           </div>
         </div>
@@ -109,7 +119,7 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
               <TableHead className="w-[150px] text-xs">Process</TableHead>
               <TableHead className="w-[150px] text-xs">Status</TableHead>
               <TableHead className="w-[180px] text-xs">Created By</TableHead>
-              <TableHead className="w-[180px] text-xs">Assigned To</TableHead>
+              <TableHead className="w-[180px] text-xs">Assigned To Queue</TableHead>
               <TableHead className="w-[180px] text-xs">Created At</TableHead>
             </TableRow>
           </TableHeader>
@@ -124,7 +134,7 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
             {!isLoading && sortedItems.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-muted-foreground py-4 text-xs">
-                  No work items have been created today.
+                  No open, unassigned work items have been created today.
                 </TableCell>
               </TableRow>
             )}
@@ -138,7 +148,7 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
                     <StatusBadge status={item.status} />
                   </TableCell>
                   <TableCell className="text-xs py-1 px-4">{usersMap.get(item.createdBy) || item.createdBy}</TableCell>
-                  <TableCell className="text-xs py-1 px-4">{usersMap.get(item.assignedTo) || item.assignedTo}</TableCell>
+                  <TableCell className="text-xs py-1 px-4">{item.assignedTo}</TableCell>
                   <TableCell className="text-xs py-1 px-4">{format(new Date(item.createdAt), 'p')}</TableCell>
                 </TableRow>
               ))}
