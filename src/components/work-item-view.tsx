@@ -375,9 +375,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-2">
-             <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks<span className="text-destructive">*</span></Label>
-              <div className="w-3/4">
+            <div className="flex items-start">
+              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
+              <div className="w-2/5">
                   <div className="mt-1 grid grid-cols-2 gap-x-4 rounded-md border p-2 overflow-y-auto max-h-28">
                       {(workItem.tasks || []).length > 0 ? (
                         workItem.tasks.map(task => (
@@ -461,7 +461,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
               <div className="flex w-3/4 items-start gap-2">
                   <div className="w-1/2">
                       <Popover>
@@ -526,7 +526,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
              <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">Copy notes to new case?<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 text-xs font-semibold">Copy notes to new case?</Label>
               <div className="w-3/4">
                  <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
                   <div className="flex items-center space-x-2">
