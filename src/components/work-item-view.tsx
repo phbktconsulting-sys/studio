@@ -396,8 +396,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
             <div className="flex items-start">
               <Label className="w-1/4 font-semibold pt-1 text-xs">Tasks</Label>
-              <div className="w-1/3">
-                  <div className="mt-1 space-y-2 rounded-md border p-2 h-28 overflow-y-auto">
+              <div className="w-3/5">
+                  <div className="mt-1 grid grid-cols-3 gap-x-4 gap-y-2 rounded-md border p-2 h-28 overflow-y-auto">
                       {(workItem.tasks || []).map(task => (
                       <div key={task.id} className="flex items-center text-xs">
                           <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
@@ -407,7 +407,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       </div>
                       ))}
                       {(workItem.tasks || []).length === 0 && (
-                      <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
+                      <p className="text-xs text-muted-foreground text-center py-2 col-span-3">No tasks assigned.</p>
                       )}
                   </div>
               </div>
