@@ -388,9 +388,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-              <div className="flex items-start">
-                  <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-                   <div className="w-2/5">
+               <div className="flex items-start">
+                    <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
+                    <div className="w-2/5">
                         <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
                         {(workItem.tasks || []).length > 0 ? (
                             <div className="space-y-2">
@@ -415,7 +415,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                         )}
                         </div>
                     </div>
-              </div>
+                </div>
               <div className="flex items-center">
                   <Label className="w-1/4 text-xs font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
                   <div className="w-3/4">
@@ -826,6 +826,7 @@ function CaseLockedInfo({ lockInfo }: { lockInfo: WorkItem['lockInfo'] }) {
 
 export function WorkItemView({ workItemId, customId }: { workItemId: string, customId: string }) {
   const { firestore, user: currentUser } = useFirebase();
+  const { toast } = useToast();
   const [isVerifyingAuthority, setIsVerifyingAuthority] = useState(false);
 
   const workItemRef = useMemoFirebase(() => {
@@ -865,15 +866,41 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   const caseAge = item ? differenceInDays(new Date(), parseISO(item.createdAt)) : 0;
   
   const handleVerifyClick = () => {
-    if (!item || !currentUser || !workItemRef) return;
-    
-    // Case is not locked, so lock it for the current user
+    if (!item || !currentUser || !workItemRef || !firestore) return;
+
     const lockInfo = {
-        userId: currentUser.uid,
-        userName: currentUser.displayName || 'Unknown User',
-        timestamp: new Date().toISOString()
+      userId: currentUser.uid,
+      userName: currentUser.displayName || 'Unknown User',
+      timestamp: new Date().toISOString(),
     };
-    updateDocumentNonBlocking(workItemRef, { lockInfo });
+    
+    // If the case is assigned to someone else, reassign it to the current user
+    if (item.assignedTo !== currentUser.uid) {
+      updateDocumentNonBlocking(workItemRef, {
+        assignedTo: currentUser.uid,
+        updatedAt: new Date().toISOString(),
+        lockInfo: lockInfo,
+      });
+
+      addDocumentNonBlocking(collection(firestore, `work_items/${item.id}/notes`), {
+        authorId: currentUser.uid,
+        text: `Work item taken over from ${assignedUser?.displayName || item.assignedTo} by ${currentUser.displayName}.`,
+        createdAt: new Date().toISOString(),
+        workItemId: item.id,
+        category: 'Assignment',
+        subject: 'Work Item Takeover',
+      });
+      
+      toast({
+          title: "Case Reassigned",
+          description: `Case ${item.customId} has been reassigned to you.`,
+      });
+
+    } else {
+        // Case is already assigned to current user, just lock it
+        updateDocumentNonBlocking(workItemRef, { lockInfo });
+    }
+
     setIsVerifyingAuthority(true);
   };
   
