@@ -375,6 +375,23 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-2">
+             <div className="flex items-start">
+              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks<span className="text-destructive">*</span></Label>
+              <div className="w-3/4">
+                  <div className="mt-1 grid grid-cols-2 gap-x-4 rounded-md border p-2 overflow-y-auto max-h-28">
+                      {(workItem.tasks || []).length > 0 ? (
+                        workItem.tasks.map(task => (
+                          <div key={task.id} className="flex items-center gap-1.5 py-0.5">
+                            {task.completed ? <Check className="h-3 w-3 text-green-600" /> : <X className="h-3 w-3 text-red-500" />}
+                            <span className={cn("text-xs", task.completed && "line-through text-muted-foreground")}>{task.text}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="w-full text-center text-xs text-muted-foreground col-span-2">No tasks assigned.</p>
+                      )}
+                  </div>
+              </div>
+            </div>
             <div className="flex items-center">
               <Label className="w-1/4 pt-1 text-xs font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
@@ -392,23 +409,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
                     </div>
                   </RadioGroup>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks<span className="text-destructive">*</span></Label>
-              <div className="w-3/4">
-                  <div className="mt-1 flex flex-wrap gap-2 rounded-md border p-2 overflow-y-auto max-h-28">
-                      {(workItem.tasks || []).length > 0 ? (
-                        workItem.tasks.map(task => (
-                          <Badge key={task.id} variant={task.completed ? "default" : "secondary"} className="flex items-center gap-1.5 text-xs py-1 whitespace-nowrap">
-                            {task.completed && <Check className="h-3 w-3" />}
-                            <span className={cn(task.completed && "line-through text-muted-foreground")}>{task.text}</span>
-                          </Badge>
-                        ))
-                      ) : (
-                        <p className="w-full text-center text-xs text-muted-foreground">No tasks assigned.</p>
-                      )}
-                  </div>
               </div>
             </div>
              <div className="flex items-start">
