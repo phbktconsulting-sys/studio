@@ -164,6 +164,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [reindexNotes, setReindexNotes] = useState('');
   const [shouldCopyNotes, setShouldCopyNotes] = useState<'yes' | 'no'>('yes');
   const [reindexOption, setReindexOption] = useState<'myself' | 'initial'>('myself');
+  
+  const [cloneToProcess, setCloneToProcess] = useState('');
+  const [cloneTasks, setCloneTasks] = useState<string[]>([]);
+  const [cloneNotes, setCloneNotes] = useState('');
 
 
   const [terminateReason, setTerminateReason] = useState('');
@@ -196,6 +200,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     const actionMap: { [key: string]: string } = {
         'resolve-complete': 'RESOLVE COMPLETE',
         're-index': 'RE-INDEX',
+        'clone': 'CLONE WORK ITEM',
         'terminate': 'TERMINATE',
         'transfer': 'TRANSFER',
         'pend': 'PEND'
@@ -312,6 +317,57 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             onCancel(); 
             return;
         }
+        case 'clone': {
+            if (!cloneToProcess) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Please select a process for cloning.' });
+                return;
+            }
+             if (!cloneNotes) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Notes are required for cloning.' });
+                return;
+            }
+
+            const clonePayload = {
+                process: cloneToProcess,
+                urgency: workItem.urgency,
+                assignedTo: user.uid,
+                createdBy: user.uid,
+                relatedContact: workItem.relatedContact,
+                overview: `Cloned from ${workItem.customId}. Original overview: ${workItem.overview}`,
+                tasks: cloneTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
+                sourceWorkItemId: workItem.id, // This will copy the notes
+                reindexReason: 'Cloned',
+                reindexNote: `Cloned from Case ID: ${workItem.customId}. ${cloneNotes}`,
+            };
+            
+            const newWorkItemResult = await createWorkItem(clonePayload);
+
+            if (!newWorkItemResult.id || !newWorkItemResult.customId) {
+                throw new Error(newWorkItemResult.error || 'Failed to create cloned work item.');
+            }
+
+            // Add a note to the original work item, but do not change its status.
+            addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
+                authorId: user.uid,
+                author: user.displayName || user.email,
+                text: `Case cloned to new work item: ${newWorkItemResult.customId}. Reason: ${cloneNotes}`,
+                createdAt: new Date().toISOString(),
+                workItemId: workItem.id,
+                category: 'Cloned',
+                subject: 'CLONE',
+            });
+            
+            // Only unlock the original item. Its status remains unchanged.
+             updateDocumentNonBlocking(workItemRef, { lockInfo: null, updatedAt: new Date().toISOString() });
+
+            toast({
+                title: 'Work Item Cloned',
+                description: `Successfully created new work item ${newWorkItemResult.customId}.`,
+            });
+            openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
+            onCancel(); 
+            return; // Exit after handling
+        }
         case 'terminate':
             if (!terminateReason) {
               toast({ variant: 'destructive', title: 'Error', description: 'A reason is required to terminate.' });
@@ -388,34 +444,34 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-               <div className="flex items-start">
-                    <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-                    <div className="w-2/5">
-                        <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
-                        {(workItem.tasks || []).length > 0 ? (
-                            <div className="space-y-2">
-                                {workItem.tasks.map(task => (
-                                    <div key={task.id} className="flex items-center gap-1.5">
-                                        <Checkbox
-                                            id={`task-resolve-${task.id}`}
-                                            checked={completedTasks.has(task.id)}
-                                            onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
-                                        />
-                                        <label
-                                        htmlFor={`task-resolve-${task.id}`}
-                                        className="text-xs font-normal cursor-pointer"
-                                        >
-                                        {task.text}
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="w-full text-center text-xs text-muted-foreground">No tasks assigned.</p>
-                        )}
-                        </div>
-                    </div>
-                </div>
+              <div className="flex items-start">
+                  <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
+                  <div className="w-2/5">
+                      <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
+                      {(workItem.tasks || []).length > 0 ? (
+                          <div className="space-y-2">
+                              {workItem.tasks.map(task => (
+                                  <div key={task.id} className="flex items-center gap-1.5">
+                                      <Checkbox
+                                          id={`task-resolve-${task.id}`}
+                                          checked={completedTasks.has(task.id)}
+                                          onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
+                                      />
+                                      <label
+                                      htmlFor={`task-resolve-${task.id}`}
+                                      className="text-xs font-normal cursor-pointer"
+                                      >
+                                      {task.text}
+                                      </label>
+                                  </div>
+                              ))}
+                          </div>
+                      ) : (
+                          <p className="w-full text-center text-xs text-muted-foreground">No tasks assigned.</p>
+                      )}
+                      </div>
+                  </div>
+              </div>
               <div className="flex items-center">
                   <Label className="w-1/4 text-xs font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
                   <div className="w-3/4">
@@ -568,6 +624,77 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
           </div>
         );
+      case 'clone':
+        return (
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <Label className="w-1/4 text-xs font-semibold">New Process<span className="text-destructive">*</span></Label>
+              <div className="w-1/4">
+                <Select onValueChange={(value) => { setCloneToProcess(value); setCloneTasks([]); }} value={cloneToProcess}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="Select a new process..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {processTypes.map((process) => (
+                      <SelectItem key={process} value={process} className="text-xs">{process}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+             <div className="flex items-start">
+              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
+              <div className="flex w-3/4 items-start gap-2">
+                <div className="w-1/2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" role="combobox" className={cn("w-full justify-between h-7 text-xs", !cloneTasks?.length && "text-muted-foreground")}>
+                        {cloneTasks?.length > 0 ? `${cloneTasks.length} selected` : "Select tasks"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search tasks..." />
+                        <CommandList>
+                          <CommandEmpty>No tasks found.</CommandEmpty>
+                          <CommandGroup>
+                            {(processTaskMap[cloneToProcess] || []).map((task) => (
+                              <CommandItem key={task} className="text-xs" onSelect={() => {
+                                const isSelected = cloneTasks.includes(task);
+                                const newTasks = isSelected ? cloneTasks.filter((t) => t !== task) : [...cloneTasks, task];
+                                setCloneTasks(newTasks);
+                              }}>
+                                <Checkbox checked={cloneTasks.includes(task)} className="mr-2" />
+                                {task}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="flex-1 flex flex-wrap gap-1 items-center">
+                  {cloneTasks.map((task) => (
+                    <Badge key={task} variant="secondary" className="flex items-center gap-1 py-0.5 text-xs">
+                      {task}
+                      <button type="button" onClick={() => setCloneTasks(cloneTasks.filter((t) => t !== task))} className="p-0.5 rounded-full hover:bg-muted-foreground/20">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start">
+              <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-clone">Notes<span className="text-destructive">*</span></Label>
+              <div className="w-1/2">
+                <Textarea id="notes-clone" placeholder="Add notes for cloning..." value={cloneNotes} onChange={e => setCloneNotes(e.target.value)} className="min-h-[100px] text-xs" />
+              </div>
+            </div>
+          </div>
+        );
       case 'terminate':
         return (
           <div className="space-y-2">
@@ -683,6 +810,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const actionOptions = [
       { value: 'resolve-complete', label: 'Resolve Complete' },
       { value: 're-index', label: 'Re-Index' },
+      { value: 'clone', label: 'Clone Work Item' },
       { value: 'terminate', label: 'Terminate' },
       { value: 'transfer', label: 'Transfer', adminOnly: true },
       { value: 'pend', label: 'Pend' }
