@@ -460,6 +460,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                         <SelectContent>
                             <SelectItem value="Wrong Process">Wrong Process</SelectItem>
                             <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
+                            <SelectItem value="Internal User Error">Internal User Error</SelectItem>
+                            <SelectItem value="Test Case">Test Case</SelectItem>
+                            <SelectItem value="Spam Case">Spam Case</SelectItem>
+                            <SelectItem value="Duplicate Case">Duplicate Case</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                     </Select>
                  </div>
