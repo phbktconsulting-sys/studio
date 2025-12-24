@@ -259,7 +259,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               relatedContact: workItem.relatedContact,
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
               tasks: newTasksForWorkItem,
-              sourceWorkItemId: workItem.id, // Pass source ID to copy notes
+              sourceWorkItemId: workItem.id,
+              reindexReason: reindexReason, // Pass reason to flow
+              reindexNote: `Original Case ID: ${workItem.customId}. ${reindexNotes}`, // Pass notes to flow
             };
             
             const newWorkItemResult = await createWorkItem(reindexPayload);
@@ -270,7 +272,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             noteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
             workItemUpdate.lockInfo = null;
-
 
             toast({
                 title: 'Work Item Re-Indexed',
@@ -299,24 +300,25 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         default:
             return;
         }
+
+        if (selectedAction !== 're-index') {
+          addDocumentNonBlocking(notesCollectionRef, {
+            authorId: user.uid,
+            author: user.displayName || user.email,
+            text: noteText,
+            createdAt: new Date().toISOString(),
+            workItemId: workItem.id,
+            category,
+            subject: subjectForNote,
+          });
+        }
         
-        // 1. Add the note to the original work item
-        addDocumentNonBlocking(notesCollectionRef, {
-        authorId: user.uid,
-        author: user.displayName || user.email,
-        text: noteText,
-        createdAt: new Date().toISOString(),
-        workItemId: workItem.id,
-        category,
-        subject: subjectForNote,
-        });
-        
-        // 2. Update the original work item
+        // Update the original work item status
         updateDocumentNonBlocking(workItemRef, workItemUpdate);
 
         toast({
-        title: "Action Submitted",
-        description: `The action '${subjectForNote}' was successfully logged and applied.`,
+            title: "Action Submitted",
+            description: `The action '${subjectForNote}' was successfully logged and applied.`,
         });
 
         onCancel(); // Hide form after submission

@@ -156,7 +156,9 @@ export const ServerWorkItemCreateSchema = z.object({
   }),
   overview: z.string(),
   tasks: z.array(z.any()),
-  sourceWorkItemId: z.string().optional(), // Added for re-indexing
+  sourceWorkItemId: z.string().optional(),
+  reindexReason: z.string().optional(),
+  reindexNote: z.string().optional(),
 });
 
 export const WorkItemCreateResponseSchema = z.object({

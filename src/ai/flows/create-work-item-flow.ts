@@ -191,8 +191,11 @@ const createWorkItemFlow = ai.defineFlow(
             customerUniqueId: customerUniqueId,
           },
         };
-        // Remove sourceWorkItemId from the final data object
+        // Clean up fields that shouldn't be on the work item document
         delete newWorkItemData.sourceWorkItemId;
+        delete newWorkItemData.reindexReason;
+        delete newWorkItemData.reindexNote;
+
 
         transaction.set(newWorkItemRef, newWorkItemData);
 
@@ -204,6 +207,21 @@ const createWorkItemFlow = ai.defineFlow(
                 const copiedNote = { ...note, id: newNoteRef.id, workItemId: newWorkItemRef.id };
                 transaction.set(newNoteRef, copiedNote);
             }
+        }
+        
+        // If it's a re-index action, add the final "Re-Indexed" note to the NEW work item
+        if (payload.sourceWorkItemId && payload.reindexReason && payload.reindexNote) {
+            const reindexNoteRef = newWorkItemRef.collection('notes').doc();
+            const noteText = `Case re-indexed to new Process '${payload.process}'. Reason: ${payload.reindexReason}. ${payload.reindexNote}`;
+            transaction.set(reindexNoteRef, {
+                id: reindexNoteRef.id,
+                authorId: payload.createdBy, // The user performing the re-index
+                text: noteText,
+                createdAt: new Date().toISOString(),
+                workItemId: newWorkItemRef.id,
+                category: 'Re-Indexed',
+                subject: 'RE-INDEX',
+            });
         }
         
         return newWorkItemRef;
