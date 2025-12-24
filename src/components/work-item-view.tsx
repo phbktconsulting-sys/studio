@@ -402,7 +402,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     placeholder="Add final notes..."
                     value={resolveCompleteNotes}
                     onChange={e => setResolveCompleteNotes(e.target.value)}
-                    className="text-xs min-h-[60px] mt-1"
+                    className="text-xs min-h-[140px] mt-1"
                 />
             </div>
           </div>
