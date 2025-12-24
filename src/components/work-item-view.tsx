@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit, where, getDocs } from 'firebase/firestore';
@@ -115,7 +115,7 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
   };
 
   if (!tasks || tasks.length === 0) {
-    return <p className="text-xs p-4 text-muted-foreground">No tasks for this work item.</p>;
+    return <p className="p-4 text-xs text-muted-foreground">No tasks for this work item.</p>;
   }
 
   return (
@@ -130,7 +130,7 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
             />
             <label
               htmlFor={`task-${task.id}`}
-              className={`text-xs font-medium leading-none ${task.completed ? 'line-through text-muted-foreground' : ''} ${!task.completed ? 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70' : ''}`}
+              className={`font-medium leading-none ${task.completed ? 'line-through text-muted-foreground' : ''} ${!task.completed ? 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70' : ''} text-xs`}
             >
               {task.text}
             </label>
@@ -376,7 +376,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2">
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold pt-1 text-xs">All Tasks Completed?<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 pt-1 text-xs font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
                   <RadioGroup
                     value={allTasksCompleted}
@@ -385,42 +385,41 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="tasks-yes" />
-                      <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
+                      <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="no" id="tasks-no" />
-                      <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
+                      <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
                     </div>
                   </RadioGroup>
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1 text-xs">Tasks</Label>
+              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
               <div className="w-3/4">
-                  <div className="mt-1 grid grid-cols-4 gap-x-4 rounded-md border p-2 h-28 overflow-y-auto">
-                      {(workItem.tasks || []).map(task => (
-                      <div key={task.id} className="flex items-center text-xs">
-                          <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
-                          <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
-                          {task.text}
-                          </label>
-                      </div>
-                      ))}
-                      {(workItem.tasks || []).length === 0 && (
-                      <p className="text-xs text-muted-foreground text-center py-2 col-span-3">No tasks assigned.</p>
+                  <div className="mt-1 flex flex-wrap gap-2 rounded-md border p-2 h-28 overflow-y-auto">
+                      {(workItem.tasks || []).length > 0 ? (
+                        workItem.tasks.map(task => (
+                          <Badge key={task.id} variant={task.completed ? "default" : "secondary"} className="flex items-center gap-1.5 text-xs py-1 whitespace-nowrap">
+                            {task.completed && <Check className="h-3 w-3" />}
+                            <span className={cn(task.completed && "line-through text-muted-foreground")}>{task.text}</span>
+                          </Badge>
+                        ))
+                      ) : (
+                        <p className="w-full text-center text-xs text-muted-foreground">No tasks assigned.</p>
                       )}
                   </div>
               </div>
             </div>
              <div className="flex items-start">
-                <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-resolve-complete">Notes<span className="text-destructive">*</span></Label>
+                <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-resolve-complete">Notes<span className="text-destructive">*</span></Label>
                  <div className="w-3/4">
                     <Textarea
                         id="notes-resolve-complete"
                         placeholder="Add final notes..."
                         value={resolveCompleteNotes}
                         onChange={e => setResolveCompleteNotes(e.target.value)}
-                        className="text-xs min-h-[60px] mt-1"
+                        className="mt-1 min-h-[60px] text-xs"
                     />
                 </div>
             </div>
@@ -430,25 +429,25 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2">
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Re-index Option<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 text-xs font-semibold">Re-index Option<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
-                <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex gap-4 h-7 items-center text-xs">
+                <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="myself" id="reindex-myself" />
-                    <Label htmlFor="reindex-myself" className="font-normal h-7 flex items-center text-xs">Re-index case myself</Label>
+                    <Label htmlFor="reindex-myself" className="flex h-7 items-center text-xs font-normal">Re-index case myself</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="initial" id="reindex-initial" />
-                    <Label htmlFor="reindex-initial" className="font-normal h-7 flex items-center text-xs">Return to initial Indexing</Label>
+                    <Label htmlFor="reindex-initial" className="flex h-7 items-center text-xs font-normal">Return to initial Indexing</Label>
                   </div>
                 </RadioGroup>
               </div>
             </div>
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Process<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 text-xs font-semibold">Process<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
                   <Select onValueChange={(value) => { setReindexToProcess(value); setReindexTasks([]); }} value={reindexToProcess}>
-                    <SelectTrigger className="text-xs h-7">
+                    <SelectTrigger className="h-7 text-xs">
                         <SelectValue placeholder="Select a new process..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -462,7 +461,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold text-xs pt-1">Tasks</Label>
+              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
               <div className="flex w-3/4 items-start gap-2">
                   <div className="w-1/2">
                       <Popover>
@@ -512,12 +511,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   </div>
                    <div className="flex-1 flex flex-wrap gap-1 items-center">
                     {reindexTasks.map((task) => (
-                      <Badge key={task} variant="secondary" className="flex items-center gap-1 text-xs py-0.5">
+                      <Badge key={task} variant="secondary" className="flex items-center gap-1 py-0.5 text-xs">
                         {task}
                         <button
                           type="button"
                           onClick={() => setReindexTasks(reindexTasks.filter((t) => t !== task))}
-                          className="rounded-full hover:bg-muted-foreground/20 p-0.5"
+                          className="p-0.5 rounded-full hover:bg-muted-foreground/20"
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -527,24 +526,24 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
              <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Copy notes to new case?<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 text-xs font-semibold">Copy notes to new case?<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
-                 <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex gap-4 h-7 items-center text-xs">
+                 <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="yes" id="copy-yes" />
-                    <Label htmlFor="copy-yes" className="font-normal h-7 flex items-center text-xs">Yes</Label>
+                    <Label htmlFor="copy-yes" className="flex h-7 items-center text-xs font-normal">Yes</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="no" id="copy-no" />
-                    <Label htmlFor="copy-no" className="font-normal h-7 flex items-center text-xs">No</Label>
+                    <Label htmlFor="copy-no" className="flex h-7 items-center text-xs font-normal">No</Label>
                   </div>
                 </RadioGroup>
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-re-index">Notes<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-re-index">Notes<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
-                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[60px]" />
+                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="min-h-[60px] text-xs" />
               </div>
             </div>
           </div>
@@ -553,10 +552,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2">
             <div className="flex items-center">
-                <Label className="w-1/4 font-semibold text-xs">Reason<span className="text-destructive">*</span></Label>
+                <Label className="w-1/4 text-xs font-semibold">Reason<span className="text-destructive">*</span></Label>
                 <div className="w-3/4">
                   <Select onValueChange={setTerminateReason} value={terminateReason}>
-                    <SelectTrigger className="text-xs h-7">
+                    <SelectTrigger className="h-7 text-xs">
                         <SelectValue placeholder="Select reason..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -577,27 +576,27 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </div>
             </div>
             <div className="flex items-start">
-                <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-terminate">Notes<span className="text-destructive">*</span></Label>
+                <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-terminate">Notes<span className="text-destructive">*</span></Label>
                  <div className="w-3/4">
-                    <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[60px]" />
+                    <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="min-h-[60px] text-xs" />
                 </div>
             </div>
           </div>
         );
       case 'transfer':
         if (role !== 'Admin') {
-            return <p className="text-xs text-muted-foreground p-4 text-center">You do not have permission to transfer work items.</p>;
+            return <p className="p-4 text-center text-xs text-muted-foreground">You do not have permission to transfer work items.</p>;
         }
         if (isLoadingUsers) {
-            return <p className="text-xs text-muted-foreground p-4 text-center">Loading users...</p>;
+            return <p className="p-4 text-center text-xs text-muted-foreground">Loading users...</p>;
         }
         return (
           <div className="space-y-2">
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Transfer to User<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 text-xs font-semibold">Transfer to User<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
                 <Select onValueChange={setTransferToUser} value={transferToUser}>
-                  <SelectTrigger className="text-xs h-7">
+                  <SelectTrigger className="h-7 text-xs">
                     <SelectValue placeholder="Select user..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -609,9 +608,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-transfer">Notes<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-transfer">Notes<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
-                <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[60px]" />
+                <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="min-h-[60px] text-xs" />
               </div>
             </div>
           </div>
@@ -620,16 +619,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2">
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Pend until date</Label>
+              <Label className="w-1/4 text-xs font-semibold">Pend until date</Label>
               <div className="w-3/4">
                 <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
               </div>
             </div>
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Reason for pend<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 text-xs font-semibold">Reason for pend<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
                 <Select onValueChange={setPendReason} value={pendReason}>
-                  <SelectTrigger className="text-xs h-7">
+                  <SelectTrigger className="h-7 text-xs">
                     <SelectValue placeholder="Select reason..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -649,15 +648,15 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-pend">Notes<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-pend">Notes<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
-                <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[60px]" />
+                <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="min-h-[60px] text-xs" />
               </div>
             </div>
           </div>
         );
       default:
-        return <p className="text-xs text-muted-foreground p-4 text-center">Please select an action to continue.</p>;
+        return <p className="p-4 text-center text-xs text-muted-foreground">Please select an action to continue.</p>;
     }
   };
 
@@ -674,13 +673,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   return (
     <form onSubmit={handleSubmit}>
-      <Card className="mt-4 border-primary border">
-        <CardHeader className="p-2 bg-slate-100 flex-row items-center gap-4 rounded-t-lg">
+      <Card className="mt-4 border border-primary">
+        <CardHeader className="flex-row items-center gap-4 rounded-t-lg bg-slate-100 p-2">
           <CardTitle className="text-xs font-bold uppercase">
             {getActionDisplayName(selectedAction)}
           </CardTitle>
           <Select onValueChange={(value) => setSelectedAction(value as string)} value={selectedAction}>
-            <SelectTrigger className="text-xs h-7 w-auto flex-1 bg-black text-white hover:bg-black/90 focus:ring-black">
+            <SelectTrigger className="h-7 w-auto flex-1 bg-black text-white hover:bg-black/90 focus:ring-black text-xs">
                 <SelectValue placeholder="-- Or select a different action --" />
             </SelectTrigger>
             <SelectContent>
@@ -698,7 +697,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       </Card>
       
       {selectedAction && (
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="mt-4 flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancel} className="h-9">
             Cancel
           </Button>
@@ -737,7 +736,7 @@ function ClosedWorkItemInfo({ workItem, lastNote }: { workItem: WorkItem; lastNo
 
 
     return (
-        <div className="flex items-center gap-4 text-xs py-2">
+        <div className="flex items-center gap-4 py-2 text-xs">
             <Lock className="h-5 w-5 text-destructive" />
             <span className="font-medium">Work Item {workItem.status}:</span>
             <Separator orientation="vertical" className="h-4" />
@@ -782,7 +781,7 @@ function PendingWorkItemInfo({ workItemId, note }: { workItemId: string, note: N
   const untilDate = note?.text.match(/Pend until: (.*?)\./)?.[1] || 'N/A';
 
   return (
-    <div className="flex items-center justify-between gap-4 text-xs py-2">
+    <div className="flex items-center justify-between gap-4 py-2 text-xs">
         <div className="flex items-center gap-4">
             <Clock className="h-5 w-5 text-orange-500" />
             <span className="font-medium">Case Pended until {untilDate}:</span>
@@ -797,7 +796,7 @@ function PendingWorkItemInfo({ workItemId, note }: { workItemId: string, note: N
 
 function CaseLockedInfo({ lockInfo }: { lockInfo: WorkItem['lockInfo'] }) {
     return (
-        <div className="flex items-center gap-4 text-xs py-2 text-destructive">
+        <div className="flex items-center gap-4 py-2 text-xs text-destructive">
             <Lock className="h-5 w-5" />
             <span className="font-bold">Case is currently locked by:</span>
             <span className="font-medium">{lockInfo?.userName || 'another user'}</span>
@@ -918,10 +917,10 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-0">
-         <div className="mt-4 mb-4">
+      <div className="flex-1 overflow-y-auto px-4 pt-0 sm:px-6">
+         <div className="mb-4 mt-4">
             <h2 className="text-base font-semibold">Processes</h2>
-            <Separator className="bg-[#A60A0A] h-[2px]" />
+            <Separator className="h-[2px] bg-[#A60A0A]" />
              {isVerifyingAuthority ? (
                 <VerifyAuthorityForm workItem={item} onCancel={handleCancelVerify} />
             ) : isClosed ? (
@@ -931,10 +930,10 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             ) : isLockedByOther ? (
                 <CaseLockedInfo lockInfo={item.lockInfo!} />
             ) : (
-                <div className="flex items-center gap-4 text-sm py-2">
+                <div className="flex items-center gap-4 py-2 text-sm">
                     <span className="font-medium">Assigned To:</span>
                     <span>{assignedUser?.displayName || '...'}</span>
-                    <Button onClick={handleVerifyClick} className="h-7 text-xs bg-black text-white hover:bg-black/80">
+                    <Button onClick={handleVerifyClick} className="h-7 bg-black text-white hover:bg-black/80 text-xs">
                         Verify Customer Authority
                     </Button>
                 </div>
@@ -953,9 +952,9 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsTrigger value="agency" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Agency</TabsTrigger>
           </TabsList>
           
-          <div className="mt-0 bg-card px-2 border-t-0">
+          <div className="mt-0 border-t-0 bg-card px-2">
              <TabsContent value="overview" className="mt-0">
-              <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 p-4 md:grid-cols-2">
                 
                 <Card>
                   <CardHeader>
@@ -963,21 +962,21 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-start text-xs">
-                        <UserIcon className="h-4 w-4 mr-3 mt-0.5 text-muted-foreground" />
+                        <UserIcon className="mr-3 mt-0.5 h-4 w-4 text-muted-foreground" />
                         <div className="flex-1">
                           <p className="font-medium">Created By</p>
                           <p className="text-muted-foreground">{createdByUser?.displayName || 'N/A'}</p>
                         </div>
                     </div>
                      <div className="flex items-start text-xs">
-                        <CalendarIcon className="h-4 w-4 mr-3 mt-0.5 text-muted-foreground" />
+                        <CalendarIcon className="mr-3 mt-0.5 h-4 w-4 text-muted-foreground" />
                         <div className="flex-1">
                           <p className="font-medium">Created On</p>
                           <p className="text-muted-foreground">{format(parseISO(item.createdAt), "PPP p")}</p>
                         </div>
                     </div>
                      <div className="flex items-start text-xs">
-                        <History className="h-4 w-4 mr-3 mt-0.5 text-muted-foreground" />
+                        <History className="mr-3 mt-0.5 h-4 w-4 text-muted-foreground" />
                         <div className="flex-1">
                           <p className="font-medium">Last Updated</p>
                           <p className="text-muted-foreground">{format(parseISO(item.updatedAt), "PPP p")}</p>
@@ -991,12 +990,12 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                     <CardTitle className="text-sm">Overview</CardTitle>
                   </CardHeader>
                   <CardContent>
-                     <p className="text-xs text-muted-foreground whitespace-pre-wrap">{item.overview}</p>
+                     <p className="whitespace-pre-wrap text-xs text-muted-foreground">{item.overview}</p>
                   </CardContent>
                 </Card>
 
                 {(item.tasks?.length > 0 || latestNote) && (
-                   <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="grid grid-cols-1 gap-6 md:col-span-2 md:grid-cols-2">
                     {item.tasks?.length > 0 && (
                       <Card>
                           <CardHeader>
@@ -1015,11 +1014,11 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                             </CardHeader>
                             <CardContent className="space-y-2">
                                 <div className="flex items-start text-xs">
-                                    <MessageSquare className="h-4 w-4 mr-3 mt-0.5 text-muted-foreground" />
+                                    <MessageSquare className="mr-3 mt-0.5 h-4 w-4 text-muted-foreground" />
                                     <div className="flex-1">
                                         <p className="font-medium">{latestNote.subject}</p>
                                         <p className="text-muted-foreground">{latestNote.text}</p>
-                                        <p className="text-xs text-muted-foreground/70 pt-1">
+                                        <p className="pt-1 text-xs text-muted-foreground/70">
                                             - {latestNote.author} on {format(parseISO(latestNote.createdAt), 'MMM d, yyyy')}
                                         </p>
                                     </div>
@@ -1049,7 +1048,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                   </div>
                    {item.relatedContact.address && (
                     <div className="flex items-start gap-4 text-xs">
-                        <Home className="h-4 w-4 text-muted-foreground mt-0.5" />
+                        <Home className="mt-0.5 h-4 w-4 text-muted-foreground" />
                         <div className="flex flex-col">
                            <span className="font-medium">Address:</span>
                            <span className="text-muted-foreground">{item.relatedContact.address}</span>
@@ -1117,3 +1116,4 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
