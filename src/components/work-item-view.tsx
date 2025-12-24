@@ -46,6 +46,7 @@ import { NotesTab } from './notes-tab';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
 import { useTabs } from '@/contexts/tab-context';
 import { cn } from '@/lib/utils';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Other Services"],
@@ -154,6 +155,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   
   // Form field states
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
+  const [allTasksCompleted, setAllTasksCompleted] = useState<'yes' | 'no' | undefined>();
+
 
   const [reindexToProcess, setReindexToProcess] = useState('');
   const [reindexReason, setReindexReason] = useState('');
@@ -223,10 +226,22 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     try {
         switch(selectedAction) {
         case 'resolve-complete': {
+            if (allTasksCompleted !== 'yes') {
+              toast({ variant: 'destructive', title: 'Action Required', description: 'You must confirm all tasks are completed before resolving.' });
+              return;
+            }
+            const completedTasks = workItem.tasks.map(task => ({
+              ...task,
+              completed: true,
+              completedBy: task.completed ? task.completedBy : user.uid,
+              completedAt: task.completed ? task.completedAt : new Date().toISOString(),
+            }));
+
             category = 'Resolved/Completed';
             noteText = `Work item resolved. ${resolveCompleteNotes}`;
             workItemUpdate.status = 'Closed';
             workItemUpdate.lockInfo = null;
+            workItemUpdate.tasks = completedTasks;
             break;
         }
         case 're-index': {
@@ -272,6 +287,17 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             noteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
             workItemUpdate.lockInfo = null;
+
+            // Log the re-index action on the OLD work item for traceability
+             addDocumentNonBlocking(notesCollectionRef, {
+                authorId: user.uid,
+                author: user.displayName || user.email,
+                text: noteText,
+                createdAt: new Date().toISOString(),
+                workItemId: workItem.id,
+                category,
+                subject: subjectForNote,
+            });
 
             toast({
                 title: 'Work Item Re-Indexed',
@@ -333,27 +359,54 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   const renderActionForm = () => {
     switch (selectedAction) {
-      case 'resolve-complete': {
-          const openTasks = (workItem.tasks || []).filter(task => !task.completed);
-          if (openTasks.length === 0) {
-              return (
-                  <div className="space-y-2">
-                     <p className="text-xs text-muted-foreground">All tasks for this work item are already completed.</p>
-                     <Label className="text-xs font-normal" htmlFor="notes-resolve-complete">Notes</Label>
-                     <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} className="text-xs min-h-[60px]" />
+      case 'resolve-complete':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label className="text-xs font-semibold">Tasks</Label>
+              <div className="mt-1 space-y-2 rounded-md border p-2 max-h-32 overflow-y-auto">
+                {(workItem.tasks || []).map(task => (
+                  <div key={task.id} className="flex items-center text-xs">
+                    <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
+                    <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
+                      {task.text}
+                    </label>
                   </div>
-              )
-          }
-          return (
-            <div className="space-y-4">
-              <p className="text-xs text-muted-foreground">This action will close the work item. No tasks need to be completed.</p>
-              <div>
-                <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
-                <Textarea id="notes-resolve-complete" placeholder="Add notes..." value={resolveCompleteNotes} onChange={e => setResolveCompleteNotes(e.target.value)} className="text-xs min-h-[60px] mt-1" />
+                ))}
+                {(workItem.tasks || []).length === 0 && (
+                  <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
+                )}
               </div>
             </div>
-          );
-      }
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold">All Tasks Completed?</Label>
+              <RadioGroup
+                value={allTasksCompleted}
+                onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
+                className="flex items-center space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="tasks-yes" />
+                  <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="tasks-no" />
+                  <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div>
+              <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
+              <Textarea
+                id="notes-resolve-complete"
+                placeholder="Add final notes..."
+                value={resolveCompleteNotes}
+                onChange={e => setResolveCompleteNotes(e.target.value)}
+                className="text-xs min-h-[60px] mt-1"
+              />
+            </div>
+          </div>
+        );
       case 're-index':
         const openTasks = (workItem.tasks || []).filter(t => !t.completed);
         return (
