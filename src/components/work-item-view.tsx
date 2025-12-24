@@ -155,6 +155,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   
   // Form field states
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(() => new Set(workItem.tasks?.filter(t => t.completed).map(t => t.id) || []));
   const [allTasksCompleted, setAllTasksCompleted] = useState<'yes' | 'no' | undefined>();
 
 
@@ -202,6 +203,18 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     return actionMap[actionValue] || 'VERIFY CUSTOMER AUTHORITY';
   }
 
+  const handleTaskCompletionChange = (taskId: string, isCompleted: boolean) => {
+    setCompletedTasks(prev => {
+        const newSet = new Set(prev);
+        if (isCompleted) {
+            newSet.add(taskId);
+        } else {
+            newSet.delete(taskId);
+        }
+        return newSet;
+    });
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -220,26 +233,22 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     try {
         switch(selectedAction) {
         case 'resolve-complete': {
-            if (allTasksCompleted !== 'yes') {
-              toast({ variant: 'destructive', title: 'Action Required', description: 'You must confirm all tasks are completed before resolving.' });
-              return;
-            }
-             if (!resolveCompleteNotes) {
+            if (!resolveCompleteNotes) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Notes are required.' });
                 return;
             }
-            const completedTasks = workItem.tasks.map(task => ({
+            const finalTasks = workItem.tasks.map(task => ({
               ...task,
-              completed: true,
-              completedBy: task.completed ? task.completedBy : user.uid,
-              completedAt: task.completed ? task.completedAt : new Date().toISOString(),
+              completed: completedTasks.has(task.id),
+              completedBy: completedTasks.has(task.id) && !task.completed ? user.uid : task.completedBy,
+              completedAt: completedTasks.has(task.id) && !task.completed ? new Date().toISOString() : task.completedAt,
             }));
 
             category = 'Resolved/Completed';
             noteText = `Work item resolved. ${resolveCompleteNotes}`;
             workItemUpdate.status = 'Closed';
             workItemUpdate.lockInfo = null;
-            workItemUpdate.tasks = completedTasks;
+            workItemUpdate.tasks = finalTasks;
             break;
         }
         case 're-index': {
@@ -374,54 +383,32 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch (selectedAction) {
       case 'resolve-complete':
         return (
-          <div className="space-y-2">
+          <div className="space-y-4">
              <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-              <div className="w-2/5">
-                <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-0 rounded-md border p-2 overflow-y-auto max-h-28">
-                  {(workItem.tasks || []).length > 0 ? (
-                    workItem.tasks.map(task => (
-                      <div key={task.id} className="flex items-center gap-1.5 py-0.5">
-                        <Checkbox
-                          id={`task-resolve-${task.id}`}
-                          checked={task.completed}
-                          disabled
-                        />
-                        <label
-                          htmlFor={`task-resolve-${task.id}`}
-                          className={cn(
-                            "text-xs font-normal",
-                            task.completed && "line-through text-muted-foreground"
-                          )}
-                        >
-                          {task.text}
-                        </label>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="w-full text-center text-xs text-muted-foreground col-span-2">No tasks assigned.</p>
-                  )}
+                <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
+                <div className="w-2/5">
+                    <div className="mt-1 grid grid-cols-2 gap-x-4 rounded-md border p-2 overflow-y-auto max-h-28">
+                    {(workItem.tasks || []).length > 0 ? (
+                        workItem.tasks.map(task => (
+                        <div key={task.id} className="flex items-center gap-1.5 py-0">
+                            <Checkbox
+                                id={`task-resolve-${task.id}`}
+                                checked={completedTasks.has(task.id)}
+                                onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
+                            />
+                            <label
+                            htmlFor={`task-resolve-${task.id}`}
+                            className="text-xs font-normal cursor-pointer"
+                            >
+                            {task.text}
+                            </label>
+                        </div>
+                        ))
+                    ) : (
+                        <p className="w-full text-center text-xs text-muted-foreground col-span-2">No tasks assigned.</p>
+                    )}
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <Label className="w-1/4 pt-1 text-xs font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
-              <div className="w-3/4">
-                  <RadioGroup
-                    value={allTasksCompleted}
-                    onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
-                    className="flex items-center space-x-4 h-7 text-xs"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="yes" id="tasks-yes" />
-                      <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="no" id="tasks-no" />
-                      <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
-                    </div>
-                  </RadioGroup>
-              </div>
             </div>
              <div className="flex items-start">
                 <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-resolve-complete">Notes<span className="text-destructive">*</span></Label>
