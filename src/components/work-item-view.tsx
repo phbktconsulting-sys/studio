@@ -159,10 +159,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
 
   const [reindexToProcess, setReindexToProcess] = useState('');
-  const [reindexReason, setReindexReason] = useState('');
+  const [reindexReason, setReindexReason] = useState('Wrong Process');
   const [reindexNotes, setReindexNotes] = useState('');
-  const [shouldCopyTasks, setShouldCopyTasks] = useState(false);
-  const [selectedNewTasks, setSelectedNewTasks] = useState<string[]>([]);
+  const [shouldCopyNotes, setShouldCopyNotes] = useState<'yes' | 'no'>('yes');
+  const [reindexOption, setReindexOption] = useState<'myself' | 'initial'>('myself');
 
 
   const [terminateReason, setTerminateReason] = useState('');
@@ -199,12 +199,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         'pend': 'PEND'
     };
     return actionMap[actionValue] || 'VERIFY CUSTOMER AUTHORITY';
-  }
-
-  
-  const handleReindexProcessChange = (process: string) => {
-      setReindexToProcess(process);
-      setSelectedNewTasks([]); // Reset selected tasks when process changes
   }
 
 
@@ -244,37 +238,27 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             break;
         }
         case 're-index': {
-            if (!reindexToProcess) {
-                toast({ variant: 'destructive', title: 'Error', description: 'Please select a process to re-index to.' });
-                return;
-            }
-            
-            const openTasksFromOldItem = (workItem.tasks || []).filter(t => !t.completed);
-            
-            const copiedTaskObjects = shouldCopyTasks 
-              ? openTasksFromOldItem.map(task => ({
-                  id: `task-copy-${task.id}-${Math.random()}`,
-                  text: task.text,
-                  completed: false, // Copied tasks are always reset to incomplete
-              }))
-              : [];
-            
-            const newTasksForWorkItem = [
-                ...selectedNewTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
-                ...copiedTaskObjects,
-            ];
+             if (reindexOption === 'return') {
+                 toast({ title: "Action Noted", description: "Returning to initial indexing is not yet implemented, but your selection has been noted." });
+                 onCancel();
+                 return;
+             }
+             if (!reindexReason) {
+                 toast({ variant: 'destructive', title: 'Error', description: 'Please select a reason for re-indexing.' });
+                 return;
+             }
             
             const reindexPayload = {
-              process: reindexToProcess,
+              process: 'Request Information', // Defaulting for "Re-index case myself"
               urgency: workItem.urgency,
               assignedTo: user.uid,
               createdBy: user.uid,
               relatedContact: workItem.relatedContact,
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
-              tasks: newTasksForWorkItem,
-              sourceWorkItemId: workItem.id, // This tells the backend to copy notes
-              reindexReason: reindexReason, // Pass reason to flow
-              reindexNote: `Original Case ID: ${workItem.customId}. ${reindexNotes}`, // Pass notes to flow
+              tasks: [],
+              sourceWorkItemId: shouldCopyNotes === 'yes' ? workItem.id : undefined,
+              reindexReason: reindexReason, 
+              reindexNote: `Original Case ID: ${workItem.customId}. ${reindexNotes}`,
             };
             
             const newWorkItemResult = await createWorkItem(reindexPayload);
@@ -282,12 +266,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 throw new Error(newWorkItemResult.error || 'Failed to create new work item during re-index.');
             }
             
-            // This is the note for the OLD work item.
-            const oldItemNoteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
+            const oldItemNoteText = `Case re-indexed to new Process '${reindexPayload.process}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
             workItemUpdate.lockInfo = null;
 
-            // Log the re-index action on the OLD work item for traceability
              addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
                 authorId: user.uid,
                 author: user.displayName || user.email,
@@ -304,10 +286,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             });
             openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
             
-            // This action is special, it doesn't add another note, it just updates the old item's status.
             updateDocumentNonBlocking(workItemRef, workItemUpdate);
-            onCancel(); // Hide form after submission
-            return; // Exit early
+            onCancel(); 
+            return;
         }
         case 'terminate':
             category = 'Terminated';
@@ -361,24 +342,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-             <div className="grid grid-cols-3 gap-4 items-start">
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
               <div className="space-y-2">
-                  <Label className="text-xs font-semibold">Tasks</Label>
-                  <div className="mt-1 space-y-2 rounded-md border p-2 max-h-32 overflow-y-auto">
-                      {(workItem.tasks || []).map(task => (
-                      <div key={task.id} className="flex items-center text-xs">
-                          <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
-                          <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
-                          {task.text}
-                          </label>
-                      </div>
-                      ))}
-                      {(workItem.tasks || []).length === 0 && (
-                      <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
-                      )}
-                  </div>
-              </div>
-               <div className="space-y-2">
                 <Label className="text-xs font-semibold">All Tasks Completed?</Label>
                 <RadioGroup
                   value={allTasksCompleted}
@@ -396,6 +361,22 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </RadioGroup>
               </div>
               <div className="space-y-2">
+                  <Label className="text-xs font-semibold">Tasks</Label>
+                  <div className="mt-1 space-y-2 rounded-md border p-2 max-h-32 overflow-y-auto">
+                      {(workItem.tasks || []).map(task => (
+                      <div key={task.id} className="flex items-center text-xs">
+                          <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
+                          <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
+                          {task.text}
+                          </label>
+                      </div>
+                      ))}
+                      {(workItem.tasks || []).length === 0 && (
+                      <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
+                      )}
+                  </div>
+              </div>
+              <div className="space-y-2">
                   <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
                   <Textarea
                       id="notes-resolve-complete"
@@ -409,158 +390,63 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           </div>
         );
       case 're-index':
-        const openTasks = (workItem.tasks || []).filter(t => !t.completed);
         return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                    <Label className="text-xs font-normal">Re-Index to Process</Label>
-                    <Select onValueChange={handleReindexProcessChange} value={reindexToProcess}>
-                        <SelectTrigger className="text-xs h-8">
-                            <SelectValue placeholder="Select new process..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {processTypes
-                                .filter(type => type !== workItem.process)
-                                .map((type) => (
-                                <SelectItem key={type} value={type}>
-                                    {type}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+          <div className="space-y-4 text-xs">
+            <div className="grid grid-cols-2 gap-x-8">
+              {/* Left Column */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Label className="font-semibold whitespace-nowrap">Please select the correct Re-index option<span className="text-destructive">*</span></Label>
+                  <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="myself" id="reindex-myself" />
+                      <Label htmlFor="reindex-myself" className="font-normal">Re-index case myself</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="initial" id="reindex-initial" />
+                      <Label htmlFor="reindex-initial" className="font-normal">Return to initial Indexing</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
-                <div className="space-y-1">
-                    <Label className="text-xs font-normal">Tasks for New Process</Label>
-                     <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                role="combobox"
-                                disabled={!reindexToProcess}
-                                className={cn(
-                                    "w-full justify-between h-8 text-xs font-normal",
-                                    !selectedNewTasks?.length && "text-muted-foreground"
-                                )}
-                                >
-                                {selectedNewTasks?.length > 0 ? `${selectedNewTasks.length} selected` : "Select new tasks..."}
-                                <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                            <Command>
-                                <CommandInput placeholder="Search tasks..." />
-                                <CommandList>
-                                <CommandEmpty>No tasks found.</CommandEmpty>
-                                <CommandGroup>
-                                    {(processTaskMap[reindexToProcess] || []).map((task) => (
-                                    <CommandItem
-                                        key={task}
-                                        onSelect={() => {
-                                            const isSelected = selectedNewTasks.includes(task);
-                                            const newTasks = isSelected
-                                            ? selectedNewTasks.filter((t) => t !== task)
-                                            : [...selectedNewTasks, task];
-                                            setSelectedNewTasks(newTasks);
-                                        }}
-                                        >
-                                        <Checkbox
-                                            checked={selectedNewTasks.includes(task)}
-                                            className="mr-2"
-                                        />
-                                        {task}
-                                    </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                                </CommandList>
-                            </Command>
-                        </PopoverContent>
-                    </Popover>
+                <div className="flex items-center gap-4">
+                  <Label className="font-semibold whitespace-nowrap">Reason<span className="text-destructive">*</span></Label>
+                  <Select onValueChange={setReindexReason} value={reindexReason}>
+                    <SelectTrigger className="text-xs h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Wrong Process">Wrong Process</SelectItem>
+                      <SelectItem value="Incorrect Category Selected">Incorrect Category Selected</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+                <div className="flex items-center gap-4">
+                  <Label className="font-semibold whitespace-nowrap">Do you want to copy the notes to the new case?</Label>
+                   <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="yes" id="copy-yes" />
+                      <Label htmlFor="copy-yes" className="font-normal">Yes</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="no" id="copy-no" />
+                      <Label htmlFor="copy-no" className="font-normal">No</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+              {/* Right Column */}
+              <div className="space-y-1">
+                <Label className="font-semibold" htmlFor="notes-re-index">Note<span className="text-destructive">*</span></Label>
+                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[100px]" />
+              </div>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-                 <div className="space-y-1">
-                    <Label className="text-xs font-normal">Reason *</Label>
-                     <Select onValueChange={setReindexReason} value={reindexReason}>
-                        <SelectTrigger className="text-xs h-8">
-                            <SelectValue placeholder="Select reason..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Incorrect Category Selected">Incorrect Category Selected</SelectItem>
-                            <SelectItem value="Assigned to Wrong Department">Assigned to Wrong Department</SelectItem>
-                            <SelectItem value="Data Entry Error">Data Entry Error</SelectItem>
-                            <SelectItem value="Current work Task Resolved">Current work Task Resolved</SelectItem>
-                            <SelectItem value="Duplicate Record Found">Duplicate Record Found</SelectItem>
-                            <SelectItem value="Merging with Existing Item">Merging with Existing Item</SelectItem>
-                            <SelectItem value="Client Changed Requirement">Client Changed Requirement</SelectItem>
-                            <SelectItem value="Project Scope Expanded">Project Scope Expanded</SelectItem>
-                            <SelectItem value="Priority Upgrade">Priority Upgrade</SelectItem>
-                            <SelectItem value="Internal Review Required">Internal Review Required</SelectItem>
-                            <SelectItem value="Internal User Error">Internal User Error</SelectItem>
-                            <SelectItem value="Test Case">Test Case</SelectItem>
-                            <SelectItem value="Spam Case">Spam Case</SelectItem>
-                            <SelectItem value="Duplicate Case">Duplicate Case</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                    </Select>
-                 </div>
-                 <div className="space-y-1">
-                     <Label className="text-xs font-normal" htmlFor="notes-re-index">Note *</Label>
-                    <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[100px]" />
-                 </div>
-            </div>
-
-
-            <div className="grid grid-cols-2 gap-4">
-              {openTasks.length > 0 && (
-                  <div className="space-y-2">
-                      <Label className="text-xs font-normal">Current Open Tasks</Label>
-                      <div className="p-2 border rounded-md max-h-24 overflow-y-auto space-y-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                             <Checkbox id="copy-all-tasks" checked={shouldCopyTasks} onCheckedChange={(checked) => setShouldCopyTasks(!!checked)} />
-                             <Label htmlFor="copy-all-tasks" className="font-normal text-muted-foreground text-xs">Copy current task for new work item</Label>
-                          </div>
-                          <Separator />
-                          {openTasks.map(task => (
-                            <div key={task.id} className='flex items-center justify-between text-xs p-1 text-muted-foreground'>
-                                <span>{task.text}</span>
-                            </div>
-                          ))}
-                      </div>
-                  </div>
-              )}
-               {selectedNewTasks.length > 0 && (
-                  <div className="space-y-2">
-                      <Label className="text-xs font-normal">Selected New Tasks</Label>
-                       <div className="p-2 border rounded-md max-h-24 overflow-y-auto">
-                          <ul className="space-y-1">
-                              {selectedNewTasks.map(task => 
-                                <li key={task} className="flex justify-between items-center text-xs text-muted-foreground">
-                                    <span>{task}</span>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        className="h-5 w-5"
-                                        onClick={() => setSelectedNewTasks(current => current.filter(t => t !== task))}
-                                    >
-                                        <X className="h-3 w-3" />
-                                    </Button>
-                                </li>
-                              )}
-                          </ul>
-                      </div>
-                  </div>
-              )}
-            </div>
-            
           </div>
         );
       case 'terminate':
         return (
           <div className="grid grid-cols-2 gap-4 items-start">
             <div className="space-y-1">
-                <Label className="text-xs font-normal">Reason</Label>
+                <Label className="text-xs font-normal h-8">Reason</Label>
                 <Select onValueChange={setTerminateReason} value={terminateReason}>
                 <SelectTrigger className="text-xs h-8">
                     <SelectValue placeholder="Select reason..." />
@@ -582,7 +468,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </Select>
             </div>
             <div className="space-y-1">
-                <Label className="text-xs font-normal" htmlFor="notes-terminate">Notes</Label>
+                <Label className="text-xs font-normal h-8" htmlFor="notes-terminate">Notes</Label>
                 <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[100px]" />
             </div>
           </div>
@@ -597,7 +483,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="grid grid-cols-2 gap-4 items-start">
             <div className="space-y-1">
-              <Label className="text-xs font-normal">Transfer to User</Label>
+              <Label className="text-xs font-normal h-8">Transfer to User</Label>
               <Select onValueChange={setTransferToUser} value={transferToUser}>
                 <SelectTrigger className="text-xs h-8">
                   <SelectValue placeholder="Select user..." />
@@ -610,7 +496,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs font-normal" htmlFor="notes-transfer">Notes</Label>
+              <Label className="text-xs font-normal h-8" htmlFor="notes-transfer">Notes</Label>
               <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[100px]" />
             </div>
           </div>
@@ -619,11 +505,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="grid grid-cols-3 gap-4 items-start">
             <div className="space-y-1">
-                <Label className="text-xs font-normal">Pend until date</Label>
+                <Label className="text-xs font-normal h-8">Pend until date</Label>
                 <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
             </div>
             <div className="space-y-1">
-                <Label className="text-xs font-normal">Reason for pend</Label>
+                <Label className="text-xs font-normal h-8">Reason for pend</Label>
                 <Select onValueChange={setPendReason} value={pendReason}>
                   <SelectTrigger className="text-xs h-8">
                     <SelectValue placeholder="Select reason..." />
@@ -644,7 +530,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </Select>
             </div>
              <div className="space-y-1">
-                <Label className="text-xs font-normal" htmlFor="notes-pend">Notes</Label>
+                <Label className="text-xs font-normal h-8" htmlFor="notes-pend">Notes</Label>
                 <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[100px]" />
              </div>
           </div>
