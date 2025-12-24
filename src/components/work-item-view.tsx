@@ -629,8 +629,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     <SelectValue placeholder="Select reason..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Information Needed">Information Needed</SelectItem>
-                    <SelectItem value="Customer Unavailable">Customer Unavailable</SelectItem>
+                    <SelectItem value="Pending Internal Action">Pending Internal Action</SelectItem>
+                    <SelectItem value="Awaiting Other Team Response">Awaiting Other Team Response</SelectItem>
+                    <SelectItem value="Awaiting Client Feedback">Awaiting Client Feedback</SelectItem>
+                    <SelectItem value="Blocked by Another Task">Blocked by Another Task</SelectItem>
+                    <SelectItem value="Pending Final Review">Pending Final Review</SelectItem>
+                    <SelectItem value="Scheduled for Later">Scheduled for Later</SelectItem>
+                    <SelectItem value="Under Technical Investigation">Under Technical Investigation</SelectItem>
+                    <SelectItem value="Clarification Needed">Clarification Needed</SelectItem>
+                    <SelectItem value="On Hold by Request">On Hold by Request</SelectItem>
+                    <SelectItem value="Awaiting Developer Action">Awaiting Developer Action</SelectItem>
                     <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
