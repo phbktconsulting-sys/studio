@@ -3,7 +3,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { collection, query, where, updateDoc, addDoc, getDocs, doc } from 'firebase/firestore';
-import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirebase, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import {
   Table,
@@ -49,19 +49,6 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 
 
-const initialTaskOptions = [
-    'Follow up with customer',
-    'Gather required documents',
-    'Process application',
-    'Send quotation',
-    'Schedule a meeting',
-    'Verify information',
-    'Update customer records',
-    'Escalate to manager',
-    'Prepare report',
-    'Close work item'
-];
-
 interface ReallocateDialogProps {
     isOpen: boolean;
     onClose: () => void;
@@ -73,8 +60,6 @@ function ReallocateDialog({ isOpen, onClose, itemToReallocate }: ReallocateDialo
     const { toast } = useToast();
     const [usersForReallocation, setUsersForReallocation] = useState<User[]>([]);
     const [newAssigneeId, setNewAssigneeId] = useState('');
-    const [reallocationNote, setReallocationNote] = useState('');
-    const [reallocationTask, setReallocationTask] = useState('');
 
     useEffect(() => {
         async function fetchUsers() {
@@ -100,42 +85,34 @@ function ReallocateDialog({ isOpen, onClose, itemToReallocate }: ReallocateDialo
         const notesCollectionRef = collection(firestore, `work_items/${itemToReallocate.id}/notes`);
         const newAssigneeName = usersMap.get(newAssigneeId) || 'Unknown User';
 
-        const newTasks = [...(itemToReallocate.tasks || [])];
-        if (reallocationTask) {
-            newTasks.push({ id: `task-${Date.now()}`, text: reallocationTask, completed: false });
-        }
-
         try {
             await updateDoc(workItemRef, {
                 assignedTo: newAssigneeId,
                 status: 'Open',
                 updatedAt: new Date().toISOString(),
-                tasks: newTasks,
             });
 
             await addDoc(notesCollectionRef, {
                 authorId: currentUser.uid,
-                text: `Work item reallocated to ${newAssigneeName}. ${reallocationNote}`,
+                text: `Work item allocated to ${newAssigneeName} from the new items queue.`,
                 createdAt: new Date().toISOString(),
                 workItemId: itemToReallocate.id,
-                category: 'Reallocation',
-                subject: 'Work Item Reallocated',
+                category: 'Allocation',
+                subject: 'Work Item Allocated',
             });
 
             toast({
-                title: 'Work Item Reallocated',
-                description: `Work item "${itemToReallocate.customId}" has been reallocated to ${newAssigneeName}.`,
+                title: 'Work Item Allocated',
+                description: `Work item "${itemToReallocate.customId}" has been allocated to ${newAssigneeName}.`,
             });
         } catch (error: any) {
             toast({
                 variant: 'destructive',
-                title: 'Error Reallocating Item',
+                title: 'Error Allocating Item',
                 description: error.message,
             });
         } finally {
             setNewAssigneeId('');
-            setReallocationNote('');
-            setReallocationTask('');
             onClose();
         }
     };
@@ -146,7 +123,7 @@ function ReallocateDialog({ isOpen, onClose, itemToReallocate }: ReallocateDialo
                 <DialogHeader>
                     <DialogTitle>Reallocate Work Item: {itemToReallocate?.customId}</DialogTitle>
                     <DialogDescription>
-                        Assign this work item to a different user.
+                        Assign this work item to a user.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
@@ -164,30 +141,6 @@ function ReallocateDialog({ isOpen, onClose, itemToReallocate }: ReallocateDialo
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="task">Initial Task</Label>
-                        <Select onValueChange={setReallocationTask} value={reallocationTask}>
-                            <SelectTrigger id="task">
-                                <SelectValue placeholder="Select an initial task (optional)" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {initialTaskOptions.map((task) => (
-                                    <SelectItem key={task} value={task}>
-                                        {task}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="note">Reallocation Note</Label>
-                        <Textarea
-                            id="note"
-                            placeholder="Provide a reason for reallocating (optional)..."
-                            value={reallocationNote}
-                            onChange={(e) => setReallocationNote(e.target.value)}
-                        />
                     </div>
                 </div>
                 <DialogFooter>
