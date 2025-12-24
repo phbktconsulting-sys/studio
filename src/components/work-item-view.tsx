@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -16,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit, where, getDocs } from 'firebase/firestore';
@@ -30,12 +31,21 @@ import {
 } from '@/components/ui/table';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { CustomCalendar } from './custom-calendar';
 import { useToast } from '@/hooks/use-toast';
 import { NotesTab } from './notes-tab';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
 import { useTabs } from '@/contexts/tab-context';
+import { cn } from '@/lib/utils';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Other Services"],
@@ -149,6 +159,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [reindexToProcess, setReindexToProcess] = useState('');
   const [reindexReason, setReindexReason] = useState('');
   const [reindexNotes, setReindexNotes] = useState('');
+  const [copyCurrentTasks, setCopyCurrentTasks] = useState(false);
+  const [selectedNewTasks, setSelectedNewTasks] = useState<string[]>([]);
+
 
   const [terminateReason, setTerminateReason] = useState('');
   const [terminateNotes, setTerminateNotes] = useState('');
@@ -189,6 +202,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const handleTaskToggle = (taskId: string) => {
     setCompletedTasks(prev => ({ ...prev, [taskId]: !prev[taskId] }));
   };
+  
+  const handleReindexProcessChange = (process: string) => {
+      setReindexToProcess(process);
+      setSelectedNewTasks([]); // Reset selected tasks when process changes
+  }
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -231,13 +250,20 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             workItemUpdate.lockInfo = null;
             break;
         }
-        case 're-index':
+        case 're-index': {
             if (!reindexToProcess) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Please select a process to re-index to.' });
                 return;
             }
             category = 'Re-Indexed';
 
+            const newTasksForWorkItem = selectedNewTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false }));
+            
+            if (copyCurrentTasks) {
+                const currentTasksToCopy = workItem.tasks.map(t => ({ ...t, id: `task-copy-${t.id}-${Math.random()}`})); // create new IDs
+                newTasksForWorkItem.push(...currentTasksToCopy);
+            }
+            
             const reindexPayload = {
               process: reindexToProcess,
               urgency: workItem.urgency,
@@ -245,7 +271,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               createdBy: user.uid,
               relatedContact: workItem.relatedContact,
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
-              tasks: [], 
+              tasks: newTasksForWorkItem,
             };
             
             const newWorkItemResult = await createWorkItem(reindexPayload);
@@ -265,6 +291,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             openTab({ id: newWorkItemResult.id, title: newWorkItemResult.customId, type: 'work-item' });
 
             break;
+        }
         case 'terminate':
             category = 'Terminated';
             noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
@@ -355,36 +382,109 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       }
       case 're-index':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
-            <Label className="text-xs font-normal text-right">Re-Index to Process</Label>
-            <Select onValueChange={setReindexToProcess} value={reindexToProcess}>
-              <SelectTrigger className="text-xs h-6">
-                <SelectValue placeholder="Select a new process..." />
-              </SelectTrigger>
-              <SelectContent>
-                 {processTypes
-                    .filter(type => type !== workItem.process)
-                    .map((type) => (
-                      <SelectItem key={type} value={type}>
-                          {type}
-                      </SelectItem>
-                 ))}
-              </SelectContent>
-            </Select>
+          <div className="space-y-4">
+            <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+                <Label className="text-xs font-normal text-right">Re-Index to Process</Label>
+                <Select onValueChange={handleReindexProcessChange} value={reindexToProcess}>
+                <SelectTrigger className="text-xs h-6">
+                    <SelectValue placeholder="Select a new process..." />
+                </SelectTrigger>
+                <SelectContent>
+                    {processTypes
+                        .filter(type => type !== workItem.process)
+                        .map((type) => (
+                        <SelectItem key={type} value={type}>
+                            {type}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+                </Select>
 
-            <Label className="text-xs font-normal text-right">Reason *</Label>
-            <Select onValueChange={setReindexReason} value={reindexReason}>
-              <SelectTrigger className="text-xs h-6">
-                <SelectValue placeholder="Select reason..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Wrong Process">Wrong Process</SelectItem>
-                <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
-              </SelectContent>
-            </Select>
+                <Label className="text-xs font-normal text-right">Reason *</Label>
+                <Select onValueChange={setReindexReason} value={reindexReason}>
+                <SelectTrigger className="text-xs h-6">
+                    <SelectValue placeholder="Select reason..." />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="Wrong Process">Wrong Process</SelectItem>
+                    <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
+                </SelectContent>
+                </Select>
 
-            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-re-index">Note *</Label>
-            <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[60px]" />
+                <Label className="text-xs font-normal text-right self-start" htmlFor="notes-re-index">Note *</Label>
+                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[60px]" />
+             </div>
+
+             {reindexToProcess && (
+                 <div className="space-y-2">
+                    <Label className="text-xs font-normal">Tasks for New Process</Label>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                    "w-full justify-between h-8 text-xs font-normal",
+                                    !selectedNewTasks?.length && "text-muted-foreground"
+                                )}
+                                >
+                                {selectedNewTasks?.length > 0 ? `${selectedNewTasks.length} selected` : "Select new tasks"}
+                                <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                            <Command>
+                                <CommandInput placeholder="Search tasks..." />
+                                <CommandList>
+                                <CommandEmpty>No tasks found.</CommandEmpty>
+                                <CommandGroup>
+                                    {(processTaskMap[reindexToProcess] || []).map((task) => (
+                                    <CommandItem
+                                        key={task}
+                                        onSelect={() => {
+                                            const isSelected = selectedNewTasks.includes(task);
+                                            const newTasks = isSelected
+                                            ? selectedNewTasks.filter((t) => t !== task)
+                                            : [...selectedNewTasks, task];
+                                            setSelectedNewTasks(newTasks);
+                                        }}
+                                        >
+                                        <Checkbox
+                                            checked={selectedNewTasks.includes(task)}
+                                            className="mr-2"
+                                        />
+                                        {task}
+                                    </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
+                 </div>
+             )}
+
+            {(workItem.tasks || []).length > 0 && (
+                <div className="space-y-2">
+                    <Label className="text-xs font-normal">Current Tasks</Label>
+                    <div className="p-2 border rounded-md max-h-24 overflow-y-auto">
+                        <ul className="list-disc list-inside text-xs text-muted-foreground">
+                            {workItem.tasks.map(task => <li key={task.id}>{task.text}</li>)}
+                        </ul>
+                    </div>
+                     <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id="copy-tasks"
+                            checked={copyCurrentTasks}
+                            onCheckedChange={(checked) => setCopyCurrentTasks(checked as boolean)}
+                        />
+                        <Label htmlFor="copy-tasks" className="text-xs font-normal">
+                            Copy current tasks to new work item
+                        </Label>
+                    </div>
+                </div>
+            )}
+            
           </div>
         );
       case 'terminate':
