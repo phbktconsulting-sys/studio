@@ -391,9 +391,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               <div className="flex items-start">
                   <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
                    <div className="w-2/5">
-                        <div className="mt-1 flex flex-col space-y-1 rounded-md border p-2 overflow-y-auto max-h-28">
+                        <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
                         {(workItem.tasks || []).length > 0 ? (
-                            <div className="space-y-1">
+                            <div className="space-y-2">
                                 {workItem.tasks.map(task => (
                                     <div key={task.id} className="flex items-center gap-1.5">
                                         <Checkbox
@@ -439,7 +439,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                           placeholder="Add final notes..."
                           value={resolveCompleteNotes}
                           onChange={e => setResolveCompleteNotes(e.target.value)}
-                          className="mt-1 min-h-[60px] text-xs"
+                          className="mt-1 min-h-[100px] text-xs"
                       />
                   </div>
               </div>
@@ -563,7 +563,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
               <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-re-index">Notes<span className="text-destructive">*</span></Label>
               <div className="w-1/2">
-                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="min-h-[60px] text-xs" />
+                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="min-h-[100px] text-xs" />
               </div>
             </div>
           </div>
@@ -598,7 +598,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
                 <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-terminate">Notes<span className="text-destructive">*</span></Label>
                  <div className="w-1/2">
-                    <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="min-h-[60px] text-xs" />
+                    <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="min-h-[100px] text-xs" />
                 </div>
             </div>
           </div>
@@ -630,7 +630,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
               <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-transfer">Notes<span className="text-destructive">*</span></Label>
               <div className="w-1/2">
-                <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="min-h-[60px] text-xs" />
+                <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="min-h-[100px] text-xs" />
               </div>
             </div>
           </div>
@@ -670,7 +670,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
               <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-pend">Notes<span className="text-destructive">*</span></Label>
               <div className="w-1/2">
-                <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="min-h-[60px] text-xs" />
+                <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="min-h-[100px] text-xs" />
               </div>
             </div>
           </div>
