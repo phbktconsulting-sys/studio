@@ -361,23 +361,23 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold">All Tasks Completed?</Label>
-                <RadioGroup
-                  value={allTasksCompleted}
-                  onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
-                  className="flex items-center space-x-4 pt-1"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="tasks-yes" />
-                    <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="tasks-no" />
-                    <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
-                  </div>
-                </RadioGroup>
-              </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold">All Tasks Completed?</Label>
+              <RadioGroup
+                value={allTasksCompleted}
+                onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
+                className="flex items-center space-x-4 pt-1"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="tasks-yes" />
+                  <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="tasks-no" />
+                  <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
+                </div>
+              </RadioGroup>
+            </div>
             <div className="grid grid-cols-2 gap-4 items-start">
                 <div className="space-y-2">
                     <Label className="text-xs font-semibold">Tasks</Label>
@@ -617,22 +617,28 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'pend':
         return (
-          <div className="grid grid-cols-['max-content'_1fr] items-center gap-x-4 gap-y-2">
-            <Label className="text-xs font-normal text-right">Pend until date</Label>
-            <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
-            <Label className="text-xs font-normal text-right">Reason for pend</Label>
-            <Select onValueChange={setPendReason} value={pendReason}>
-              <SelectTrigger className="text-xs h-6">
-                <SelectValue placeholder="Select reason..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Information Needed">Information Needed</SelectItem>
-                <SelectItem value="Customer Unavailable">Customer Unavailable</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-pend">Notes</Label>
-            <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[100px]" />
+          <div className="grid grid-cols-3 gap-4 items-start">
+            <div className="space-y-1">
+                <Label className="text-xs font-normal">Pend until date</Label>
+                <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
+            </div>
+            <div className="space-y-1">
+                <Label className="text-xs font-normal">Reason for pend</Label>
+                <Select onValueChange={setPendReason} value={pendReason}>
+                  <SelectTrigger className="text-xs h-9">
+                    <SelectValue placeholder="Select reason..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Information Needed">Information Needed</SelectItem>
+                    <SelectItem value="Customer Unavailable">Customer Unavailable</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+            </div>
+             <div className="space-y-1">
+                <Label className="text-xs font-normal" htmlFor="notes-pend">Notes</Label>
+                <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[100px]" />
+             </div>
           </div>
         );
       default:
