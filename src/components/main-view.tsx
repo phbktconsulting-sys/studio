@@ -1,3 +1,4 @@
+
 'use client';
 
 import { AppHeader } from '@/components/app-header';
@@ -12,6 +13,7 @@ import { NewWorkItemView } from './new-work-item-view';
 import { SearchView } from './search-view';
 import { BatchWorkCreate } from './batch-work-create';
 import { GlobalNotesView } from './global-notes-view';
+import { NewCreatedWorkItems } from './new-created-work-items';
 
 export function MainView() {
   const { tabs, activeTab, setActiveTab, closeTab } = useTabs();
@@ -28,6 +30,8 @@ export function MainView() {
         return <GlobalNotesView />;
       case 'new-work-item':
         return <NewWorkItemView />;
+      case 'new-created-work-items':
+          return <NewCreatedWorkItems onBack={() => {}} />; // onBack might need wiring up if it's a tab
       case 'batch-create':
         return <BatchWorkCreate onBack={() => closeTab('batch-create')} />;
       default:

@@ -271,16 +271,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             }
 
             if (reindexOption === 'initial') {
-                // Logic for "Return to initial Indexing"
+                // Logic for "Return to initial Indexing" - UPDATED
                 const newTasks = reindexTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false }));
-                workItemUpdate.assignedTo = workItem.createdBy; // Assign to original creator
                 workItemUpdate.status = 'Open';
                 workItemUpdate.process = reindexToProcess;
-                workItemUpdate.tasks = newTasks;
-
-                noteText = `Case returned to initial indexing by ${user.displayName}. New Process: '${reindexToProcess}'. Reason: ${reindexNotes}`;
-                category = 'Re-Indexed';
-                subjectForNote = 'RETURNED TO INDEX';
+                workItemUpdate.tasks = [...(workItem.tasks || []), ...newTasks]; // Append new tasks
+                // DO NOT reassign. Case remains with current user.
+                
+                noteText = `Case process changed to '${reindexToProcess}'. Reason: ${reindexNotes}`;
+                category = 'Process Change';
+                subjectForNote = 'PROCESS CHANGE';
                 
                 addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
                     authorId: user.uid,
@@ -292,7 +292,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     subject: subjectForNote,
                 });
                 updateDocumentNonBlocking(workItemRef, workItemUpdate);
-                toast({ title: "Case Returned", description: "Work item has been returned to the initial creator." });
+                toast({ title: "Process Changed", description: "The work item's process has been updated." });
                 onCancel();
                 return; // Exit after handling
             }

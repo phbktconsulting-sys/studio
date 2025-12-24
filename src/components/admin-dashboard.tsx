@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { AllWorkItems } from './all-work-items';
 import { UserManagement } from './user-management';
 import { AnalyticsDashboard } from './analytics-dashboard';
-import { List, Users, BarChart2, Upload, TrendingUp, Contact } from 'lucide-react';
+import { List, Users, BarChart2, Upload, TrendingUp, Contact, FilePlus2 } from 'lucide-react';
 import { BatchWorkCreate } from './batch-work-create';
 import { SlaTrackingDashboard } from './sla-tracking-dashboard';
 import { CustomerWorkflow } from './customer-workflow';
+import { NewCreatedWorkItems } from './new-created-work-items';
 
-type AdminView = 'menu' | 'work-items' | 'users' | 'dashboard' | 'batch-create' | 'sla-tracking' | 'customer-workflow';
+type AdminView = 'menu' | 'work-items' | 'users' | 'dashboard' | 'batch-create' | 'sla-tracking' | 'customer-workflow' | 'new-created-work-items';
 
 export function AdminDashboard() {
   const [view, setView] = useState<AdminView>('menu');
@@ -37,6 +39,10 @@ export function AdminDashboard() {
   
   if (view === 'customer-workflow') {
     return <CustomerWorkflow onBack={() => setView('menu')} />;
+  }
+  
+  if (view === 'new-created-work-items') {
+    return <NewCreatedWorkItems onBack={() => setView('menu')} />;
   }
 
   return (
@@ -84,6 +90,12 @@ export function AdminDashboard() {
           description="View and manage all customer records in the system."
           icon={<Contact className="h-6 w-6" />}
           onClick={() => setView('customer-workflow')}
+        />
+         <CardButton
+          title="New Work Items"
+          description="View work items created today."
+          icon={<FilePlus2 className="h-6 w-6" />}
+          onClick={() => setView('new-created-work-items')}
         />
       </div>
     </div>
