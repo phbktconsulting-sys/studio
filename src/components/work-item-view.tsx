@@ -159,7 +159,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
 
   const [reindexToProcess, setReindexToProcess] = useState('');
-  const [reindexReason, setReindexReason] = useState(processTypes[0]);
+  const [reindexTasks, setReindexTasks] = useState<string[]>([]);
   const [reindexNotes, setReindexNotes] = useState('');
   const [shouldCopyNotes, setShouldCopyNotes] = useState<'yes' | 'no'>('yes');
   const [reindexOption, setReindexOption] = useState<'myself' | 'initial'>('myself');
@@ -244,21 +244,21 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                  onCancel();
                  return;
              }
-             if (!reindexReason) {
-                 toast({ variant: 'destructive', title: 'Error', description: 'Please select a reason for re-indexing.' });
+             if (!reindexToProcess) {
+                 toast({ variant: 'destructive', title: 'Error', description: 'Please select a process for re-indexing.' });
                  return;
              }
             
             const reindexPayload = {
-              process: reindexReason, // Use the selected reason as the new process
+              process: reindexToProcess,
               urgency: workItem.urgency,
               assignedTo: user.uid,
               createdBy: user.uid,
               relatedContact: workItem.relatedContact,
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
-              tasks: [],
+              tasks: reindexTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
               sourceWorkItemId: shouldCopyNotes === 'yes' ? workItem.id : undefined,
-              reindexReason: reindexReason, 
+              reindexReason: reindexToProcess, 
               reindexNote: `Original Case ID: ${workItem.customId}. ${reindexNotes}`,
             };
             
@@ -267,7 +267,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 throw new Error(newWorkItemResult.error || 'Failed to create new work item during re-index.');
             }
             
-            const oldItemNoteText = `Case re-indexed to new Process '${reindexPayload.process}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
+            const oldItemNoteText = `Case re-indexed to new Process '${reindexPayload.process}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexToProcess}. ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
             workItemUpdate.lockInfo = null;
 
@@ -413,11 +413,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Reason<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold text-xs">Process<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
-                  <Select onValueChange={setReindexReason} value={reindexReason}>
+                  <Select onValueChange={(value) => { setReindexToProcess(value); setReindexTasks([]); }} value={reindexToProcess}>
                     <SelectTrigger className="text-xs h-7">
-                      <SelectValue />
+                      <SelectValue placeholder="Select a new process..."/>
                     </SelectTrigger>
                     <SelectContent>
                       {processTypes.map((process) => (
@@ -428,6 +428,54 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     </SelectContent>
                   </Select>
               </div>
+            </div>
+            <div className="flex items-center">
+                <Label className="w-1/4 font-semibold text-xs">Tasks</Label>
+                <div className="w-1/3">
+                     <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                                "w-full justify-between h-7 text-xs",
+                                !reindexTasks?.length && "text-muted-foreground"
+                            )}
+                            >
+                            {reindexTasks?.length > 0 ? `${reindexTasks.length} selected` : "Select tasks"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                            <Command>
+                                <CommandInput placeholder="Search tasks..." />
+                                <CommandList>
+                                <CommandEmpty>No tasks found.</CommandEmpty>
+                                <CommandGroup>
+                                    {(processTaskMap[reindexToProcess] || []).map((task) => (
+                                    <CommandItem
+                                        key={task}
+                                        onSelect={() => {
+                                            const isSelected = reindexTasks.includes(task);
+                                            const newTasks = isSelected
+                                            ? reindexTasks.filter((t) => t !== task)
+                                            : [...reindexTasks, task];
+                                            setReindexTasks(newTasks);
+                                        }}
+                                        >
+                                        <Checkbox
+                                            checked={reindexTasks.includes(task)}
+                                            className="mr-2"
+                                        />
+                                        {task}
+                                    </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
+                </div>
             </div>
              <div className="flex items-center">
               <Label className="w-1/4 font-semibold text-xs">Copy notes to new case?</Label>
@@ -1024,6 +1072,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
 
 
 
