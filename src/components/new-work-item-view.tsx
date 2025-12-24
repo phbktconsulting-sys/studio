@@ -45,6 +45,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Checkbox } from './ui/checkbox';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Other Services"],
@@ -62,6 +63,7 @@ export function NewWorkItemView() {
   const { openTab, closeTab } = useTabs();
   const { toast } = useToast();
   const [selectedProcess, setSelectedProcess] = useState<string>(processTypes[0]);
+  const [assignmentOption, setAssignmentOption] = useState<'myself' | 'initial'>('myself');
 
   const form = useForm<WorkItemFormValues>({
     resolver: zodResolver(WorkItemCreateSchema),
@@ -89,10 +91,12 @@ export function NewWorkItemView() {
     }
 
     try {
+      const assignedTo = assignmentOption === 'myself' ? user.uid : data.process;
+      
       const payload = {
         process: data.process,
         urgency: data.urgency,
-        assignedTo: user.uid,
+        assignedTo: assignedTo,
         createdBy: user.uid,
         relatedContact: {
           name: data.customerName,
@@ -115,11 +119,14 @@ export function NewWorkItemView() {
 
         form.reset();
         closeTab('new-work-item');
-        openTab({
-          id: result.id,
-          title: result.customId,
-          type: 'work-item',
-        });
+        
+        if (assignmentOption === 'myself') {
+          openTab({
+            id: result.id,
+            title: result.customId,
+            type: 'work-item',
+          });
+        }
       } else {
         throw new Error(result.error || 'An unknown error occurred.');
       }
@@ -161,6 +168,24 @@ export function NewWorkItemView() {
         <CardContent>
            <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+               <div className="space-y-4">
+                  <div className="flex items-center">
+                    <FormLabel className="w-1/4 text-xs font-semibold">Assignment Option</FormLabel>
+                    <div className="w-3/4">
+                       <RadioGroup value={assignmentOption} onValueChange={(v) => setAssignmentOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="myself" id="create-myself" />
+                            <Label htmlFor="create-myself" className="flex h-7 items-center text-xs font-normal">Create myself</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="initial" id="create-initial" />
+                            <Label htmlFor="create-initial" className="flex h-7 items-center text-xs font-normal">Return to initial Indexing</Label>
+                          </div>
+                        </RadioGroup>
+                    </div>
+                  </div>
+              </div>
+
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                  <FormField
                   control={form.control}
