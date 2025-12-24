@@ -575,7 +575,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       </Card>
       
       {selectedAction && (
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="flex justify-center gap-2 mt-4">
           <Button type="button" variant="outline" onClick={onCancel} className="h-6 py-0">
             Cancel
           </Button>
