@@ -344,7 +344,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-              <Label className="w-1/3 font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                   <RadioGroup
                     value={allTasksCompleted}
@@ -363,7 +363,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/3 font-semibold pt-1">Tasks</Label>
+              <Label className="w-1/4 font-semibold pt-1">Tasks</Label>
               <div className="w-1/3">
                   <div className="mt-1 space-y-2 rounded-md border p-2 h-28 overflow-y-auto">
                       {(workItem.tasks || []).map(task => (
@@ -381,7 +381,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
              <div className="flex items-start">
-                <Label className="w-1/3 font-semibold pt-1" htmlFor="notes-resolve-complete">Notes</Label>
+                <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-resolve-complete">Notes</Label>
                  <div className="w-3/5">
                     <Textarea
                         id="notes-resolve-complete"
@@ -398,7 +398,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-              <Label className="w-1/3 font-semibold">Re-index Option<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold">Re-index Option<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                 <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex gap-4 h-8 items-center">
                   <div className="flex items-center space-x-2">
@@ -413,7 +413,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-center">
-              <Label className="w-1/3 font-semibold">Reason<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold">Reason<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                   <Select onValueChange={setReindexReason} value={reindexReason}>
                     <SelectTrigger className="text-xs h-8">
@@ -427,7 +427,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
              <div className="flex items-center">
-              <Label className="w-1/3 font-semibold">Copy notes to new case?</Label>
+              <Label className="w-1/4 font-semibold">Copy notes to new case?</Label>
               <div className="w-1/3">
                  <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex gap-4 h-8 items-center">
                   <div className="flex items-center space-x-2">
@@ -442,7 +442,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/3 font-semibold pt-1" htmlFor="notes-re-index">Note<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-re-index">Note<span className="text-destructive">*</span></Label>
               <div className="w-3/5">
                 <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[100px]" />
               </div>
@@ -453,7 +453,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-                <Label className="w-1/3 font-semibold">Reason</Label>
+                <Label className="w-1/4 font-semibold">Reason</Label>
                 <div className="w-1/3">
                   <Select onValueChange={setTerminateReason} value={terminateReason}>
                     <SelectTrigger className="text-xs h-8">
@@ -477,7 +477,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </div>
             </div>
             <div className="flex items-start">
-                <Label className="w-1/3 font-semibold pt-1" htmlFor="notes-terminate">Notes</Label>
+                <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-terminate">Notes</Label>
                  <div className="w-3/5">
                     <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[100px]" />
                 </div>
@@ -494,7 +494,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-              <Label className="w-1/3 font-semibold">Transfer to User</Label>
+              <Label className="w-1/4 font-semibold">Transfer to User</Label>
               <div className="w-1/3">
                 <Select onValueChange={setTransferToUser} value={transferToUser}>
                   <SelectTrigger className="text-xs h-8">
@@ -509,7 +509,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/3 font-semibold pt-1" htmlFor="notes-transfer">Notes</Label>
+              <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-transfer">Notes</Label>
               <div className="w-3/5">
                 <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[100px]" />
               </div>
@@ -520,13 +520,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-              <Label className="w-1/3 font-semibold">Pend until date</Label>
+              <Label className="w-1/4 font-semibold">Pend until date</Label>
               <div className="w-1/3">
                 <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
               </div>
             </div>
             <div className="flex items-center">
-              <Label className="w-1/3 font-semibold">Reason for pend</Label>
+              <Label className="w-1/4 font-semibold">Reason for pend</Label>
               <div className="w-1/3">
                 <Select onValueChange={setPendReason} value={pendReason}>
                   <SelectTrigger className="text-xs h-8">
@@ -549,7 +549,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/3 font-semibold pt-1" htmlFor="notes-pend">Notes</Label>
+              <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-pend">Notes</Label>
               <div className="w-3/5">
                 <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[100px]" />
               </div>
@@ -1021,4 +1021,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
 
