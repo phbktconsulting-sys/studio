@@ -271,12 +271,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             }
 
             if (reindexOption === 'initial') {
-                // Logic for "Return to initial Indexing" - UPDATED
                 const newTasks = reindexTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false }));
                 workItemUpdate.status = 'Open';
                 workItemUpdate.process = reindexToProcess;
-                workItemUpdate.tasks = [...(workItem.tasks || []), ...newTasks]; // Append new tasks
-                // DO NOT reassign. Case remains with current user.
+                workItemUpdate.assignedTo = reindexToProcess; // Assign to the process name
+                workItemUpdate.tasks = [...(workItem.tasks || []), ...newTasks]; 
                 
                 noteText = `Case process changed to '${reindexToProcess}'. Reason: ${reindexNotes}`;
                 category = 'Process Change';
@@ -284,7 +283,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 
                 addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
                     authorId: user.uid,
-                    author: user.displayName || user.email,
                     text: noteText,
                     createdAt: new Date().toISOString(),
                     workItemId: workItem.id,
@@ -292,9 +290,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     subject: subjectForNote,
                 });
                 updateDocumentNonBlocking(workItemRef, workItemUpdate);
-                toast({ title: "Process Changed", description: "The work item's process has been updated." });
+                toast({ title: "Process Changed", description: "The work item's process has been updated and moved to the process queue." });
                 onCancel();
-                return; // Exit after handling
+                return;
             }
             
             // Logic for "Re-index case myself"
@@ -463,12 +461,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-              <div className="flex items-start">
+               <div className="flex items-start">
                   <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-                  <div className="w-2/5">
+                  <div className="w-3/4">
                       <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
                       {(workItem.tasks || []).length > 0 ? (
-                           <div className="flex flex-col space-y-2">
+                          <div className="flex flex-col space-y-2">
                             {workItem.tasks.map(task => (
                                 <div key={task.id} className="flex items-center gap-1.5">
                                     <Checkbox
@@ -987,6 +985,8 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   
   const assignedUserRef = useMemoFirebase(() => {
     if (!firestore || !item?.assignedTo) return null;
+    // Check if assignedTo is a UID (standard length is 28 chars)
+    if (item.assignedTo.length < 20) return null;
     return doc(firestore, 'users', item.assignedTo);
   }, [firestore, item?.assignedTo]);
   
@@ -1023,7 +1023,6 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       timestamp: new Date().toISOString(),
     };
     
-    // If the case is assigned to someone else, reassign it to the current user
     if (item.assignedTo !== currentUser.uid) {
       updateDocumentNonBlocking(workItemRef, {
         assignedTo: currentUser.uid,
@@ -1046,7 +1045,6 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       });
 
     } else {
-        // Case is already assigned to current user, just lock it
         updateDocumentNonBlocking(workItemRef, { lockInfo });
     }
 
@@ -1055,7 +1053,6 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   
   const handleCancelVerify = () => {
     if (!workItemRef) return;
-    // Unlock the case
     updateDocumentNonBlocking(workItemRef, { lockInfo: null });
     setIsVerifyingAuthority(false);
   }
@@ -1077,6 +1074,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   const isClosed = item.status === 'Closed' || item.status === 'Re-indexed';
   const isPended = item.status === 'Pending';
   const isLockedByOther = item.lockInfo && item.lockInfo.userId !== currentUser?.uid;
+  const isAssignedToProcess = item.assignedTo.length < 20; // Heuristic to check if it's a process name
   
   const lastPendedNote = isPended ? latestNoteArr?.find(n => n.category === 'Pended') : undefined;
 
@@ -1128,7 +1126,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             ) : (
                 <div className="my-2 flex items-center gap-4 text-sm">
                     <span className="font-medium">Assigned To:</span>
-                    <span>{assignedUser?.displayName || '...'}</span>
+                    <span>{isAssignedToProcess ? item.assignedTo : (assignedUser?.displayName || '...')}</span>
                     <Button onClick={handleVerifyClick} className="h-7 bg-black text-white hover:bg-black/80 text-xs">
                         Verify Customer Authority
                     </Button>
