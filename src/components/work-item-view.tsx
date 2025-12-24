@@ -361,7 +361,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-            <div className="space-y-2">
+              <div className="space-y-2">
                 <Label className="text-xs font-semibold">All Tasks Completed?</Label>
                 <RadioGroup
                   value={allTasksCompleted}
@@ -583,7 +583,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
             <div className="space-y-1">
                 <Label className="text-xs font-normal" htmlFor="notes-terminate">Notes</Label>
-                <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[60px]" />
+                <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[100px]" />
             </div>
           </div>
         );
