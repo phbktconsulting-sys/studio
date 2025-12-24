@@ -599,10 +599,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       
       {selectedAction && (
         <div className="flex justify-center gap-2 mt-4">
-          <Button type="button" variant="outline" onClick={onCancel} className="h-6 py-0">
+          <Button type="button" variant="outline" onClick={onCancel} className="h-8">
             Cancel
           </Button>
-          <Button type="submit" disabled={!selectedAction} className="h-6 py-0">
+          <Button type="submit" disabled={!selectedAction} className="h-8 bg-black text-white hover:bg-black/80">
             Submit
           </Button>
         </div>
@@ -1021,5 +1021,6 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
 
 
