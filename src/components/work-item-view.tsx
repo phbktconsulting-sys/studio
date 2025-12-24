@@ -1126,7 +1126,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             ) : (
                 <div className="my-2 flex items-center gap-4 text-sm">
                     <span className="font-medium">Assigned To:</span>
-                    <span>{isAssignedToProcess ? item.assignedTo : (assignedUser?.displayName || '...')}</span>
+                    <span>{isAssignedToProcess ? item.assignedTo : (assignedUser?.displayName || item.assignedTo)}</span>
                     <Button onClick={handleVerifyClick} className="h-7 bg-black text-white hover:bg-black/80 text-xs">
                         Verify Customer Authority
                     </Button>

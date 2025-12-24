@@ -483,7 +483,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                     </TableCell>
                     <TableCell className="py-1 px-4 text-xs">{item.subject}</TableCell>
                     <TableCell className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
-                    <TableCell className="py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || 'Unassigned'}</TableCell>
+                    <TableCell className="py-1 px-4 text-xs">{usersMap.get(item.assignedTo) || item.assignedTo}</TableCell>
                     <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                     <TableCell className="py-1 px-4 text-center">
                       <div className="flex justify-center items-center gap-2">

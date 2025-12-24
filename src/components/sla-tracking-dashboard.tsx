@@ -146,7 +146,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
         const sla = calculateSla(item, allNotes);
         const userKey = item.assignedTo;
         if (!stats[userKey]) {
-            stats[userKey] = { met: 0, missed: 0, name: usersMap.get(userKey) || 'Unassigned' };
+            stats[userKey] = { met: 0, missed: 0, name: usersMap.get(userKey) || item.assignedTo };
         }
         if (sla.slaMet) {
             stats[userKey].met++;
@@ -334,7 +334,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
                                   </TableCell>
                                   <TableCell className="text-xs font-medium py-1">{item.customId}</TableCell>
                                   <TableCell className="text-xs py-1">{item.process}</TableCell>
-                                  <TableCell className="text-xs py-1">{usersMap.get(item.assignedTo)}</TableCell>
+                                  <TableCell className="text-xs py-1">{usersMap.get(item.assignedTo) || item.assignedTo}</TableCell>
                                   <TableCell className="text-xs py-1">{item.status}</TableCell>
                                   <TableCell className="text-xs py-1">{format(parseISO(item.createdAt), 'MMM d, yyyy')}</TableCell>
                                   <TableCell className="text-right text-xs py-1">{item.sla.days}</TableCell>

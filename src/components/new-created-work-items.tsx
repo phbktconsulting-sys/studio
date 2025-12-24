@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -138,8 +137,8 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
                   <TableCell className="text-xs py-1 px-4">
                     <StatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell className="text-xs py-1 px-4">{usersMap.get(item.createdBy) || 'Unknown'}</TableCell>
-                  <TableCell className="text-xs py-1 px-4">{usersMap.get(item.assignedTo) || 'Unknown'}</TableCell>
+                  <TableCell className="text-xs py-1 px-4">{usersMap.get(item.createdBy) || item.createdBy}</TableCell>
+                  <TableCell className="text-xs py-1 px-4">{usersMap.get(item.assignedTo) || item.assignedTo}</TableCell>
                   <TableCell className="text-xs py-1 px-4">{format(new Date(item.createdAt), 'p')}</TableCell>
                 </TableRow>
               ))}
