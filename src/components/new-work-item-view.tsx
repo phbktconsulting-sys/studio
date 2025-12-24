@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,13 +39,14 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
+import { ArrowLeft, ChevronsUpDown, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Checkbox } from './ui/checkbox';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Label } from './ui/label';
+import { Badge } from './ui/badge';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Other Services"],
@@ -118,9 +118,10 @@ export function NewWorkItemView() {
           description: `Work item "${result.customId}" has been successfully created.`,
         });
 
-        form.reset();
+        // Close the 'new work item' tab regardless of assignment
         closeTab('new-work-item');
         
+        // Only open the new tab if the item was assigned to the user
         if (assignmentOption === 'myself') {
           openTab({
             id: result.id,
@@ -228,7 +229,7 @@ export function NewWorkItemView() {
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                    "w-full justify-between h-9",
+                                    "w-full justify-between h-9 text-xs",
                                     !field.value?.length && "text-muted-foreground"
                                 )}
                                 >
