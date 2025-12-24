@@ -94,7 +94,13 @@ export function MyWorkDashboard() {
       assignedItems.forEach((item) => allItems.set(item.id, item));
     }
     if (createdItems) {
-      createdItems.forEach((item) => allItems.set(item.id, item));
+      createdItems.forEach((item) => {
+        // Add item if it's not already in the map (to avoid duplicates)
+        // and ensure it's not assigned to a process queue (heuristic: length < 20 is not a UID).
+        if (!allItems.has(item.id) && item.assignedTo.length >= 20) {
+          allItems.set(item.id, item);
+        }
+      });
     }
     return Array.from(allItems.values());
   }, [assignedItems, createdItems]);
@@ -228,4 +234,5 @@ export function MyWorkDashboard() {
   );
 
     
+
 
