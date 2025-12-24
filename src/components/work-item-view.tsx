@@ -342,40 +342,43 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold">All Tasks Completed?</Label>
-                <RadioGroup
-                  value={allTasksCompleted}
-                  onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
-                  className="flex items-center space-x-4 pt-1"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="tasks-yes" />
-                    <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="tasks-no" />
-                    <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              <div className="space-y-2">
-                  <Label className="text-xs font-semibold">Tasks</Label>
-                  <div className="mt-1 space-y-2 rounded-md border p-2 max-h-32 overflow-y-auto">
-                      {(workItem.tasks || []).map(task => (
-                      <div key={task.id} className="flex items-center text-xs">
-                          <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
-                          <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
-                          {task.text}
-                          </label>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 items-start">
+              <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold">All Tasks Completed?</Label>
+                    <RadioGroup
+                      value={allTasksCompleted}
+                      onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
+                      className="flex items-center space-x-4 pt-1"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="tasks-yes" />
+                        <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
                       </div>
-                      ))}
-                      {(workItem.tasks || []).length === 0 && (
-                      <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
-                      )}
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="tasks-no" />
+                        <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                   <div className="space-y-2">
+                    <Label className="text-xs font-semibold">Tasks</Label>
+                    <div className="mt-1 space-y-2 rounded-md border p-2 h-28 overflow-y-auto">
+                        {(workItem.tasks || []).map(task => (
+                        <div key={task.id} className="flex items-center text-xs">
+                            <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
+                            <label htmlFor={`task-display-${task.id}`} className={cn("flex-1", task.completed && "line-through text-muted-foreground")}>
+                            {task.text}
+                            </label>
+                        </div>
+                        ))}
+                        {(workItem.tasks || []).length === 0 && (
+                        <p className="text-xs text-muted-foreground text-center py-2">No tasks assigned.</p>
+                        )}
+                    </div>
                   </div>
               </div>
+
               <div className="space-y-2">
                   <Label className="text-xs font-semibold" htmlFor="notes-resolve-complete">Notes</Label>
                   <Textarea
@@ -503,31 +506,33 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'pend':
         return (
-          <div className="grid grid-cols-3 gap-4 items-start">
-            <div className="space-y-1">
-                <Label className="text-xs font-normal h-8">Pend until date</Label>
-                <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
-            </div>
-            <div className="space-y-1">
-                <Label className="text-xs font-normal h-8">Reason for pend</Label>
-                <Select onValueChange={setPendReason} value={pendReason}>
-                  <SelectTrigger className="text-xs h-8">
-                    <SelectValue placeholder="Select reason..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Pending Internal Action">Pending Internal Action</SelectItem>
-                    <SelectItem value="Awaiting Other Team Response">Awaiting Other Team Response</SelectItem>
-                    <SelectItem value="Awaiting Client Feedback">Awaiting Client Feedback</SelectItem>
-                    <SelectItem value="Blocked by Another Task">Blocked by Another Task</SelectItem>
-                    <SelectItem value="Pending Final Review">Pending Final Review</SelectItem>
-                    <SelectItem value="Scheduled for Later">Scheduled for Later</SelectItem>
-                    <SelectItem value="Under Technical Investigation">Under Technical Investigation</SelectItem>
-                    <SelectItem value="Clarification Needed">Clarification Needed</SelectItem>
-                    <SelectItem value="On Hold by Request">On Hold by Request</SelectItem>
-                    <SelectItem value="Awaiting Developer Action">Awaiting Developer Action</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+          <div className="grid grid-cols-2 gap-4 items-start">
+            <div className="space-y-4">
+                <div className="space-y-1">
+                    <Label className="text-xs font-normal h-8">Pend until date</Label>
+                    <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
+                </div>
+                 <div className="space-y-1">
+                    <Label className="text-xs font-normal h-8">Reason for pend</Label>
+                    <Select onValueChange={setPendReason} value={pendReason}>
+                      <SelectTrigger className="text-xs h-8">
+                        <SelectValue placeholder="Select reason..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pending Internal Action">Pending Internal Action</SelectItem>
+                        <SelectItem value="Awaiting Other Team Response">Awaiting Other Team Response</SelectItem>
+                        <SelectItem value="Awaiting Client Feedback">Awaiting Client Feedback</SelectItem>
+                        <SelectItem value="Blocked by Another Task">Blocked by Another Task</SelectItem>
+                        <SelectItem value="Pending Final Review">Pending Final Review</SelectItem>
+                        <SelectItem value="Scheduled for Later">Scheduled for Later</SelectItem>
+                        <SelectItem value="Under Technical Investigation">Under Technical Investigation</SelectItem>
+                        <SelectItem value="Clarification Needed">Clarification Needed</SelectItem>
+                        <SelectItem value="On Hold by Request">On Hold by Request</SelectItem>
+                        <SelectItem value="Awaiting Developer Action">Awaiting Developer Action</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                </div>
             </div>
              <div className="space-y-1">
                 <Label className="text-xs font-normal h-8" htmlFor="notes-pend">Notes</Label>
