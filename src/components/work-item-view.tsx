@@ -458,13 +458,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                             <SelectValue placeholder="Select reason..." />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="Wrong Process">Wrong Process</SelectItem>
-                            <SelectItem value="Incorrect Data">Incorrect Data</SelectItem>
-                            <SelectItem value="Internal User Error">Internal User Error</SelectItem>
-                            <SelectItem value="Test Case">Test Case</SelectItem>
-                            <SelectItem value="Spam Case">Spam Case</SelectItem>
-                            <SelectItem value="Duplicate Case">Duplicate Case</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
+                            <SelectItem value="Incorrect Category Selected">Incorrect Category Selected</SelectItem>
+                            <SelectItem value="Assigned to Wrong Department">Assigned to Wrong Department</SelectItem>
+                            <SelectItem value="Data Entry Error">Data Entry Error</SelectItem>
+                            <SelectItem value="Current work Task Resolved">Current work Task Resolved</SelectItem>
+                            <SelectItem value="Duplicate Record Found">Duplicate Record Found</SelectItem>
+                            <SelectItem value="Merging with Existing Item">Merging with Existing Item</SelectItem>
+                            <SelectItem value="Client Changed Requirement">Client Changed Requirement</SelectItem>
+                            <SelectItem value="Project Scope Expanded">Project Scope Expanded</SelectItem>
+                            <SelectItem value="Priority Upgrade">Priority Upgrade</SelectItem>
+                            <SelectItem value="Internal Review Required">Internal Review Required</SelectItem>
                         </SelectContent>
                     </Select>
                  </div>
