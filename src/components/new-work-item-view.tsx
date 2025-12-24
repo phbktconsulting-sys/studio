@@ -97,7 +97,7 @@ export function NewWorkItemView() {
       const payload = {
         process: data.process,
         urgency: data.urgency,
-        assignedTo: assignedTo,
+        assignedTo,
         createdBy: user.uid,
         relatedContact: {
           name: data.customerName,
