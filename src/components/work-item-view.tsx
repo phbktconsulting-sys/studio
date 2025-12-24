@@ -233,6 +233,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     try {
         switch(selectedAction) {
         case 'resolve-complete': {
+            if (allTasksCompleted === undefined) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Please confirm if all tasks are completed.' });
+                return;
+            }
             if (!resolveCompleteNotes) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Notes are required.' });
                 return;
@@ -384,13 +388,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-             <div className="flex items-start">
+            <div className="flex items-start">
                 <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
                 <div className="w-2/5">
-                    <div className="mt-1 grid grid-cols-2 gap-x-4 rounded-md border p-2 overflow-y-auto max-h-28">
+                    <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
                     {(workItem.tasks || []).length > 0 ? (
                         workItem.tasks.map(task => (
-                        <div key={task.id} className="flex items-center gap-1.5 py-0">
+                        <div key={task.id} className="flex items-center gap-1.5">
                             <Checkbox
                                 id={`task-resolve-${task.id}`}
                                 checked={completedTasks.has(task.id)}
@@ -405,9 +409,24 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                         </div>
                         ))
                     ) : (
-                        <p className="w-full text-center text-xs text-muted-foreground col-span-2">No tasks assigned.</p>
+                        <p className="w-full text-center text-xs text-muted-foreground">No tasks assigned.</p>
                     )}
                     </div>
+                </div>
+            </div>
+            <div className="flex items-center">
+                <Label className="w-1/4 text-xs font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
+                <div className="w-3/4">
+                    <RadioGroup value={allTasksCompleted} onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
+                        <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="tasks-yes" />
+                        <Label htmlFor="tasks-yes" className="flex h-7 items-center text-xs font-normal">Yes</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="tasks-no" />
+                        <Label htmlFor="tasks-no" className="flex h-7 items-center text-xs font-normal">No</Label>
+                        </div>
+                    </RadioGroup>
                 </div>
             </div>
              <div className="flex items-start">
