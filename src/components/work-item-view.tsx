@@ -598,7 +598,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       </Card>
       
       {selectedAction && (
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="flex justify-end gap-2 mt-4">
           <Button type="button" variant="outline" onClick={onCancel} className="h-8">
             Cancel
           </Button>
@@ -1021,6 +1021,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
 
 
 
