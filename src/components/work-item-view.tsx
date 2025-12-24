@@ -397,7 +397,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
               <Label className="w-1/4 font-semibold pt-1 text-xs">Tasks</Label>
               <div className="w-3/4">
-                  <div className="mt-1 grid grid-cols-3 gap-x-4 rounded-md border p-2 h-28 overflow-y-auto">
+                  <div className="mt-1 grid grid-cols-4 gap-x-4 rounded-md border p-2 h-28 overflow-y-auto">
                       {(workItem.tasks || []).map(task => (
                       <div key={task.id} className="flex items-center text-xs">
                           <Checkbox id={`task-display-${task.id}`} checked={task.completed} disabled className="mr-2" />
