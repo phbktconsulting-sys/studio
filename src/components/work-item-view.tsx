@@ -159,7 +159,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [reindexToProcess, setReindexToProcess] = useState('');
   const [reindexReason, setReindexReason] = useState('');
   const [reindexNotes, setReindexNotes] = useState('');
-  const [copyCurrentTasks, setCopyCurrentTasks] = useState(false);
+  const [tasksToComplete, setTasksToComplete] = useState<Record<string, boolean>>({});
+  const [tasksToCopy, setTasksToCopy] = useState<Record<string, boolean>>({});
   const [selectedNewTasks, setSelectedNewTasks] = useState<string[]>([]);
 
 
@@ -256,14 +257,25 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 return;
             }
             category = 'Re-Indexed';
+            const now = new Date().toISOString();
 
-            const newTasksForWorkItem = selectedNewTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false }));
+            // Prepare tasks for the NEW work item
+            const copiedTaskObjects = Object.keys(tasksToCopy)
+              .filter(taskId => tasksToCopy[taskId])
+              .map(taskId => workItem.tasks.find(t => t.id === taskId))
+              .filter(Boolean)
+              .map(task => ({
+                  id: `task-copy-${task!.id}-${Math.random()}`,
+                  text: task!.text,
+                  completed: false, // Copied tasks are always reset to incomplete
+              }));
+
+            const newTasksForWorkItem = [
+                ...selectedNewTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
+                ...copiedTaskObjects,
+            ];
             
-            if (copyCurrentTasks) {
-                const currentTasksToCopy = workItem.tasks.map(t => ({ ...t, id: `task-copy-${t.id}-${Math.random()}`})); // create new IDs
-                newTasksForWorkItem.push(...currentTasksToCopy);
-            }
-            
+            // Prepare payload for creating the new work item
             const reindexPayload = {
               process: reindexToProcess,
               urgency: workItem.urgency,
@@ -279,12 +291,22 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 throw new Error(newWorkItemResult.error || 'Failed to create new work item during re-index.');
             }
 
+            // Prepare updates for the OLD work item
+            const completedTaskIds = Object.keys(tasksToComplete).filter(taskId => tasksToComplete[taskId]);
+            const updatedOldTasks = (workItem.tasks || []).map(task => {
+                if (completedTaskIds.includes(task.id) && !task.completed) {
+                    return { ...task, completed: true, completedBy: user.uid, completedAt: now };
+                }
+                return task;
+            });
+
             noteText = `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexReason}. ${reindexNotes}`;
             workItemUpdate.status = 'Re-indexed';
+            workItemUpdate.tasks = updatedOldTasks;
             workItemUpdate.lockInfo = null;
 
 
-             toast({
+            toast({
                 title: 'Work Item Re-Indexed',
                 description: `Successfully created new work item ${newWorkItemResult.customId}.`,
             });
@@ -381,6 +403,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           );
       }
       case 're-index':
+        const openTasks = (workItem.tasks || []).filter(t => !t.completed);
         return (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -479,23 +502,25 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
 
             <div className="grid grid-cols-2 gap-4">
-              {(workItem.tasks || []).length > 0 && (
+              {openTasks.length > 0 && (
                   <div className="space-y-2">
-                      <Label className="text-xs font-normal">Current Tasks</Label>
-                      <div className="p-2 border rounded-md max-h-24 overflow-y-auto">
-                          <ul className="list-disc list-inside text-xs text-muted-foreground">
-                              {workItem.tasks.map(task => <li key={task.id}>{task.text}</li>)}
-                          </ul>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                          <Checkbox
-                              id="copy-tasks"
-                              checked={copyCurrentTasks}
-                              onCheckedChange={(checked) => setCopyCurrentTasks(checked as boolean)}
-                          />
-                          <Label htmlFor="copy-tasks" className="text-xs font-normal">
-                              Copy current tasks to new work item
-                          </Label>
+                      <Label className="text-xs font-normal">Current Open Tasks</Label>
+                      <div className="p-2 border rounded-md max-h-24 overflow-y-auto space-y-1">
+                          {openTasks.map(task => (
+                            <div key={task.id} className='flex items-center justify-between text-xs'>
+                                <span>{task.text}</span>
+                                <div className='flex items-center gap-3'>
+                                    <div className="flex items-center gap-1">
+                                        <Checkbox id={`complete-${task.id}`} checked={!!tasksToComplete[task.id]} onCheckedChange={() => setTasksToComplete(p => ({...p, [task.id]: !p[task.id]}))} />
+                                        <Label htmlFor={`complete-${task.id}`} className="font-normal text-muted-foreground">Done</Label>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Checkbox id={`copy-${task.id}`} checked={!!tasksToCopy[task.id]} onCheckedChange={() => setTasksToCopy(p => ({...p, [task.id]: !p[task.id]}))} />
+                                        <Label htmlFor={`copy-${task.id}`} className="font-normal text-muted-foreground">Copy</Label>
+                                    </div>
+                                </div>
+                            </div>
+                          ))}
                       </div>
                   </div>
               )}
@@ -515,7 +540,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'terminate':
         return (
-          <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
+          <div className="grid grid-cols-['max-content'_1fr] items-center gap-x-4 gap-y-2">
             <Label className="text-xs font-normal text-right">Reason</Label>
             <Select onValueChange={setTerminateReason} value={terminateReason}>
               <SelectTrigger className="text-xs h-6">
