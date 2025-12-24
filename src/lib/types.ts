@@ -128,7 +128,8 @@ export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
 
 
 export const WorkItemCreateSchema = z.object({
-  process: z.enum(['Request Information', 'Request Quotation', 'Request Application', 'Request Website', 'Request inquiry', 'Request Backend Support', 'Request Other']),
+  process: z.string().min(1, 'Process is required.'),
+  task: z.string().min(1, 'Task is required.'),
   customerName: z.string().min(2, 'Customer name is required.'),
   customerEmail: z.string().email('Invalid email address.'),
   customerPhone: z.string().min(1, 'Customer phone is required.'),
@@ -136,7 +137,6 @@ export const WorkItemCreateSchema = z.object({
   customerAddress: z.string().optional(),
   urgency: z.enum(['Low', 'Medium', 'High']),
   overview: z.string().min(1, 'Overview is required.'),
-  tasks: z.array(z.string()).optional(),
 });
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 

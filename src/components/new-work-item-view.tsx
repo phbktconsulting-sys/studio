@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -29,39 +28,30 @@ import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
 import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
 
-const processTypes = [
-  'Request Information',
-  'Request Quotation',
-  'Request Application',
-  'Request Website',
-  'Request inquiry',
-  'Request Backend Support',
-  'Request Other',
-];
+const processTaskMap: Record<string, string[]> = {
+    "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Other Services"],
+    "Development Services (Web & App)": ["New Corporate Website Build", "New E-Commerce Store Build", "Android App Development", "IOS App Development", "Hybrid App Development", "Excel Automation Micros", "CRM / ERP System Development", "Landing Page Creation", "Website Redesign Project", "Payment Gateway Integration", "API Development & Integration", "Admin Panel / Dashboard Build", "User Portal Development", "Chatbot Integration", "SaaS Platform Development", "Plugin / Extension Development", "UI/UX Design Mockups", "Database Structure Design", "Third-Party Tool Integration", "Website Speed Optimization"],
+    "Operations & Support (Backend)": ["Server Down / Critical Issue", "Database Connection Error", "Fix Application Bug", "Restore Data form Backup", "Install SSL Certificate", "Migrate Server to Cloud", "Optimize Server Speed", "Update Security Patches", "Configure Firewalls", "Fix Email/SMTP Issues", "Resolve API Failure", "Clean Malware / Virus", "Update PHP/Node Version", "Manage User Permissions", "Setup Cron Jobs", "Review Error Logs", "DNS / Domain Configuration", "Hosting CPanel Support", "Automation Script Failure", "General Maintenance Task"],
+    "Digital Services Request": ["Start SEO Campaign", "Start Google Ads (PPC)", "Start Facebook/Insta Ads", "Create Social Media Calendar", "Write Blog Content", "Design Marketing Graphics", "Setup Email Newsletter", "Create Promotional Video", "Manage LinkedIn Profile", "Setup Google Analytics", "Optimize Google My Business", "Manage Online Reviews", "Create Landing Page Copy", "Influencer Marketing Setup", "App Store Optimization (ASO)", "YouTube Channel Management", "Brand Identity Design", "Competitor Analysis Report", "Monthly Performance Report"],
+    "Feedback / Complaint": ["Report a System Crash", "Report Slow Performance", "Report Login Issue", "Report Data Error", "Report UI/Design Flaw", "Complaint about Billing", "Complaint about Delay", "Complaint about Support Quality", "Complaint about Communication", "Suggest New Feature", "Suggest Design Change", "Suggest Process Improvement", "Escalation to Management", "Review: Positive Feedback", "Review: Negative Feedback", "Request for Refund", "Request for Contract Cancellation", "Report Security Concern", "Post-Project Feedback", "General Complaint"],
+    "Other Service Request": ["Inquire about Invoice", "Inquire about Job Opening", "Inquire about Internship", "Inquire about Training", "Renew Domain Name", "Renew Hosting Plan", "Purchase Software License", "Update Company Details", "Request Tax Document", "Schedule Annual Review", "Vendor Sales Pitch", "Legal / Compliance Query", "Media / Press Inquiry", "Sponsorship Request", "Employee Referral", "Internal Admin Task", "Hardware Requirement", "Network Setup Request", "Office Visit Request", "Unclassified Request"]
+};
 
-const initialTaskOptions = [
-    'Follow up with customer',
-    'Gather required documents',
-    'Process application',
-    'Send quotation',
-    'Schedule a meeting',
-    'Verify information',
-    'Update customer records',
-    'Escalate to manager',
-    'Prepare report',
-    'Close work item'
-];
+const processTypes = Object.keys(processTaskMap);
 
 export function NewWorkItemView() {
   const { user } = useFirebase();
   const { openTab, closeTab } = useTabs();
   const { toast } = useToast();
+  const [selectedProcess, setSelectedProcess] = useState<string>(processTypes[0]);
 
   const form = useForm<WorkItemFormValues>({
     resolver: zodResolver(WorkItemCreateSchema),
     defaultValues: {
-      process: 'Request Information',
+      process: processTypes[0],
+      task: '',
       customerName: '',
       customerEmail: '',
       customerPhone: '',
@@ -69,7 +59,6 @@ export function NewWorkItemView() {
       customerAddress: '',
       urgency: 'Medium',
       overview: '',
-      tasks: [],
     },
   });
 
@@ -97,7 +86,7 @@ export function NewWorkItemView() {
           address: data.customerAddress || '',
         },
         overview: data.overview,
-        tasks: data.tasks ? data.tasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })) : [],
+        tasks: data.task ? [{ id: `task-${Date.now()}`, text: data.task, completed: false }] : [],
       };
       
       const result = await createWorkItem(payload);
@@ -130,6 +119,12 @@ export function NewWorkItemView() {
   const handleCancel = () => {
     closeTab('new-work-item');
   };
+  
+  const handleProcessChange = (value: string) => {
+    setSelectedProcess(value);
+    form.setValue('process', value);
+    form.setValue('task', ''); // Reset task when process changes
+  }
 
   return (
     <div className="p-4 sm:p-6">
@@ -158,7 +153,7 @@ export function NewWorkItemView() {
                     <FormItem>
                       <FormLabel className="text-xs">Process</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={handleProcessChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
@@ -170,6 +165,33 @@ export function NewWorkItemView() {
                           {processTypes.map((type) => (
                             <SelectItem key={type} value={type}>
                               {type}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="task"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">Task</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a task"/>
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {(processTaskMap[selectedProcess] || []).map((task) => (
+                            <SelectItem key={task} value={task}>
+                              {task}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -203,7 +225,10 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
-                 <FormField
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <FormField
                   control={form.control}
                   name="customerName"
                   render={({ field }) => (
@@ -216,9 +241,6 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
-              </div>
-
-               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <FormField
                   control={form.control}
                   name="customerEmail"
@@ -298,53 +320,6 @@ export function NewWorkItemView() {
                 />
               </div>
 
-               <FormField
-                control={form.control}
-                name="tasks"
-                render={() => (
-                    <FormItem>
-                    <div className="mb-4">
-                        <FormLabel className="text-xs">Initial Tasks (Optional)</FormLabel>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2">
-                    {initialTaskOptions.map((task) => (
-                        <FormField
-                        key={task}
-                        control={form.control}
-                        name="tasks"
-                        render={({ field }) => {
-                            return (
-                            <FormItem
-                                key={task}
-                                className="flex flex-row items-center space-x-2 space-y-0"
-                            >
-                                <FormControl>
-                                <Checkbox
-                                    checked={field.value?.includes(task)}
-                                    onCheckedChange={(checked) => {
-                                    return checked
-                                        ? field.onChange([...(field.value || []), task])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                                (value) => value !== task
-                                            )
-                                            );
-                                    }}
-                                />
-                                </FormControl>
-                                <FormLabel className="text-xs font-normal">
-                                {task}
-                                </FormLabel>
-                            </FormItem>
-                            );
-                        }}
-                        />
-                    ))}
-                    </div>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
 
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={handleCancel}>
