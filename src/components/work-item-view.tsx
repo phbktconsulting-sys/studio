@@ -507,16 +507,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       <Label className="text-xs font-normal">Current Open Tasks</Label>
                       <div className="p-2 border rounded-md max-h-24 overflow-y-auto space-y-1">
                           {openTasks.map(task => (
-                            <div key={task.id} className='flex items-center justify-between text-xs'>
-                                <span>{task.text}</span>
+                            <div key={task.id} className='flex items-center justify-between text-xs p-1'>
+                                <span className='flex-1 pr-2'>{task.text}</span>
                                 <div className='flex items-center gap-3'>
                                     <div className="flex items-center gap-1">
                                         <Checkbox id={`complete-${task.id}`} checked={!!tasksToComplete[task.id]} onCheckedChange={() => setTasksToComplete(p => ({...p, [task.id]: !p[task.id]}))} />
-                                        <Label htmlFor={`complete-${task.id}`} className="font-normal text-muted-foreground">Done</Label>
+                                        <Label htmlFor={`complete-${task.id}`} className="font-normal text-muted-foreground text-xs">Task work Completed</Label>
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <Checkbox id={`copy-${task.id}`} checked={!!tasksToCopy[task.id]} onCheckedChange={() => setTasksToCopy(p => ({...p, [task.id]: !p[task.id]}))} />
-                                        <Label htmlFor={`copy-${task.id}`} className="font-normal text-muted-foreground">Copy</Label>
+                                        <Label htmlFor={`copy-${task.id}`} className="font-normal text-muted-foreground text-xs">copy task for new work item</Label>
                                     </div>
                                 </div>
                             </div>
