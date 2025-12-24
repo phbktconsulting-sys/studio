@@ -417,14 +417,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               <div className="w-1/3">
                   <Select onValueChange={(value) => { setReindexToProcess(value); setReindexTasks([]); }} value={reindexToProcess}>
                     <SelectTrigger className="text-xs h-7">
-                      <SelectValue placeholder="Select a new process..."/>
+                        <SelectValue placeholder="Select a new process..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {processTypes.map((process) => (
+                        {processTypes.map((process) => (
                         <SelectItem key={process} value={process} className="text-xs">
-                          {process}
+                            {process}
                         </SelectItem>
-                      ))}
+                        ))}
                     </SelectContent>
                   </Select>
               </div>
@@ -510,7 +510,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-re-index">Note<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-re-index">Notes<span className="text-destructive">*</span></Label>
               <div className="w-3/5">
                 <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[60px]" />
               </div>
@@ -1085,5 +1085,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    
