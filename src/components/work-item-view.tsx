@@ -390,31 +390,31 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           <div className="space-y-4">
                <div className="flex items-start">
                   <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-                  <div className="w-2/5">
-                      <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
-                      {(workItem.tasks || []).length > 0 ? (
-                          <div className="space-y-1">
-                              {workItem.tasks.map(task => (
-                                  <div key={task.id} className="flex items-center gap-1.5">
-                                      <Checkbox
-                                          id={`task-resolve-${task.id}`}
-                                          checked={completedTasks.has(task.id)}
-                                          onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
-                                      />
-                                      <label
-                                      htmlFor={`task-resolve-${task.id}`}
-                                      className="text-xs font-normal cursor-pointer"
-                                      >
-                                      {task.text}
-                                      </label>
-                                  </div>
-                              ))}
-                          </div>
-                      ) : (
-                          <p className="w-full text-center text-xs text-muted-foreground">No tasks assigned.</p>
-                      )}
-                      </div>
-                  </div>
+                   <div className="w-2/5">
+                        <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
+                        {(workItem.tasks || []).length > 0 ? (
+                            <div className="space-y-2">
+                                {workItem.tasks.map(task => (
+                                    <div key={task.id} className="flex items-center gap-1.5">
+                                        <Checkbox
+                                            id={`task-resolve-${task.id}`}
+                                            checked={completedTasks.has(task.id)}
+                                            onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
+                                        />
+                                        <label
+                                        htmlFor={`task-resolve-${task.id}`}
+                                        className="text-xs font-normal cursor-pointer"
+                                        >
+                                        {task.text}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="w-full text-center text-xs text-muted-foreground">No tasks assigned.</p>
+                        )}
+                        </div>
+                    </div>
               </div>
               <div className="flex items-center">
                   <Label className="w-1/4 text-xs font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
@@ -950,7 +950,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             ) : isLockedByOther ? (
                 <CaseLockedInfo lockInfo={item.lockInfo!} />
             ) : (
-                <div className="flex items-center gap-4 py-2 text-sm pl-96">
+                <div className="flex items-center gap-4 py-2 text-sm">
                     <span className="font-medium">Assigned To:</span>
                     <span>{assignedUser?.displayName || '...'}</span>
                     <Button onClick={handleVerifyClick} className="h-7 bg-black text-white hover:bg-black/80 text-xs">
