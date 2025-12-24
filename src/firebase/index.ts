@@ -12,28 +12,17 @@ interface FirebaseServices {
   firestore: Firestore;
 }
 
-// Module-level variable to hold the singleton instance
-let firebaseServices: FirebaseServices | null = null;
-
-// This function is designed to be a stable singleton provider for Firebase services.
 export function initializeFirebase(): FirebaseServices {
-  if (firebaseServices) {
-    return firebaseServices;
-  }
-
   const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   const auth = getAuth(app);
   const firestore = getFirestore(app);
-  
-  firebaseServices = {
+
+  return {
     firebaseApp: app,
     auth,
     firestore,
   };
-
-  return firebaseServices;
 }
-
 
 export * from './provider';
 export * from './client-provider';
