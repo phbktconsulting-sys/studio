@@ -375,21 +375,33 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-2">
-            <div className="flex items-start">
+             <div className="flex items-start">
               <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
               <div className="w-2/5">
-                  <div className="mt-1 grid grid-cols-2 gap-x-4 rounded-md border p-2 overflow-y-auto max-h-28">
-                      {(workItem.tasks || []).length > 0 ? (
-                        workItem.tasks.map(task => (
-                          <div key={task.id} className="flex items-center gap-1.5 py-0.5">
-                            {task.completed ? <Check className="h-3 w-3 text-green-600" /> : <X className="h-3 w-3 text-red-500" />}
-                            <span className={cn("text-xs", task.completed && "line-through text-muted-foreground")}>{task.text}</span>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="w-full text-center text-xs text-muted-foreground col-span-2">No tasks assigned.</p>
-                      )}
-                  </div>
+                <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-0 rounded-md border p-2 overflow-y-auto max-h-28">
+                  {(workItem.tasks || []).length > 0 ? (
+                    workItem.tasks.map(task => (
+                      <div key={task.id} className="flex items-center gap-1.5 py-0.5">
+                        <Checkbox
+                          id={`task-resolve-${task.id}`}
+                          checked={task.completed}
+                          disabled
+                        />
+                        <label
+                          htmlFor={`task-resolve-${task.id}`}
+                          className={cn(
+                            "text-xs font-normal",
+                            task.completed && "line-through text-muted-foreground"
+                          )}
+                        >
+                          {task.text}
+                        </label>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="w-full text-center text-xs text-muted-foreground col-span-2">No tasks assigned.</p>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center">
