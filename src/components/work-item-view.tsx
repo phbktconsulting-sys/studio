@@ -344,7 +344,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold pt-1 text-xs">All Tasks Completed?<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                   <RadioGroup
                     value={allTasksCompleted}
@@ -363,7 +363,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1">Tasks</Label>
+              <Label className="w-1/4 font-semibold pt-1 text-xs">Tasks</Label>
               <div className="w-1/3">
                   <div className="mt-1 space-y-2 rounded-md border p-2 h-28 overflow-y-auto">
                       {(workItem.tasks || []).map(task => (
@@ -381,7 +381,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
              <div className="flex items-start">
-                <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-resolve-complete">Notes</Label>
+                <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-resolve-complete">Notes</Label>
                  <div className="w-3/5">
                     <Textarea
                         id="notes-resolve-complete"
@@ -398,51 +398,51 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold">Re-index Option<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold text-xs">Re-index Option<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                 <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex gap-4 h-8 items-center">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="myself" id="reindex-myself" />
-                    <Label htmlFor="reindex-myself" className="font-normal h-8 flex items-center">Re-index case myself</Label>
+                    <Label htmlFor="reindex-myself" className="font-normal h-8 flex items-center text-xs">Re-index case myself</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="initial" id="reindex-initial" />
-                    <Label htmlFor="reindex-initial" className="font-normal h-8 flex items-center">Return to initial Indexing</Label>
+                    <Label htmlFor="reindex-initial" className="font-normal h-8 flex items-center text-xs">Return to initial Indexing</Label>
                   </div>
                 </RadioGroup>
               </div>
             </div>
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold">Reason<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold text-xs">Reason<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                   <Select onValueChange={setReindexReason} value={reindexReason}>
                     <SelectTrigger className="text-xs h-8">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Wrong Process">Wrong Process</SelectItem>
-                      <SelectItem value="Incorrect Category Selected">Incorrect Category Selected</SelectItem>
+                      <SelectItem value="Wrong Process" className="text-xs">Wrong Process</SelectItem>
+                      <SelectItem value="Incorrect Category Selected" className="text-xs">Incorrect Category Selected</SelectItem>
                     </SelectContent>
                   </Select>
               </div>
             </div>
              <div className="flex items-center">
-              <Label className="w-1/4 font-semibold">Copy notes to new case?</Label>
+              <Label className="w-1/4 font-semibold text-xs">Copy notes to new case?</Label>
               <div className="w-1/3">
                  <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex gap-4 h-8 items-center">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="yes" id="copy-yes" />
-                    <Label htmlFor="copy-yes" className="font-normal h-8 flex items-center">Yes</Label>
+                    <Label htmlFor="copy-yes" className="font-normal h-8 flex items-center text-xs">Yes</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="no" id="copy-no" />
-                    <Label htmlFor="copy-no" className="font-normal h-8 flex items-center">No</Label>
+                    <Label htmlFor="copy-no" className="font-normal h-8 flex items-center text-xs">No</Label>
                   </div>
                 </RadioGroup>
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-re-index">Note<span className="text-destructive">*</span></Label>
+              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-re-index">Note<span className="text-destructive">*</span></Label>
               <div className="w-3/5">
                 <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="text-xs min-h-[100px]" />
               </div>
@@ -453,31 +453,31 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-                <Label className="w-1/4 font-semibold">Reason</Label>
+                <Label className="w-1/4 font-semibold text-xs">Reason</Label>
                 <div className="w-1/3">
                   <Select onValueChange={setTerminateReason} value={terminateReason}>
                     <SelectTrigger className="text-xs h-8">
                         <SelectValue placeholder="Select reason..." />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="Duplicate Work Item">Duplicate Work Item</SelectItem>
-                        <SelectItem value="Already Processed in Another Work Item">Already Processed in Another Work Item</SelectItem>
-                        <SelectItem value="Previously Resolved">Previously Resolved</SelectItem>
-                        <SelectItem value="Superseded by Newer Request">Superseded by Newer Request</SelectItem>
-                        <SelectItem value="Handled Offline / Verbally">Handled Offline / Verbally</SelectItem>
-                        <SelectItem value="Invalid Entry / Test Data">Invalid Entry / Test Data</SelectItem>
-                        <SelectItem value="Accidental Creation">Accidental Creation</SelectItem>
-                        <SelectItem value="Request No Longer Needed">Request No Longer Needed</SelectItem>
-                        <SelectItem value="Out of Service Scope">Out of Service Scope</SelectItem>
-                        <SelectItem value="System Auto-Generated Error">System Auto-Generated Error</SelectItem>
-                        <SelectItem value="Information Insufficient to Process">Information Insufficient to Process</SelectItem>
-                        <SelectItem value="Internal Decision no Longer Require">Internal Decision no Longer Require</SelectItem>
+                        <SelectItem value="Duplicate Work Item" className="text-xs">Duplicate Work Item</SelectItem>
+                        <SelectItem value="Already Processed in Another Work Item" className="text-xs">Already Processed in Another Work Item</SelectItem>
+                        <SelectItem value="Previously Resolved" className="text-xs">Previously Resolved</SelectItem>
+                        <SelectItem value="Superseded by Newer Request" className="text-xs">Superseded by Newer Request</SelectItem>
+                        <SelectItem value="Handled Offline / Verbally" className="text-xs">Handled Offline / Verbally</SelectItem>
+                        <SelectItem value="Invalid Entry / Test Data" className="text-xs">Invalid Entry / Test Data</SelectItem>
+                        <SelectItem value="Accidental Creation" className="text-xs">Accidental Creation</SelectItem>
+                        <SelectItem value="Request No Longer Needed" className="text-xs">Request No Longer Needed</SelectItem>
+                        <SelectItem value="Out of Service Scope" className="text-xs">Out of Service Scope</SelectItem>
+                        <SelectItem value="System Auto-Generated Error" className="text-xs">System Auto-Generated Error</SelectItem>
+                        <SelectItem value="Information Insufficient to Process" className="text-xs">Information Insufficient to Process</SelectItem>
+                        <SelectItem value="Internal Decision no Longer Require" className="text-xs">Internal Decision no Longer Require</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
             </div>
             <div className="flex items-start">
-                <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-terminate">Notes</Label>
+                <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-terminate">Notes</Label>
                  <div className="w-3/5">
                     <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[100px]" />
                 </div>
@@ -494,7 +494,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold">Transfer to User</Label>
+              <Label className="w-1/4 font-semibold text-xs">Transfer to User</Label>
               <div className="w-1/3">
                 <Select onValueChange={setTransferToUser} value={transferToUser}>
                   <SelectTrigger className="text-xs h-8">
@@ -502,14 +502,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   </SelectTrigger>
                   <SelectContent>
                     {users.map(user => (
-                      <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                      <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-transfer">Notes</Label>
+              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-transfer">Notes</Label>
               <div className="w-3/5">
                 <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="text-xs min-h-[100px]" />
               </div>
@@ -520,36 +520,36 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2 text-xs">
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold">Pend until date</Label>
+              <Label className="w-1/4 font-semibold text-xs">Pend until date</Label>
               <div className="w-1/3">
                 <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
               </div>
             </div>
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold">Reason for pend</Label>
+              <Label className="w-1/4 font-semibold text-xs">Reason for pend</Label>
               <div className="w-1/3">
                 <Select onValueChange={setPendReason} value={pendReason}>
                   <SelectTrigger className="text-xs h-8">
                     <SelectValue placeholder="Select reason..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Pending Internal Action">Pending Internal Action</SelectItem>
-                    <SelectItem value="Awaiting Other Team Response">Awaiting Other Team Response</SelectItem>
-                    <SelectItem value="Awaiting Client Feedback">Awaiting Client Feedback</SelectItem>
-                    <SelectItem value="Blocked by Another Task">Blocked by Another Task</SelectItem>
-                    <SelectItem value="Pending Final Review">Pending Final Review</SelectItem>
-                    <SelectItem value="Scheduled for Later">Scheduled for Later</SelectItem>
-                    <SelectItem value="Under Technical Investigation">Under Technical Investigation</SelectItem>
-                    <SelectItem value="Clarification Needed">Clarification Needed</SelectItem>
-                    <SelectItem value="On Hold by Request">On Hold by Request</SelectItem>
-                    <SelectItem value="Awaiting Developer Action">Awaiting Developer Action</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
+                    <SelectItem value="Pending Internal Action" className="text-xs">Pending Internal Action</SelectItem>
+                    <SelectItem value="Awaiting Other Team Response" className="text-xs">Awaiting Other Team Response</SelectItem>
+                    <SelectItem value="Awaiting Client Feedback" className="text-xs">Awaiting Client Feedback</SelectItem>
+                    <SelectItem value="Blocked by Another Task" className="text-xs">Blocked by Another Task</SelectItem>
+                    <SelectItem value="Pending Final Review" className="text-xs">Pending Final Review</SelectItem>
+                    <SelectItem value="Scheduled for Later" className="text-xs">Scheduled for Later</SelectItem>
+                    <SelectItem value="Under Technical Investigation" className="text-xs">Under Technical Investigation</SelectItem>
+                    <SelectItem value="Clarification Needed" className="text-xs">Clarification Needed</SelectItem>
+                    <SelectItem value="On Hold by Request" className="text-xs">On Hold by Request</SelectItem>
+                    <SelectItem value="Awaiting Developer Action" className="text-xs">Awaiting Developer Action</SelectItem>
+                    <SelectItem value="Other" className="text-xs">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 font-semibold pt-1" htmlFor="notes-pend">Notes</Label>
+              <Label className="w-1/4 font-semibold pt-1 text-xs" htmlFor="notes-pend">Notes</Label>
               <div className="w-3/5">
                 <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="text-xs min-h-[100px]" />
               </div>
@@ -585,7 +585,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </SelectTrigger>
             <SelectContent>
                 {availableActions.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
                 ))}
             </SelectContent>
           </Select>
@@ -599,10 +599,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       
       {selectedAction && (
         <div className="flex justify-end gap-2 mt-4">
-          <Button type="button" variant="outline" onClick={onCancel} className="h-8">
+          <Button type="button" variant="outline" onClick={onCancel} className="h-9">
             Cancel
           </Button>
-          <Button type="submit" disabled={!selectedAction} className="h-8 bg-black text-white hover:bg-black/80">
+          <Button type="submit" disabled={!selectedAction} className="h-9 bg-black text-white hover:bg-black/80">
             Submit
           </Button>
         </div>
@@ -1021,6 +1021,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
 
 
 
