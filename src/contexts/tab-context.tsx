@@ -1,7 +1,10 @@
+
 'use client';
 
 import { createContext, useContext, useState, useCallback, type ReactNode, useEffect } from 'react';
-import { useUser } from '@/firebase';
+import { useUser, useFirebase } from '@/firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import type { WorkItem } from '@/lib/types';
 
 export interface Tab {
   id: string;
@@ -29,6 +32,7 @@ const adminTab: Tab = { id: 'admin', title: 'Admin', type: 'static' };
 
 export function TabProvider({ children }: { children: ReactNode }) {
   const { user, role, isUserLoading } = useUser();
+  const { firestore } = useFirebase();
   const [tabs, setTabs] = useState<Tab[]>(baseStaticTabs);
   const [activeTab, setActiveTab] = useState<string>('my-work');
 
@@ -65,7 +69,27 @@ export function TabProvider({ children }: { children: ReactNode }) {
     setActiveTab(newTab.id);
   }, []);
 
-  const closeTab = useCallback((tabId: string) => {
+  const closeTab = useCallback(async (tabId: string) => {
+    const tabToClose = tabs.find((tab) => tab.id === tabId);
+
+    // If the tab being closed is a work item, check if we need to unlock it.
+    if (tabToClose && tabToClose.type === 'work-item' && firestore && user) {
+        const workItemRef = doc(firestore, 'work_items', tabToClose.id);
+        try {
+            const docSnap = await getDoc(workItemRef);
+            if (docSnap.exists()) {
+                const workItem = docSnap.data() as WorkItem;
+                // Only unlock if the current user is the one who locked it.
+                if (workItem.lockInfo && workItem.lockInfo.userId === user.uid) {
+                    await updateDoc(workItemRef, { lockInfo: null });
+                }
+            }
+        } catch (error) {
+            console.error("Error unlocking work item on tab close:", error);
+            // We still proceed to close the tab even if unlocking fails.
+        }
+    }
+
     setTabs((prevTabs) => {
       const tabToCloseIndex = prevTabs.findIndex((tab) => tab.id === tabId);
       if (tabToCloseIndex === -1) return prevTabs;
@@ -82,7 +106,7 @@ export function TabProvider({ children }: { children: ReactNode }) {
       
       return prevTabs.filter((tab) => tab.id !== tabId);
     });
-  }, [activeTab]);
+  }, [tabs, activeTab, firestore, user]);
 
   const value = {
     tabs,
