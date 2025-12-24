@@ -362,6 +362,23 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
+             <div className="space-y-2">
+              <Label className="text-xs font-semibold">All Tasks Completed?</Label>
+              <RadioGroup
+                value={allTasksCompleted}
+                onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
+                className="flex items-center space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="tasks-yes" />
+                  <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="tasks-no" />
+                  <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
+                </div>
+              </RadioGroup>
+            </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Label className="text-xs font-semibold">Tasks</Label>
@@ -389,23 +406,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                         className="text-xs min-h-[135px] mt-1"
                     />
                 </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold">All Tasks Completed?</Label>
-              <RadioGroup
-                value={allTasksCompleted}
-                onValueChange={(value) => setAllTasksCompleted(value as 'yes' | 'no')}
-                className="flex items-center space-x-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="yes" id="tasks-yes" />
-                  <Label htmlFor="tasks-yes" className="font-normal text-xs">Yes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no" id="tasks-no" />
-                  <Label htmlFor="tasks-no" className="font-normal text-xs">No</Label>
-                </div>
-              </RadioGroup>
             </div>
           </div>
         );
