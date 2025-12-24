@@ -129,7 +129,9 @@ export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
 
 export const WorkItemCreateSchema = z.object({
   process: z.string().min(1, 'Process is required.'),
-  task: z.string().min(1, 'Task is required.'),
+  tasks: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one task.",
+  }),
   customerName: z.string().min(2, 'Customer name is required.'),
   customerEmail: z.string().email('Invalid email address.'),
   customerPhone: z.string().min(1, 'Customer phone is required.'),

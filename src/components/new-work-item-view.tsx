@@ -20,15 +20,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Checkbox } from './ui/checkbox';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Other Services"],
@@ -51,7 +67,7 @@ export function NewWorkItemView() {
     resolver: zodResolver(WorkItemCreateSchema),
     defaultValues: {
       process: processTypes[0],
-      task: '',
+      tasks: [],
       customerName: '',
       customerEmail: '',
       customerPhone: '',
@@ -86,7 +102,7 @@ export function NewWorkItemView() {
           address: data.customerAddress || '',
         },
         overview: data.overview,
-        tasks: data.task ? [{ id: `task-${Date.now()}`, text: data.task, completed: false }] : [],
+        tasks: data.tasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
       };
       
       const result = await createWorkItem(payload);
@@ -123,7 +139,7 @@ export function NewWorkItemView() {
   const handleProcessChange = (value: string) => {
     setSelectedProcess(value);
     form.setValue('process', value);
-    form.setValue('task', ''); // Reset task when process changes
+    form.setValue('tasks', []); // Reset tasks when process changes
   }
 
   return (
@@ -173,33 +189,62 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
-                 <FormField
-                  control={form.control}
-                  name="task"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs">Task</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a task"/>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {(processTaskMap[selectedProcess] || []).map((task) => (
-                            <SelectItem key={task} value={task}>
-                              {task}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField
+                    control={form.control}
+                    name="tasks"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                        <FormLabel className="text-xs">Tasks</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <FormControl>
+                                <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                    "w-full justify-between h-9",
+                                    !field.value?.length && "text-muted-foreground"
+                                )}
+                                >
+                                {field.value?.length > 0 ? `${field.value.length} selected` : "Select tasks"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                              <Command>
+                                  <CommandInput placeholder="Search tasks..." />
+                                  <CommandList>
+                                  <CommandEmpty>No tasks found.</CommandEmpty>
+                                  <CommandGroup>
+                                      {(processTaskMap[selectedProcess] || []).map((task) => (
+                                        <CommandItem
+                                            key={task}
+                                            onSelect={() => {
+                                                const selectedTasks = field.value || [];
+                                                const isSelected = selectedTasks.includes(task);
+                                                const newTasks = isSelected
+                                                ? selectedTasks.filter((t) => t !== task)
+                                                : [...selectedTasks, task];
+                                                form.setValue('tasks', newTasks);
+                                            }}
+                                            >
+                                            <Checkbox
+                                                checked={field.value?.includes(task)}
+                                                className="mr-2"
+                                            />
+                                            {task}
+                                        </CommandItem>
+                                      ))}
+                                  </CommandGroup>
+                                  </CommandList>
+                              </Command>
+                            </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
                  <FormField
                   control={form.control}
                   name="urgency"

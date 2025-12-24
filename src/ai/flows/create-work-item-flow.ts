@@ -71,6 +71,12 @@ const processToPrefix: Record<string, string> = {
   'Request inquiry': 'RIQ',
   'Request Backend Support': 'RBS',
   'Request Other': 'RO',
+  'New Business Request': 'NB',
+  'Development Services (Web & App)': 'DS',
+  'Operations & Support (Backend)': 'OS',
+  'Digital Services Request': 'DSR',
+  'Feedback / Complaint': 'FC',
+  'Other Service Request': 'OSR',
 };
 
 // Exported function for client use
