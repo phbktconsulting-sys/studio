@@ -151,8 +151,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   const [terminateReason, setTerminateReason] = useState('');
   const [terminateNotes, setTerminateNotes] = useState('');
-  const [resolveCloseResolved, setResolveCloseResolved] = useState('');
-  const [resolveCloseNotes, setResolveCloseNotes] = useState('');
   const [transferToUser, setTransferToUser] = useState('');
   const [transferNotes, setTransferNotes] = useState('');
   const [pendUntilDate, setPendUntilDate] = useState<Date>();
@@ -181,7 +179,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         'resolve-complete': 'RESOLVE COMPLETE',
         're-index': 'RE-INDEX',
         'terminate': 'TERMINATE',
-        'resolve-close': 'RESOLVE CLOSE',
         'transfer': 'TRANSFER',
         'pend': 'PEND'
     };
@@ -270,12 +267,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         case 'terminate':
             category = 'Terminated';
             noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
-            workItemUpdate.status = 'Closed';
-            workItemUpdate.lockInfo = null;
-            break;
-        case 'resolve-close':
-            category = 'Resolved/Closed';
-            noteText = `Customer request resolved: ${resolveCloseResolved}. ${resolveCloseNotes}`;
             workItemUpdate.status = 'Closed';
             workItemUpdate.lockInfo = null;
             break;
@@ -411,23 +402,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="text-xs min-h-[60px]" />
           </div>
         );
-      case 'resolve-close':
-         return (
-          <div className="grid grid-cols-['max-content'_1fr] items-center gap-x-4 gap-y-2">
-            <Label className="text-xs font-normal text-right">Customer request resolved?</Label>
-            <Select onValueChange={setResolveCloseResolved} value={resolveCloseResolved}>
-              <SelectTrigger className="text-xs h-6">
-                <SelectValue placeholder="Select..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Yes">Yes</SelectItem>
-                <SelectItem value="No">No</SelectItem>
-              </SelectContent>
-            </Select>
-            <Label className="text-xs font-normal text-right self-start" htmlFor="notes-resolve-close">Notes</Label>
-            <Textarea id="notes-resolve-close" placeholder="Add notes..." value={resolveCloseNotes} onChange={e => setResolveCloseNotes(e.target.value)} className="text-xs min-h-[60px]" />
-          </div>
-        );
       case 'transfer':
         if (role !== 'Admin') {
             return <p className="text-xs text-muted-foreground p-4 text-center">You do not have permission to transfer work items.</p>;
@@ -481,7 +455,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       { value: 'resolve-complete', label: 'Resolve Complete' },
       { value: 're-index', label: 'Re-Index' },
       { value: 'terminate', label: 'Terminate' },
-      { value: 'resolve-close', label: 'Resolve Close' },
       { value: 'transfer', label: 'Transfer', adminOnly: true },
       { value: 'pend', label: 'Pend' }
   ];
