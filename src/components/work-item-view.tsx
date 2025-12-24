@@ -259,6 +259,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               relatedContact: workItem.relatedContact,
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
               tasks: newTasksForWorkItem,
+              sourceWorkItemId: workItem.id, // Pass source ID to copy notes
             };
             
             const newWorkItemResult = await createWorkItem(reindexPayload);

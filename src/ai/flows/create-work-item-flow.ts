@@ -4,7 +4,8 @@
  * @fileOverview A server-side flow for securely creating a Work Item.
  * This flow uses the Firebase Admin SDK to create a work item,
  * atomically incrementing the correct counter to generate a sequential ID.
- * It also creates or retrieves a unique customer ID based on email.
+ * It also creates or retrieves a unique customer ID based on email, and
+ * can copy notes from a source work item when re-indexing.
  *
  * - createWorkItem - The exported function to be called from the client.
  */
@@ -23,6 +24,7 @@ import {
   WorkItemCreateResponseSchema,
   type WorkItemCreateResponse,
 } from '@/lib/types';
+import type { Note } from '@/lib/types';
 
 const serviceAccount: ServiceAccount = {
   type: 'service_account',
@@ -120,6 +122,12 @@ const createWorkItemFlow = ai.defineFlow(
         const customerDoc = await transaction.get(customerDocRef);
         const customerCounterDoc = await transaction.get(customerCounterRef);
         const workItemCounterDoc = await transaction.get(workItemCounterRef);
+        
+        let sourceNotes: Note[] = [];
+        if (payload.sourceWorkItemId) {
+            const notesSnapshot = await adminFirestore.collection(`work_items/${payload.sourceWorkItemId}/notes`).get();
+            sourceNotes = notesSnapshot.docs.map(doc => doc.data() as Note);
+        }
 
         let customerUniqueId: string;
         let isNewCustomer = false;
@@ -183,8 +191,20 @@ const createWorkItemFlow = ai.defineFlow(
             customerUniqueId: customerUniqueId,
           },
         };
+        // Remove sourceWorkItemId from the final data object
+        delete newWorkItemData.sourceWorkItemId;
 
         transaction.set(newWorkItemRef, newWorkItemData);
+
+        // Copy notes if sourceWorkItemId was provided
+        if (sourceNotes.length > 0) {
+            for (const note of sourceNotes) {
+                const newNoteRef = newWorkItemRef.collection('notes').doc();
+                // Ensure the workItemId in the copied note is updated to the new work item's ID
+                const copiedNote = { ...note, id: newNoteRef.id, workItemId: newWorkItemRef.id };
+                transaction.set(newNoteRef, copiedNote);
+            }
+        }
         
         return newWorkItemRef;
       });
