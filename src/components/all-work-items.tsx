@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -160,14 +161,14 @@ function ReallocateDialog({ isOpen, onClose, itemToReallocate }: ReallocateDialo
         }
 
         try {
-            updateDoc(workItemRef, {
+            await updateDoc(workItemRef, {
                 assignedTo: newAssigneeId,
                 status: 'Open',
                 updatedAt: new Date().toISOString(),
                 tasks: newTasks,
             });
 
-            addDoc(notesCollectionRef, {
+            await addDoc(notesCollectionRef, {
                 authorId: currentUser.uid,
                 text: `Work item reallocated to ${newAssigneeName}. ${reallocationNote}`,
                 createdAt: new Date().toISOString(),
