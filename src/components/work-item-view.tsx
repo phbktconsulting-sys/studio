@@ -395,9 +395,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
+              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
-                  <div className="mt-1 flex flex-wrap gap-2 rounded-md border p-2 max-h-28 overflow-y-auto">
+                  <div className="mt-1 flex flex-wrap gap-2 rounded-md border p-2 overflow-y-auto max-h-28">
                       {(workItem.tasks || []).length > 0 ? (
                         workItem.tasks.map(task => (
                           <Badge key={task.id} variant={task.completed ? "default" : "secondary"} className="flex items-center gap-1.5 text-xs py-1 whitespace-nowrap">
@@ -413,7 +413,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
              <div className="flex items-start">
                 <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-resolve-complete">Notes<span className="text-destructive">*</span></Label>
-                 <div className="w-3/4">
+                 <div className="w-1/2">
                     <Textarea
                         id="notes-resolve-complete"
                         placeholder="Add final notes..."
@@ -461,7 +461,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
+              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks<span className="text-destructive">*</span></Label>
               <div className="flex w-3/4 items-start gap-2">
                   <div className="w-1/2">
                       <Popover>
@@ -542,7 +542,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
             <div className="flex items-start">
               <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-re-index">Notes<span className="text-destructive">*</span></Label>
-              <div className="w-3/4">
+              <div className="w-1/2">
                 <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="min-h-[60px] text-xs" />
               </div>
             </div>
@@ -577,7 +577,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
             <div className="flex items-start">
                 <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-terminate">Notes<span className="text-destructive">*</span></Label>
-                 <div className="w-3/4">
+                 <div className="w-1/2">
                     <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="min-h-[60px] text-xs" />
                 </div>
             </div>
@@ -609,7 +609,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
             <div className="flex items-start">
               <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-transfer">Notes<span className="text-destructive">*</span></Label>
-              <div className="w-3/4">
+              <div className="w-1/2">
                 <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="min-h-[60px] text-xs" />
               </div>
             </div>
@@ -649,7 +649,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
             <div className="flex items-start">
               <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-pend">Notes<span className="text-destructive">*</span></Label>
-              <div className="w-3/4">
+              <div className="w-1/2">
                 <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="min-h-[60px] text-xs" />
               </div>
             </div>
