@@ -397,7 +397,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-start">
               <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
               <div className="w-3/4">
-                  <div className="mt-1 flex flex-wrap gap-2 rounded-md border p-2 h-28 overflow-y-auto">
+                  <div className="mt-1 flex flex-wrap gap-2 rounded-md border p-2 max-h-28 overflow-y-auto">
                       {(workItem.tasks || []).length > 0 ? (
                         workItem.tasks.map(task => (
                           <Badge key={task.id} variant={task.completed ? "default" : "secondary"} className="flex items-center gap-1.5 text-xs py-1 whitespace-nowrap">
@@ -619,7 +619,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2">
             <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">Pend until date</Label>
+              <Label className="w-1/4 text-xs font-semibold">Pend until date<span className="text-destructive">*</span></Label>
               <div className="w-3/4">
                 <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
               </div>
@@ -1116,4 +1116,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
