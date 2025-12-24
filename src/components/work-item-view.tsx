@@ -248,6 +248,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                  toast({ variant: 'destructive', title: 'Error', description: 'Please select a process for re-indexing.' });
                  return;
              }
+             if (!reindexNotes) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Notes are required for re-indexing.' });
+                return;
+             }
             
             const reindexPayload = {
               process: reindexToProcess,
@@ -292,17 +296,29 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             return;
         }
         case 'terminate':
+            if (!terminateReason) {
+              toast({ variant: 'destructive', title: 'Error', description: 'A reason is required to terminate.' });
+              return;
+            }
             category = 'Terminated';
             noteText = `Reason: ${terminateReason}. ${terminateNotes}`;
             workItemUpdate.status = 'Closed';
             workItemUpdate.lockInfo = null;
             break;
         case 'transfer':
+            if (!transferToUser) {
+              toast({ variant: 'destructive', title: 'Error', description: 'You must select a user to transfer to.' });
+              return;
+            }
             category = 'Transferred';
             noteText = `${transferNotes}`;
             workItemUpdate.assignedTo = transferToUser;
             break;
         case 'pend':
+            if (!pendReason) {
+              toast({ variant: 'destructive', title: 'Error', description: 'A reason is required to pend.' });
+              return;
+            }
             category = 'Pended';
             noteText = `Pend until: ${pendUntilDate ? format(pendUntilDate, 'yyyy-MM-dd') : 'N/A'}. Reason: ${pendReason}. ${pendNotes}`;
             workItemUpdate.status = 'Pending';
@@ -495,7 +511,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
              <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Copy notes to new case?</Label>
+              <Label className="w-1/4 font-semibold text-xs">Copy notes to new case?<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                  <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex gap-4 h-7 items-center text-xs">
                   <div className="flex items-center space-x-2">
@@ -521,7 +537,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2">
             <div className="flex items-center">
-                <Label className="w-1/4 font-semibold text-xs">Reason</Label>
+                <Label className="w-1/4 font-semibold text-xs">Reason<span className="text-destructive">*</span></Label>
                 <div className="w-1/3">
                   <Select onValueChange={setTerminateReason} value={terminateReason}>
                     <SelectTrigger className="text-xs h-7">
@@ -562,7 +578,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-2">
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Transfer to User</Label>
+              <Label className="w-1/4 font-semibold text-xs">Transfer to User<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                 <Select onValueChange={setTransferToUser} value={transferToUser}>
                   <SelectTrigger className="text-xs h-7">
@@ -594,7 +610,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
             <div className="flex items-center">
-              <Label className="w-1/4 font-semibold text-xs">Reason for pend</Label>
+              <Label className="w-1/4 font-semibold text-xs">Reason for pend<span className="text-destructive">*</span></Label>
               <div className="w-1/3">
                 <Select onValueChange={setPendReason} value={pendReason}>
                   <SelectTrigger className="text-xs h-7">
