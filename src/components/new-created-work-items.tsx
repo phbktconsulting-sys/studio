@@ -46,18 +46,13 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
   const { firestore } = useFirebase();
   const { openTab } = useTabs();
 
-  const todayStart = startOfDay(new Date()).toISOString();
-  const todayEnd = endOfDay(new Date()).toISOString();
-
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(
       collection(firestore, 'work_items'),
-      where('createdAt', '>=', todayStart),
-      where('createdAt', '<=', todayEnd),
       where('status', '==', 'Open')
     );
-  }, [firestore, todayStart, todayEnd]);
+  }, [firestore]);
 
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -105,7 +100,7 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
           <div>
             <h1 className="font-headline text-lg font-bold tracking-tight">New Unassigned Work Items</h1>
             <p className="text-xs text-muted-foreground">
-              Showing open, unassigned work items created today, {format(new Date(), 'PPP')}.
+              Showing all open, unassigned work items.
             </p>
           </div>
         </div>
@@ -134,7 +129,7 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
             {!isLoading && sortedItems.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-muted-foreground py-4 text-xs">
-                  No open, unassigned work items have been created today.
+                  No open, unassigned work items found.
                 </TableCell>
               </TableRow>
             )}
@@ -149,7 +144,7 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
                   </TableCell>
                   <TableCell className="text-xs py-1 px-4">{usersMap.get(item.createdBy) || item.createdBy}</TableCell>
                   <TableCell className="text-xs py-1 px-4">{item.assignedTo}</TableCell>
-                  <TableCell className="text-xs py-1 px-4">{format(new Date(item.createdAt), 'p')}</TableCell>
+                  <TableCell className="text-xs py-1 px-4">{format(new Date(item.createdAt), 'p, MMM d, yyyy')}</TableCell>
                 </TableRow>
               ))}
           </TableBody>
