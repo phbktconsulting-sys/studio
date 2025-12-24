@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit, where, getDocs } from 'firebase/firestore';
@@ -528,8 +528,20 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <div className="space-y-2">
                       <Label className="text-xs font-normal">Selected New Tasks</Label>
                        <div className="p-2 border rounded-md max-h-24 overflow-y-auto">
-                          <ul className="list-disc list-inside text-xs text-muted-foreground">
-                              {selectedNewTasks.map(task => <li key={task}>{task}</li>)}
+                          <ul className="space-y-1">
+                              {selectedNewTasks.map(task => 
+                                <li key={task} className="flex justify-between items-center text-xs text-muted-foreground">
+                                    <span>{task}</span>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-5 w-5"
+                                        onClick={() => setSelectedNewTasks(current => current.filter(t => t !== task))}
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </Button>
+                                </li>
+                              )}
                           </ul>
                       </div>
                   </div>
