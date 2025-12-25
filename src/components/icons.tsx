@@ -13,9 +13,10 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
         <g transform="translate(-50 -50)">
           {/* Background circle */}
           <circle cx="50" cy="50" r="50" fill="hsl(var(--primary))" />
-          {/* Stylized 'W' for Workflow */}
+          
+          {/* Abstract 'W' and arrow/graph shape */}
           <path
-            d="M25 35 L40 65 L50 45 L60 65 L75 35"
+            d="M20 65 L35 40 L50 60 L65 30 L80 50"
             stroke="hsl(var(--primary-foreground))"
             strokeWidth="8"
             fill="none"
