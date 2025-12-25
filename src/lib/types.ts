@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export interface User {
@@ -213,3 +212,8 @@ export const ContactInfoUpdateSchema = z.object({
   hasOtherProvider: z.boolean().optional(),
 });
 export type ContactInfoUpdateValues = z.infer<typeof ContactInfoUpdateSchema>;
+
+export const DeleteCustomerSchema = z.object({
+  id: z.string().min(1, { message: 'Customer ID is required' }),
+});
+export type DeleteCustomerInput = z.infer<typeof DeleteCustomerSchema>;

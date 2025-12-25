@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { collection, query } from 'firebase/firestore';
+import { collection, query, doc } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { Customer } from '@/lib/types';
 import {
@@ -12,11 +12,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowLeft, Mail, Phone, Search, X } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { ArrowLeft, Mail, Phone, Search, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { deleteCustomer } from '@/ai/flows/delete-customer-flow';
 
 interface CustomerWorkflowProps {
   onBack: () => void;
@@ -42,6 +54,8 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
   const { firestore } = useFirebase();
   const [searchTerm, setSearchTerm] = useState('');
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const { toast } = useToast();
 
   const customersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -75,6 +89,36 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
   const clearFilters = () => {
     setSearchTerm('');
   };
+  
+  const handleDeleteClick = (e: React.MouseEvent, customer: Customer) => {
+    e.stopPropagation();
+    setCustomerToDelete(customer);
+  };
+  
+  const handleConfirmDelete = async () => {
+    if (!customerToDelete) return;
+    
+    try {
+        const result = await deleteCustomer({ id: customerToDelete.id });
+        if (result.success) {
+            toast({
+                title: 'Customer Deleted',
+                description: `Customer "${customerToDelete.name}" has been permanently deleted.`,
+            });
+        } else {
+            throw new Error(result.error || 'An unknown error occurred.');
+        }
+    } catch(error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Error Deleting Customer',
+            description: error.message,
+        });
+    } finally {
+        setCustomerToDelete(null);
+    }
+  }
+
 
   if (isLoading) {
     return (
@@ -85,6 +129,7 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
   }
 
   return (
+    <>
     <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -159,6 +204,10 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
                         <Phone className="h-5 w-5" />
                         <span className="sr-only">Call</span>
                       </a>
+                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" onClick={(e) => handleDeleteClick(e, customer)}>
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -172,5 +221,22 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
         )}
       </Card>
     </div>
+    <AlertDialog open={!!customerToDelete} onOpenChange={(open) => !open && setCustomerToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the customer "{customerToDelete?.name}" and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
