@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -8,16 +7,34 @@ import type { Customer } from '@/lib/types';
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ArrowLeft, Search, Mail, UserCircle } from 'lucide-react';
+import { ArrowLeft, Search, Mail, UserCircle, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from './ui/input';
 
 interface CustomerWorkflowProps {
   onBack: () => void;
 }
+
+const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="0"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M16.75 13.96c.25.13.43.2.5.33.07.13.07.55-.02.75-.1.2-.68.65-1.18.83-.5.18-1.1.2-1.58.12-.48-.08-1.13-.3-1.9-.85-.9-.6-1.58-1.35-2.1-2.25-.52-.9-.8-1.88-.8-2.83.02-.43.12-.8.28-1.08.15-.28.38-.45.68-.58.3-.13.6-.13.83-.13.23 0 .45.02.63.07.2.05.3.07.45.4.15.33.53.95.58 1.03.05.08.07.18.02.3-.05.13-.1.2-.23.32-.13.13-.25.22-.38.32-.13.1-.2.18-.28.3-.08.1-.13.2-.08.33.05.13.25.35.5.58.25.23.75.75 1.25 1.08.5.33.7.32.9.3.2-.02.6-.2.8-.4.2-.2.32-.4.4-.58.08-.18.18-.32.32-.4.14-.08.3-.03.45.08zM12 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10 10 10 0 0 0-10-10zm0 18a8 8 0 0 1-8-8 8 8 0 0 1 8-8 8 8 0 0 1 8 8 8 8 0 0 1-8 8z" />
+  </svg>
+);
 
 export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
   const { firestore } = useFirebase();
@@ -91,14 +108,36 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
                    <UserCircle className="h-8 w-8 text-muted-foreground" />
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-2">
                 <div className="flex items-center gap-2 text-xs">
-                    <Mail className="h-3 w-3 text-muted-foreground" />
+                    <Mail className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
                     <a href={`mailto:${customer.email}`} className="text-primary hover:underline truncate">
                         {customer.email}
                     </a>
                 </div>
+                {customer.phone && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <Phone className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
+                    <span className="text-muted-foreground truncate">{customer.phone}</span>
+                  </div>
+                )}
               </CardContent>
+               <CardFooter className="p-2 border-t bg-slate-50">
+                  <div className="flex w-full items-center justify-around">
+                      <a href={`https://wa.me/${customer.phone?.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full text-green-600 hover:bg-green-100">
+                          <WhatsAppIcon className="h-5 w-5" />
+                          <span className="sr-only">WhatsApp</span>
+                      </a>
+                      <a href={`mailto:${customer.email}`} className="p-2 rounded-full text-blue-600 hover:bg-blue-100">
+                          <Mail className="h-5 w-5" />
+                           <span className="sr-only">Email</span>
+                      </a>
+                      <a href={`tel:${customer.phone}`} className="p-2 rounded-full text-red-600 hover:bg-red-100">
+                          <Phone className="h-5 w-5" />
+                           <span className="sr-only">Call</span>
+                      </a>
+                  </div>
+              </CardFooter>
             </Card>
           ))}
       </div>
