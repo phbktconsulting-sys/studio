@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -118,12 +117,12 @@ export function SearchView() {
             <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
                 placeholder="Enter search term..."
-                className="h-8 w-full pl-9"
+                className="h-8 w-full pl-9 text-xs"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
         </div>
-        <Button type="submit" className="h-8">Search</Button>
+        <Button type="submit" className="h-8 text-xs">Search</Button>
       </form>
 
       <div className="mt-6 rounded-lg border bg-card">
