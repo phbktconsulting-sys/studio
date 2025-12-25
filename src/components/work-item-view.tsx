@@ -1201,6 +1201,9 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <span>Case Age: <span className="text-muted-foreground">{caseAge} days</span></span>
           </div>
           <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsEditContactDialogOpen(true)}>
+                <FilePenLine className="h-4 w-4" />
+              </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleRefresh}>
                 <RefreshCw className="h-4 w-4" />
               </Button>
@@ -1344,10 +1347,6 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
               <Card className="border-0 shadow-none">
                 <CardHeader className="flex flex-row items-center justify-between p-4">
                   <CardTitle className="text-xs">Contact Information</CardTitle>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsEditContactDialogOpen(true)}>
-                    <Pencil className="h-4 w-4" />
-                    <span className="sr-only">Edit Contact Info</span>
-                  </Button>
                 </CardHeader>
                 <CardContent className="space-y-4 p-4 pt-0">
                   <div className="flex items-center gap-4 text-xs">
