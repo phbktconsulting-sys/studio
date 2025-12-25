@@ -90,9 +90,8 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
   }
 
   return (
-    <div className="p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only">Back</span>
@@ -101,7 +100,10 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
             <h1 className="font-headline text-lg font-bold tracking-tight">Customer Workflow</h1>
             <p className="text-xs text-muted-foreground">View and manage all customer records.</p>
           </div>
-           <div className="flex items-center gap-2 border-l pl-4">
+      </div>
+      
+      <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
             <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -126,14 +128,13 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
                 <span className="sr-only">Clear filters</span>
             </Button>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Total Customers:</span>
-          <Badge variant="secondary">{filteredCustomers.length}</Badge>
-        </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Total Customers:</span>
+            <Badge variant="secondary">{filteredCustomers.length}</Badge>
+          </div>
       </div>
       
-      <Card className="mt-6">
+      <Card className="mt-2">
         <Table>
           <TableHeader>
             <TableRow>
