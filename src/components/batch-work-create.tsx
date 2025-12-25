@@ -35,13 +35,6 @@ const processTypes = [
   "Digital Services Request",
   "Feedback / Complaint",
   "Other Service Request",
-  'Request Information',
-  'Request Quotation',
-  'Request Application',
-  'Request Website',
-  'Request inquiry',
-  'Request Backend Support',
-  'Request Other',
 ];
 
 interface BatchWorkCreateProps {
