@@ -66,6 +66,42 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
     fetchNoteAuthors();
   }, [notes, firestore, userMap]);
 
+  const getCleanedNoteText = (note: Note) => {
+    const prefixes = [
+        "Work item resolved.",
+        "Case re-indexed to new Process",
+        "Case cloned to new work item:",
+        "Reason:",
+        "Pend until:",
+        "Work resumed from pending status.",
+        "Work item taken over from",
+        "Work item reallocated to",
+        "Work item allocated to"
+    ];
+
+    let cleanedText = note.text;
+    
+    // For specific categories, extract only the comment part.
+    if (['Terminated', 'Pended'].includes(note.category)) {
+      const parts = note.text.split('. ');
+      if (parts.length > 1) {
+        cleanedText = parts.slice(1).join('. ');
+      }
+    }
+    
+    // For other notes, remove common system prefixes.
+    for (const prefix of prefixes) {
+        if (cleanedText.startsWith(prefix)) {
+            // Find the first period or the end of the sentence to separate the comment.
+            const splitPoint = cleanedText.indexOf('.') + 1;
+            if (splitPoint > 0 && splitPoint < cleanedText.length) {
+                return cleanedText.substring(splitPoint).trim();
+            }
+        }
+    }
+
+    return cleanedText.trim();
+  };
 
   return (
     <div className="space-y-6">
@@ -90,7 +126,7 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
                 <TableRow key={note.id}>
                   <TableCell className="font-medium py-1 px-4 text-xs">{note.category}</TableCell>
                   <TableCell className="font-medium py-1 px-4 text-xs">{note.subject}</TableCell>
-                  <TableCell className="py-1 px-4 text-xs">{note.text}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{getCleanedNoteText(note)}</TableCell>
                   <TableCell className="font-medium py-1 px-4 text-xs">{userMap.get(note.authorId) || note.author}</TableCell>
                   <TableCell className="py-1 px-4 text-xs">{format(new Date(note.createdAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
                 </TableRow>
