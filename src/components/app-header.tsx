@@ -39,6 +39,12 @@ export function AppHeader() {
     });
   };
 
+  const handleProfileClick = () => {
+    if (user?.uid) {
+      router.push(`/users/${user.uid}`);
+    }
+  };
+
   return (
     <div className="contents">
       <header className="flex h-28 items-center justify-between border-b bg-card px-4 md:px-6">
@@ -92,7 +98,7 @@ export function AppHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleProfileClick}>
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
