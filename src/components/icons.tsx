@@ -8,12 +8,24 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
       className={className}
       {...props}
     >
-      <g stroke="currentColor" strokeWidth="6" fill="none" fillRule="evenodd" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M70,5 H20 a10,10 0 0 0 -10,10 v70 a10,10 0 0 0 10,10 h60 a10,10 0 0 0 10,-10 V30 Z" fill="hsl(var(--background))" stroke="hsl(var(--foreground))" strokeWidth="4" />
-        <path d="M70,5 L70,30 L90,30" stroke="hsl(var(--foreground))" strokeWidth="4" fill="hsl(var(--muted))" />
-        <path d="M30,50 h40" stroke="hsl(var(--primary))" strokeWidth="5" />
-        <path d="M30,65 h40" stroke="hsl(var(--secondary-foreground))" strokeWidth="5" />
-        <path d="M30,80 h20" stroke="hsl(var(--secondary-foreground))" strokeWidth="5" />
+      <g stroke="hsl(var(--foreground))" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        {/* Mane */}
+        <path d="M 50,15
+                 L 60,25 75,25 80,35 85,50 80,65 75,75 60,75
+                 L 50,85
+                 L 40,75 25,75 20,65 15,50 20,35 25,25 40,25 Z" />
+        {/* Face Outline */}
+        <path d="M 50,30
+                 C 40,30 35,40 35,50
+                 C 35,65 40,70 50,70
+                 C 60,70 65,65 65,50
+                 C 65,40 60,30 50,30 Z" />
+        {/* Eyes */}
+        <circle cx="43" cy="48" r="2" fill="hsl(var(--foreground))" />
+        <circle cx="57" cy="48" r="2" fill="hsl(var(--foreground))" />
+        {/* Nose and Mouth */}
+        <path d="M 50,55 L 50,65" />
+        <path d="M 45,65 L 55,65" />
       </g>
     </svg>
   );
