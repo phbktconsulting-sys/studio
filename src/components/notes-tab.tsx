@@ -67,18 +67,6 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
   }, [notes, firestore, userMap]);
 
   const getCleanedNoteText = (note: Note) => {
-    const prefixes = [
-        "Work item resolved.",
-        "Case re-indexed to new Process",
-        "Case cloned to new work item:",
-        "Reason:",
-        "Pend until:",
-        "Work resumed from pending status.",
-        "Work item taken over from",
-        "Work item reallocated to",
-        "Work item allocated to"
-    ];
-
     let cleanedText = note.text;
     
     // For specific categories, extract only the comment part.
@@ -87,15 +75,29 @@ export function NotesTab({ workItemId }: { workItemId: string }) {
       if (parts.length > 1) {
         cleanedText = parts.slice(1).join('. ');
       }
-    }
-    
-    // For other notes, remove common system prefixes.
-    for (const prefix of prefixes) {
-        if (cleanedText.startsWith(prefix)) {
-            // Find the first period or the end of the sentence to separate the comment.
-            const splitPoint = cleanedText.indexOf('.') + 1;
-            if (splitPoint > 0 && splitPoint < cleanedText.length) {
-                return cleanedText.substring(splitPoint).trim();
+    } else if (note.category === 'Re-Indexed') {
+      // For re-indexed notes, we want to keep the important info.
+      // The format is: Case re-indexed to new Process '[Process]'. New Case ID: [ID]. Reason: [Comment]
+      const reasonMatch = cleanedText.match(/Reason: (.*)/);
+      const reasonText = reasonMatch ? reasonMatch[1] : '';
+      const mainInfo = cleanedText.split('. Reason:')[0];
+      return `${mainInfo}. ${reasonText}`;
+    } else {
+        const prefixes = [
+            "Work item resolved.",
+            "Case cloned to new work item:",
+            "Work resumed from pending status.",
+            "Work item taken over from",
+            "Work item reallocated to",
+            "Work item allocated to"
+        ];
+        
+        for (const prefix of prefixes) {
+            if (cleanedText.startsWith(prefix)) {
+                const splitPoint = cleanedText.indexOf('.') > -1 ? cleanedText.indexOf('.') + 1 : cleanedText.indexOf(':') + 1;
+                if (splitPoint > 0 && splitPoint < cleanedText.length) {
+                    return cleanedText.substring(splitPoint).trim();
+                }
             }
         }
     }
