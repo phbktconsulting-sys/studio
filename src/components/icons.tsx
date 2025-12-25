@@ -10,11 +10,11 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement> & {hei
       className={className}
       {...props}
     >
-      <g transform="translate(50,50) rotate(45)">
-        <path d="M0,-45 A45,45 0 0,1 45,0 L0,0 Z" fill="hsl(var(--primary))" opacity="0.8" />
-        <path d="M45,0 A45,45 0 0,1 0,45 L0,0 Z" fill="hsl(var(--accent))" opacity="0.8" />
-        <path d="M0,45 A45,45 0 0,1 -45,0 L0,0 Z" fill="hsl(var(--chart-2))" opacity="0.8" />
-        <path d="M-45,0 A45,45 0 0,1 0,-45 L0,0 Z" fill="hsl(var(--chart-5))" opacity="0.8" />
+      <g transform="translate(50,50)">
+        <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(var(--primary))" transform="rotate(0)" />
+        <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(var(--accent))" transform="rotate(90)" />
+        <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(var(--chart-2))" transform="rotate(180)" />
+        <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(var(--chart-5))" transform="rotate(270)" />
       </g>
     </svg>
   );
