@@ -402,7 +402,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
               <p className="text-xs text-muted-foreground">A view of all work items in the system.</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
               <Select value={userFilter} onValueChange={setUserFilter}>
                   <SelectTrigger className="h-8 text-xs">
                       <SelectValue placeholder="Filter by User" />
