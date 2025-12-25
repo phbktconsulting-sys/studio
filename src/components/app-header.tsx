@@ -16,15 +16,12 @@ import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTabs } from '@/contexts/tab-context';
 import { LogoIcon } from './icons';
-import { useState } from 'react';
-import { UserProfileDialog } from './user-profile-dialog';
 
 export function AppHeader() {
   const { user } = useUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
   const { openTab } = useTabs();
-  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
 
   const handleLogout = () => {
     if (auth) {
@@ -43,7 +40,7 @@ export function AppHeader() {
 
   const handleProfileClick = () => {
     if (user?.uid) {
-      setIsProfileDialogOpen(true);
+      router.push(`/users/${user.uid}`);
     }
   };
 
@@ -119,11 +116,6 @@ export function AppHeader() {
           </div>
         </header>
       </div>
-      <UserProfileDialog
-        userId={user?.uid || ''}
-        isOpen={isProfileDialogOpen}
-        onClose={() => setIsProfileDialogOpen(false)}
-      />
     </>
   );
 }
