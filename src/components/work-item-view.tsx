@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import type { Note, Task, WorkItem, User, WorkItemFormValues, ImageAttachment } from '@/lib/types';
+import type { Note, Task, WorkItem, User, WorkItemFormValues, ImageAttachment, ContactInfoUpdateValues } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check, Download } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check, Download, Pencil } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit, where, getDocs, updateDoc } from 'firebase/firestore';
@@ -47,6 +47,7 @@ import { useTabs } from '@/contexts/tab-context';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { ImageAttachmentDialog } from './image-attachment-dialog';
+import { EditContactInfoDialog } from './edit-contact-info-dialog';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Other Services"],
@@ -1061,6 +1062,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   const { toast } = useToast();
   const [isVerifyingAuthority, setIsVerifyingAuthority] = useState(false);
   const [isAttachmentDialogOpen, setIsAttachmentDialogOpen] = useState(false);
+  const [isEditContactDialogOpen, setIsEditContactDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const workItemRef = useMemoFirebase(() => {
@@ -1153,6 +1155,16 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     updateDocumentNonBlocking(workItemRef, { lockInfo: null });
     setIsVerifyingAuthority(false);
   }
+
+  const handleContactUpdate = (updatedContact: ContactInfoUpdateValues) => {
+    if (!workItemRef) return;
+    updateDocumentNonBlocking(workItemRef, { relatedContact: updatedContact });
+    toast({
+      title: "Contact Info Updated",
+      description: "The customer's information has been successfully updated.",
+    });
+    setIsEditContactDialogOpen(false);
+  };
 
   if (isLoading || !item) {
     return (
@@ -1333,8 +1345,12 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
 
             <TabsContent value="contact" className="mt-0">
               <Card className="border-0 shadow-none">
-                <CardHeader className="p-4">
+                <CardHeader className="flex flex-row items-center justify-between p-4">
                   <CardTitle className="text-xs">Contact Information</CardTitle>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsEditContactDialogOpen(true)}>
+                    <Pencil className="h-4 w-4" />
+                    <span className="sr-only">Edit Contact Info</span>
+                  </Button>
                 </CardHeader>
                 <CardContent className="space-y-4 p-4 pt-0">
                   <div className="flex items-center gap-4 text-xs">
@@ -1415,10 +1431,12 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
         isOpen={isAttachmentDialogOpen}
         onClose={() => setIsAttachmentDialogOpen(false)}
       />
+    <EditContactInfoDialog
+        isOpen={isEditContactDialogOpen}
+        onClose={() => setIsEditContactDialogOpen(false)}
+        contactInfo={item.relatedContact}
+        onSave={handleContactUpdate}
+    />
     </>
   );
 }
-
-    
-
-    

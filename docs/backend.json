@@ -59,7 +59,13 @@
             "phone": { "type": "string" },
             "phoneSecondary": { "type": "string" },
             "address": { "type": "string" },
-            "customerUniqueId": { "type": "string" }
+            "customerUniqueId": { "type": "string" },
+            "aadharNumber": { "type": "string" },
+            "panNumber": { "type": "string" },
+            "businessName": { "type": "string" },
+            "businessSize": { "type": "string" },
+            "businessRevenue": { "type": "string" },
+            "hasOtherProvider": { "type": "boolean" }
           },
           "required": ["name", "email", "phone"]
         },
@@ -289,5 +295,3 @@
     "/counters/work_item_RO": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Other work items." }
   }
 }
-
-    

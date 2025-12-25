@@ -45,7 +45,6 @@ export interface ImageAttachment {
   businessEvent: string;
 }
 
-
 export interface WorkItem {
   id: string;
   customId: string;
@@ -64,6 +63,12 @@ export interface WorkItem {
     phoneSecondary?: string;
     address?: string;
     customerUniqueId?: string;
+    aadharNumber?: string;
+    panNumber?: string;
+    businessName?: string;
+    businessSize?: string;
+    businessRevenue?: string;
+    hasOtherProvider?: boolean;
   };
   overview: string;
   tasks: Task[];
@@ -195,4 +200,16 @@ export const DeleteWorkItemOutputSchema = z.object({
 });
 export type DeleteWorkItemOutput = z.infer<typeof DeleteWorkItemOutputSchema>;
 
-    
+export const ContactInfoUpdateSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  address: z.string().optional(),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(1, 'Phone is required'),
+  aadharNumber: z.string().optional(),
+  panNumber: z.string().optional(),
+  businessName: z.string().optional(),
+  businessSize: z.string().optional(),
+  businessRevenue: z.string().optional(),
+  hasOtherProvider: z.boolean().optional(),
+});
+export type ContactInfoUpdateValues = z.infer<typeof ContactInfoUpdateSchema>;
