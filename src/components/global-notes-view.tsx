@@ -32,14 +32,22 @@ function SearchedNotesList({ notes, isLoading }: { notes: (Note & { workItemCust
     const idsToFetch = authorIds.filter(id => !usersMap.has(id));
 
     if (idsToFetch.length > 0) {
-      const usersRef = collection(firestore, 'users');
-      const q = query(usersRef, where('uid', 'in', idsToFetch.slice(0, 30))); // Slicing to respect 'in' query limit
-      const querySnapshot = await getDocs(q);
       const newUsersMap = new Map(usersMap);
-      querySnapshot.forEach(doc => {
-        const user = doc.data() as User;
-        newUsersMap.set(user.uid, user.displayName || 'Unknown User');
-      });
+      // Firestore 'in' query is limited to 30 items. Chunking is required for larger sets.
+      const chunks = [];
+      for (let i = 0; i < idsToFetch.length; i += 30) {
+        chunks.push(idsToFetch.slice(i, i + 30));
+      }
+
+      for (const chunk of chunks) {
+          const usersRef = collection(firestore, 'users');
+          const q = query(usersRef, where('uid', 'in', chunk));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(doc => {
+            const user = doc.data() as User;
+            newUsersMap.set(user.uid, user.displayName || 'Unknown User');
+          });
+      }
       setUsersMap(newUsersMap);
     }
   }, [notes, firestore, usersMap]);
@@ -55,17 +63,17 @@ function SearchedNotesList({ notes, isLoading }: { notes: (Note & { workItemCust
   
   if (notes.length === 0) {
       return (
-        <div className="text-center text-sm text-muted-foreground py-10">
+        <div className="text-center text-xs text-muted-foreground py-10">
             No notes found for this Customer ID.
         </div>
       )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {notes.map(note => (
         <Card key={note.id}>
-          <CardHeader className="p-4 pb-2">
+          <CardHeader className="p-3 pb-2">
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle className="text-sm">{note.subject}</CardTitle>
@@ -80,7 +88,7 @@ function SearchedNotesList({ notes, isLoading }: { notes: (Note & { workItemCust
                <p className="text-xs text-muted-foreground">{format(new Date(note.createdAt), 'dd MMM yyyy, HH:mm')}</p>
             </div>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
+          <CardContent className="p-3 pt-0">
             <p className="text-xs">{note.text}</p>
             <p className="text-xs text-muted-foreground mt-2">- {usersMap.get(note.authorId) || note.authorId}</p>
           </CardContent>
@@ -210,31 +218,32 @@ export function GlobalNotesView() {
       {/* Add Note Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Add Global Note</CardTitle>
-          <CardDescription>Add a note associated with a Customer ID.</CardDescription>
+          <CardTitle className="text-sm">Add Global Note</CardTitle>
+          <CardDescription className="text-xs">Add a note associated with a Customer ID.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAddNote} className="space-y-4">
             <div className="space-y-1">
-              <Label htmlFor="customer-id-add">Customer Unique ID</Label>
+              <Label htmlFor="customer-id-add" className="text-xs">Customer Unique ID</Label>
               <Input 
                 id="customer-id-add" 
                 placeholder="Enter Customer ID..."
                 value={newNoteCustomerId}
                 onChange={e => setNewNoteCustomerId(e.target.value)}
+                className="text-xs"
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="note-content">Note</Label>
+              <Label htmlFor="note-content" className="text-xs">Note</Label>
               <Textarea
                 id="note-content"
                 placeholder="Enter note content..."
                 value={newNoteContent}
                 onChange={e => setNewNoteContent(e.target.value)}
-                className="min-h-[100px]"
+                className="min-h-[100px] text-xs"
               />
             </div>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} size="sm" className="text-xs">
               {isSubmitting ? 'Submitting...' : 'Submit Note'}
             </Button>
           </form>
@@ -245,8 +254,8 @@ export function GlobalNotesView() {
       <div className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Search Customer Notes</CardTitle>
-            <CardDescription>Find all notes related to a customer across all their work items.</CardDescription>
+            <CardTitle className="text-sm">Search Customer Notes</CardTitle>
+            <CardDescription className="text-xs">Find all notes related to a customer across all their work items.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSearch} className="flex items-center gap-2">
@@ -254,12 +263,12 @@ export function GlobalNotesView() {
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Enter Customer ID to search..."
-                  className="pl-9"
+                  className="pl-9 text-xs"
                   value={searchCustomerId}
                   onChange={e => setSearchCustomerId(e.target.value)}
                 />
               </div>
-              <Button type="submit" disabled={isSearching}>
+              <Button type="submit" disabled={isSearching} size="sm" className="text-xs">
                 {isSearching ? 'Searching...' : 'Search'}
               </Button>
             </form>
