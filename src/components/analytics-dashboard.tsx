@@ -53,7 +53,7 @@ const processTypes = [
   "New Business Request",
   "Development Services (Web & App)",
   "Operations & Support (Backend)",
-  "Digital Services Request",
+  "Digital Service Request",
   "Feedback / Complaint",
   "Other Service Request"
 ];
@@ -234,7 +234,7 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
             <p className="text-xs text-muted-foreground">Overview of work item activity.</p>
           </div>
         </div>
-        <div className="flex items-end gap-2">
+        <div className="flex flex-col items-end gap-2">
             <div className="grid grid-cols-3 gap-2">
                 <Select value={userFilter} onValueChange={setUserFilter}>
                 <SelectTrigger className="w-full h-8 text-xs">
@@ -433,5 +433,3 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
     </div>
   );
 }
-
-    
