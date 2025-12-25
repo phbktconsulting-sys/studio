@@ -35,12 +35,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { subDays, format, startOfDay, endOfDay } from 'date-fns';
+import { subDays, format, startOfDay, endOfDay, differenceInDays, addDays } from 'date-fns';
 import { Button } from './ui/button';
 import { ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-date-range';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
+
 
 interface AnalyticsDashboardProps {
   onBack: () => void;
@@ -411,5 +414,3 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
     </div>
   );
 }
-
-    
