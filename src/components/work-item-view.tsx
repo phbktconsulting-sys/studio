@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check, Download } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit, where, getDocs, updateDoc } from 'firebase/firestore';
@@ -913,7 +913,7 @@ function ClosedWorkItemInfo({ workItem, lastNote }: { workItem: WorkItem; lastNo
     let statusText = `Work Item ${workItem.status}.`;
     if (lastNote) {
         if (workItem.status === 'Re-indexed') {
-            const newCaseId = lastNote.text.match(/New Case ID: (\S+)\./)?.[1] || 'N/A';
+            const newCaseId = lastNote.text.match(/Case re-indexed to new Case ID: (\S+)\./)?.[1] || 'N/A';
             statusText = `Work Item Re-indexed to Case ID: ${newCaseId}.`;
         } else if (lastNote.category === 'Terminated') {
             const reason = lastNote.text.split('Reason: ')[1]?.split('.')[0] || 'Not specified';
@@ -1018,7 +1018,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
             <TableHead className="w-[120px] text-xs">Direction</TableHead>
             <TableHead className="w-[150px] text-xs">Document Source</TableHead>
             <TableHead className="w-[150px] text-xs">Business Event</TableHead>
-            <TableHead className="text-xs">View Image</TableHead>
+            <TableHead className="text-xs">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -1030,9 +1030,15 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
               <TableCell className="py-2 text-xs">{att.documentSource}</TableCell>
               <TableCell className="py-2 text-xs">{att.businessEvent}</TableCell>
               <TableCell className="py-2 text-xs">
-                <a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                  Click to view document
-                </a>
+                <div className="flex items-center gap-4">
+                  <a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    View Image
+                  </a>
+                   <a href={att.url} download={att.fileName} className="flex items-center text-primary hover:underline">
+                    <Download className="mr-1 h-3 w-3" />
+                    Download
+                  </a>
+                </div>
               </TableCell>
             </TableRow>
           ))}
