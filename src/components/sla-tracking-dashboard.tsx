@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -48,16 +49,9 @@ const processTypes = [
   "New Business Request",
   "Development Services (Web & App)",
   "Operations & Support (Backend)",
-  "Digital Services Request",
+  "Digital Service Request",
   "Feedback / Complaint",
   "Other Service Request",
-  "Request Information",
-  "Request Quotation",
-  "Request Application",
-  "Request Website",
-  "Request inquiry",
-  "Request Backend Support",
-  "Request Other"
 ];
 
 
