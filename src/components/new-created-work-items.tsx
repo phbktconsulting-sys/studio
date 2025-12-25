@@ -39,7 +39,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, RefreshCw, Trash2 } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Trash2, Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTabs } from '@/contexts/tab-context';
 import { format } from 'date-fns';
@@ -47,6 +47,22 @@ import { useToast } from '@/hooks/use-toast';
 import { deleteWorkItem } from '@/ai/flows/delete-work-item-flow';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
+
+const processTypes = [
+  'Request Information',
+  'Request Quotation',
+  'Request Application',
+  'Request Website',
+  'Request inquiry',
+  'Request Backend Support',
+  'Request Other',
+  "New Business Request",
+  "Development Services (Web & App)",
+  "Operations & Support (Backend)",
+  "Digital Services Request",
+  "Feedback / Complaint",
+  "Other Service Request"
+];
 
 
 interface ReallocateDialogProps {
@@ -182,6 +198,8 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
 
   const [itemToDelete, setItemToDelete] = useState<WorkItem | null>(null);
   const [itemToReallocate, setItemToReallocate] = useState<WorkItem | null>(null);
+  const [processFilter, setProcessFilter] = useState('all');
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -249,21 +267,60 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
   const sortedItems = useMemo(() => {
     if (!workItems) return [];
 
-    const unassignedItems = workItems.filter(item => {
-        // Heuristic: User UIDs are long (28 chars), process names are shorter.
-        // This filters for items assigned to a process queue.
+    let unassignedItems = workItems.filter(item => {
         return item.assignedTo.length < 28;
     });
 
+    if (processFilter !== 'all') {
+      unassignedItems = unassignedItems.filter(item => item.process === processFilter);
+    }
+
     return unassignedItems.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
-  }, [workItems]);
+  }, [workItems, processFilter]);
+
+  const clearFilters = () => {
+    setProcessFilter('all');
+  }
+
+  const handleDownloadReport = async () => {
+    if (sortedItems.length === 0) {
+      toast({ title: 'No Data', description: 'There are no unassigned items to export.' });
+      return;
+    }
+    
+    setIsDownloading(true);
+    
+    try {
+        const XLSX = await import('xlsx');
+        const reportData = sortedItems.map(item => ({
+            'Case ID': item.customId,
+            'Subject': item.subject,
+            'Process': item.process,
+            'Status': item.status,
+            'Created By': usersMap.get(item.createdBy) || item.createdBy,
+            'Assigned To Queue': item.assignedTo,
+            'Created At': format(new Date(item.createdAt), 'yyyy-MM-dd HH:mm:ss'),
+        }));
+        
+        const ws = XLSX.utils.json_to_sheet(reportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Unassigned Work Items');
+        XLSX.writeFile(wb, 'unassigned_work_items_report.xlsx');
+        
+        toast({ title: 'Report Downloaded', description: 'The report has been successfully downloaded.' });
+    } catch(error: any) {
+        toast({ variant: 'destructive', title: 'Download Failed', description: error.message || 'An unexpected error occurred.' });
+    } finally {
+        setIsDownloading(false);
+    }
+  }
 
   const isLoading = workItemsLoading || usersLoading;
 
   return (
     <>
       <div className="p-4 sm:p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="icon" onClick={onBack}>
               <ArrowLeft className="h-4 w-4" />
@@ -274,6 +331,33 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
               <p className="text-xs text-muted-foreground">
                 Showing all open, unassigned work items.
               </p>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center gap-2">
+                <Select value={processFilter} onValueChange={setProcessFilter}>
+                    <SelectTrigger className="h-8 w-full flex-1 min-w-[150px] text-xs">
+                        <SelectValue placeholder="Filter by Process" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all" className="text-xs">All Processes</SelectItem>
+                        {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+                {processFilter !== 'all' && (
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearFilters}>
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Clear filter</span>
+                    </Button>
+                )}
+                 <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleDownloadReport} disabled={isDownloading}>
+                    <Download className="mr-2 h-4 w-4" />
+                    {isDownloading ? 'Downloading...' : 'Download Report'}
+                </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Total Items:</span>
+              <Badge variant="secondary">{sortedItems.length}</Badge>
             </div>
           </div>
         </div>
