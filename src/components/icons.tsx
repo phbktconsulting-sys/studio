@@ -9,23 +9,18 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
       {...props}
     >
       <g fill="hsl(var(--foreground))">
-        {/* Farmer's Hat */}
-        <path d="M 25,45
-                 A 30 10 0 0 0 75,45
-                 L 70,35
-                 A 20 20 0 0 0 30,35 Z" />
-
-        {/* Farmer's Head and Body */}
-        <circle cx="50" cy="55" r="10" />
-        <path d="M 35,65
-                 L 35,85
-                 L 65,85
-                 L 65,65
-                 A 15 15 0 0 0 35,65 Z" />
-
-        {/* Plant/Sprout in Hand */}
-        <path stroke="hsl(var(--background))" strokeWidth="3" d="M 60 75 C 65 70, 75 65, 80 55" />
-        <path fill="hsl(var(--background))" d="M 80 55 C 75 60, 85 60, 80 55" />
+        {/* Stylized Phoenix */}
+        <path d="M 50,20 
+                 C 70,30 80,50 80,60 
+                 C 80,80 65,90 50,85 
+                 C 35,90 20,80 20,60 
+                 C 20,50 30,30 50,20 Z" fill="none" stroke="hsl(var(--foreground))" strokeWidth="5"/>
+        <path d="M 50,45
+                 C 60,50 65,60 65,70" fill="none" stroke="hsl(var(--foreground))" strokeWidth="5" />
+        <path d="M 50,45
+                 C 40,50 35,60 35,70" fill="none" stroke="hsl(var(--foreground))" strokeWidth="5" />
+        <path d="M 40,25 
+                 A 10 10 0 0 1 60,25" fill="none" stroke="hsl(var(--foreground))" strokeWidth="5" />
       </g>
     </svg>
   );
