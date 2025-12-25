@@ -113,7 +113,7 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
                    <UserCircle className="h-8 w-8 text-muted-foreground" />
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="flex-grow space-y-2">
                 <div className="flex items-center gap-2 text-xs">
                     <Mail className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
                     <a href={`mailto:${customer.email}`} className="text-primary hover:underline truncate">
