@@ -118,11 +118,11 @@ service cloud.firestore {
       /**
        * @description Rules for notes within a work item.
        * @path /work_items/{workitemId}/notes/{noteId}
-       * @allow Any signed-in user can read notes for collaboration.
+       * @allow Any signed-in user can read and list notes for collaboration.
        * @principle Access is broad for collaboration, but modification is restricted to author/admin.
        */
       match /notes/{noteId} {
-        allow read: if isSignedIn();
+        allow read, list: if isSignedIn();
         allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
         allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
       }
