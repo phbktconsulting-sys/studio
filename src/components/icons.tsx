@@ -5,24 +5,22 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement> & {hei
     <svg
       width={props.width || 40}
       height={props.height || 40}
-      viewBox="0 0 40 40"
+      viewBox="0 0 24 24"
       fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       {...props}
     >
-      <g clipPath="url(#clip0_10_2)">
-        <path d="M20 0C8.954 0 0 8.954 0 20C0 31.046 8.954 40 20 40C31.046 40 40 31.046 40 20C40 8.954 31.046 0 20 0Z" fill="hsl(var(--primary))"/>
-        <path d="M12 12H18V18H12V12Z" fill="hsl(var(--primary-foreground))"/>
-        <path d="M22 12H28V18H22V12Z" fill="hsl(var(--primary-foreground))" fillOpacity="0.7"/>
-        <path d="M12 22H18V28H12V22Z" fill="hsl(var(--primary-foreground))" fillOpacity="0.7"/>
-        <path d="M22 22H28V28H22V22Z" fill="hsl(var(--primary-foreground))"/>
+      <g fill="hsl(var(--primary))" stroke="hsl(var(--primary))">
+        <path d="M12 2a2.83 2.83 0 0 1 2.2 4.4L12 8.6l-2.2-2.2A2.83 2.83 0 0 1 12 2z"/>
+        <path d="M22 12a2.83 2.83 0 0 1-4.4 2.2L15.4 12l2.2-2.2A2.83 2.83 0 0 1 22 12z"/>
+        <path d="M12 22a2.83 2.83 0 0 1-2.2-4.4L12 15.4l2.2 2.2A2.83 2.83 0 0 1 12 22z"/>
+        <path d="M2 12a2.83 2.83 0 0 1 4.4-2.2L8.6 12l-2.2 2.2A2.83 2.83 0 0 1 2 12z"/>
       </g>
-      <defs>
-        <clipPath id="clip0_10_2">
-          <rect width="40" height="40" rx="20" fill="white"/>
-        </clipPath>
-      </defs>
     </svg>
   );
 };
