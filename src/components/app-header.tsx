@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -76,7 +77,7 @@ export function AppHeader() {
             <DropdownMenuTrigger asChild>
               <Button className="relative h-8 w-auto px-4 bg-black text-white hover:bg-black/80 text-xs">
                 <UserIcon className="mr-2 h-4 w-4" />
-                <span>{user?.displayName || 'User Menu'}</span>
+                <span>{`${user?.firstName} ${user?.lastName}` || 'User Menu'}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
