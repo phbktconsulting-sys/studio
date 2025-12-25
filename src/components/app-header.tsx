@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -17,12 +16,15 @@ import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTabs } from '@/contexts/tab-context';
 import { LogoIcon } from './icons';
+import { useState } from 'react';
+import { UserProfileDialog } from './user-profile-dialog';
 
 export function AppHeader() {
   const { user } = useUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
   const { openTab } = useTabs();
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
 
   const handleLogout = () => {
     if (auth) {
@@ -41,80 +43,89 @@ export function AppHeader() {
 
   const handleProfileClick = () => {
     if (user?.uid) {
-      router.push(`/users/${user.uid}`);
+      setIsProfileDialogOpen(true);
     }
   };
 
   return (
-    <div className="contents">
-      <header className="flex h-28 items-center justify-between border-b bg-card px-4 md:px-6">
-        <div className="flex flex-col">
-          <Link href="/" className="flex items-center gap-4">
-            <LogoIcon height={40} width={40} />
-            <div className="font-headline text-lg font-bold leading-tight">
-              <div className="flex flex-col text-sm leading-snug">
-                <span>PHBKT</span>
-                <span>Group</span>
-                <span>Limited</span>
-              </div>
-            </div>
-          </Link>
-          <span className="mt-1 block h-1 w-full bg-green-600"></span>
-        </div>
-
-        <div className="ml-10 flex-1 space-y-1">
-          <p className="text-lg font-bold text-primary">
-            WorkFlow Management Application
-          </p>
-          <p className="text-base text-primary">
-            {user?.firstName} {user?.lastName} - Home Page
-          </p>
-        </div>
-
-        <div className="flex items-center justify-end gap-4">
-          <Button
-            onClick={handleNewWork}
-            className="h-8 bg-black text-white hover:bg-black/80 text-xs"
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            New Work
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="relative h-8 w-auto px-4 bg-black text-white hover:bg-black/80 text-xs">
-                <UserIcon className="mr-2 h-4 w-4" />
-                <span>{`${user?.firstName} ${user?.lastName}` || 'User Menu'}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {user?.displayName}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email}
-                  </p>
+    <>
+      <div className="contents">
+        <header className="flex h-28 items-center justify-between border-b bg-card px-4 md:px-6">
+          <div className="flex flex-col">
+            <Link href="/" className="flex items-center gap-4">
+              <LogoIcon height={40} width={40} />
+              <div className="font-headline text-lg font-bold leading-tight">
+                <div className="flex flex-col text-sm leading-snug">
+                  <span>PHBKT</span>
+                  <span>Group</span>
+                  <span>Limited</span>
                 </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleProfileClick}>
-                <UserIcon className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <LifeBuoy className="mr-2 h-4 w-4" />
-                <span>Support</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
-    </div>
+              </div>
+            </Link>
+            <span className="mt-1 block h-1 w-full bg-green-600"></span>
+          </div>
+
+          <div className="ml-10 flex-1 space-y-1">
+            <p className="text-lg font-bold text-primary">
+              WorkFlow Management Application
+            </p>
+            <p className="text-base text-primary">
+              {user?.firstName} {user?.lastName} - Home Page
+            </p>
+          </div>
+
+          <div className="flex items-center justify-end gap-4">
+            <Button
+              onClick={handleNewWork}
+              className="h-8 bg-black text-white hover:bg-black/80 text-xs"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New Work
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="relative h-8 w-auto px-4 bg-black text-white hover:bg-black/80 text-xs">
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  <span>{`${user?.firstName} ${user?.lastName}` || 'User Menu'}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user?.displayName}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleProfileClick}>
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LifeBuoy className="mr-2 h-4 w-4" />
+                  <span>Support</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+      </div>
+      {user && (
+        <UserProfileDialog
+          userId={user.uid}
+          isOpen={isProfileDialogOpen}
+          onClose={() => setIsProfileDialogOpen(false)}
+        />
+      )}
+    </>
   );
 }

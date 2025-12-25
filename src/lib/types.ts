@@ -217,3 +217,21 @@ export const DeleteCustomerSchema = z.object({
   id: z.string().min(1, { message: 'Customer ID is required' }),
 });
 export type DeleteCustomerInput = z.infer<typeof DeleteCustomerSchema>;
+
+// Schema for updating a user profile
+export const UpdateUserInputSchema = CreateUserInputSchema.omit({ email: true, password: true }).extend({
+  password: z.string().optional(), // Password is optional on update
+});
+export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
+
+export const ServerUpdateUserInputSchema = UpdateUserInputSchema.extend({
+  uid: z.string(),
+  dob: z.string(),
+});
+export type ServerUpdateUserInput = z.infer<typeof ServerUpdateUserInputSchema>;
+
+export const UpdateUserOutputSchema = z.object({
+  success: z.boolean(),
+  error: z.string().optional(),
+});
+export type UpdateUserOutput = z.infer<typeof UpdateUserOutputSchema>;
