@@ -39,12 +39,6 @@ export function AppHeader() {
     });
   };
 
-  const handleProfileClick = () => {
-    if (user?.uid) {
-      router.push(`/users/${user.uid}`);
-    }
-  };
-
   return (
     <>
       <div className="contents">
@@ -98,11 +92,6 @@ export function AppHeader() {
                     </p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleProfileClick}>
-                  <UserIcon className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
