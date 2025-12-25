@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check, Download, Pencil } from 'lucide-react';
+import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check, Download, Pencil, Building2, TrendingUp, Handshake, Fingerprint, Banknote } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { useFirebase, useDoc, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, query, orderBy, limit, where, getDocs, updateDoc } from 'firebase/firestore';
@@ -1156,8 +1156,14 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     setIsVerifyingAuthority(false);
   }
 
-  const handleContactUpdate = (updatedContact: ContactInfoUpdateValues) => {
-    if (!workItemRef) return;
+  const handleContactUpdate = (updatedData: ContactInfoUpdateValues) => {
+    if (!workItemRef || !item) return;
+
+    const updatedContact = {
+      ...item.relatedContact,
+      ...updatedData
+    };
+
     updateDocumentNonBlocking(workItemRef, { relatedContact: updatedContact });
     toast({
       title: "Contact Info Updated",
@@ -1201,8 +1207,9 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <span>Case Age: <span className="text-muted-foreground">{caseAge} days</span></span>
           </div>
           <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsEditContactDialogOpen(true)}>
+             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsEditContactDialogOpen(true)}>
                 <FilePenLine className="h-4 w-4" />
+                <span className="sr-only">Edit Customer Info</span>
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleRefresh}>
                 <RefreshCw className="h-4 w-4" />
@@ -1346,38 +1353,79 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsContent value="contact" className="mt-0">
               <Card className="border-0 shadow-none">
                 <CardHeader className="flex flex-row items-center justify-between p-4">
-                  <CardTitle className="text-xs">Contact Information</CardTitle>
+                  <CardTitle className="text-sm">Contact Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 p-4 pt-0">
-                  <div className="flex items-center gap-4 text-xs">
-                      <UserIcon className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Name:</span>
-                      <span className="text-muted-foreground">{item.relatedContact.name}</span>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 p-4 pt-0 text-xs">
+                  <div className="flex items-center gap-4">
+                    <UserIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    <span className="font-medium w-24">Name:</span>
+                    <span className="text-muted-foreground">{item.relatedContact.name}</span>
                   </div>
-                   {item.relatedContact.address && (
-                    <div className="flex items-start gap-4 text-xs">
-                        <Home className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                        <div className="flex flex-col">
-                           <span className="font-medium">Address:</span>
-                           <span className="text-muted-foreground">{item.relatedContact.address}</span>
-                        </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-4 text-xs">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Email:</span>
-                      <a href={`mailto:${item.relatedContact.email}`} className="text-primary hover:underline">{item.relatedContact.email}</a>
+                  <div className="flex items-center gap-4">
+                    <Mail className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    <span className="font-medium w-24">Email:</span>
+                    <a href={`mailto:${item.relatedContact.email}`} className="text-primary hover:underline truncate">{item.relatedContact.email}</a>
                   </div>
-                  <div className="flex items-center gap-4 text-xs">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Phone:</span>
-                      <span className="text-muted-foreground">{item.relatedContact.phone}</span>
+                  <div className="flex items-center gap-4">
+                    <Phone className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    <span className="font-medium w-24">Phone:</span>
+                    <span className="text-muted-foreground">{item.relatedContact.phone}</span>
                   </div>
                   {item.relatedContact.phoneSecondary && (
-                    <div className="flex items-center gap-4 text-xs">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">Secondary Phone:</span>
-                        <span className="text-muted-foreground">{item.relatedContact.phoneSecondary}</span>
+                    <div className="flex items-center gap-4">
+                      <Phone className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <span className="font-medium w-24">Secondary Phone:</span>
+                      <span className="text-muted-foreground">{item.relatedContact.phoneSecondary}</span>
+                    </div>
+                  )}
+                  {item.relatedContact.address && (
+                    <div className="flex items-start gap-4 col-span-full">
+                      <Home className="h-4 w-4 flex-shrink-0 text-muted-foreground mt-0.5" />
+                      <span className="font-medium w-24">Address:</span>
+                      <span className="text-muted-foreground">{item.relatedContact.address}</span>
+                    </div>
+                  )}
+                  <Separator className="my-2 col-span-full" />
+                  {item.relatedContact.aadharNumber && (
+                    <div className="flex items-center gap-4">
+                      <Fingerprint className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <span className="font-medium w-24">Aadhar:</span>
+                      <span className="text-muted-foreground">{item.relatedContact.aadharNumber}</span>
+                    </div>
+                  )}
+                  {item.relatedContact.panNumber && (
+                    <div className="flex items-center gap-4">
+                      <Fingerprint className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <span className="font-medium w-24">PAN:</span>
+                      <span className="text-muted-foreground">{item.relatedContact.panNumber}</span>
+                    </div>
+                  )}
+                  {item.relatedContact.businessName && (
+                    <div className="flex items-center gap-4">
+                      <Building2 className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <span className="font-medium w-24">Business Name:</span>
+                      <span className="text-muted-foreground">{item.relatedContact.businessName}</span>
+                    </div>
+                  )}
+                  {item.relatedContact.businessSize && (
+                    <div className="flex items-center gap-4">
+                      <TrendingUp className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <span className="font-medium w-24">Business Size:</span>
+                      <span className="text-muted-foreground">{item.relatedContact.businessSize}</span>
+                    </div>
+                  )}
+                   {item.relatedContact.businessRevenue && (
+                    <div className="flex items-center gap-4">
+                      <Banknote className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <span className="font-medium w-24">Revenue:</span>
+                      <span className="text-muted-foreground">{item.relatedContact.businessRevenue}</span>
+                    </div>
+                  )}
+                   {item.relatedContact.hasOtherProvider && (
+                    <div className="flex items-center gap-4">
+                      <Handshake className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <span className="font-medium w-24">Other Provider:</span>
+                      <span className="text-muted-foreground">Yes</span>
                     </div>
                   )}
                 </CardContent>
