@@ -14,6 +14,7 @@ import {
 import { ArrowLeft, Search, Mail, UserCircle, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from './ui/input';
+import { Badge } from './ui/badge';
 
 interface CustomerWorkflowProps {
   onBack: () => void;
@@ -85,6 +86,10 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
             <p className="text-xs text-muted-foreground">View and manage all customer records.</p>
           </div>
         </div>
+         <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Total Customers:</span>
+            <Badge variant="secondary">{filteredCustomers.length}</Badge>
+          </div>
       </div>
       <div className="relative mt-4">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
