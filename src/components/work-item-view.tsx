@@ -1009,7 +1009,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-0">
       <Table>
         <TableHeader>
           <TableRow>
@@ -1422,4 +1422,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
-
