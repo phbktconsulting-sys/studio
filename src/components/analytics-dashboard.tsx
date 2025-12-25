@@ -37,7 +37,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { subDays, format, startOfDay, endOfDay, differenceInDays, addDays } from 'date-fns';
 import { Button } from './ui/button';
-import { ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, X } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-date-range';
@@ -199,6 +199,19 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
     count: { label: 'Work Items' },
     items: { label: 'Created Items' },
   };
+  
+  const clearFilters = () => {
+    setUserFilter('all');
+    setProcessFilter('all');
+    setDateRange([
+      {
+        startDate: subDays(new Date(), 30),
+        endDate: new Date(),
+        key: 'selection'
+      }
+    ]);
+  };
+
 
   if (isLoading) {
     return (
@@ -222,59 +235,65 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
           </div>
         </div>
         <div className="flex items-end gap-2">
-            <Select value={userFilter} onValueChange={setUserFilter}>
-            <SelectTrigger className="w-full h-8 text-xs">
-                <SelectValue placeholder="Filter by User" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all" className="text-xs">All Users</SelectItem>
-                {users?.map(user => (
-                    <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>
-                ))}
-            </SelectContent>
-            </Select>
+            <div className="grid grid-cols-3 gap-2">
+                <Select value={userFilter} onValueChange={setUserFilter}>
+                <SelectTrigger className="w-full h-8 text-xs">
+                    <SelectValue placeholder="Filter by User" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all" className="text-xs">All Users</SelectItem>
+                    {users?.map(user => (
+                        <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>
+                    ))}
+                </SelectContent>
+                </Select>
 
-            <Select value={processFilter} onValueChange={setProcessFilter}>
-            <SelectTrigger className="w-full h-8 text-xs">
-                <SelectValue placeholder="Filter by Process" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all" className="text-xs">All Processes</SelectItem>
-                {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
-            </SelectContent>
-            </Select>
-            
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="date"
-                  variant="outline"
-                  className={cn(
-                    "w-[240px] justify-start text-left font-normal h-8 text-xs",
-                    !dateRange[0].startDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange[0].startDate && dateRange[0].endDate ? (
-                    <>
-                      {format(dateRange[0].startDate, "LLL dd, y")} -{" "}
-                      {format(dateRange[0].endDate, "LLL dd, y")}
-                    </>
-                  ) : (
-                    <span>Pick a date range</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                 <DateRange
-                    editableDateInputs={true}
-                    onChange={item => setDateRange([item.selection])}
-                    moveRangeOnFirstSelection={false}
-                    ranges={dateRange}
-                    className="w-full"
-                />
-              </PopoverContent>
-            </Popover>
+                <Select value={processFilter} onValueChange={setProcessFilter}>
+                <SelectTrigger className="w-full h-8 text-xs">
+                    <SelectValue placeholder="Filter by Process" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all" className="text-xs">All Processes</SelectItem>
+                    {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
+                </SelectContent>
+                </Select>
+                
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="date"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal h-8 text-xs",
+                        !dateRange[0].startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateRange[0].startDate && dateRange[0].endDate ? (
+                        <>
+                          {format(dateRange[0].startDate, "LLL dd, y")} -{" "}
+                          {format(dateRange[0].endDate, "LLL dd, y")}
+                        </>
+                      ) : (
+                        <span>Pick a date range</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                     <DateRange
+                        editableDateInputs={true}
+                        onChange={item => setDateRange([item.selection])}
+                        moveRangeOnFirstSelection={false}
+                        ranges={dateRange}
+                        className="w-full"
+                    />
+                  </PopoverContent>
+                </Popover>
+            </div>
+             <Button variant="ghost" className="h-8" onClick={clearFilters}>
+                  <X className="mr-2 h-4 w-4" />
+                  Clear
+              </Button>
         </div>
       </div>
       
@@ -414,3 +433,5 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
     </div>
   );
 }
+
+    
