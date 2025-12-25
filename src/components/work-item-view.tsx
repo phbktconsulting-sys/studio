@@ -66,7 +66,11 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
     const fetchTaskUsers = async () => {
       if (!firestore || !tasks || tasks.length === 0) return;
 
-      const userIds = [...new Set(tasks.map(task => task.completedBy).filter(Boolean) as string[])];
+      const userIds = [...new Set([
+          ...tasks.map(task => task.createdBy).filter(Boolean),
+          ...tasks.map(task => task.completedBy).filter(Boolean)
+      ])] as string[];
+      
       const idsToFetch = userIds.filter(id => !usersMap.has(id));
       
       if (idsToFetch.length === 0) return;
@@ -74,21 +78,24 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
       const newUsersMap = new Map<string, string>(usersMap);
       
       // Firestore 'in' query is limited to 30 items. 
-      // If you expect more, you'd need to batch this.
-      const usersRef = collection(firestore, 'users');
-      const q = query(usersRef, where('uid', 'in', idsToFetch.slice(0,30)));
-      
+      const chunks = [];
+      for (let i = 0; i < idsToFetch.length; i += 30) {
+          chunks.push(idsToFetch.slice(i, i + 30));
+      }
+
       try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          const userData = doc.data() as User;
-          newUsersMap.set(userData.uid, userData.displayName || 'Unknown User');
-        });
+        const usersRef = collection(firestore, 'users');
+        for (const chunk of chunks) {
+          const q = query(usersRef, where('uid', 'in', chunk));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data() as User;
+            newUsersMap.set(userData.uid, userData.displayName || 'Unknown User');
+          });
+        }
         setUsersMap(newUsersMap);
       } catch (error) {
-        // This will fail for non-admins due to security rules, but we can degrade gracefully.
         console.warn("Could not fetch user profiles for tasks:", error);
-        // For users that couldn't be fetched, just show their ID
         idsToFetch.forEach(id => {
           if (!newUsersMap.has(id)) {
             newUsersMap.set(id, id);
@@ -127,12 +134,19 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
               checked={task.completed}
               disabled // Disabling the checkbox
             />
-            <label
-              htmlFor={`task-${task.id}`}
-              className={`font-medium leading-none ${task.completed ? 'line-through text-muted-foreground' : ''} ${!task.completed ? 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70' : ''} text-xs`}
-            >
-              {task.text}
-            </label>
+            <div className="flex flex-col">
+                 <label
+                    htmlFor={`task-${task.id}`}
+                    className={`font-medium leading-none ${task.completed ? 'line-through text-muted-foreground' : ''} ${!task.completed ? 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70' : ''} text-xs`}
+                >
+                    {task.text}
+                </label>
+                {task.createdAt && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                        Added by {usersMap.get(task.createdBy || '') || '...'} on {format(parseISO(task.createdAt), 'MMM d, yyyy')}
+                    </p>
+                )}
+            </div>
           </div>
           {task.completed && (
             <div className="text-xs text-muted-foreground">
@@ -280,7 +294,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               createdBy: user.uid,
               relatedContact: workItem.relatedContact,
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
-              tasks: reindexTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
+              tasks: reindexTasks.map(taskText => ({ 
+                id: `task-${Date.now()}-${Math.random()}`, 
+                text: taskText, 
+                completed: false,
+                createdBy: user.uid,
+                createdAt: new Date().toISOString(),
+              })),
               sourceWorkItemId: shouldCopyNotes === 'yes' ? workItem.id : undefined,
               reindexReason: reindexToProcess, 
               reindexNote: `Original Case ID: ${workItem.customId}. ${reindexNotes}`,
@@ -331,7 +351,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 createdBy: user.uid,
                 relatedContact: workItem.relatedContact,
                 overview: `Cloned from ${workItem.customId}. Original overview: ${workItem.overview}`,
-                tasks: cloneTasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
+                tasks: cloneTasks.map(taskText => ({ 
+                    id: `task-${Date.now()}-${Math.random()}`, 
+                    text: taskText, 
+                    completed: false,
+                    createdBy: user.uid,
+                    createdAt: new Date().toISOString()
+                })),
                 sourceWorkItemId: workItem.id,
                 reindexReason: 'Cloned',
                 reindexNote: `Cloned from Case ID: ${workItem.customId}. ${cloneNotes}`,
@@ -1313,5 +1339,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
-
-    

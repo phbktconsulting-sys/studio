@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -107,7 +108,13 @@ export function NewWorkItemView() {
           address: data.customerAddress || '',
         },
         overview: data.overview,
-        tasks: data.tasks.map(taskText => ({ id: `task-${Date.now()}-${Math.random()}`, text: taskText, completed: false })),
+        tasks: data.tasks.map(taskText => ({ 
+            id: `task-${Date.now()}-${Math.random()}`, 
+            text: taskText, 
+            completed: false,
+            createdBy: user.uid,
+            createdAt: new Date().toISOString()
+        })),
       };
       
       const result = await createWorkItem(payload);

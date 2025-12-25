@@ -26,6 +26,8 @@ export interface Task {
   id: string;
   text: string;
   completed: boolean;
+  createdBy?: string; // User UID
+  createdAt?: string; // ISO date string
   completedBy?: string; // User UID
   completedAt?: string; // ISO date string
 }
