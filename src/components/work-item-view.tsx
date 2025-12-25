@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -297,7 +296,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             
             addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
                 authorId: user.uid,
-                text: `Case re-indexed to new Process '${reindexToProcess}'. New Case ID: ${newWorkItemResult.customId}. Reason: ${reindexNotes}`,
+                text: `Case re-indexed to new Case ID: ${newWorkItemResult.customId}. ${reindexNotes}`,
                 createdAt: new Date().toISOString(),
                 workItemId: workItem.id,
                 category: 'Re-Indexed',
@@ -1314,3 +1313,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    
