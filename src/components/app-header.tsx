@@ -42,25 +42,23 @@ export function AppHeader() {
   return (
     <div className="contents">
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
-        <div className="flex items-center">
-            <Link href="/" className="flex flex-col">
-                <div className="flex items-center gap-4">
-                    <LogoIcon height={40} width={40} />
-                    <div className="font-headline text-lg font-bold leading-tight">
-                        <div className="flex flex-col text-sm leading-snug">
-                            <span>PHBKT</span>
-                            <span>Group</span>
-                            <span>Limited</span>
-                        </div>
+        <div className="flex flex-col">
+            <Link href="/" className="flex items-center gap-4">
+                <LogoIcon height={40} width={40} />
+                <div className="font-headline text-lg font-bold leading-tight">
+                    <div className="flex flex-col text-sm leading-snug">
+                        <span>PHBKT</span>
+                        <span>Group</span>
+                        <span>Limited</span>
                     </div>
                 </div>
-                <span className="mt-1 block h-1 w-full bg-green-600"></span>
             </Link>
+            <span className="mt-1 block h-1 w-full bg-green-600"></span>
         </div>
 
-        <div className="flex-1 ml-10">
-           <h1 className="font-headline text-xl font-bold text-primary">PHBKT - WorkFlow Management</h1>
-           <p className="text-sm text-primary">{user?.displayName} - Home Page</p>
+        <div className="flex-1 ml-10 space-y-1">
+           <p className="text-base text-primary">PHBKT - WorkFlow Management</p>
+           <p className="text-base text-primary">{user?.displayName} - Home Page</p>
         </div>
 
         <div className="flex items-center justify-end gap-4">
