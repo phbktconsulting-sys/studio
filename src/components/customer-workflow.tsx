@@ -5,16 +5,18 @@ import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
 import type { Customer } from '@/lib/types';
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { ArrowLeft, Search, Mail, UserCircle, Phone } from 'lucide-react';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { ArrowLeft, Search, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
+import { Card } from './ui/card';
 
 interface CustomerWorkflowProps {
   onBack: () => void;
@@ -86,71 +88,69 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
             <p className="text-xs text-muted-foreground">View and manage all customer records.</p>
           </div>
         </div>
-         <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Total Customers:</span>
-            <Badge variant="secondary">{filteredCustomers.length}</Badge>
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Total Customers:</span>
+          <Badge variant="secondary">{filteredCustomers.length}</Badge>
+        </div>
       </div>
       <div className="relative mt-4">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-              placeholder="Search by name, email, or ID..."
-              className="w-full pl-9"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search by name, email, or ID..."
+          className="w-full pl-9"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredCustomers &&
-          filteredCustomers.map((customer) => (
-            <Card key={customer.id} className="group flex flex-col justify-between transition-all hover:shadow-md">
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-base font-bold">{customer.name || 'N/A'}</CardTitle>
-                     <p className="font-mono text-xs text-muted-foreground">{customer.customerUniqueId}</p>
-                  </div>
-                   <UserCircle className="h-8 w-8 text-muted-foreground" />
-                </div>
-              </CardHeader>
-              <CardContent className="flex-grow space-y-2">
-                <div className="flex items-center gap-2 text-xs">
-                    <Mail className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
-                    <a href={`mailto:${customer.email}`} className="text-primary hover:underline truncate">
-                        {customer.email}
+      <Card className="mt-6">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Customer Name</TableHead>
+              <TableHead>Customer ID</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredCustomers &&
+              filteredCustomers.map((customer) => (
+                <TableRow key={customer.id}>
+                  <TableCell className="font-medium">{customer.name || 'N/A'}</TableCell>
+                  <TableCell className="font-mono text-xs">{customer.customerUniqueId}</TableCell>
+                  <TableCell>
+                    <a href={`mailto:${customer.email}`} className="text-primary hover:underline">
+                      {customer.email}
                     </a>
-                </div>
-                {customer.phone && (
-                  <div className="flex items-center gap-2 text-xs">
-                    <Phone className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
-                    <span className="text-muted-foreground truncate">{customer.phone}</span>
-                  </div>
-                )}
-              </CardContent>
-               <CardFooter className="p-2 border-t bg-slate-50">
-                  <div className="flex w-full items-center justify-around">
+                  </TableCell>
+                  <TableCell>{customer.phone}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
                       <a href={`https://wa.me/${customer.phone?.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full text-green-600 hover:bg-green-100">
-                          <WhatsAppIcon className="h-5 w-5" />
-                          <span className="sr-only">WhatsApp</span>
+                        <WhatsAppIcon className="h-5 w-5" />
+                        <span className="sr-only">WhatsApp</span>
                       </a>
                       <a href={`mailto:${customer.email}`} className="p-2 rounded-full text-blue-600 hover:bg-blue-100">
-                          <Mail className="h-5 w-5" />
-                           <span className="sr-only">Email</span>
+                        <Mail className="h-5 w-5" />
+                        <span className="sr-only">Email</span>
                       </a>
                       <a href={`tel:${customer.phone}`} className="p-2 rounded-full text-red-600 hover:bg-red-100">
-                          <Phone className="h-5 w-5" />
-                           <span className="sr-only">Call</span>
+                        <Phone className="h-5 w-5" />
+                        <span className="sr-only">Call</span>
                       </a>
-                  </div>
-              </CardFooter>
-            </Card>
-          ))}
-      </div>
-       {(!filteredCustomers || filteredCustomers.length === 0) && !isLoading && (
-            <div className="mt-6 text-center text-sm text-muted-foreground">
-                <p>{searchTerm ? "No customers match your search." : "No customers found."}</p>
-            </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+        {(!filteredCustomers || filteredCustomers.length === 0) && !isLoading && (
+          <div className="p-6 text-center text-sm text-muted-foreground">
+            <p>{searchTerm ? 'No customers match your search.' : 'No customers found.'}</p>
+          </div>
         )}
+      </Card>
     </div>
   );
 }
