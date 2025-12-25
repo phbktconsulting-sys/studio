@@ -12,11 +12,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowLeft, Search, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, Search, Mail, Phone, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from './ui/calendar';
+import { format, isSameDay, parseISO } from 'date-fns';
 
 interface CustomerWorkflowProps {
   onBack: () => void;
@@ -42,6 +45,7 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
   const { firestore } = useFirebase();
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState<Date | undefined>();
 
   const customersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -58,14 +62,24 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
   const filteredCustomers = useMemo(() => {
     if (!sortedCustomers) return [];
     const lowercasedFilter = searchTerm.toLowerCase();
+
     return sortedCustomers.filter((customer) => {
-      return (
+      const searchTermMatch =
+        !lowercasedFilter ||
         customer.name?.toLowerCase().includes(lowercasedFilter) ||
         customer.email?.toLowerCase().includes(lowercasedFilter) ||
-        customer.customerUniqueId?.includes(lowercasedFilter)
-      );
+        customer.customerUniqueId?.includes(lowercasedFilter);
+
+      const dateMatch = !dateFilter || isSameDay(parseISO(customer.createdAt), dateFilter);
+
+      return searchTermMatch && dateMatch;
     });
-  }, [sortedCustomers, searchTerm]);
+  }, [sortedCustomers, searchTerm, dateFilter]);
+  
+  const clearFilters = () => {
+    setSearchTerm('');
+    setDateFilter(undefined);
+  };
 
   if (isLoading) {
     return (
@@ -93,15 +107,33 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
           <Badge variant="secondary">{filteredCustomers.length}</Badge>
         </div>
       </div>
-      <div className="relative mt-4">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search by name, email, or ID..."
-          className="w-full pl-9"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      
+       <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border bg-card p-2">
+        <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+            placeholder="Search by name, email, or ID..."
+            className="w-full pl-9 h-8 text-xs"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            />
+        </div>
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="outline" className="h-8 w-full flex-1 min-w-[150px] justify-start text-left font-normal text-xs">
+                    {dateFilter ? format(dateFilter, 'PPP') : <span>Filter by Creation Date</span>}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
+            </PopoverContent>
+        </Popover>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearFilters}>
+            <X className="h-4 w-4" />
+            <span className="sr-only">Clear filters</span>
+        </Button>
       </div>
+
       <Card className="mt-6">
         <Table>
           <TableHeader>
@@ -147,7 +179,7 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
         </Table>
         {(!filteredCustomers || filteredCustomers.length === 0) && !isLoading && (
           <div className="p-6 text-center text-sm text-muted-foreground">
-            <p>{searchTerm ? 'No customers match your search.' : 'No customers found.'}</p>
+            <p>{searchTerm || dateFilter ? 'No customers match your search.' : 'No customers found.'}</p>
           </div>
         )}
       </Card>
