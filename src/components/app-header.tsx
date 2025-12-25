@@ -58,7 +58,7 @@ export function AppHeader() {
 
         <div className="flex-1 ml-10 space-y-1">
            <p className="text-lg text-primary font-bold">WorkFlow Management Application</p>
-           <p className="text-base text-primary">{user?.displayName} - Home Page</p>
+           <p className="text-base text-primary">{user?.firstName} {user?.lastName} - Home Page</p>
         </div>
 
         <div className="flex items-center justify-end gap-4">
