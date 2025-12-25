@@ -1061,11 +1061,12 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   const { toast } = useToast();
   const [isVerifyingAuthority, setIsVerifyingAuthority] = useState(false);
   const [isAttachmentDialogOpen, setIsAttachmentDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const workItemRef = useMemoFirebase(() => {
       if (!firestore) return null;
       return doc(firestore, 'work_items', workItemId);
-  }, [firestore, workItemId]);
+  }, [firestore, workItemId, refreshKey]);
 
   const { data: item, isLoading: isWorkItemLoading } = useDoc<WorkItem>(workItemRef);
   
@@ -1074,12 +1075,12 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     // Check if assignedTo is a UID (standard length is 28 chars)
     if (item.assignedTo.length < 20) return null;
     return doc(firestore, 'users', item.assignedTo);
-  }, [firestore, item?.assignedTo]);
+  }, [firestore, item?.assignedTo, refreshKey]);
   
   const createdByUserRef = useMemoFirebase(() => {
     if (!firestore || !item?.createdBy) return null;
     return doc(firestore, 'users', item.createdBy);
-  }, [firestore, item?.createdBy]);
+  }, [firestore, item?.createdBy, refreshKey]);
 
   const latestNoteQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -1088,7 +1089,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
         orderBy('createdAt', 'desc'),
         limit(1)
     );
-  }, [firestore, workItemId]);
+  }, [firestore, workItemId, refreshKey]);
 
   const { data: assignedUser, isLoading: isUserLoading } = useDoc<User>(assignedUserRef);
   const { data: createdByUser, isLoading: isCreatorLoading } = useDoc<User>(createdByUserRef);
@@ -1100,6 +1101,14 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
 
   const caseAge = item ? differenceInDays(new Date(), parseISO(item.createdAt)) : 0;
   
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+    toast({
+        title: 'Refreshed',
+        description: 'Work item data has been refreshed.',
+    });
+  }
+
   const handleVerifyClick = () => {
     if (!item || !currentUser || !workItemRef || !firestore) return;
 
@@ -1183,7 +1192,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <FilePenLine className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleRefresh}>
                 <RefreshCw className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsAttachmentDialogOpen(true)}>
@@ -1274,7 +1283,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                   </CardHeader>
                   <CardContent>
                       <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-                        {item.overview.split(/[\\n,.]+/).map((line, index) => (
+                        {item.overview.split(/[\n,.]+/).map((line, index) => (
                           line.trim() && <li key={index}>{line.trim()}</li>
                         ))}
                       </ul>
@@ -1413,3 +1422,4 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     
 
     
+
