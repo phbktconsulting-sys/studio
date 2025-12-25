@@ -446,7 +446,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           <div className="space-y-4">
                <div className="flex items-start">
                   <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-                  <div className="w-3/4">
+                  <div className="w-1/2">
                       <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
                       {(workItem.tasks || []).length > 0 ? (
                           <div className="flex flex-col space-y-2">
