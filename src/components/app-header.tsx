@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -41,7 +40,7 @@ export function AppHeader() {
 
   return (
     <div className="contents">
-      <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
+      <header className="flex h-28 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex flex-col">
           <Link href="/" className="flex items-center gap-4">
             <LogoIcon height={40} width={40} />
