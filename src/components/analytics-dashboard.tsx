@@ -45,13 +45,12 @@ interface AnalyticsDashboardProps {
 }
 
 const processTypes = [
-  'Request Information',
-  'Request Quotation',
-  'Request Application',
-  'Request Website',
-  'Request inquiry',
-  'Request Backend Support',
-  'Request Other',
+  "New Business Request",
+  "Development Services (Web & App)",
+  "Operations & Support (Backend)",
+  "Digital Service Request",
+  "Feedback / Complaint",
+  "Other Service Request"
 ];
 
 const statusTypes: WorkItem['status'][] = ['Open', 'In Progress', 'Pending', 'Closed', 'Re-indexed'];
@@ -189,7 +188,7 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
@@ -199,6 +198,41 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
             <h1 className="font-headline text-lg font-bold tracking-tight">Analytics Dashboard</h1>
             <p className="text-xs text-muted-foreground">Overview of work item activity.</p>
           </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+            <Select value={userFilter} onValueChange={setUserFilter}>
+            <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue placeholder="Filter by User" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all" className="text-xs">All Users</SelectItem>
+                {users?.map(user => (
+                    <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>
+                ))}
+            </SelectContent>
+            </Select>
+
+            <Select value={processFilter} onValueChange={setProcessFilter}>
+            <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue placeholder="Filter by Process" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all" className="text-xs">All Processes</SelectItem>
+                {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
+            </SelectContent>
+            </Select>
+            
+            <Select value={String(timeRange)} onValueChange={(val) => setTimeRange(Number(val))}>
+            <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue placeholder="Select time range" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="7" className="text-xs">Last 7 Days</SelectItem>
+                <SelectItem value="30" className="text-xs">Last 30 Days</SelectItem>
+                <SelectItem value="90" className="text-xs">Last 90 Days</SelectItem>
+                <SelectItem value="365" className="text-xs">Last 365 Days</SelectItem>
+            </SelectContent>
+            </Select>
         </div>
       </div>
       
@@ -249,42 +283,6 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
                 </Table>
             </CardContent>
         </Card>
-
-        <div className="flex flex-wrap items-center gap-2">
-            <Select value={userFilter} onValueChange={setUserFilter}>
-            <SelectTrigger className="w-full sm:w-[180px] h-8 text-xs">
-                <SelectValue placeholder="Filter by User" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all" className="text-xs">All Users</SelectItem>
-                {users?.map(user => (
-                    <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>
-                ))}
-            </SelectContent>
-            </Select>
-
-            <Select value={processFilter} onValueChange={setProcessFilter}>
-            <SelectTrigger className="w-full sm:w-[180px] h-8 text-xs">
-                <SelectValue placeholder="Filter by Process" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all" className="text-xs">All Processes</SelectItem>
-                {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
-            </SelectContent>
-            </Select>
-            
-            <Select value={String(timeRange)} onValueChange={(val) => setTimeRange(Number(val))}>
-            <SelectTrigger className="w-full sm:w-[180px] h-8 text-xs">
-                <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="7" className="text-xs">Last 7 Days</SelectItem>
-                <SelectItem value="30" className="text-xs">Last 30 Days</SelectItem>
-                <SelectItem value="90" className="text-xs">Last 90 Days</SelectItem>
-                <SelectItem value="365" className="text-xs">Last 365 Days</SelectItem>
-            </SelectContent>
-            </Select>
-        </div>
 
         <div className="grid gap-6 md:grid-cols-2">
             <Card>
@@ -374,3 +372,5 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
     </div>
   );
 }
+
+    
