@@ -128,14 +128,15 @@ export function GlobalNotesView() {
     
     try {
         const globalNotesRef = collection(firestore, 'global_notes');
-        await addDocumentNonBlocking(globalNotesRef, {
+        const newNote = {
             authorId: user.uid,
             customerUniqueId: newNoteCustomerId.trim(),
             text: newNoteContent.trim(),
             createdAt: new Date().toISOString(),
             subject: 'Global Note',
             category: 'General',
-        });
+        }
+        await addDocumentNonBlocking(globalNotesRef, newNote);
 
         toast({ title: 'Success', description: 'Global note added successfully.' });
         setNewNoteCustomerId('');
@@ -158,7 +159,7 @@ export function GlobalNotesView() {
     try {
       const customerId = searchCustomerId.trim();
 
-      // 1. Fetch Global Notes
+      // 1. Fetch Global Notes for the customer
       const globalNotesQuery = query(collection(firestore, 'global_notes'), where('customerUniqueId', '==', customerId));
       const globalNotesSnapshot = await getDocs(globalNotesQuery);
       const globalNotes = globalNotesSnapshot.docs.map(doc => {
@@ -166,38 +167,35 @@ export function GlobalNotesView() {
         return {
           ...data,
           id: doc.id,
-          workItemCustomId: 'Global Note', // Identifier for global notes
+          workItemCustomId: 'Global Note', // Special identifier for global notes
         } as Note & { workItemCustomId: string };
       });
       
-      // 2. Fetch Work Item Notes
+      // 2. Find all work items related to the customer
       const workItemsRef = collection(firestore, 'work_items');
       const workItemsQuery = query(workItemsRef, where('relatedContact.customerUniqueId', '==', customerId));
       const workItemsSnapshot = await getDocs(workItemsQuery);
-      
-      const workItemsFound = workItemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WorkItem));
-      const workItemIds = workItemsFound.map(item => item.id);
-      
-      let workItemNotes: (Note & { workItemCustomId: string })[] = [];
-      if (workItemIds.length > 0) {
-        const notesRef = collectionGroup(firestore, 'notes');
-        const notesQuery = query(notesRef, where('workItemId', 'in', workItemIds));
-        const notesSnapshot = await getDocs(notesQuery);
+      const workItemsFound = workItemsSnapshot.docs.map(doc => ({ id: doc.id, customId: doc.data().customId } as WorkItem));
 
-        const workItemIdToCustomIdMap = new Map(workItemsFound.map(item => [item.id, item.customId]));
+      let allWorkItemNotes: (Note & { workItemCustomId: string })[] = [];
 
-        workItemNotes = notesSnapshot.docs.map(doc => {
-            const note = doc.data() as Note;
+      // 3. For each work item, fetch its notes
+      for (const workItem of workItemsFound) {
+        const notesRef = collection(firestore, `work_items/${workItem.id}/notes`);
+        const notesSnapshot = await getDocs(notesRef);
+        const notesForWorkItem = notesSnapshot.docs.map(doc => {
+            const noteData = doc.data() as Note;
             return {
-                ...note,
+                ...noteData,
                 id: doc.id,
-                workItemCustomId: workItemIdToCustomIdMap.get(note.workItemId) || 'N/A'
+                workItemCustomId: workItem.customId, // Add customId for context
             };
         });
+        allWorkItemNotes.push(...notesForWorkItem);
       }
       
-      // 3. Combine and sort all notes
-      const allNotes = [...globalNotes, ...workItemNotes];
+      // 4. Combine and sort all notes
+      const allNotes = [...globalNotes, ...allWorkItemNotes];
       allNotes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       
       if (allNotes.length === 0) {
