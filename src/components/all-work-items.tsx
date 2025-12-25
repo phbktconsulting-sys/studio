@@ -93,13 +93,12 @@ const StatusBadge = ({ status }: { status: WorkItem['status'] }) => {
 };
 
 const processTypes = [
-  'Request Information',
-  'Request Quotation',
-  'Request Application',
-  'Request Website',
-  'Request inquiry',
-  'Request Backend Support',
-  'Request Other',
+  "New Business Request",
+  "Development Services (Web & App)",
+  "Operations & Support (Backend)",
+  "Digital Service Request",
+  "Feedback / Complaint",
+  "Other Service Request"
 ];
 const statusTypes: WorkItem['status'][] = ['Open', 'In Progress', 'Pending', 'Closed', 'Re-indexed'];
 const urgencyTypes: WorkItem['urgency'][] = ['Low', 'Medium', 'High'];
