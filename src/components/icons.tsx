@@ -8,21 +8,13 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
       className={className}
       {...props}
     >
-      {/* Page background */}
-      <path d="M10,5 H70 L90,25 V95 H10 Z" fill="#E0E0E0" stroke="#B0B0B0" strokeWidth="2" />
-      {/* Page fold */}
-      <path d="M70,5 L70,25 L90,25" fill="#B0B0B0" />
-      
-      {/* Stylized landscape inside the page */}
-      {/* Sky area */}
-      <path d="M20,70 Q40,50 60,55 T100,45 L80,85 H20 Z" fill="#a0d2eb" opacity="0.6" />
-      
-      {/* Green hills */}
-      <path d="M15,85 Q35,65 55,75 T95,65 L85,90 H15 Z" fill="#77dd77" opacity="0.7" />
-      <path d="M15,85 Q30,75 45,80 T75,75 L85,90 H15 Z" fill="#5cb85c" opacity="0.8" />
-
-      {/* Sun/Moon */}
-      <circle cx="70" cy="40" r="8" fill="#fdfd96" opacity="0.8" />
+      <g stroke="currentColor" strokeWidth="6" fill="none" fillRule="evenodd" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M70,5 H20 a10,10 0 0 0 -10,10 v70 a10,10 0 0 0 10,10 h60 a10,10 0 0 0 10,-10 V30 Z" fill="hsl(var(--background))" stroke="hsl(var(--foreground))" strokeWidth="4" />
+        <path d="M70,5 L70,30 L90,30" stroke="hsl(var(--foreground))" strokeWidth="4" fill="hsl(var(--muted))" />
+        <path d="M30,50 h40" stroke="hsl(var(--primary))" strokeWidth="5" />
+        <path d="M30,65 h40" stroke="hsl(var(--secondary-foreground))" strokeWidth="5" />
+        <path d="M30,80 h20" stroke="hsl(var(--secondary-foreground))" strokeWidth="5" />
+      </g>
     </svg>
   );
 };
