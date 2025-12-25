@@ -32,6 +32,20 @@ export interface Task {
   completedAt?: string; // ISO date string
 }
 
+export interface ImageAttachment {
+  id: string;
+  workItemId: string;
+  url: string; // Data URL
+  direction: 'Inbound' | 'Outbound';
+  fileName: string;
+  uploadedAt: string; // ISO date string
+  uploadedBy: string; // User UID
+  type: string;
+  documentSource: string;
+  businessEvent: string;
+}
+
+
 export interface WorkItem {
   id: string;
   customId: string;
@@ -180,3 +194,5 @@ export const DeleteWorkItemOutputSchema = z.object({
   error: z.string().optional(),
 });
 export type DeleteWorkItemOutput = z.infer<typeof DeleteWorkItemOutputSchema>;
+
+    

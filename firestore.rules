@@ -126,6 +126,15 @@ service cloud.firestore {
         allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid && request.resource.data.workItemId == workitemId;
         allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
       }
+      
+      /**
+       * @description Rules for attachments within a work item.
+       */
+      match /attachments/{attachmentId} {
+        allow read, list: if isSignedIn();
+        allow create: if isSignedIn() && request.resource.data.uploadedBy == request.auth.uid && request.resource.data.workItemId == workitemId;
+        allow delete: if isSignedIn() && (resource.data.uploadedBy == request.auth.uid || isAdmin());
+      }
     }
     
     /**
@@ -164,3 +173,5 @@ service cloud.firestore {
     }
   }
 }
+
+    

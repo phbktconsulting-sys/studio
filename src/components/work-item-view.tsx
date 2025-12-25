@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import type { Note, Task, WorkItem, User, WorkItemFormValues } from '@/lib/types';
+import type { Note, Task, WorkItem, User, WorkItemFormValues, ImageAttachment } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -46,6 +46,7 @@ import { createWorkItem } from '@/ai/flows/create-work-item-flow';
 import { useTabs } from '@/contexts/tab-context';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { ImageAttachmentDialog } from './image-attachment-dialog';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Other Services"],
@@ -993,10 +994,67 @@ function CaseLockedInfo({ lockInfo }: { lockInfo: WorkItem['lockInfo'] }) {
     );
 }
 
+function ImagesTab({ workItemId }: { workItemId: string }) {
+  const { firestore } = useFirebase();
+
+  const attachmentsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, `work_items/${workItemId}/attachments`), orderBy('uploadedAt', 'desc'));
+  }, [firestore, workItemId]);
+
+  const { data: attachments, isLoading } = useCollection<ImageAttachment>(attachmentsQuery);
+
+  if (isLoading) {
+    return <div className="p-4 text-center text-xs text-muted-foreground">Loading attachments...</div>;
+  }
+
+  return (
+    <div className="p-4">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[200px] text-xs">Date</TableHead>
+            <TableHead className="w-[120px] text-xs">Type</TableHead>
+            <TableHead className="w-[120px] text-xs">Direction</TableHead>
+            <TableHead className="w-[150px] text-xs">Document Source</TableHead>
+            <TableHead className="w-[150px] text-xs">Business Event</TableHead>
+            <TableHead className="text-xs">View Image</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {attachments && attachments.map(att => (
+            <TableRow key={att.id}>
+              <TableCell className="py-2 text-xs">{format(parseISO(att.uploadedAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
+              <TableCell className="py-2 text-xs">{att.type}</TableCell>
+              <TableCell className="py-2 text-xs">{att.direction}</TableCell>
+              <TableCell className="py-2 text-xs">{att.documentSource}</TableCell>
+              <TableCell className="py-2 text-xs">{att.businessEvent}</TableCell>
+              <TableCell className="py-2 text-xs">
+                <a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  Click to view document
+                </a>
+              </TableCell>
+            </TableRow>
+          ))}
+          {(!attachments || attachments.length === 0) && (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-muted-foreground py-4 text-xs">
+                No images attached to this work item.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+
 export function WorkItemView({ workItemId, customId }: { workItemId: string, customId: string }) {
   const { firestore, user: currentUser } = useFirebase();
   const { toast } = useToast();
   const [isVerifyingAuthority, setIsVerifyingAuthority] = useState(false);
+  const [isAttachmentDialogOpen, setIsAttachmentDialogOpen] = useState(false);
 
   const workItemRef = useMemoFirebase(() => {
       if (!firestore) return null;
@@ -1103,6 +1161,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   const lastPendedNote = isPended ? latestNoteArr?.find(n => n.category === 'Pended') : undefined;
 
   return (
+    <>
     <div className="flex h-full flex-col bg-slate-100">
        <header className="flex flex-col gap-2 border-b bg-card p-4">
         <div className="flex items-center justify-between">
@@ -1121,7 +1180,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <RefreshCw className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsAttachmentDialogOpen(true)}>
                 <Paperclip className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -1303,7 +1362,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             </TabsContent>
 
             <TabsContent value="images" className="mt-0">
-              <PlaceholderContent title="Images" />
+              <ImagesTab workItemId={item.id} />
             </TabsContent>
             <TabsContent value="associations" className="mt-0">
                <Card className="border-0 shadow-none">
@@ -1336,7 +1395,15 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
         </Tabs>
       </div>
     </div>
+    <ImageAttachmentDialog
+        workItemId={item.id}
+        isOpen={isAttachmentDialogOpen}
+        onClose={() => setIsAttachmentDialogOpen(false)}
+      />
+    </>
   );
 }
+
+    
 
     

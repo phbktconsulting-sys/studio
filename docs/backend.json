@@ -95,6 +95,24 @@
         "updatedAt"
       ]
     },
+     "ImageAttachment": {
+      "title": "ImageAttachment",
+      "description": "Represents an image file attached to a work item.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the attachment." },
+        "workItemId": { "type": "string", "description": "The ID of the work item it belongs to." },
+        "url": { "type": "string", "format": "uri", "description": "The data URL of the uploaded image." },
+        "direction": { "type": "string", "enum": ["Inbound", "Outbound"], "description": "The direction of the communication." },
+        "fileName": { "type": "string", "description": "The name of the uploaded file." },
+        "uploadedAt": { "type": "string", "format": "date-time", "description": "The timestamp of when the image was uploaded." },
+        "uploadedBy": { "type": "string", "description": "The UID of the user who uploaded the image." },
+        "type": { "type": "string", "description": "The type of document (e.g., EMAIL, CORR, QUOTE)." },
+        "documentSource": { "type": "string" },
+        "businessEvent": { "type": "string" }
+      },
+      "required": ["id", "workItemId", "url", "direction", "fileName", "uploadedAt", "uploadedBy"]
+    },
     "User": {
       "title": "User",
       "type": "object",
@@ -246,6 +264,10 @@
       "schema": { "$ref": "#/entities/Note" },
       "description": "Stores notes associated with a specific work item. Access is inherited from the parent work item."
     },
+    "/work_items/{workitemId}/attachments/{attachmentId}": {
+      "schema": { "$ref": "#/entities/ImageAttachment" },
+      "description": "Stores image attachments for a specific work item. Access is inherited."
+    },
     "/global_notes/{globalNoteId}": {
         "schema": { "$ref": "#/entities/GlobalNote" },
         "description": "Stores general notes about a customer, not tied to a specific work item."
@@ -267,3 +289,5 @@
     "/counters/work_item_RO": { "schema": { "$ref": "#/entities/Counter" }, "description": "Counter for Request Other work items." }
   }
 }
+
+    
