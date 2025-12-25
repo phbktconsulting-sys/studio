@@ -51,7 +51,7 @@ export function AppHeader() {
                         <span>Group</span>
                         <span>Limited</span>
                     </div>
-                    <span className="block h-0.5 w-full bg-black font-bold"></span>
+                    <span className="block h-1 w-full bg-green-600 font-bold"></span>
                 </div>
             </Link>
         </div>
