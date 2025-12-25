@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useFirebase, initiateEmailSignIn } from '@/firebase';
 import { Fingerprint } from 'lucide-react';
+import { LogoIcon } from '@/components/icons';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,11 +47,11 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <Card className="py-6">
           <CardHeader className="text-center pb-4">
+            <div className="flex justify-center pt-4">
+                <LogoIcon className="h-16 w-16" />
+            </div>
             <CardTitle className="font-headline text-2xl">Sign In</CardTitle>
             <CardDescription className="text-sm">Enter your credentials to access your account.</CardDescription>
-             <div className="flex justify-center pt-4">
-                <Fingerprint className="h-12 w-12 text-primary" />
-            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -45,10 +44,8 @@ export function AppHeader() {
         <div className="flex items-center">
             <Link href="/" className="flex items-center gap-4">
                 <LogoIcon className="h-16 w-16" />
-                <div className="flex flex-col font-headline text-lg font-bold leading-tight">
-                <span>PHBKT</span>
-                <span>Group</span>
-                <span>Limited</span>
+                <div className="font-headline text-lg font-bold leading-tight">
+                <span>PHBKT Group Limited</span>
                 </div>
             </Link>
         </div>
