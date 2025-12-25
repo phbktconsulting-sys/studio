@@ -13,10 +13,18 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
         <g transform="translate(-50 -50)">
           {/* Background circle */}
           <circle cx="50" cy="50" r="50" fill="black" />
-          
-          {/* Abstract 'P' forming a checkmark */}
+
+          {/* Abstract 'P' as a workflow arrow */}
           <path
-            d="M30 50 C 30 25, 50 25, 50 25 L 50 75"
+            d="M35 25 V 75 H 50"
+            stroke="hsl(var(--primary-foreground))"
+            strokeWidth="10"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M50 50 C 70 50, 70 35, 50 35"
             stroke="hsl(var(--primary-foreground))"
             strokeWidth="10"
             fill="none"
@@ -24,7 +32,7 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
             strokeLinejoin="round"
           />
            <path
-            d="M50 55 L 75 30"
+            d="M50 35 L 45 40 M50 35 L 55 40"
             stroke="hsl(var(--primary-foreground))"
             strokeWidth="10"
             fill="none"
