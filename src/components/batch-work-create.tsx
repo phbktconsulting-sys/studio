@@ -29,6 +29,12 @@ import { collection, query } from 'firebase/firestore';
 import { format } from 'date-fns';
 
 const processTypes = [
+  "New Business Request",
+  "Development Services (Web & App)",
+  "Operations & Support (Backend)",
+  "Digital Services Request",
+  "Feedback / Complaint",
+  "Other Service Request",
   'Request Information',
   'Request Quotation',
   'Request Application',
@@ -289,5 +295,3 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
     </div>
   );
 }
-
-    
