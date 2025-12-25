@@ -43,7 +43,7 @@ export function AppHeader() {
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center">
             <Link href="/" className="flex items-center gap-4">
-                 <LogoIcon className="h-14 w-14" />
+                 <LogoIcon height={40} width={40} />
                 <div className="font-headline text-lg font-bold leading-tight">
                     <div className="flex flex-col text-sm leading-snug">
                         <span>PHBKT</span>
