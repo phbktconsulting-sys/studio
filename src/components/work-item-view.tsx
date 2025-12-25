@@ -77,7 +77,6 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
 
       const newUsersMap = new Map<string, string>(usersMap);
       
-      // Firestore 'in' query is limited to 30 items. 
       const chunks = [];
       for (let i = 0; i < idsToFetch.length; i += 30) {
           chunks.push(idsToFetch.slice(i, i + 30));
@@ -110,7 +109,6 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
 
 
   const handleTaskCheck = (taskId: string, completed: boolean) => {
-    // This function is kept for potential future use but checkboxes are disabled
     if (!firestore) return;
     const workItemRef = doc(firestore, 'work_items', workItemId);
     const currentTasks = tasks || [];
@@ -127,32 +125,33 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
   return (
     <div className="space-y-4 p-4">
       {tasks.map((task) => (
-        <div key={task.id} className="flex items-start justify-between rounded-md border p-4">
-          <div className="flex items-center space-x-3">
+        <div key={task.id} className="flex items-center justify-between rounded-md border p-4">
+          <div className="flex items-start space-x-3">
             <Checkbox
               id={`task-${task.id}`}
               checked={task.completed}
-              disabled // Disabling the checkbox
+              disabled
             />
-            <div className="flex flex-col">
-                 <label
-                    htmlFor={`task-${task.id}`}
-                    className={`font-medium leading-none ${task.completed ? 'line-through text-muted-foreground' : ''} ${!task.completed ? 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70' : ''} text-xs`}
-                >
-                    {task.text}
-                </label>
-                {task.createdAt && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                        Added by {usersMap.get(task.createdBy || '') || '...'} on {format(parseISO(task.createdAt), 'MMM d, yyyy')}
-                    </p>
-                )}
-            </div>
+            <label
+                htmlFor={`task-${task.id}`}
+                className={`text-xs font-medium leading-none ${task.completed ? 'line-through text-muted-foreground' : ''}`}
+            >
+                {task.text}
+            </label>
           </div>
-          {task.completed && (
-            <div className="text-xs text-muted-foreground">
-              Completed by {usersMap.get(task.completedBy || '') || '...'} on {task.completedAt ? format(parseISO(task.completedAt), 'MMM d, yyyy') : '...'}
-            </div>
-          )}
+          <div className="text-right text-xs text-muted-foreground">
+            {task.completed && task.completedBy ? (
+              <>
+                <p>Completed by {usersMap.get(task.completedBy) || '...'}</p>
+                <p>{task.completedAt ? format(parseISO(task.completedAt), 'MMM d, yyyy') : ''}</p>
+              </>
+            ) : task.createdBy ? (
+              <>
+                <p>Added by {usersMap.get(task.createdBy) || '...'}</p>
+                <p>{task.createdAt ? format(parseISO(task.createdAt), 'MMM d, yyyy') : ''}</p>
+              </>
+            ) : null}
+          </div>
         </div>
       ))}
     </div>
@@ -1210,7 +1209,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                   </CardHeader>
                   <CardContent>
                       <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-                        {item.overview.split(/[\n,.]+/).map((line, index) => (
+                        {item.overview.split(/[\\n,.]+/).map((line, index) => (
                           line.trim() && <li key={index}>{line.trim()}</li>
                         ))}
                       </ul>
@@ -1339,3 +1338,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </div>
   );
 }
+
+    
