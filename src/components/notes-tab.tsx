@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import type { Note, User, GlobalNote } from '@/lib/types';
+import type { Note, User } from '@/lib/types';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, where, getDocs }from 'firebase/firestore';
 import {
@@ -13,8 +13,8 @@ import {
 } from '@/components/ui/card';
 import { format } from 'date-fns';
 
-const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: (Note | GlobalNote)[], usersMap: Map<string, string>, title: string, isLoading: boolean }) => {
-  const getCleanedNoteText = (note: Note | GlobalNote) => {
+const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: Note[], usersMap: Map<string, string>, title: string, isLoading: boolean }) => {
+  const getCleanedNoteText = (note: Note) => {
     const noteText = note.text;
     
     // List of all possible system-generated prefixes.
@@ -98,7 +98,7 @@ const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: (Note | Glob
 };
 
 
-export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string, customerUniqueId?: string }) {
+export function NotesTab({ workItemId }: { workItemId: string }) {
   const { firestore } = useFirebase();
   const [usersMap, setUserMap] = useState<Map<string, string>>(new Map());
 
@@ -110,24 +110,11 @@ export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string,
 
   const { data: workItemNotes, isLoading: isLoadingWorkItemNotes } = useCollection<Note>(workItemNotesQuery);
 
-  // Fetch Global Notes
-  const globalNotesQuery = useMemoFirebase(() => {
-    if (!firestore || !customerUniqueId) return null;
-    return query(collection(firestore, 'global_notes'), where('customerUniqueId', '==', customerUniqueId), orderBy('createdAt', 'desc'));
-  }, [firestore, customerUniqueId]);
-
-  const { data: globalNotes, isLoading: isLoadingGlobalNotes } = useCollection<GlobalNote>(globalNotesQuery);
-
-  const allNotes = useMemo(() => {
-    return [...(workItemNotes || []), ...(globalNotes || [])];
-  }, [workItemNotes, globalNotes]);
-
-
   useEffect(() => {
     const fetchNoteAuthors = async () => {
-      if (!firestore || !allNotes || allNotes.length === 0) return;
+      if (!firestore || !workItemNotes || workItemNotes.length === 0) return;
       
-      const authorIds = [...new Set(allNotes.map(note => note.authorId).filter(id => id && id !== 'system'))];
+      const authorIds = [...new Set(workItemNotes.map(note => note.authorId).filter(id => id && id !== 'system'))];
       
       if (authorIds.length === 0) return;
 
@@ -160,7 +147,7 @@ export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string,
     };
 
     fetchNoteAuthors();
-  }, [allNotes, firestore, usersMap]);
+  }, [workItemNotes, firestore, usersMap]);
 
 
   return (
@@ -170,12 +157,6 @@ export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string,
         usersMap={usersMap} 
         title="Notes" 
         isLoading={isLoadingWorkItemNotes} 
-      />
-      <NotesTable 
-        notes={globalNotes || []} 
-        usersMap={usersMap} 
-        title="Global Notes" 
-        isLoading={isLoadingGlobalNotes} 
       />
     </div>
   );
