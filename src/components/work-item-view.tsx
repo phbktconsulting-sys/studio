@@ -1347,7 +1347,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             </TabsContent>
 
             <TabsContent value="notes" className="mt-0">
-              <NotesTab workItemId={item.id} />
+              <NotesTab workItemId={item.id} customerUniqueId={item.relatedContact.customerUniqueId} />
             </TabsContent>
 
             <TabsContent value="contact" className="mt-0">
