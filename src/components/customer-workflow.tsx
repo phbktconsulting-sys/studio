@@ -12,12 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowLeft, Search, Mail, Phone, X } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';
-import { format, parseISO } from 'date-fns';
 
 interface CustomerWorkflowProps {
   onBack: () => void;
@@ -72,7 +71,7 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
       );
     });
   }, [sortedCustomers, searchTerm]);
-  
+
   const clearFilters = () => {
     setSearchTerm('');
   };
@@ -88,41 +87,41 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
   return (
     <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={onBack}>
-              <ArrowLeft className="h-4 w-4" />
-              <span className="sr-only">Back</span>
-            </Button>
-            <div>
-              <h1 className="font-headline text-lg font-bold tracking-tight">Customer Workflow</h1>
-              <p className="text-xs text-muted-foreground">View and manage all customer records.</p>
-            </div>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">Back</span>
+          </Button>
+          <div>
+            <h1 className="font-headline text-lg font-bold tracking-tight">Customer Workflow</h1>
+            <p className="text-xs text-muted-foreground">View and manage all customer records.</p>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <div className="flex items-center gap-2">
-                <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                    placeholder="Search by name, email, or ID..."
-                    className="w-full pl-9 h-8 text-xs"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-                {searchTerm && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearFilters}>
-                        <X className="h-4 w-4" />
-                        <span className="sr-only">Clear filters</span>
-                    </Button>
-                )}
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search by name, email, or ID..."
+                className="w-full pl-9 h-8 text-xs"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-             <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Total Customers:</span>
-                <Badge variant="secondary">{filteredCustomers.length}</Badge>
-            </div>
+            {searchTerm && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearFilters}>
+                <X className="h-4 w-4" />
+                <span className="sr-only">Clear filters</span>
+              </Button>
+            )}
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Total Customers:</span>
+            <Badge variant="secondary">{filteredCustomers.length}</Badge>
+          </div>
+        </div>
       </div>
-      
+
       <Card className="mt-2">
         <Table>
           <TableHeader>
@@ -138,15 +137,15 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
             {filteredCustomers &&
               filteredCustomers.map((customer) => (
                 <TableRow key={customer.id}>
-                  <TableCell className="font-medium">{customer.name || 'N/A'}</TableCell>
-                  <TableCell className="font-mono text-xs">{customer.customerUniqueId}</TableCell>
-                  <TableCell>
+                  <TableCell className="py-1 px-4 font-medium">{customer.name || 'N/A'}</TableCell>
+                  <TableCell className="py-1 px-4 font-mono text-xs">{customer.customerUniqueId}</TableCell>
+                  <TableCell className="py-1 px-4">
                     <a href={`mailto:${customer.email}`} className="text-primary hover:underline">
                       {customer.email}
                     </a>
                   </TableCell>
-                  <TableCell>{customer.phone}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="py-1 px-4">{customer.phone}</TableCell>
+                  <TableCell className="py-1 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <a href={`https://wa.me/${customer.phone?.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full text-green-600 hover:bg-green-100">
                         <WhatsAppIcon className="h-5 w-5" />
