@@ -43,26 +43,33 @@ export function AppHeader() {
     <div className="contents">
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex flex-col">
-            <Link href="/" className="flex items-center gap-4">
-                <LogoIcon height={40} width={40} />
-                <div className="font-headline text-lg font-bold leading-tight">
-                    <div className="flex flex-col text-sm leading-snug">
-                        <span>PHBKT</span>
-                        <span>Group</span>
-                        <span>Limited</span>
-                    </div>
-                </div>
-            </Link>
-            <span className="mt-1 block h-1 w-full bg-green-600"></span>
+          <Link href="/" className="flex items-center gap-4">
+            <LogoIcon height={40} width={40} />
+            <div className="font-headline text-lg font-bold leading-tight">
+              <div className="flex flex-col text-sm leading-snug">
+                <span>PHBKT</span>
+                <span>Group</span>
+                <span>Limited</span>
+              </div>
+            </div>
+          </Link>
+          <span className="mt-1 block h-1 w-full bg-green-600"></span>
         </div>
 
-        <div className="flex-1 ml-10 space-y-1">
-           <p className="text-lg text-primary font-bold">WorkFlow Management Application</p>
-           <p className="text-base text-primary">{user?.firstName} {user?.lastName} - Home Page</p>
+        <div className="ml-10 flex-1 space-y-1">
+          <p className="text-lg font-bold text-primary">
+            WorkFlow Management Application
+          </p>
+          <p className="text-base text-primary">
+            {user?.firstName} {user?.lastName} - Home Page
+          </p>
         </div>
 
         <div className="flex items-center justify-end gap-4">
-          <Button onClick={handleNewWork} className="h-8 bg-black text-white hover:bg-black/80 text-xs">
+          <Button
+            onClick={handleNewWork}
+            className="h-8 bg-black text-white hover:bg-black/80 text-xs"
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             New Work
           </Button>
@@ -76,8 +83,12 @@ export function AppHeader() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.displayName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  <p className="text-sm font-medium leading-none">
+                    {user?.displayName}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email}
+                  </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

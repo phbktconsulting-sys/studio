@@ -1,10 +1,13 @@
+
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
-import { Firestore } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged, getIdTokenResult } from 'firebase/auth';
+import { Firestore, doc, getDoc } from 'firebase/firestore';
+import { Auth, User as AuthUser, onAuthStateChanged, getIdTokenResult } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
+import type { User as UserProfile } from '@/lib/types';
+
 
 interface FirebaseProviderProps {
   children: ReactNode;
@@ -15,7 +18,7 @@ interface FirebaseProviderProps {
 
 // Internal state for user authentication
 interface UserAuthState {
-  user: User | null;
+  user: (AuthUser & UserProfile) | null;
   role: 'Admin' | 'User' | null;
   isUserLoading: boolean;
   userError: Error | null;
@@ -28,7 +31,7 @@ export interface FirebaseContextState {
   firestore: Firestore | null;
   auth: Auth | null; // The Auth service instance
   // User authentication state
-  user: User | null;
+  user: (AuthUser & UserProfile) | null;
   role: 'Admin' | 'User' | null;
   isUserLoading: boolean; // True during initial auth check
   userError: Error | null; // Error from auth listener
@@ -39,7 +42,7 @@ export interface FirebaseServicesAndUser {
   firebaseApp: FirebaseApp;
   firestore: Firestore;
   auth: Auth;
-  user: User | null;
+  user: (AuthUser & UserProfile) | null;
   role: 'Admin' | 'User' | null;
   isUserLoading: boolean;
   userError: Error | null;
@@ -47,7 +50,7 @@ export interface FirebaseServicesAndUser {
 
 // Return type for useUser() - specific to user auth state
 export interface UserHookResult { 
-  user: User | null;
+  user: (AuthUser & UserProfile) | null;
   role: 'Admin' | 'User' | null;
   isUserLoading: boolean;
   userError: Error | null;
@@ -88,10 +91,22 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
             try {
               const idTokenResult = await getIdTokenResult(firebaseUser);
               const userRole = idTokenResult.claims.role as 'Admin' | 'User' | null;
-              setUserAuthState({ user: firebaseUser, role: userRole, isUserLoading: false, userError: null });
+
+              // Fetch the user's profile from Firestore
+              const userProfileRef = doc(firestore, 'users', firebaseUser.uid);
+              const userProfileSnap = await getDoc(userProfileRef);
+
+              if (userProfileSnap.exists()) {
+                const userProfileData = userProfileSnap.data() as UserProfile;
+                const combinedUser = { ...firebaseUser, ...userProfileData };
+                 setUserAuthState({ user: combinedUser, role: userRole, isUserLoading: false, userError: null });
+              } else {
+                 // Handle case where user exists in Auth but not in Firestore
+                 setUserAuthState({ user: firebaseUser as (AuthUser & UserProfile), role: userRole, isUserLoading: false, userError: null });
+              }
             } catch (error) {
-               console.error("FirebaseProvider: Error getting ID token:", error);
-               setUserAuthState({ user: firebaseUser, role: null, isUserLoading: false, userError: error as Error });
+               console.error("FirebaseProvider: Error getting user profile/token:", error);
+               setUserAuthState({ user: firebaseUser as (AuthUser & UserProfile), role: null, isUserLoading: false, userError: error as Error });
             }
         } else {
             setUserAuthState({ user: null, role: null, isUserLoading: false, userError: null });
@@ -103,7 +118,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       }
     );
     return () => unsubscribe(); // Cleanup
-  }, [auth]); // Depends on the auth instance
+  }, [auth, firestore]); // Depends on the auth instance
 
   // Memoize the context value
   const contextValue = useMemo((): FirebaseContextState => {
