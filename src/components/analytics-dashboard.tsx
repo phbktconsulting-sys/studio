@@ -34,11 +34,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { subDays, format } from 'date-fns';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { subDays, format, startOfDay, endOfDay } from 'date-fns';
 import { Button } from './ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { cn } from '@/lib/utils';
+import { DateRange } from 'react-date-range';
 
 interface AnalyticsDashboardProps {
   onBack: () => void;
@@ -57,21 +59,23 @@ const statusTypes: WorkItem['status'][] = ['Open', 'In Progress', 'Pending', 'Cl
 
 export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
   const { firestore } = useFirebase();
-  const [timeRange, setTimeRange] = useState(30);
+  const [dateRange, setDateRange] = useState([
+    {
+      startDate: subDays(new Date(), 30),
+      endDate: new Date(),
+      key: 'selection'
+    }
+  ]);
   const [processFilter, setProcessFilter] = useState('all');
   const [userFilter, setUserFilter] = useState('all');
 
-
   // --- Data Fetching ---
-  const dateFilter = useMemo(() => subDays(new Date(), timeRange), [timeRange]);
-
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(
-      collection(firestore, 'work_items'),
-      where('createdAt', '>=', dateFilter.toISOString())
+      collection(firestore, 'work_items')
     );
-  }, [firestore, dateFilter]);
+  }, [firestore]);
   
   const usersQuery = useMemoFirebase(() => {
       if (!firestore) return null;
@@ -83,15 +87,26 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
 
   const isLoading = workItemsLoading || usersLoading;
 
+  const dateFilteredWorkItems = useMemo(() => {
+    if (!workItems) return [];
+    const startDate = startOfDay(dateRange[0].startDate);
+    const endDate = endOfDay(dateRange[0].endDate);
+    return workItems.filter(item => {
+        const createdAt = new Date(item.createdAt);
+        return createdAt >= startDate && createdAt <= endDate;
+    });
+  }, [workItems, dateRange]);
+
+
   // Apply process and user filters
   const filteredWorkItems = useMemo(() => {
-    if (!workItems) return [];
-    return workItems.filter(item => {
+    if (!dateFilteredWorkItems) return [];
+    return dateFilteredWorkItems.filter(item => {
       const processMatch = processFilter === 'all' || item.process === processFilter;
       const userMatch = userFilter === 'all' || item.assignedTo === userFilter;
       return processMatch && userMatch;
     });
-  }, [workItems, processFilter, userFilter]);
+  }, [dateFilteredWorkItems, processFilter, userFilter]);
 
   // --- Data Processing for Charts ---
   const usersMap = useMemo(() => {
@@ -111,18 +126,22 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
   const dailyChartData = useMemo(() => {
     if (!filteredWorkItems) return [];
     const dailyCounts: { [key: string]: number } = {};
-    for (let i = 0; i < timeRange; i++) {
-      const date = subDays(new Date(), i);
+    const dayDifference = Math.max(differenceInDays(dateRange[0].endDate, dateRange[0].startDate), 1);
+
+    for (let i = 0; i <= dayDifference; i++) {
+      const date = addDays(dateRange[0].startDate, i);
       dailyCounts[format(date, 'MMM d')] = 0;
     }
+
     filteredWorkItems.forEach((item) => {
       const formattedDate = format(new Date(item.createdAt), 'MMM d');
       if (dailyCounts[formattedDate] !== undefined) {
         dailyCounts[formattedDate]++;
       }
     });
-    return Object.entries(dailyCounts).map(([date, count]) => ({ date, count })).reverse();
-  }, [filteredWorkItems, timeRange]);
+    return Object.entries(dailyCounts).map(([date, count]) => ({ date, count }));
+  }, [filteredWorkItems, dateRange]);
+
   
   const assigneeChartData = useMemo(() => {
     if (!filteredWorkItems || !usersMap.size) return [];
@@ -144,7 +163,7 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
   }, [filteredWorkItems]);
 
   const pivotTableData = useMemo(() => {
-    if (!workItems || !users) return [];
+    if (!dateFilteredWorkItems || !users) return [];
     
     const userStats: { [key: string]: { [key: string]: number | string } } = {};
 
@@ -160,7 +179,7 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
       };
     });
 
-    workItems.forEach(item => {
+    dateFilteredWorkItems.forEach(item => {
       if (userStats[item.assignedTo]) {
         userStats[item.assignedTo][item.status] = (userStats[item.assignedTo][item.status] as number) + 1;
         userStats[item.assignedTo]['Total'] = (userStats[item.assignedTo]['Total'] as number) + 1;
@@ -168,7 +187,7 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
     });
 
     return Object.values(userStats).sort((a,b) => (b.Total as number) - (a.Total as number));
-  }, [workItems, users]);
+  }, [dateFilteredWorkItems, users]);
   
   const maxTotal = useMemo(() => Math.max(...pivotTableData.map(d => d.Total as number)), [pivotTableData]);
 
@@ -222,17 +241,37 @@ export function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
             </SelectContent>
             </Select>
             
-            <Select value={String(timeRange)} onValueChange={(val) => setTimeRange(Number(val))}>
-            <SelectTrigger className="w-full h-8 text-xs">
-                <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="7" className="text-xs">Last 7 Days</SelectItem>
-                <SelectItem value="30" className="text-xs">Last 30 Days</SelectItem>
-                <SelectItem value="90" className="text-xs">Last 90 Days</SelectItem>
-                <SelectItem value="365" className="text-xs">Last 365 Days</SelectItem>
-            </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant="outline"
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal h-8 text-xs",
+                    !dateRange[0].startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange[0].startDate && dateRange[0].endDate ? (
+                    <>
+                      {format(dateRange[0].startDate, "LLL dd, y")} -{" "}
+                      {format(dateRange[0].endDate, "LLL dd, y")}
+                    </>
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                 <DateRange
+                    editableDateInputs={true}
+                    onChange={item => setDateRange([item.selection])}
+                    moveRangeOnFirstSelection={false}
+                    ranges={dateRange}
+                    className="w-full"
+                />
+              </PopoverContent>
+            </Popover>
         </div>
       </div>
       
