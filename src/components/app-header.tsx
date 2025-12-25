@@ -58,7 +58,7 @@ export function AppHeader() {
             </Link>
         </div>
 
-        <div className="flex-1 text-center">
+        <div className="flex-1 ml-10">
            <h1 className="font-headline text-xl font-bold text-primary">PHBKT - WorkFlow Management</h1>
            <p className="text-sm text-primary">{user?.displayName} - Home Page</p>
         </div>
