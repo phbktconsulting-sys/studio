@@ -44,14 +44,21 @@ export interface SlaInfo {
 }
 
 const processTypes = [
-  'Request Information',
-  'Request Quotation',
-  'Request Application',
-  'Request Website',
-  'Request inquiry',
-  'Request Backend Support',
-  'Request Other',
+  "New Business Request",
+  "Development Services (Web & App)",
+  "Operations & Support (Backend)",
+  "Digital Services Request",
+  "Feedback / Complaint",
+  "Other Service Request",
+  "Request Information",
+  "Request Quotation",
+  "Request Application",
+  "Request Website",
+  "Request inquiry",
+  "Request Backend Support",
+  "Request Other"
 ];
+
 
 // SLA Logic:
 // Met if closed_date is same as created_date/reallocation_date.
