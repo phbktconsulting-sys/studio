@@ -12,7 +12,7 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
       <g transform="translate(50 50) scale(0.8)">
         <g transform="translate(-50 -50)">
           {/* Background circle */}
-          <circle cx="50" cy="50" r="50" fill="hsl(var(--primary))" />
+          <circle cx="50" cy="50" r="50" fill="black" />
           
           {/* Abstract 'P' forming a checkmark */}
           <path
