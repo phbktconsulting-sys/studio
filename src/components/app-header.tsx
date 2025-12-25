@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTabs } from '@/contexts/tab-context';
+import { LogoIcon } from './icons';
 
 export function AppHeader() {
   const { user } = useUser();
@@ -42,8 +43,14 @@ export function AppHeader() {
       <header className="flex h-24 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center">
             <Link href="/" className="flex items-center gap-4">
+                <LogoIcon className="h-16 w-16" />
                 <div className="font-headline text-lg font-bold leading-tight">
-                <span>PHBKT Group Limited</span>
+                    <div className="flex flex-col text-sm leading-snug">
+                        <span>PHBKT</span>
+                        <span>Group</span>
+                        <span>Limited</span>
+                    </div>
+                    <span className="block h-0.5 w-full bg-black font-bold"></span>
                 </div>
             </Link>
         </div>
