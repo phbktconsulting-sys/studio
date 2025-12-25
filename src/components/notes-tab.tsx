@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import type { Note, User, GlobalNote } from '@/lib/types';
+import type { Note, User } from '@/lib/types';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, where, getDocs }from 'firebase/firestore';
 import {
@@ -97,7 +97,7 @@ const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: Note[], user
 };
 
 
-export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string, customerUniqueId?: string }) {
+export function NotesTab({ workItemId }: { workItemId: string }) {
   const { firestore } = useFirebase();
   const [usersMap, setUserMap] = useState<Map<string, string>>(new Map());
 
@@ -107,19 +107,11 @@ export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string,
     return query(collection(firestore, `work_items/${workItemId}/notes`), orderBy('createdAt', 'desc'));
   }, [firestore, workItemId]);
 
-  // Fetch Global Notes
-  const globalNotesQuery = useMemoFirebase(() => {
-    if (!firestore || !customerUniqueId) return null;
-    return query(collection(firestore, 'global_notes'), where('customerUniqueId', '==', customerUniqueId), orderBy('createdAt', 'desc'));
-  }, [firestore, customerUniqueId]);
-
-
   const { data: workItemNotes, isLoading: isLoadingWorkItemNotes } = useCollection<Note>(workItemNotesQuery);
-  const { data: globalNotes, isLoading: isLoadingGlobalNotes } = useCollection<GlobalNote>(globalNotesQuery);
 
   useEffect(() => {
     const fetchNoteAuthors = async () => {
-      const allNotes = [...(workItemNotes || []), ...(globalNotes || [])];
+      const allNotes = [...(workItemNotes || [])];
       if (!firestore || !allNotes || allNotes.length === 0) return;
       
       const authorIds = [...new Set(allNotes.map(note => note.authorId).filter(id => id && id !== 'system'))];
@@ -155,7 +147,7 @@ export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string,
     };
 
     fetchNoteAuthors();
-  }, [workItemNotes, globalNotes, firestore, usersMap]);
+  }, [workItemNotes, firestore, usersMap]);
 
 
   return (
@@ -166,14 +158,6 @@ export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string,
         title="Notes" 
         isLoading={isLoadingWorkItemNotes} 
       />
-      {customerUniqueId && (
-        <NotesTable 
-          notes={globalNotes || []} 
-          usersMap={usersMap} 
-          title="Global Notes" 
-          isLoading={isLoadingGlobalNotes} 
-        />
-      )}
     </div>
   );
 }
