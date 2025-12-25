@@ -57,7 +57,7 @@ export function AppHeader() {
         </div>
 
         <div className="flex-1 ml-10 space-y-1">
-           <p className="text-base text-primary">PHBKT - WorkFlow Management</p>
+           <p className="text-base text-primary font-bold">WorkFlow Management Application</p>
            <p className="text-base text-primary">{user?.displayName} - Home Page</p>
         </div>
 
