@@ -1,7 +1,7 @@
+
 'use client';
 
 import { useState } from 'react';
-import * as XLSX from 'xlsx';
 import {
   Dialog,
   DialogContent,
@@ -72,7 +72,7 @@ export function SlaReportDialog({
   const { data: allNotes } = useCollection<Note>(allNotesQuery)
 
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     let startDate: Date;
     let endDate: Date;
     const now = new Date();
@@ -121,6 +121,7 @@ export function SlaReportDialog({
     }
 
     try {
+      const XLSX = await import('xlsx');
       const reportData = filteredItems.map((item) => {
         const slaInfo = calculateSla(item, allNotes);
         return {
@@ -217,3 +218,5 @@ export function SlaReportDialog({
     </Dialog>
   );
 }
+
+    

@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -110,6 +109,7 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
+        const XLSX = await import('xlsx');
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[0];
@@ -161,7 +161,8 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
     reader.readAsArrayBuffer(selectedFile);
   };
   
-   const downloadTemplate = () => {
+   const downloadTemplate = async () => {
+    const XLSX = await import('xlsx');
     const ws = XLSX.utils.aoa_to_sheet([
       ['Customer Name', 'Customer Email', 'Customer Phone', 'Customer Phone Secondary', 'Customer Address', 'Overview / Notes']
     ]);
@@ -170,7 +171,7 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
     XLSX.writeFile(wb, 'work_item_template.xlsx');
   };
   
-  const handleDownloadReport = () => {
+  const handleDownloadReport = async () => {
     if (!workItems || workItems.length === 0) {
         toast({ title: 'No Data', description: 'There are no work items to export.' });
         return;
@@ -179,6 +180,7 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
     setIsDownloading(true);
     
     try {
+        const XLSX = await import('xlsx');
         const reportData = workItems.map(item => ({
             'Case ID': item.customId,
             'Process': item.process,
@@ -287,3 +289,5 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
     </div>
   );
 }
+
+    
