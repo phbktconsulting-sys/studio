@@ -119,13 +119,11 @@ export function AppHeader() {
           </div>
         </header>
       </div>
-      {user && (
-        <UserProfileDialog
-          userId={user.uid}
-          isOpen={isProfileDialogOpen}
-          onClose={() => setIsProfileDialogOpen(false)}
-        />
-      )}
+      <UserProfileDialog
+        userId={user?.uid || ''}
+        isOpen={isProfileDialogOpen}
+        onClose={() => setIsProfileDialogOpen(false)}
+      />
     </>
   );
 }
