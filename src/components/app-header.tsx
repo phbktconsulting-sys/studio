@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -10,22 +11,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
-import { LifeBuoy, LogOut, User as UserIcon, PlusCircle } from 'lucide-react';
+import { LogOut, User as UserIcon, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTabs } from '@/contexts/tab-context';
 import { LogoIcon } from './icons';
-import { useState } from 'react';
-import { SupportDialog } from './support-dialog';
 
 export function AppHeader() {
   const { user } = useUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
   const { openTab } = useTabs();
-  const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
-
 
   const handleLogout = () => {
     if (auth) {
@@ -106,10 +103,6 @@ export function AppHeader() {
                   <UserIcon className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsSupportDialogOpen(true)}>
-                  <LifeBuoy className="mr-2 h-4 w-4" />
-                  <span>Support</span>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
@@ -120,10 +113,6 @@ export function AppHeader() {
           </div>
         </header>
       </div>
-      <SupportDialog
-        isOpen={isSupportDialogOpen}
-        onClose={() => setIsSupportDialogOpen(false)}
-      />
     </>
   );
 }
