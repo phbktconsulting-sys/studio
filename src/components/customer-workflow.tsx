@@ -91,7 +91,7 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
 
   return (
     <div className="p-4 sm:p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
@@ -101,6 +101,31 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
             <h1 className="font-headline text-lg font-bold tracking-tight">Customer Workflow</h1>
             <p className="text-xs text-muted-foreground">View and manage all customer records.</p>
           </div>
+           <div className="flex items-center gap-2 border-l pl-4">
+            <div className="relative flex-1 min-w-[200px]">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                placeholder="Search by name, email, or ID..."
+                className="w-full pl-9 h-8 text-xs"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="outline" className="h-8 w-full flex-1 min-w-[150px] justify-start text-left font-normal text-xs">
+                        {dateFilter ? format(dateFilter, 'PPP') : <span>Filter by Creation Date</span>}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
+                </PopoverContent>
+            </Popover>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearFilters}>
+                <X className="h-4 w-4" />
+                <span className="sr-only">Clear filters</span>
+            </Button>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Total Customers:</span>
@@ -108,32 +133,6 @@ export function CustomerWorkflow({ onBack }: CustomerWorkflowProps) {
         </div>
       </div>
       
-       <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border bg-card p-2">
-        <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-            placeholder="Search by name, email, or ID..."
-            className="w-full pl-9 h-8 text-xs"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            />
-        </div>
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button variant="outline" className="h-8 w-full flex-1 min-w-[150px] justify-start text-left font-normal text-xs">
-                    {dateFilter ? format(dateFilter, 'PPP') : <span>Filter by Creation Date</span>}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
-            </PopoverContent>
-        </Popover>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearFilters}>
-            <X className="h-4 w-4" />
-            <span className="sr-only">Clear filters</span>
-        </Button>
-      </div>
-
       <Card className="mt-6">
         <Table>
           <TableHeader>
