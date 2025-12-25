@@ -1201,9 +1201,6 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <span>Case Age: <span className="text-muted-foreground">{caseAge} days</span></span>
           </div>
           <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <FilePenLine className="h-4 w-4" />
-              </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleRefresh}>
                 <RefreshCw className="h-4 w-4" />
               </Button>
