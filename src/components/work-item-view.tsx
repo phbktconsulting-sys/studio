@@ -1184,7 +1184,11 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                     <CardTitle className="text-sm">Overview</CardTitle>
                   </CardHeader>
                   <CardContent>
-                     <p className="whitespace-pre-wrap text-xs text-muted-foreground">{item.overview}</p>
+                     <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                        {item.overview.split('\n').map((line, index) => (
+                          line.trim() && <li key={index}>{line}</li>
+                        ))}
+                      </ul>
                   </CardContent>
                 </Card>
 
