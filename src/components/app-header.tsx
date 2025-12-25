@@ -16,12 +16,16 @@ import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useTabs } from '@/contexts/tab-context';
 import { LogoIcon } from './icons';
+import { useState } from 'react';
+import { SupportDialog } from './support-dialog';
 
 export function AppHeader() {
   const { user } = useUser();
   const auth = useFirebaseAuth();
   const router = useRouter();
   const { openTab } = useTabs();
+  const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
+
 
   const handleLogout = () => {
     if (auth) {
@@ -102,7 +106,7 @@ export function AppHeader() {
                   <UserIcon className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsSupportDialogOpen(true)}>
                   <LifeBuoy className="mr-2 h-4 w-4" />
                   <span>Support</span>
                 </DropdownMenuItem>
@@ -116,6 +120,10 @@ export function AppHeader() {
           </div>
         </header>
       </div>
+      <SupportDialog
+        isOpen={isSupportDialogOpen}
+        onClose={() => setIsSupportDialogOpen(false)}
+      />
     </>
   );
 }
