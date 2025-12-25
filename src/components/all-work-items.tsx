@@ -390,8 +390,8 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
 
   return (
     <>
-      <div className="p-4 sm:p-6">
-        <div className="flex items-center justify-between">
+      <div className="p-4 sm:p-6 space-y-4">
+        <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="icon" onClick={onBack}>
               <ArrowLeft className="h-4 w-4" />
@@ -402,62 +402,61 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
               <p className="text-xs text-muted-foreground">A view of all work items in the system.</p>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-2">
+              <Select value={userFilter} onValueChange={setUserFilter}>
+                  <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Filter by User" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all" className="text-xs">All Users</SelectItem>
+                      {usersData?.map(user => <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>)}
+                  </SelectContent>
+              </Select>
+              <Select value={processFilter} onValueChange={setProcessFilter}>
+                  <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Filter by Process" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all" className="text-xs">All Processes</SelectItem>
+                      {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
+                  </SelectContent>
+              </Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Filter by Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
+                      {statusTypes.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
+                  </SelectContent>
+              </Select>
+              <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
+                  <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Filter by Urgency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all" className="text-xs">All Urgencies</SelectItem>
+                      {urgencyTypes.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}
+                  </SelectContent>
+              </Select>
+              <Popover>
+                  <PopoverTrigger asChild>
+                      <Button variant="outline" className="h-8 justify-start text-left font-normal text-xs">
+                          {dateFilter ? format(dateFilter, 'PPP') : <span>Filter by Date</span>}
+                      </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
+                  </PopoverContent>
+              </Popover>
+              <Button variant="ghost" className="h-8" onClick={clearFilters}>
+                  <X className="mr-2 h-4 w-4" />
+                  Clear
+              </Button>
+          </div>
         </div>
         
-        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border bg-card p-2">
-            <Select value={userFilter} onValueChange={setUserFilter}>
-                <SelectTrigger className="h-8 w-full flex-1 min-w-[150px] text-xs">
-                    <SelectValue placeholder="Filter by User" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all" className="text-xs">All Users</SelectItem>
-                    {usersData?.map(user => <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>)}
-                </SelectContent>
-            </Select>
-            <Select value={processFilter} onValueChange={setProcessFilter}>
-                <SelectTrigger className="h-8 w-full flex-1 min-w-[150px] text-xs">
-                    <SelectValue placeholder="Filter by Process" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all" className="text-xs">All Processes</SelectItem>
-                    {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
-                </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-8 w-full flex-1 min-w-[150px] text-xs">
-                    <SelectValue placeholder="Filter by Status" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
-                    {statusTypes.map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
-                </SelectContent>
-            </Select>
-            <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
-                <SelectTrigger className="h-8 w-full flex-1 min-w-[150px] text-xs">
-                    <SelectValue placeholder="Filter by Urgency" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all" className="text-xs">All Urgencies</SelectItem>
-                    {urgencyTypes.map(u => <SelectItem key={u} value={u} className="text-xs">{u}</SelectItem>)}
-                </SelectContent>
-            </Select>
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button variant="outline" className="h-8 w-full flex-1 min-w-[150px] justify-start text-left font-normal text-xs">
-                        {dateFilter ? format(dateFilter, 'PPP') : <span>Filter by Date</span>}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
-                </PopoverContent>
-            </Popover>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearFilters}>
-                <X className="h-4 w-4" />
-                <span className="sr-only">Clear filters</span>
-            </Button>
-        </div>
-        
-        <div className="mt-6 rounded-lg border bg-card">
+        <div className="mt-2 rounded-lg border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
