@@ -1013,12 +1013,12 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[200px] text-xs">Date</TableHead>
-            <TableHead className="w-[120px] text-xs">Type</TableHead>
-            <TableHead className="w-[120px] text-xs">Direction</TableHead>
-            <TableHead className="w-[150px] text-xs">Document Source</TableHead>
-            <TableHead className="w-[150px] text-xs">Business Event</TableHead>
-            <TableHead className="text-xs">Actions</TableHead>
+            <TableHead className="w-1/6 text-xs">Date</TableHead>
+            <TableHead className="w-1/6 text-xs">Type</TableHead>
+            <TableHead className="w-1/6 text-xs">Direction</TableHead>
+            <TableHead className="w-1/6 text-xs">Document Source</TableHead>
+            <TableHead className="w-1/6 text-xs">Business Event</TableHead>
+            <TableHead className="w-1/6 text-xs">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
