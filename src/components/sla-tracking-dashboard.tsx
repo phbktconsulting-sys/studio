@@ -28,11 +28,12 @@ import {
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
-import { differenceInCalendarDays, format, parseISO, isSameDay } from 'date-fns';
+import { differenceInCalendarDays, format, parseISO, isSameDay, subDays, startOfDay, endOfDay } from 'date-fns';
 import { Button } from './ui/button';
-import { ArrowLeft, Download, Flag, X } from 'lucide-react';
+import { ArrowLeft, Download, Flag, X, Calendar as CalendarIcon } from 'lucide-react';
 import { useTabs } from '@/contexts/tab-context';
 import { SlaReportDialog } from './sla-report-dialog';
+import { DateRange } from 'react-date-range';
 
 interface SlaTrackingDashboardProps {
   onBack: () => void;
@@ -97,7 +98,13 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
   // States for filters
   const [userFilter, setUserFilter] = useState('all');
   const [processFilter, setProcessFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState<Date | undefined>();
+  const [dateRange, setDateRange] = useState([
+    {
+      startDate: subDays(new Date(), 30),
+      endDate: new Date(),
+      key: 'selection'
+    }
+  ]);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
 
   const workItemsQuery = useMemoFirebase(() => {
@@ -128,16 +135,26 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
     return new Map(users.map(u => [u.uid, u.displayName || u.email || 'Unknown User']));
   }, [users]);
   
-  const filteredWorkItems = useMemo(() => {
+  const dateFilteredWorkItems = useMemo(() => {
     if (!workItems) return [];
-    
+    const startDate = startOfDay(dateRange[0].startDate);
+    const endDate = endOfDay(dateRange[0].endDate);
     return workItems.filter(item => {
+        const createdAt = parseISO(item.createdAt);
+        return createdAt >= startDate && createdAt <= endDate;
+    });
+  }, [workItems, dateRange]);
+
+
+  const filteredWorkItems = useMemo(() => {
+    if (!dateFilteredWorkItems) return [];
+    
+    return dateFilteredWorkItems.filter(item => {
         const userMatch = userFilter === 'all' || item.assignedTo === userFilter;
         const processMatch = processFilter === 'all' || item.process === processFilter;
-        const dateMatch = !dateFilter || format(parseISO(item.createdAt), 'yyyy-MM-dd') === format(dateFilter, 'yyyy-MM-dd');
-        return userMatch && processMatch && dateMatch;
+        return userMatch && processMatch;
     });
-  }, [workItems, userFilter, processFilter, dateFilter]);
+  }, [dateFilteredWorkItems, userFilter, processFilter]);
 
   const slaData = useMemo(() => {
     if (!filteredWorkItems) return [];
@@ -149,7 +166,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
   
   const userSlaStats = useMemo(() => {
     const stats: { [key: string]: { met: number, missed: number, name: string } } = {};
-    (workItems || []).forEach(item => {
+    (dateFilteredWorkItems || []).forEach(item => {
         const sla = calculateSla(item, allNotes);
         const userKey = item.assignedTo;
         if (!stats[userKey]) {
@@ -162,11 +179,11 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
         }
     });
     return Object.values(stats).sort((a, b) => b.missed - a.missed);
-  }, [workItems, usersMap, allNotes]);
+  }, [dateFilteredWorkItems, usersMap, allNotes]);
 
   const processSlaStats = useMemo(() => {
     const stats: { [key: string]: { met: number, missed: number } } = {};
-    (workItems || []).forEach(item => {
+    (dateFilteredWorkItems || []).forEach(item => {
         const sla = calculateSla(item, allNotes);
         const processKey = item.process;
         if (!stats[processKey]) {
@@ -179,12 +196,11 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
         }
     });
     return Object.entries(stats).map(([process, data]) => ({ process, ...data }));
-  }, [workItems, allNotes]);
+  }, [dateFilteredWorkItems, allNotes]);
 
   const clearFilters = () => {
     setUserFilter('all');
     setProcessFilter('all');
-    setDateFilter(undefined);
   }
 
   if (isLoading) {
@@ -198,7 +214,7 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
   return (
     <>
       <div className="space-y-6 p-4 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="icon" onClick={onBack}>
               <ArrowLeft className="h-4 w-4" />
@@ -209,6 +225,40 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
               <p className="text-xs text-muted-foreground">Monitor case handling times and SLA compliance.</p>
             </div>
           </div>
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant="outline"
+                  className="h-8 w-[240px] justify-start text-left font-normal text-xs"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange[0].startDate && dateRange[0].endDate ? (
+                    <>
+                      {format(dateRange[0].startDate, "LLL dd, y")} -{" "}
+                      {format(dateRange[0].endDate, "LLL dd, y")}
+                    </>
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                 <DateRange
+                    editableDateInputs={true}
+                    onChange={item => setDateRange([item.selection])}
+                    moveRangeOnFirstSelection={false}
+                    ranges={dateRange}
+                    className="w-full"
+                />
+              </PopoverContent>
+            </Popover>
+            <Button variant="outline" size="sm" className='h-8 text-xs' onClick={() => setIsReportDialogOpen(true)}>
+              <Download className="mr-2 h-4 w-4" />
+              Download Report
+            </Button>
+          </div>
         </div>
         
         <div className="grid gap-6 lg:grid-cols-3">
@@ -217,9 +267,9 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
               <Card>
                   <CardHeader className='pb-2'>
                       <div className='flex justify-between items-center'>
-                        <CardTitle className="text-base">SLA by User (All Time)</CardTitle>
+                        <CardTitle className="text-base">SLA by User</CardTitle>
                       </div>
-                      <CardDescription className='text-xs'>SLA met vs. missed counts for each user.</CardDescription>
+                      <CardDescription className='text-xs'>SLA met vs. missed for the selected date range.</CardDescription>
                   </CardHeader>
                   <CardContent>
                       <Table>
@@ -245,8 +295,8 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
 
               <Card>
                   <CardHeader>
-                      <CardTitle className="text-base">SLA by Process (All Time)</CardTitle>
-                       <CardDescription className='text-xs'>SLA met vs. missed counts for each process type.</CardDescription>
+                      <CardTitle className="text-base">SLA by Process</CardTitle>
+                       <CardDescription className='text-xs'>SLA met vs. missed for the selected date range.</CardDescription>
                   </CardHeader>
                   <CardContent>
                        <Table>
@@ -278,12 +328,8 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
                   <div className="flex justify-between items-start">
                     <div>
                       <CardTitle className="text-base">Overall Case SLA Status</CardTitle>
-                      <CardDescription className='text-xs'>SLA status for all work items. Green means handled same-day, Red means overdue.</CardDescription>
+                      <CardDescription className='text-xs'>SLA status for items in date range. Green=handled same-day, Red=overdue.</CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" className='h-8 text-xs' onClick={() => setIsReportDialogOpen(true)}>
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Report
-                    </Button>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 pt-2">
                       <Select value={userFilter} onValueChange={setUserFilter}>
@@ -304,16 +350,6 @@ export function SlaTrackingDashboard({ onBack }: SlaTrackingDashboardProps) {
                               {processTypes.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
                           </SelectContent>
                       </Select>
-                      <Popover>
-                          <PopoverTrigger asChild>
-                              <Button variant="outline" className="h-8 w-full flex-1 min-w-[150px] justify-start text-left font-normal text-xs">
-                                  {dateFilter ? format(dateFilter, 'PPP') : <span>Filter by Date</span>}
-                              </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
-                          </PopoverContent>
-                      </Popover>
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearFilters}>
                           <X className="h-4 w-4" />
                           <span className="sr-only">Clear filters</span>
