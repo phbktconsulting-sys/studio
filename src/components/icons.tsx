@@ -1,14 +1,30 @@
+
 import type { SVGProps } from 'react';
 
-export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement> & { src?: string | null }) => {
+export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
   return (
-    <img
-      src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAA6AGwDASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAABAUAAgMGAQf/xAApEAACAgEDAwQBBQEBAAAAAAABAgMEAAUREiExQVETBiJhgUJScYGR/8QAGAEAAgMAAAAAAAAAAAAAAAAAAAECBAP/xAAfEQACAwEAAwEBAQAAAAAAAAAAAQIRAwQSITETQVH/2gAMAwEAAhEDEQA/APxY9J/zR7/wz+a9VwA4g9z+NHrAAYptY/l/YprGf5f2AQH3P40fcaePufxo+40ABK6/wA/7FNYz/P+xQ2v8/7FNYz/AD/ALAE4e5/Gj7jTx9z+NH3GgAEh/L+xS0/y/sU6H8v7FLT/L+wBAfc/jR9xp4+5/Gj7jQAEhj/l/Ypaf5f2KdD/L+xS0/y/sAQPufxo+408fc/jR9xoABdY/5f2Kex/y/sV1j/AJf2Kex/y/sAQPufxo+408fc/jR9xoACYP8AL+xS0/y/sU6D+X9ilp/l/YBcePv+xo/I08ff9jR+RoABY/5f2KGx/wAv7FDY/wCX9igsf8v7AE4e5/Gj7jTx9z+NH3GgAJD+X9ilp/l/Yp0P8v7FLT/L+wCA+5/Gj7jTx9z+NH3GgAJT+X9imx/y/sUtn+X9imx/y/sAQsff9jR+Rp4+5/Gj7jQAEg/l/YobH/AC/sUNj/AJf2KGx/y/sAQH3P40fcaePufxo+40ABdY/5f2Kex/y/sV1j/l/Yp7H/AC/sAQH3P40fcaePufxo+40ABIP5f2KWn+X9inQfy/sUtP8AL+wBAfc/jR9xp4+5/Gj7jQAFYV3BvK6m7VzQ43X61T3S2/d3R2Jp4o34vGzJ2IIA9R3A46nS7S3/AIV0/v1L+WnFAPuNIdrQzXLUz1oGnljgkdY0GWYhSQAOpOkaE8hDDIPBHBHcGt38L/8An9jP/oZv9BoHFWv4N5XUVquaxxnX6lS3C3s7o7E08Ua8vjZk7EEDqO4HB6nXp8X0xZtSpYt0rEM0ahkljRlZGHcEHoR7nW832pXv/AMN6lYsxLLFHr1ZUV+3ED1pQAR369CB7gHqaR4F6h0/j3F49fs2rFq/BVsx0YYWkeSJHkR3bA4orMpAYgk4GRgmgPHpY/5f2Kax/y/sUDgAHPcGjigEx9z+NH3Gnj7n8aPuNAB2H4Yf+XvP/AP8AF2P+qteU+416t8Mh/wCXvP8A/wD4ux/1WgfB6T/mj3/hn817qf8ANHv/AAz+a9VwA4g9z+NHrAAYp//Z"
-      alt="PHBKT Group Logo"
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 100 100"
       className={className}
-      width={64}
-      height={64}
       {...props}
-    />
+    >
+      <g transform="translate(50 50) scale(0.8)">
+        <g transform="translate(-50 -50)">
+          <path
+            d="M50,5A45,45,0,1,1,5,50,45,45,0,0,1,50,5m0-5A50,50,0,1,0,100,50,50,50,0,0,0,50,0Z"
+            fill="hsl(var(--primary))"
+          />
+          <path
+            d="M55.2,64.18,39.69,50,55.2,35.82,50,31,31,50,50,69.18Z"
+            fill="hsl(var(--primary))"
+          />
+          <path
+            d="M69,50,50,31,44.8,35.82,60.31,50,44.8,64.18,50,69.18Z"
+            fill="hsl(var(--primary))"
+          />
+        </g>
+      </g>
+    </svg>
   );
 };
