@@ -16,9 +16,9 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement> & {hei
       {...props}
     >
       <g fill="hsl(var(--primary))" stroke="hsl(var(--primary))">
-        <path d="M12 2L6 8l6 6 6-6-6-6z" />
-        <path d="M6 8l6 6v8l-6-6V8z" />
-        <path d="M18 8l-6 6v8l6-6V8z" />
+        <path d="M12 2 L18 5 V 11 L12 14 L6 11 V 5 Z" fillOpacity="0.7" />
+        <path d="M6 11 L6 17 L12 20 V 14 Z" fillOpacity="0.9" />
+        <path d="M18 11 L18 17 L12 20 V 14 Z" fillOpacity="1.0" />
       </g>
     </svg>
   );
