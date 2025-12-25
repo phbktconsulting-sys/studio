@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogoIcon } from '@/components/icons';
 import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
 import { LifeBuoy, LogOut, User as UserIcon, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -51,8 +49,8 @@ export function AppHeader() {
         </div>
 
         <div className="flex-1 text-center">
-           <h1 className="font-headline text-xl font-bold">PHBKT - WorkFlow Management</h1>
-           <p className="text-sm text-muted-foreground">{user?.displayName} - Home Page</p>
+           <h1 className="font-headline text-xl font-bold text-primary">PHBKT - WorkFlow Management</h1>
+           <p className="text-sm text-primary">{user?.displayName} - Home Page</p>
         </div>
 
         <div className="flex items-center justify-end gap-4">
