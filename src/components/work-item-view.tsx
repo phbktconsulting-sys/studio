@@ -1120,9 +1120,11 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
       timestamp: new Date().toISOString(),
     };
     
+    const isAssignedToCurrentUser = item.assignedTo === currentUser.uid;
     const isAssignedToProcess = item.assignedTo.length < 20;
-
-    if (isAssignedToProcess || item.assignedTo !== currentUser.uid) {
+    
+    if (!isAssignedToCurrentUser) {
+      // Take over the case
       updateDocumentNonBlocking(workItemRef, {
         assignedTo: currentUser.uid,
         updatedAt: new Date().toISOString(),
@@ -1142,9 +1144,9 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
           title: "Case Assigned to You",
           description: `You have taken ownership of case ${item.customId}.`,
       });
-
     } else {
-        updateDocumentNonBlocking(workItemRef, { lockInfo });
+      // Just lock the case
+      updateDocumentNonBlocking(workItemRef, { lockInfo });
     }
 
     setIsVerifyingAuthority(true);
