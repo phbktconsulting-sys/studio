@@ -30,7 +30,6 @@ import { CustomCalendar } from '@/components/custom-calendar';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 export default function NewUserPage() {
   const { toast } = useToast();
@@ -137,13 +136,13 @@ export default function NewUserPage() {
               <div className="space-y-6">
                 <h2 className="text-lg font-semibold text-primary border-b pb-2">Official Details</h2>
                 <FormItem className="grid grid-cols-3 gap-4 items-start">
-                    <div className="col-span-1">
+                    <div className="col-span-1 pt-1.5">
                         <FormLabel>Employee ID</FormLabel>
                         <p className="text-xs text-muted-foreground mt-1">This ID is auto-generated.</p>
                     </div>
                     <div className="col-span-2">
                         <FormControl>
-                            <Input readOnly disabled value={nextEmployeeId} className="bg-muted/50 w-2/5" />
+                            <Input readOnly disabled value={nextEmployeeId} className="bg-muted/50" />
                         </FormControl>
                     </div>
                 </FormItem>
@@ -152,13 +151,13 @@ export default function NewUserPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem className="grid grid-cols-3 gap-4 items-start">
-                        <div className="col-span-1">
+                        <div className="col-span-1 pt-1.5">
                             <FormLabel>Email</FormLabel>
                             <p className="text-xs text-muted-foreground mt-1">Auto-generated based on name.</p>
                         </div>
                         <div className="col-span-2">
                             <FormControl>
-                                <Input type="email" {...field} readOnly disabled className="bg-muted/50 w-2/5" />
+                                <Input type="email" {...field} readOnly disabled className="bg-muted/50" />
                             </FormControl>
                             <FormMessage />
                         </div>
@@ -170,12 +169,12 @@ export default function NewUserPage() {
                     name="company"
                     render={({ field }) => (
                       <FormItem className="grid grid-cols-3 gap-4 items-start">
-                        <div className="col-span-1">
+                        <div className="col-span-1 pt-1.5">
                             <FormLabel>Company</FormLabel>
                         </div>
                         <div className="col-span-2">
                             <FormControl>
-                                <Input {...field} disabled className="bg-muted/50 w-2/5" />
+                                <Input {...field} disabled className="bg-muted/50" />
                             </FormControl>
                             <FormMessage />
                         </div>
@@ -186,68 +185,76 @@ export default function NewUserPage() {
 
               <div className="space-y-6">
                 <h2 className="text-lg font-semibold text-primary border-b pb-2">Personal Information</h2>
-                 <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
-                    <FormField
-                        control={form.control}
-                        name="firstName"
-                        render={({ field }) => (
-                        <FormItem className="grid grid-cols-2 gap-4 items-center">
-                            <FormLabel>First Name</FormLabel>
+                <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>First Name</FormLabel></div>
+                        <div className="col-span-2">
                             <FormControl>
                             <Input {...field} />
                             </FormControl>
-                            <FormMessage className="col-span-full col-start-2" />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="middleName"
-                        render={({ field }) => (
-                        <FormItem className="grid grid-cols-2 gap-4 items-center">
-                            <FormLabel>Middle Name</FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="middleName"
+                    render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Middle Name</FormLabel></div>
+                        <div className="col-span-2">
                             <FormControl>
                             <Input {...field} placeholder="Optional" />
                             </FormControl>
-                            <FormMessage className="col-span-full col-start-2" />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="lastName"
-                        render={({ field }) => (
-                        <FormItem className="grid grid-cols-2 gap-4 items-center">
-                            <FormLabel>Last Name</FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Last Name</FormLabel></div>
+                        <div className="col-span-2">
                             <FormControl>
                             <Input {...field} />
                             </FormControl>
-                            <FormMessage className="col-span-full col-start-2" />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="dob"
-                        render={({ field }) => (
-                        <FormItem className="grid grid-cols-2 gap-4 items-center">
-                            <FormLabel>Date of Birth</FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="dob"
+                    render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Date of Birth</FormLabel></div>
+                        <div className="col-span-2">
                             <FormControl>
                             <CustomCalendar
                                 value={field.value}
                                 onChange={field.onChange}
                             />
                             </FormControl>
-                            <FormMessage className="col-span-full col-start-2" />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="mobileNumber"
-                        render={({ field }) => (
-                        <FormItem className="grid grid-cols-2 gap-4 items-center">
-                            <FormLabel>Mobile Number</FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="mobileNumber"
+                    render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Mobile Number</FormLabel></div>
+                        <div className="col-span-2">
                             <div className="relative">
                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                 <span className="text-gray-500 sm:text-sm">+91</span>
@@ -256,42 +263,48 @@ export default function NewUserPage() {
                                 <Input {...field} className="pl-10" />
                             </FormControl>
                             </div>
-                            <FormMessage className="col-span-full col-start-2" />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="aadharNumber"
-                        render={({ field }) => (
-                        <FormItem className="grid grid-cols-2 gap-4 items-center">
-                            <FormLabel>Aadhar Number</FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="aadharNumber"
+                    render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Aadhar Number</FormLabel></div>
+                        <div className="col-span-2">
                             <FormControl>
                             <Input {...field} />
                             </FormControl>
-                            <FormMessage className="col-span-full col-start-2" />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="panNumber"
-                        render={({ field }) => (
-                        <FormItem className="grid grid-cols-2 gap-4 items-center">
-                            <FormLabel>PAN Number</FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="panNumber"
+                    render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>PAN Number</FormLabel></div>
+                        <div className="col-span-2">
                             <FormControl>
                             <Input {...field} />
                             </FormControl>
-                            <FormMessage className="col-span-full col-start-2" />
-                        </FormItem>
-                        )}
-                    />
-                     <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                        <FormItem className="grid grid-cols-2 gap-4 items-center">
-                            <FormLabel>Password</FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+                    <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Password</FormLabel></div>
+                        <div className="col-span-2">
                             <div className="relative">
                                 <FormControl>
                                 <Input
@@ -313,158 +326,166 @@ export default function NewUserPage() {
                                 )}
                                 </Button>
                             </div>
-                            <FormMessage className="col-span-full col-start-2" />
-                        </FormItem>
-                        )}
-                    />
-                 </div>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
               </div>
 
               <div className="space-y-6">
                 <h2 className="text-lg font-semibold text-primary border-b pb-2">Employment Details</h2>
-                <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
-                    <FormField
-                    control={form.control}
-                    name="department"
-                    render={({ field }) => (
-                      <FormItem className="grid grid-cols-2 gap-4 items-center">
-                        <FormLabel>Department</FormLabel>
+                <FormField
+                control={form.control}
+                name="department"
+                render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Department</FormLabel></div>
+                        <div className="col-span-2">
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
                         >
-                          <FormControl>
+                        <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a department" />
+                            <SelectValue placeholder="Select a department" />
                             </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        </FormControl>
+                        <SelectContent>
                             {[
-                              'Operation', 'HR', 'Risk', 'Admin', 'Marketing', 'Other',
+                            'Operation', 'HR', 'Risk', 'Admin', 'Marketing', 'Other',
                             ].map((dep) => (
-                              <SelectItem key={dep} value={dep}>
+                            <SelectItem key={dep} value={dep}>
                                 {dep}
-                              </SelectItem>
+                            </SelectItem>
                             ))}
-                          </SelectContent>
+                        </SelectContent>
                         </Select>
-                        <FormMessage className="col-span-full col-start-2" />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="jobTitle"
-                    render={({ field }) => (
-                      <FormItem className="grid grid-cols-2 gap-4 items-center">
-                        <FormLabel>Job Title</FormLabel>
+                        <FormMessage />
+                    </div>
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="jobTitle"
+                render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Job Title</FormLabel></div>
+                        <div className="col-span-2">
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
                         >
-                          <FormControl>
+                        <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a job title" />
+                            <SelectValue placeholder="Select a job title" />
                             </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        </FormControl>
+                        <SelectContent>
                             {[
-                              'Associate', 'Senior Associate', 'Team Lead', 'Assistant Manager', 'Manager', 'Senior Manager',
+                            'Associate', 'Senior Associate', 'Team Lead', 'Assistant Manager', 'Manager', 'Senior Manager',
                             ].map((title) => (
-                              <SelectItem key={title} value={title}>
+                            <SelectItem key={title} value={title}>
                                 {title}
-                              </SelectItem>
+                            </SelectItem>
                             ))}
-                          </SelectContent>
+                        </SelectContent>
                         </Select>
-                        <FormMessage className="col-span-full col-start-2" />
-                      </FormItem>
-                    )}
-                  />
-                   <FormField
-                    control={form.control}
-                    name="level"
-                    render={({ field }) => (
-                      <FormItem className="grid grid-cols-2 gap-4 items-center">
-                        <FormLabel>Level</FormLabel>
+                        <FormMessage />
+                    </div>
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="level"
+                render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Level</FormLabel></div>
+                        <div className="col-span-2">
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
                         >
-                          <FormControl>
+                        <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a level" />
+                            <SelectValue placeholder="Select a level" />
                             </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        </FormControl>
+                        <SelectContent>
                             {Array.from(
-                              { length: 10 },
-                              (_, i) => `L${i + 1}`
+                            { length: 10 },
+                            (_, i) => `L${i + 1}`
                             ).map((level) => (
-                              <SelectItem key={level} value={level}>
+                            <SelectItem key={level} value={level}>
                                 {level}
-                              </SelectItem>
+                            </SelectItem>
                             ))}
-                          </SelectContent>
+                        </SelectContent>
                         </Select>
-                        <FormMessage className="col-span-full col-start-2" />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="workLocation"
-                    render={({ field }) => (
-                      <FormItem className="grid grid-cols-2 gap-4 items-center">
-                        <FormLabel>Work Location</FormLabel>
+                        <FormMessage />
+                    </div>
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="workLocation"
+                render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Work Location</FormLabel></div>
+                        <div className="col-span-2">
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
                         >
-                          <FormControl>
+                        <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a location" />
+                            <SelectValue placeholder="Select a location" />
                             </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        </FormControl>
+                        <SelectContent>
                             {['Office', 'Remote', 'Hybrid', 'Other'].map(
-                              (loc) => (
+                            (loc) => (
                                 <SelectItem key={loc} value={loc}>
-                                  {loc}
+                                {loc}
                                 </SelectItem>
-                              )
+                            )
                             )}
-                          </SelectContent>
+                        </SelectContent>
                         </Select>
-                        <FormMessage className="col-span-full col-start-2" />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem className="grid grid-cols-2 gap-4 items-center">
-                        <FormLabel>Role</FormLabel>
+                        <FormMessage />
+                    </div>
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5"><FormLabel>Role</FormLabel></div>
+                        <div className="col-span-2">
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
                         >
-                          <FormControl>
+                        <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a role" />
+                            <SelectValue placeholder="Select a role" />
                             </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        </FormControl>
+                        <SelectContent>
                             <SelectItem value="User">User</SelectItem>
                             <SelectItem value="Admin">Admin</SelectItem>
-                          </SelectContent>
+                        </SelectContent>
                         </Select>
-                        <FormMessage className="col-span-full col-start-2" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        <FormMessage />
+                    </div>
+                    </FormItem>
+                )}
+                />
               </div>
 
 
