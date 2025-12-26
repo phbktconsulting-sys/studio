@@ -49,6 +49,7 @@ import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { ImageAttachmentDialog } from './image-attachment-dialog';
 import { EditContactInfoDialog } from './edit-contact-info-dialog';
+import { QuotationTab } from './quotation-tab';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Call for New Lead", "Request Other Services"],
@@ -992,7 +993,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     }}
                   >
                   <SelectTrigger
-                    className="h-6 w-96 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs"
+                    className="h-6 w-auto border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs"
                   >
                     <SelectValue placeholder="--- select a different action ---" />
                   </SelectTrigger>
@@ -1314,12 +1315,6 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     );
   }
   
-  const PlaceholderContent = ({ title }: { title: string }) => (
-    <div className="flex h-full items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-6">
-      <p className="text-xs text-muted-foreground">{title} (Not Implemented)</p>
-    </div>
-  );
-
   const isClosed = item.status === 'Closed' || item.status === 'Re-indexed';
   const isPended = item.status === 'Pending';
   const isLockedByOther = item.lockInfo && item.lockInfo.userId !== currentUser?.uid;
@@ -1600,10 +1595,12 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
               </Card>
             </TabsContent>
             <TabsContent value="quotation" className="mt-0">
-              <PlaceholderContent title="Quotation" />
+              <QuotationTab workItem={item} />
             </TabsContent>
             <TabsContent value="agency" className="mt-0">
-              <PlaceholderContent title="Agency" />
+              <div className="flex h-full items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-6">
+                <p className="text-xs text-muted-foreground">Agency (Not Implemented)</p>
+              </div>
             </TabsContent>
           </div>
         </Tabs>
