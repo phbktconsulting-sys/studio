@@ -180,7 +180,7 @@ export function EditContactInfoDialog({
                       control={form.control}
                       name="address.city"
                       render={({ field }) => (
-                        <FormItem className="col-span-2">
+                        <FormItem>
                           <FormControl>
                             <Input {...field} placeholder="City" />
                           </FormControl>
@@ -212,19 +212,19 @@ export function EditContactInfoDialog({
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="address.zipcode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input {...field} placeholder="Zipcode" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="address.zipcode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input {...field} placeholder="Zipcode" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                </div>
               <FormField
                 control={form.control}

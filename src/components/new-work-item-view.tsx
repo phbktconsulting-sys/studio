@@ -387,7 +387,7 @@ export function NewWorkItemView() {
                                 control={form.control}
                                 name="customerAddress.city"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2">
+                                    <FormItem>
                                         <FormControl>
                                             <Input {...field} placeholder="City" />
                                         </FormControl>
@@ -419,19 +419,19 @@ export function NewWorkItemView() {
                                     </FormItem>
                                 )}
                             />
+                           <FormField
+                                control={form.control}
+                                name="customerAddress.zipcode"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input {...field} placeholder="Zipcode" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
-                         <FormField
-                            control={form.control}
-                            name="customerAddress.zipcode"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Input {...field} placeholder="Zipcode" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                     </div>
                 </div>
 
