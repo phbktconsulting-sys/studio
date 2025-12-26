@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -64,9 +63,23 @@ export function NewWorkItemView() {
   const form = useForm<WorkItemFormValues>({
     resolver: zodResolver(WorkItemCreateSchema),
     defaultValues: {
+      process: '',
       urgency: 'Medium',
-      assignTo: 'initial_indexing',
+      customerName: '',
+      customerEmail: '',
+      customerPhone: '',
+      customerPhoneSecondary: '',
+      customerAddress: {
+        country: '',
+        line1: '',
+        line2: '',
+        city: '',
+        state: '',
+        zipcode: '',
+      },
+      overview: '',
       initialTasks: [],
+      assignTo: 'initial_indexing',
     },
   });
 
@@ -161,7 +174,6 @@ export function NewWorkItemView() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 
-                {/* --- Form Row: Assignment --- */}
                 <FormField
                   control={form.control}
                   name="assignTo"
@@ -194,7 +206,7 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
-
+                
                 <FormField
                   control={form.control}
                   name="process"
@@ -224,8 +236,7 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
-
-                 {/* --- Form Row: Initial Tasks --- */}
+                 
                  <FormField
                   control={form.control}
                   name="initialTasks"
@@ -504,3 +515,5 @@ export function NewWorkItemView() {
     </div>
   );
 }
+
+    
