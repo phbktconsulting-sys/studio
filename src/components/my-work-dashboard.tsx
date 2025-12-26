@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -73,36 +74,13 @@ export function MyWorkDashboard() {
   const [dateFilter, setDateFilter] = useState<Date | undefined>();
 
   // Query for items assigned to the user
-  const assignedItemsQuery = useMemoFirebase(() => {
+  const workItemsQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
     return query(collection(firestore, 'work_items'), where('assignedTo', '==', user.uid));
   }, [firestore, user]);
 
-  // Query for items created by the user
-  const createdItemsQuery = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return query(collection(firestore, 'work_items'), where('createdBy', '==', user.uid));
-  }, [firestore, user]);
 
-  const { data: assignedItems, isLoading: assignedLoading } = useCollection<WorkItem>(assignedItemsQuery);
-  const { data: createdItems, isLoading: createdLoading } = useCollection<WorkItem>(createdItemsQuery);
-
-  const workItems = useMemo(() => {
-    const allItems = new Map<string, WorkItem>();
-    if (assignedItems) {
-      assignedItems.forEach((item) => allItems.set(item.id, item));
-    }
-    if (createdItems) {
-      createdItems.forEach((item) => {
-        // Add item if it's not already in the map (to avoid duplicates)
-        // and ensure it's not assigned to a process queue (heuristic: length >= 28 is a UID).
-        if (!allItems.has(item.id) && item.assignedTo.length >= 28) {
-          allItems.set(item.id, item);
-        }
-      });
-    }
-    return Array.from(allItems.values());
-  }, [assignedItems, createdItems]);
+  const { data: workItems, isLoading } = useCollection<WorkItem>(workItemsQuery);
 
   const handleRowClick = (item: WorkItem) => {
     openTab({
@@ -113,6 +91,8 @@ export function MyWorkDashboard() {
   };
 
   const filteredAndSortedWorkItems = useMemo(() => {
+    if (!workItems) return [];
+    
     let filtered = workItems;
 
     if (statusFilter && statusFilter !== 'all') {
@@ -128,8 +108,6 @@ export function MyWorkDashboard() {
     return filtered.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   }, [workItems, statusFilter, processFilter, dateFilter]);
 
-  const isLoading = assignedLoading || createdLoading;
-  
   const clearFilters = () => {
     setStatusFilter('Open');
     setProcessFilter('all');
@@ -149,7 +127,7 @@ export function MyWorkDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-headline text-lg font-bold tracking-tight">My Work</h1>
-          <p className="text-xs text-muted-foreground">Work items assigned to or created by you.</p>
+          <p className="text-xs text-muted-foreground">Work items assigned to you.</p>
         </div>
       </div>
 
