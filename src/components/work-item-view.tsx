@@ -417,10 +417,26 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 toast({ variant: 'destructive', title: 'Error', description: 'Notes are required.' });
                 return;
             }
+            
+            const newAssignee = users.find(u => u.uid === transferToUser);
             category = 'Transferred';
-            noteText = `${transferNotes}`;
+            noteText = `Work item transferred to ${newAssignee?.displayName || 'Unknown User'}. ${transferNotes}`;
             workItemUpdate.assignedTo = transferToUser;
-            break;
+            
+            // Perform the update and note creation here before cancelling
+            updateDocumentNonBlocking(workItemRef, workItemUpdate);
+            addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
+              authorId: user.uid,
+              text: noteText,
+              createdAt: new Date().toISOString(),
+              workItemId: workItem.id,
+              category,
+              subject: subjectForNote,
+            });
+
+            toast({ title: 'Work Item Transferred', description: `Case has been transferred to ${newAssignee?.displayName}.` });
+            onCancel();
+            return; // Exit after handling transfer
         case 'pend':
             if (!pendReason) {
               toast({ variant: 'destructive', title: 'Error', description: 'A reason is required to pend.' });
@@ -462,391 +478,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             title: 'Action Failed',
             description: error.message || 'An unexpected error occurred.',
         });
-    }
-  };
-
-  const renderActionForm = () => {
-    switch (selectedAction) {
-      case 'resolve-complete':
-        return (
-          <div className="space-y-4">
-               <div className="flex items-start">
-                  <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-                  <div className="w-1/3">
-                      <div className="mt-1 flex flex-col space-y-2 rounded-md border p-2 overflow-y-auto max-h-28">
-                      {(workItem.tasks || []).length > 0 ? (
-                          <div className="flex flex-col space-y-2">
-                            {workItem.tasks.map(task => (
-                                <div key={task.id} className="flex items-center gap-1.5">
-                                    <Checkbox
-                                        id={`task-resolve-${task.id}`}
-                                        checked={completedTasks.has(task.id)}
-                                        onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
-                                    />
-                                    <label
-                                    htmlFor={`task-resolve-${task.id}`}
-                                    className="text-xs font-normal cursor-pointer"
-                                    >
-                                    {task.text}
-                                    </label>
-                                </div>
-                            ))}
-                          </div>
-                      ) : (
-                          <p className="w-full text-center text-xs text-muted-foreground">No tasks assigned.</p>
-                      )}
-                      </div>
-                  </div>
-              </div>
-              <div className="flex items-center">
-                  <Label className="w-1/4 text-xs font-semibold">All Tasks Completed?<span className="text-destructive">*</span></Label>
-                  <div className="w-3/4">
-                      <RadioGroup value={allTasksCompleted} onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
-                          <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="tasks-yes" />
-                          <Label htmlFor="tasks-yes" className="flex h-7 items-center text-xs font-normal">Yes</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="tasks-no" />
-                          <Label htmlFor="tasks-no" className="flex h-7 items-center text-xs font-normal">No</Label>
-                          </div>
-                      </RadioGroup>
-                  </div>
-              </div>
-              <div className="flex items-start">
-                  <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-resolve-complete">Notes<span className="text-destructive">*</span></Label>
-                  <div className="w-1/2">
-                      <Textarea
-                          id="notes-resolve-complete"
-                          placeholder="Add final notes..."
-                          value={resolveCompleteNotes}
-                          onChange={e => setResolveCompleteNotes(e.target.value)}
-                          className="min-h-[100px] text-xs"
-                      />
-                  </div>
-              </div>
-          </div>
-        );
-      case 're-index':
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">Re-index Option<span className="text-destructive">*</span></Label>
-              <div className="w-3/4">
-                <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="myself" id="reindex-myself" />
-                    <Label htmlFor="reindex-myself" className="flex h-7 items-center text-xs font-normal">Re-index case myself</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="initial" id="reindex-initial" />
-                    <Label htmlFor="reindex-initial" className="flex h-7 items-center text-xs font-normal">Return to initial Indexing</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">Process<span className="text-destructive">*</span></Label>
-              <div className="w-1/4">
-                  <Select onValueChange={(value) => { setReindexToProcess(value); setReindexTasks([]); }} value={reindexToProcess}>
-                    <SelectTrigger className="h-7 text-xs">
-                        <SelectValue placeholder="Select a new process..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {processTypes.map((process) => (
-                        <SelectItem key={process} value={process} className="text-xs">
-                            {process}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-              <div className="flex w-3/4 items-start gap-2">
-                  <div className="w-1/2">
-                      <Popover>
-                          <PopoverTrigger asChild>
-                              <Button
-                              variant="outline"
-                              role="combobox"
-                              className={cn(
-                                  "w-full justify-between h-7 text-xs",
-                                  !reindexTasks?.length && "text-muted-foreground"
-                              )}
-                              >
-                              {reindexTasks?.length > 0 ? `${reindexTasks.length} selected` : "Select tasks"}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                              <Command>
-                                  <CommandInput placeholder="Search tasks..." />
-                                  <CommandList>
-                                  <CommandEmpty>No tasks found.</CommandEmpty>
-                                  <CommandGroup>
-                                      {(processTaskMap[reindexToProcess] || []).map((task) => (
-                                      <CommandItem
-                                          key={task}
-                                          className="text-xs"
-                                          onSelect={() => {
-                                              const isSelected = reindexTasks.includes(task);
-                                              const newTasks = isSelected
-                                              ? reindexTasks.filter((t) => t !== task)
-                                              : [...reindexTasks, task];
-                                              setReindexTasks(newTasks);
-                                          }}
-                                          >
-                                          <Checkbox
-                                              checked={reindexTasks.includes(task)}
-                                              className="mr-2"
-                                          />
-                                          {task}
-                                      </CommandItem>
-                                      ))}
-                                  </CommandGroup>
-                                  </CommandList>
-                              </Command>
-                          </PopoverContent>
-                      </Popover>
-                  </div>
-                   <div className="flex-1 flex flex-wrap gap-1 items-center">
-                    {reindexTasks.map((task) => (
-                      <Badge key={task} variant="secondary" className="flex items-center gap-1 py-0.5 text-xs">
-                        {task}
-                        <button
-                          type="button"
-                          onClick={() => setReindexTasks(reindexTasks.filter((t) => t !== task))}
-                          className="p-0.5 rounded-full hover:bg-muted-foreground/20"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-              </div>
-            </div>
-             <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">Copy notes to new case?</Label>
-              <div className="w-3/4">
-                 <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="copy-yes" />
-                    <Label htmlFor="copy-yes" className="flex h-7 items-center text-xs font-normal">Yes</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="copy-no" />
-                    <Label htmlFor="copy-no" className="flex h-7 items-center text-xs font-normal">No</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-
-            <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-re-index">Notes<span className="text-destructive">*</span></Label>
-              <div className="w-1/2">
-                <Textarea id="notes-re-index" placeholder="Add notes..." value={reindexNotes} onChange={e => setReindexNotes(e.target.value)} className="min-h-[100px] text-xs" />
-              </div>
-            </div>
-          </div>
-        );
-      case 'clone':
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">Clone Option<span className="text-destructive">*</span></Label>
-              <div className="w-3/4">
-                <RadioGroup value={cloneOption} onValueChange={(v) => setCloneOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="myself" id="clone-myself" />
-                    <Label htmlFor="clone-myself" className="flex h-7 items-center text-xs font-normal">Clone case myself</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="initial" id="clone-initial" />
-                    <Label htmlFor="clone-initial" className="flex h-7 items-center text-xs font-normal">Return to initial Indexing</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">New Process<span className="text-destructive">*</span></Label>
-              <div className="w-1/4">
-                <Select onValueChange={(value) => { setCloneToProcess(value); setCloneTasks([]); }} value={cloneToProcess}>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="Select a new process..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {processTypes.map((process) => (
-                      <SelectItem key={process} value={process} className="text-xs">{process}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-             <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold">Tasks</Label>
-              <div className="flex w-3/4 items-start gap-2">
-                <div className="w-1/2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" role="combobox" className={cn("w-full justify-between h-7 text-xs", !cloneTasks?.length && "text-muted-foreground")}>
-                        {cloneTasks?.length > 0 ? `${cloneTasks.length} selected` : "Select tasks"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search tasks..." />
-                        <CommandList>
-                          <CommandEmpty>No tasks found.</CommandEmpty>
-                          <CommandGroup>
-                            {(processTaskMap[cloneToProcess] || []).map((task) => (
-                              <CommandItem key={task} className="text-xs" onSelect={() => {
-                                const isSelected = cloneTasks.includes(task);
-                                const newTasks = isSelected ? cloneTasks.filter((t) => t !== task) : [...cloneTasks, task];
-                                setCloneTasks(newTasks);
-                              }}>
-                                <Checkbox checked={cloneTasks.includes(task)} className="mr-2" />
-                                {task}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="flex-1 flex flex-wrap gap-1 items-center">
-                  {cloneTasks.map((task) => (
-                    <Badge key={task} variant="secondary" className="flex items-center gap-1 py-0.5 text-xs">
-                      {task}
-                      <button type="button" onClick={() => setCloneTasks(cloneTasks.filter((t) => t !== task))} className="p-0.5 rounded-full hover:bg-muted-foreground/20">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-clone">Notes<span className="text-destructive">*</span></Label>
-              <div className="w-1/2">
-                <Textarea id="notes-clone" placeholder="Add notes for cloning..." value={cloneNotes} onChange={e => setCloneNotes(e.target.value)} className="min-h-[100px] text-xs" />
-              </div>
-            </div>
-          </div>
-        );
-      case 'terminate':
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center">
-                <Label className="w-1/4 text-xs font-semibold">Reason<span className="text-destructive">*</span></Label>
-                <div className="w-2/5">
-                  <Select onValueChange={setTerminateReason} value={terminateReason}>
-                    <SelectTrigger className="h-7 text-xs">
-                        <SelectValue placeholder="Select reason..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Duplicate Work Item" className="text-xs">Duplicate Work Item</SelectItem>
-                        <SelectItem value="Already Processed in Another Work Item" className="text-xs">Already Processed in Another Work Item</SelectItem>
-                        <SelectItem value="Previously Resolved" className="text-xs">Previously Resolved</SelectItem>
-                        <SelectItem value="Superseded by Newer Request" className="text-xs">Superseded by Newer Request</SelectItem>
-                        <SelectItem value="Handled Offline / Verbally" className="text-xs">Handled Offline / Verbally</SelectItem>
-                        <SelectItem value="Invalid Entry / Test Data" className="text-xs">Invalid Entry / Test Data</SelectItem>
-                        <SelectItem value="Accidental Creation" className="text-xs">Accidental Creation</SelectItem>
-                        <SelectItem value="Request No Longer Needed" className="text-xs">Request No Longer Needed</SelectItem>
-                        <SelectItem value="Out of Service Scope" className="text-xs">Out of Service Scope</SelectItem>
-                        <SelectItem value="System Auto-Generated Error" className="text-xs">System Auto-Generated Error</SelectItem>
-                        <SelectItem value="Information Insufficient to Process" className="text-xs">Information Insufficient to Process</SelectItem>
-                        <SelectItem value="Internal Decision no Longer Require" className="text-xs">Internal Decision no Longer Require</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-            </div>
-            <div className="flex items-start">
-                <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-terminate">Notes<span className="text-destructive">*</span></Label>
-                 <div className="w-1/2">
-                    <Textarea id="notes-terminate" placeholder="Add notes..." value={terminateNotes} onChange={e => setTerminateNotes(e.target.value)} className="min-h-[100px] text-xs" />
-                </div>
-            </div>
-          </div>
-        );
-      case 'transfer':
-        if (role !== 'Admin') {
-            return <p className="p-4 text-center text-xs text-muted-foreground">You do not have permission to transfer work items.</p>;
-        }
-        if (isLoadingUsers) {
-            return <p className="p-4 text-center text-xs text-muted-foreground">Loading users...</p>;
-        }
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">Transfer to User<span className="text-destructive">*</span></Label>
-              <div className="w-1/4">
-                <Select onValueChange={setTransferToUser} value={transferToUser}>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="Select user..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users.map(user => (
-                      <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-transfer">Notes<span className="text-destructive">*</span></Label>
-              <div className="w-1/2">
-                <Textarea id="notes-transfer" placeholder="Add notes..." value={transferNotes} onChange={e => setTransferNotes(e.target.value)} className="min-h-[100px] text-xs" />
-              </div>
-            </div>
-          </div>
-        );
-      case 'pend':
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">Pend until date<span className="text-destructive">*</span></Label>
-              <div className="w-1/4">
-                <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
-              </div>
-            </div>
-            <div className="flex items-center">
-              <Label className="w-1/4 text-xs font-semibold">Reason for pend<span className="text-destructive">*</span></Label>
-              <div className="w-2/5">
-                <Select onValueChange={setPendReason} value={pendReason}>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="Select reason..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Pending Internal Action" className="text-xs">Pending Internal Action</SelectItem>
-                    <SelectItem value="Awaiting Other Team Response" className="text-xs">Awaiting Other Team Response</SelectItem>
-                    <SelectItem value="Awaiting Client Feedback" className="text-xs">Awaiting Client Feedback</SelectItem>
-                    <SelectItem value="Blocked by Another Task" className="text-xs">Blocked by Another Task</SelectItem>
-                    <SelectItem value="Pending Final Review" className="text-xs">Pending Final Review</SelectItem>
-                    <SelectItem value="Scheduled for Later" className="text-xs">Scheduled for Later</SelectItem>
-                    <SelectItem value="Under Technical Investigation" className="text-xs">Under Technical Investigation</SelectItem>
-                    <SelectItem value="Clarification Needed" className="text-xs">Clarification Needed</SelectItem>
-                    <SelectItem value="On Hold by Request" className="text-xs">On Hold by Request</SelectItem>
-                    <SelectItem value="Awaiting Developer Action" className="text-xs">Awaiting Developer Action</SelectItem>
-                    <SelectItem value="Other" className="text-xs">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <Label className="w-1/4 pt-1 text-xs font-semibold" htmlFor="notes-pend">Notes<span className="text-destructive">*</span></Label>
-              <div className="w-1/2">
-                <Textarea id="notes-pend" placeholder="Add notes..." value={pendNotes} onChange={e => setPendNotes(e.target.value)} className="min-h-[100px] text-xs" />
-              </div>
-            </div>
-          </div>
-        );
-      default:
-        return <p className="p-4 text-center text-xs text-muted-foreground">Please select an action to continue.</p>;
     }
   };
 
@@ -1121,9 +752,9 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     };
     
     const isAssignedToCurrentUser = item.assignedTo === currentUser.uid;
-    const isAssignedToProcess = item.assignedTo.length < 20;
     
     if (!isAssignedToCurrentUser) {
+      const isAssignedToProcess = item.assignedTo.length < 20;
       // Take over the case
       updateDocumentNonBlocking(workItemRef, {
         assignedTo: currentUser.uid,
