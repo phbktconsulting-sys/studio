@@ -1,10 +1,10 @@
 'use server';
 /**
- * @fileOverview A server-side flow for generating a quotation image from a set of tasks.
+ * @fileOverview A server-side flow for generating a quotation PDF from a set of tasks.
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { generateImageFromHtml } from '@/services/image-generation-service';
+import { generatePdfFromHtml } from '@/services/image-generation-service';
 import { googleAI } from '@genkit-ai/google-genai';
 
 const GenerateQuotationInputSchema = z.object({
@@ -14,7 +14,7 @@ const GenerateQuotationInputSchema = z.object({
 });
 
 const GenerateQuotationOutputSchema = z.object({
-  imageUrl: z.string().optional(),
+  pdfUrl: z.string().optional(),
   error: z.string().optional(),
 });
 
@@ -85,9 +85,9 @@ const generateQuotationFlow = ai.defineFlow(
         throw new Error('AI failed to generate HTML content for the quotation.');
       }
       
-      const imageUrl = await generateImageFromHtml(htmlContent);
+      const pdfUrl = await generatePdfFromHtml(htmlContent);
 
-      return { imageUrl };
+      return { pdfUrl };
 
     } catch (error: any) {
       console.error('Error in generateQuotationFlow:', error);

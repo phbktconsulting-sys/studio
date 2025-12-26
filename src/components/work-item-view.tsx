@@ -1166,7 +1166,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
               <TableCell className="py-2 text-xs">
                 <div className="flex items-center gap-4">
                   <a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                    View Image
+                    View
                   </a>
                    <a href={att.url} download={att.fileName} className="flex items-center text-primary hover:underline">
                     <Download className="mr-1 h-3 w-3" />
@@ -1179,7 +1179,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
           {(!attachments || attachments.length === 0) && (
             <TableRow>
               <TableCell colSpan={6} className="text-center text-muted-foreground py-4 text-xs">
-                No images attached to this work item.
+                No attachments for this work item.
               </TableCell>
             </TableRow>
           )}

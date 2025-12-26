@@ -37,7 +37,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const { toast } = useToast();
   const [selectedProcess, setSelectedProcess] = useState<string>('');
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
-  const [generatedQuoteImage, setGeneratedQuoteImage] = useState<string | null>(null);
+  const [generatedQuoteUrl, setGeneratedQuoteUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleTaskChange = (task: string) => {
@@ -57,7 +57,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     }
     
     setIsGenerating(true);
-    setGeneratedQuoteImage(null);
+    setGeneratedQuoteUrl(null);
 
     try {
       const result = await generateQuotation({
@@ -66,14 +66,14 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         customerName: workItem.relatedContact.name,
       });
 
-      if (result.imageUrl) {
-        setGeneratedQuoteImage(result.imageUrl);
+      if (result.pdfUrl) {
+        setGeneratedQuoteUrl(result.pdfUrl);
         toast({
           title: 'Quotation Generated',
           description: 'A preview is available. You can now attach it to the case.',
         });
       } else {
-        throw new Error(result.error || 'Failed to generate quotation image.');
+        throw new Error(result.error || 'Failed to generate quotation PDF.');
       }
     } catch (error: any) {
       toast({
@@ -87,16 +87,16 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   };
   
   const handleAttachQuote = async () => {
-    if (!generatedQuoteImage || !firestore || !user) return;
+    if (!generatedQuoteUrl || !firestore || !user) return;
     
     const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
     
     try {
         await addDocumentNonBlocking(attachmentsRef, {
           workItemId: workItem.id,
-          url: generatedQuoteImage,
+          url: generatedQuoteUrl,
           direction: 'Outbound',
-          fileName: `Quotation_${workItem.customId}_${new Date().toISOString()}.png`,
+          fileName: `Quotation_${workItem.customId}_${new Date().toISOString()}.pdf`,
           uploadedAt: new Date().toISOString(),
           uploadedBy: user.uid,
           type: 'QUOTE',
@@ -108,7 +108,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
           title: 'Quotation Attached',
           description: 'The generated quotation has been attached to the work item.',
         });
-        setGeneratedQuoteImage(null);
+        setGeneratedQuoteUrl(null);
         setSelectedProcess('');
         setSelectedTasks([]);
     } catch(error: any) {
@@ -175,15 +175,15 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         </CardContent>
       </Card>
       
-      {generatedQuoteImage && (
+      {generatedQuoteUrl && (
         <Card>
             <CardHeader>
                 <CardTitle className="text-sm">Quotation Preview</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <img src={generatedQuoteImage} alt="Generated Quotation" className="border rounded-md w-full" />
+                <iframe src={generatedQuoteUrl} className="border rounded-md w-full h-[600px]" title="Generated Quotation Preview" />
                 <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setGeneratedQuoteImage(null)}>Discard</Button>
+                    <Button variant="outline" onClick={() => setGeneratedQuoteUrl(null)}>Discard</Button>
                     <Button onClick={handleAttachQuote}>Attach to Case</Button>
                 </div>
             </CardContent>
