@@ -247,45 +247,42 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 items-start gap-4">
-              <div className="md:col-span-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+              <div>
                 <Label className="text-xs font-bold">Outstanding Tasks</Label>
                 <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
+                <div className="mt-2 space-y-2">
+                  {workItem.tasks.length > 0 ? (
+                      workItem.tasks.map(task => (
+                          <div key={task.id} className="flex items-center space-x-2">
+                              <Checkbox
+                                  id={`complete-${task.id}`}
+                                  checked={completedTasks.has(task.id)}
+                                  onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
+                              />
+                              <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
+                          </div>
+                      ))
+                  ) : (
+                      <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
+                  )}
+                </div>
               </div>
-              <div className="md:col-span-3 space-y-2">
-                 {workItem.tasks.length > 0 ? (
-                    workItem.tasks.map(task => (
-                        <div key={task.id} className="flex items-center space-x-2">
-                            <Checkbox
-                                id={`complete-${task.id}`}
-                                checked={completedTasks.has(task.id)}
-                                onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
-                            />
-                            <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
-                        </div>
-                    ))
-                ) : (
-                    <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
-              <div className="md:col-span-1">
+              <div>
                 <Label className="text-xs font-bold">Confirm Task Completion</Label>
                 <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
-              </div>
-              <div className="md:col-span-3">
-                 <RadioGroup value={allTasksCompleted} onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')} className="flex flex-col space-y-2 text-xs">
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="tasks-yes" />
-                        <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="tasks-no" />
-                        <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
-                    </div>
-                </RadioGroup>
+                <div className="mt-2">
+                  <RadioGroup value={allTasksCompleted} onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')} className="flex flex-col space-y-2 text-xs">
+                      <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="tasks-yes" />
+                          <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="no" id="tasks-no" />
+                          <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
+                      </div>
+                  </RadioGroup>
+                </div>
               </div>
             </div>
 
