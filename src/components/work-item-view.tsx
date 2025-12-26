@@ -161,7 +161,7 @@ function TasksTab({ tasks, workItemId }: { tasks: Task[]; workItemId: string }) 
 }
 
 function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCancel: () => void }) {
-  const { firestore, user, role } = useFirebase();
+  const { firestore, user } = useFirebase();
   const { openTab } = useTabs();
   const { toast } = useToast();
 
@@ -755,23 +755,25 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   return (
     <form onSubmit={handleSubmit}>
-      <Card className="mt-4 border border-primary">
-        <CardHeader className="flex-row items-center gap-4 rounded-t-lg bg-slate-100 p-2">
-          <CardTitle className="text-xs font-bold uppercase">
-            {getActionDisplayName(selectedAction)}
-          </CardTitle>
-          <Select onValueChange={(value) => setSelectedAction(value as string)} value={selectedAction}>
-            <SelectTrigger className="h-7 w-auto bg-black text-white hover:bg-black/90 focus:ring-black text-xs">
-                <SelectValue placeholder="-- Or select a different action --" />
-            </SelectTrigger>
-            <SelectContent>
-                {availableActions.map(opt => (
+      <Card className="mt-4 border-none shadow-none p-0">
+        <CardHeader className="flex-row items-center gap-4 p-0">
+          <div className="flex h-11 w-full items-center justify-between bg-black px-4 text-white">
+            <div className="flex items-center gap-4">
+              <span className="text-xs font-bold uppercase">{getActionDisplayName(selectedAction)} OR</span>
+              <Select onValueChange={(value) => setSelectedAction(value as string)} value={selectedAction}>
+                <SelectTrigger className="h-7 w-auto border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs">
+                  <SelectValue placeholder="-- Select a different action --" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableActions.map(opt => (
                     <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className='p-4'>
+        <CardContent className='p-4 border bg-card rounded-b-md'>
           <div>
             {renderActionForm()}
           </div>
