@@ -165,7 +165,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const { toast } = useToast();
   const { role } = useUser();
   const [selectedAction, setSelectedAction] = useState<string>('resolve-complete');
-  const [dropdownValue, setDropdownValue] = useState<string | undefined>(undefined);
   
   // Form field states
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
@@ -195,6 +194,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [users, setUsers] = useState<User[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   
+  const [dropdownValue, setDropdownValue] = useState<string | undefined>(undefined);
+
   useEffect(() => {
     async function fetchUsers() {
       if (firestore && user) {
@@ -239,8 +240,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-              <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+              <div className="md:col-span-2">
                 <Label className="text-xs font-bold">Outstanding Tasks</Label>
                 <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
               </div>
@@ -262,8 +263,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-              <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+              <div className="md:col-span-2">
                 <Label className="text-xs font-bold">Confirm Task Completion</Label>
                  <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
               </div>
@@ -281,8 +282,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-               <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+               <div className="md:col-span-2">
                  <Label className="text-xs font-bold">Notes</Label>
                  <p className="text-xs text-muted-foreground">Add resolution notes.</p>
                </div>
@@ -300,8 +301,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
        case 're-index':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-              <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+              <div className="md:col-span-2">
                 <Label className="text-xs font-bold">New Process</Label>
                 <p className="text-xs text-muted-foreground">Select the process to re-index to.</p>
               </div>
@@ -320,8 +321,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
             
             {reindexToProcess && (
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                    <div className="md:col-span-1">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                    <div className="md:col-span-2">
                         <Label className="text-xs font-bold">Initial Tasks</Label>
                         <p className="text-xs text-muted-foreground">Select tasks for the new case.</p>
                     </div>
@@ -363,8 +364,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     </div>
                 </div>
             )}
-             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Assignment</Label>
                     <p className="text-xs text-muted-foreground">Who should the new case be assigned to?</p>
                 </div>
@@ -381,8 +382,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     </RadioGroup>
                 </div>
              </div>
-             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Copy Notes</Label>
                     <p className="text-xs text-muted-foreground">Copy all existing notes to the new case?</p>
                 </div>
@@ -399,8 +400,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     </RadioGroup>
                 </div>
              </div>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Notes</Label>
                     <p className="text-xs text-muted-foreground">Provide a reason for re-indexing.</p>
                 </div>
@@ -418,8 +419,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         case 'clone':
         return (
             <div className="space-y-4">
-               <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                  <div className="md:col-span-1">
+               <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                  <div className="md:col-span-2">
                     <Label className="text-xs font-bold">New Process</Label>
                     <p className="text-xs text-muted-foreground">Select the process for the cloned item.</p>
                   </div>
@@ -437,8 +438,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   </div>
                </div>
                 {cloneToProcess && (
-                    <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                       <div className="md:col-span-1">
+                    <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                       <div className="md:col-span-2">
                          <Label className="text-xs font-bold">Initial Tasks</Label>
                          <p className="text-xs text-muted-foreground">Select tasks for the cloned case.</p>
                        </div>
@@ -480,8 +481,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                        </div>
                     </div>
                 )}
-                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                    <div className="md:col-span-1">
+                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                    <div className="md:col-span-2">
                         <Label className="text-xs font-bold">Assignment</Label>
                         <p className="text-xs text-muted-foreground">Who should the cloned case be assigned to?</p>
                     </div>
@@ -498,8 +499,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                         </RadioGroup>
                     </div>
                  </div>
-                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                    <div className="md:col-span-1">
+                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                    <div className="md:col-span-2">
                         <Label className="text-xs font-bold">Notes</Label>
                         <p className="text-xs text-muted-foreground">Provide a reason for cloning.</p>
                     </div>
@@ -517,8 +518,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'terminate':
         return (
           <div className="space-y-4">
-             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Reason</Label>
                     <p className="text-xs text-muted-foreground">Select a reason for termination.</p>
                 </div>
@@ -536,8 +537,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     </Select>
                 </div>
              </div>
-             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Notes</Label>
                     <p className="text-xs text-muted-foreground">Add termination notes.</p>
                 </div>
@@ -555,8 +556,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'transfer':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Transfer To</Label>
                     <p className="text-xs text-muted-foreground">Select a user to transfer the case to.</p>
                 </div>
@@ -573,8 +574,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     </Select>
                 </div>
             </div>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Notes</Label>
                     <p className="text-xs text-muted-foreground">Provide a reason for the transfer.</p>
                 </div>
@@ -592,8 +593,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'pend':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Reason</Label>
                     <p className="text-xs text-muted-foreground">Select a reason for pending the case.</p>
                 </div>
@@ -611,8 +612,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     </Select>
                 </div>
             </div>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Pend Until</Label>
                     <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
                 </div>
@@ -620,8 +621,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
                 </div>
             </div>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                <div className="md:col-span-1">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
+                <div className="md:col-span-2">
                     <Label className="text-xs font-bold">Notes</Label>
                     <p className="text-xs text-muted-foreground">Add any relevant notes.</p>
                 </div>
@@ -901,16 +902,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     <form onSubmit={handleSubmit}>
       <Card className="mt-4 border-none shadow-none p-0">
         <CardHeader className="flex-row items-center gap-4 p-0">
-          <div className="flex h-7 w-full items-center justify-between bg-black px-4 text-white">
+         <div className="flex h-7 w-full items-center justify-between bg-black px-4 text-white">
             <div className="flex items-center gap-4">
               <span className="text-xs font-bold uppercase">{getActionDisplayName(selectedAction)}</span>
               <span className="text-xs uppercase">OR</span>
                <Select onValueChange={(value) => {
                     setSelectedAction(value);
-                    setDropdownValue(value);
+                    setDropdownValue(undefined);
                 }} value={dropdownValue}>
                 <SelectTrigger className="h-6 w-80 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs"
-                 onClick={() => setDropdownValue(undefined)}>
+                 >
                   <SelectValue placeholder="--- select a different action ---" />
                 </SelectTrigger>
                 <SelectContent>
