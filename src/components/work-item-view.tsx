@@ -195,10 +195,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [users, setUsers] = useState<User[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   
-  // Fetch users only when transfer action is selected by an admin
+  // Pre-fetch users if the current user is an admin
   useEffect(() => {
     async function fetchUsers() {
-      if (selectedAction === 'transfer' && role === 'Admin' && firestore) {
+      if (role === 'Admin' && firestore) {
         setIsLoadingUsers(true);
         const usersCol = collection(firestore, 'users');
         const userSnapshot = await getDocs(usersCol);
@@ -208,7 +208,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       }
     }
     fetchUsers();
-  }, [selectedAction, role, firestore]);
+  }, [role, firestore]);
   
   const getActionDisplayName = (actionValue: string) => {
     if (!actionValue) return 'VERIFY CUSTOMER AUTHORITY';
