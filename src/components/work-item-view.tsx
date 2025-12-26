@@ -776,7 +776,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               createdBy: user.uid,
               relatedContact: {
                 ...workItem.relatedContact,
-                address: workItem.relatedContact.address ? { ...workItem.relatedContact.address } : undefined,
+                address: workItem.relatedContact.address ? { ...workItem.relatedContact.address } : {
+                    country: '', line1: '', line2: '', city: '', state: '', zipcode: ''
+                },
               },
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
               tasks: reindexTasks.map(taskText => ({ 
@@ -990,13 +992,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     }}
                   >
                   <SelectTrigger
-                    className="h-6 w-96 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-sm"
+                    className="h-6 w-96 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs"
                   >
                     <SelectValue placeholder="--- select a different action ---" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableActions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-sm">{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -1107,7 +1109,7 @@ function PendingWorkItemInfo({ workItemId, note }: { workItemId: string, note: N
         <Clock className="h-5 w-5 text-orange-500" />
         <span className="font-medium">Case Pended until {untilDate}:</span>
         <Separator orientation="vertical" className="h-4" />
-        <span className="text-muted-foreground">{reason} by {authorUser?.displayName || note?.authorId}</span>
+        <span className="text-muted-foreground">{reason} by {authorUser?.displayName || note?.authorId || '...'}</span>
       </div>
       <Button onClick={handleResume} size="sm" className="h-7 text-xs">Resume Work</Button>
     </div>
