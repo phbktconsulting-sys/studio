@@ -288,21 +288,88 @@ export function NewWorkItemView() {
                       />
                 </div>
                 
-                <FormField
-                  control={form.control}
-                  name="customerAddress"
-                  render={({ field }) => (
-                      <FormItem className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                          <div className="md:col-span-1 pt-1.5">
-                            <FormLabel>Customer Address</FormLabel>
-                          </div>
-                          <div className="md:col-span-2">
-                              <Textarea {...field} placeholder="(Optional)" />
-                              <FormMessage />
-                          </div>
-                      </FormItem>
-                  )}
-                  />
+                <div className="grid grid-cols-3 gap-4 items-start">
+                    <div className="col-span-1 pt-1.5">
+                        <FormLabel>Customer Address</FormLabel>
+                         <p className="text-xs text-muted-foreground mt-1">Enter the customer's full address.</p>
+                    </div>
+                    <div className="col-span-2 space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="customerAddress.country"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input {...field} placeholder="Country" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="customerAddress.line1"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input {...field} placeholder="Address line 1" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="customerAddress.line2"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input {...field} placeholder="Address line 2 (Optional)" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <div className="grid grid-cols-3 gap-4">
+                           <FormField
+                                control={form.control}
+                                name="customerAddress.city"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input {...field} placeholder="City" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                           <FormField
+                                control={form.control}
+                                name="customerAddress.state"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input {...field} placeholder="State" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                           <FormField
+                                control={form.control}
+                                name="customerAddress.zipcode"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input {...field} placeholder="Zipcode" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+                </div>
 
 
                 {/* --- Form Row: Overview --- */}

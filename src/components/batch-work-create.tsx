@@ -126,8 +126,13 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
           customerEmail: row[1] || '',
           customerPhone: String(row[2] || ''),
           customerPhoneSecondary: String(row[3] || ''),
-          customerAddress: row[4] || '',
-          overview: row[5] || '',
+          customerAddressLine1: row[4] || '',
+          customerAddressLine2: row[5] || '',
+          customerCity: row[6] || '',
+          customerState: row[7] || '',
+          customerZip: String(row[8] || ''),
+          customerCountry: row[9] || '',
+          overview: row[10] || '',
         }));
 
         const result = await batchCreateWorkItems({
@@ -163,7 +168,7 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
    const downloadTemplate = async () => {
     const XLSX = await import('xlsx');
     const ws = XLSX.utils.aoa_to_sheet([
-      ['Customer Name', 'Customer Email', 'Customer Phone', 'Customer Phone Secondary', 'Customer Address', 'Overview / Notes']
+      ['Customer Name', 'Customer Email', 'Customer Phone', 'Customer Phone Secondary', 'Address Line 1', 'Address Line 2', 'City', 'State', 'Zipcode', 'Country', 'Overview / Notes']
     ]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Template');
@@ -194,7 +199,7 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
             'Customer Email': item.relatedContact.email,
             'Customer Phone': item.relatedContact.phone,
             'Customer Phone Secondary': item.relatedContact.phoneSecondary,
-            'Customer Address': item.relatedContact.address,
+            'Customer Address': item.relatedContact.address ? `${item.relatedContact.address.line1}, ${item.relatedContact.address.city}` : '',
             'Customer Unique ID': item.relatedContact.customerUniqueId,
             'Overview': item.overview,
         }));
@@ -234,7 +239,7 @@ export function BatchWorkCreate({ onBack }: BatchWorkCreateProps) {
           <div className="flex justify-between items-start">
             <ul className="list-disc pl-5 space-y-1 mt-2">
               <li>To upload items, select a process and an Excel file with the correct format.</li>
-              <li>The Excel columns are: Customer Name, Customer Email, Customer Phone, Customer Phone Secondary, Customer Address, and Overview / Notes.</li>
+              <li>The Excel columns are: Customer Name, Email, Phone, Secondary Phone, Address Line 1, Address Line 2, City, State, Zip, Country, and Overview.</li>
               <li>To download a report of all existing work items, click the "Download Report" button.</li>
             </ul>
              <div className="flex flex-col space-y-2">

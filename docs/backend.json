@@ -58,7 +58,18 @@
             "email": { "type": "string", "format": "email" },
             "phone": { "type": "string" },
             "phoneSecondary": { "type": "string" },
-            "address": { "type": "string" },
+            "address": {
+              "type": "object",
+              "properties": {
+                "country": { "type": "string" },
+                "line1": { "type": "string" },
+                "line2": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zipcode": { "type": "string" }
+              },
+              "required": ["country", "line1", "city", "state", "zipcode"]
+            },
             "customerUniqueId": { "type": "string" },
             "aadharNumber": { "type": "string" },
             "panNumber": { "type": "string" },

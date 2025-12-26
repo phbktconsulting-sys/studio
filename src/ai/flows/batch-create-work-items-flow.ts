@@ -63,7 +63,12 @@ const BatchWorkItemSchema = z.object({
       customerEmail: z.string().email(),
       customerPhone: z.string(),
       customerPhoneSecondary: z.string().optional(),
-      customerAddress: z.string().optional(),
+      customerAddressLine1: z.string().optional(),
+      customerAddressLine2: z.string().optional(),
+      customerCity: z.string().optional(),
+      customerState: z.string().optional(),
+      customerZip: z.string().optional(),
+      customerCountry: z.string().optional(),
       overview: z.string(),
     })
   ),
@@ -154,7 +159,14 @@ const batchCreateWorkItemsFlow = ai.defineFlow(
               email: item.customerEmail,
               phone: item.customerPhone,
               phoneSecondary: item.customerPhoneSecondary || '',
-              address: item.customerAddress || '',
+              address: {
+                line1: item.customerAddressLine1 || '',
+                line2: item.customerAddressLine2 || '',
+                city: item.customerCity || '',
+                state: item.customerState || '',
+                zipcode: item.customerZip || '',
+                country: item.customerCountry || '',
+              },
               customerUniqueId,
             },
             overview: item.overview,
@@ -169,7 +181,7 @@ const batchCreateWorkItemsFlow = ai.defineFlow(
                 customerUniqueId: customerUniqueId,
                 name: item.customerName,
                 phone: item.customerPhone,
-                address: item.customerAddress || '',
+                address: item.customerAddressLine1 ? `${item.customerAddressLine1}, ${item.customerCity}, ${item.customerState}` : ''
           };
            if (isNewCustomer) {
                 transaction.set(customerDocRef, {

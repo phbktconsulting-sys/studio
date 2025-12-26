@@ -156,7 +156,7 @@ const createWorkItemFlow = ai.defineFlow(
             createdAt: customerDoc.exists ? customerDoc.data()!.createdAt : new Date().toISOString(),
             name: payload.relatedContact.name,
             phone: payload.relatedContact.phone,
-            address: payload.relatedContact.address,
+            address: payload.relatedContact.address?.line1 ? `${payload.relatedContact.address.line1}, ${payload.relatedContact.address.city}, ${payload.relatedContact.address.state}` : '',
         };
 
         if (isNewCustomer) {
@@ -167,7 +167,7 @@ const createWorkItemFlow = ai.defineFlow(
             transaction.update(customerDocRef, {
                 name: payload.relatedContact.name,
                 phone: payload.relatedContact.phone,
-                address: payload.relatedContact.address,
+                address: payload.relatedContact.address?.line1 ? `${payload.relatedContact.address.line1}, ${payload.relatedContact.address.city}, ${payload.relatedContact.address.state}` : '',
             });
         }
         

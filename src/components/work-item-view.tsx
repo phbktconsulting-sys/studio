@@ -1314,6 +1314,11 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
   
   const lastPendedNote = isPended ? latestNoteArr?.find(n => n.category === 'Pended') : undefined;
 
+  const fullAddress = item.relatedContact.address 
+    ? `${item.relatedContact.address.line1}${item.relatedContact.address.line2 ? `, ${item.relatedContact.address.line2}` : ''}, ${item.relatedContact.address.city}, ${item.relatedContact.address.state} ${item.relatedContact.address.zipcode}, ${item.relatedContact.address.country}`
+    : 'Not available';
+
+
   return (
     <>
     <div className="flex h-full flex-col bg-slate-100">
@@ -1503,7 +1508,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                     <div className="flex items-start gap-4 col-span-full">
                       <Home className="h-4 w-4 flex-shrink-0 text-muted-foreground mt-0.5" />
                       <span className="font-medium w-24">Address:</span>
-                      <span className="text-muted-foreground">{item.relatedContact.address}</span>
+                      <span className="text-muted-foreground">{fullAddress}</span>
                     </div>
                   )}
                   <Separator className="my-2 col-span-full" />
