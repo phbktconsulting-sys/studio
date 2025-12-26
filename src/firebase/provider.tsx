@@ -89,19 +89,20 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       async (firebaseUser) => { // Auth state determined
         if (firebaseUser) {
             try {
-              const idTokenResult = await getIdTokenResult(firebaseUser);
-              const userRole = idTokenResult.claims.role as 'Admin' | 'User' | null;
-
-              // Fetch the user's profile from Firestore
+              // Fetch the user's profile from Firestore to get the real-time role
               const userProfileRef = doc(firestore, 'users', firebaseUser.uid);
               const userProfileSnap = await getDoc(userProfileRef);
 
               if (userProfileSnap.exists()) {
                 const userProfileData = userProfileSnap.data() as UserProfile;
                 const combinedUser = { ...firebaseUser, ...userProfileData };
-                 setUserAuthState({ user: combinedUser, role: userRole, isUserLoading: false, userError: null });
+                 // The role is now sourced directly from the Firestore document
+                 setUserAuthState({ user: combinedUser, role: userProfileData.role, isUserLoading: false, userError: null });
               } else {
-                 // Handle case where user exists in Auth but not in Firestore
+                 // Handle case where user exists in Auth but not in Firestore yet
+                 // Fallback to token claims if profile doesn't exist
+                  const idTokenResult = await getIdTokenResult(firebaseUser);
+                  const userRole = idTokenResult.claims.role as 'Admin' | 'User' | null;
                  setUserAuthState({ user: firebaseUser as (AuthUser & UserProfile), role: userRole, isUserLoading: false, userError: null });
               }
             } catch (error) {
