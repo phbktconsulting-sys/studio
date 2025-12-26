@@ -986,7 +986,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     }}
                   >
                   <SelectTrigger
-                    className="h-6 w-80 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-sm"
+                    className="h-6 w-96 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-sm"
                   >
                     <SelectValue placeholder="--- select a different action ---" />
                   </SelectTrigger>
