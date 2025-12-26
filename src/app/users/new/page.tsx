@@ -118,221 +118,217 @@ export default function NewUserPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6">
-       <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
+    <div className="p-4 sm:p-6 bg-slate-50">
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8">
+          <ArrowLeft className="h-5 w-5" />
           <span className="sr-only">Back</span>
         </Button>
         <div>
-          <h1 className="font-headline text-lg font-bold tracking-tight">Create New User</h1>
-          <p className="text-xs text-muted-foreground">Fill out the details below to create a new user account.</p>
+          <h1 className="font-headline text-xl font-bold tracking-tight">Create New User</h1>
+          <p className="text-sm text-muted-foreground">Fill out the details below to create a new user account.</p>
         </div>
       </div>
-      <Card>
-        <CardContent className="p-6">
+      <Card className="shadow-lg">
+        <CardContent className="p-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               
-              {/* Official Details Section */}
-              <div className="space-y-4">
-                 <h2 className="text-base font-semibold text-primary">Official Details</h2>
-                 <Separator />
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                  <FormItem>
-                    <FormLabel className="font-bold text-xs">Employee ID</FormLabel>
-                    <FormControl>
-                      <Input readOnly disabled value={nextEmployeeId} className="bg-muted/50" />
-                    </FormControl>
-                  </FormItem>
-                  <FormField
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-primary border-b pb-2">Official Details</h2>
+                <FormItem className="grid grid-cols-3 gap-4 items-start">
+                    <div className="col-span-1">
+                        <FormLabel>Employee ID</FormLabel>
+                        <p className="text-xs text-muted-foreground mt-1">This ID is auto-generated.</p>
+                    </div>
+                    <div className="col-span-2">
+                        <FormControl>
+                            <Input readOnly disabled value={nextEmployeeId} className="bg-muted/50 w-2/5" />
+                        </FormControl>
+                    </div>
+                </FormItem>
+                <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            {...field}
-                            readOnly
-                            disabled
-                            className="bg-muted/50"
-                          />
-                        </FormControl>
-                        <FormMessage />
+                      <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1">
+                            <FormLabel>Email</FormLabel>
+                            <p className="text-xs text-muted-foreground mt-1">Auto-generated based on name.</p>
+                        </div>
+                        <div className="col-span-2">
+                            <FormControl>
+                                <Input type="email" {...field} readOnly disabled className="bg-muted/50 w-2/5" />
+                            </FormControl>
+                            <FormMessage />
+                        </div>
                       </FormItem>
                     )}
-                  />
-                  <FormField
+                />
+                <FormField
                     control={form.control}
                     name="company"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Company</FormLabel>
-                        <FormControl>
-                          <Input {...field} disabled className="bg-muted/50" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-
-              {/* Personal Information Section */}
-              <div className="space-y-4">
-                <h2 className="text-base font-semibold text-primary">Personal Information</h2>
-                <Separator />
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">First Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="middleName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Middle Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Optional" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Last Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                   <FormField
-                    control={form.control}
-                    name="dob"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Date of Birth</FormLabel>
-                        <FormControl>
-                          <CustomCalendar
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                  <FormField
-                    control={form.control}
-                    name="mobileNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Mobile Number</FormLabel>
-                        <div className="relative">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <span className="text-gray-500 sm:text-sm">+91</span>
-                          </div>
-                          <FormControl>
-                            <Input {...field} className="pl-10" />
-                          </FormControl>
+                      <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1">
+                            <FormLabel>Company</FormLabel>
                         </div>
-                        <FormMessage />
+                        <div className="col-span-2">
+                            <FormControl>
+                                <Input {...field} disabled className="bg-muted/50 w-2/5" />
+                            </FormControl>
+                            <FormMessage />
+                        </div>
                       </FormItem>
                     )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="aadharNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Aadhar Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="panNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">PAN Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Password</FormLabel>
-                          <div className="relative">
-                              <FormControl>
-                              <Input
-                                  type={showPassword ? 'text' : 'password'}
-                                  {...field}
-                              />
-                              </FormControl>
-                              <Button
-                              variant="ghost"
-                              type="button"
-                              size="icon"
-                              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
-                              onClick={() => setShowPassword(!showPassword)}
-                              >
-                              {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                              ) : (
-                                  <Eye className="h-4 w-4" />
-                              )}
-                              </Button>
-                          </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                />
               </div>
 
-              {/* Employment Details Section */}
-              <div className="space-y-4">
-                <h2 className="text-base font-semibold text-primary">Employment Details</h2>
-                <Separator />
-                  <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-5">
-                   <FormField
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-primary border-b pb-2">Personal Information</h2>
+                 <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+                    <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                            <Input {...field} />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="middleName"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Middle Name</FormLabel>
+                            <FormControl>
+                            <Input {...field} placeholder="Optional" />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                            <Input {...field} />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="dob"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Date of Birth</FormLabel>
+                            <FormControl>
+                            <CustomCalendar
+                                value={field.value}
+                                onChange={field.onChange}
+                            />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="mobileNumber"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Mobile Number</FormLabel>
+                            <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <span className="text-gray-500 sm:text-sm">+91</span>
+                            </div>
+                            <FormControl>
+                                <Input {...field} className="pl-10" />
+                            </FormControl>
+                            </div>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="aadharNumber"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Aadhar Number</FormLabel>
+                            <FormControl>
+                            <Input {...field} />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="panNumber"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>PAN Number</FormLabel>
+                            <FormControl>
+                            <Input {...field} />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Password</FormLabel>
+                            <div className="relative">
+                                <FormControl>
+                                <Input
+                                    type={showPassword ? 'text' : 'password'}
+                                    {...field}
+                                />
+                                </FormControl>
+                                <Button
+                                variant="ghost"
+                                type="button"
+                                size="icon"
+                                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
+                                onClick={() => setShowPassword(!showPassword)}
+                                >
+                                {showPassword ? (
+                                    <EyeOff className="h-4 w-4" />
+                                ) : (
+                                    <Eye className="h-4 w-4" />
+                                )}
+                                </Button>
+                            </div>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                 </div>
+              </div>
+
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-primary border-b pb-2">Employment Details</h2>
+                <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+                    <FormField
                     control={form.control}
                     name="department"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Department</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Department</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -344,12 +340,7 @@ export default function NewUserPage() {
                           </FormControl>
                           <SelectContent>
                             {[
-                              'Operation',
-                              'HR',
-                              'Risk',
-                              'Admin',
-                              'Marketing',
-                              'Other',
+                              'Operation', 'HR', 'Risk', 'Admin', 'Marketing', 'Other',
                             ].map((dep) => (
                               <SelectItem key={dep} value={dep}>
                                 {dep}
@@ -357,7 +348,7 @@ export default function NewUserPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -365,8 +356,8 @@ export default function NewUserPage() {
                     control={form.control}
                     name="jobTitle"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Job Title</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Job Title</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -378,12 +369,7 @@ export default function NewUserPage() {
                           </FormControl>
                           <SelectContent>
                             {[
-                              'Associate',
-                              'Senior Associate',
-                              'Team Lead',
-                              'Assistant Manager',
-                              'Manager',
-                              'Senior Manager',
+                              'Associate', 'Senior Associate', 'Team Lead', 'Assistant Manager', 'Manager', 'Senior Manager',
                             ].map((title) => (
                               <SelectItem key={title} value={title}>
                                 {title}
@@ -391,7 +377,7 @@ export default function NewUserPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -399,8 +385,8 @@ export default function NewUserPage() {
                     control={form.control}
                     name="level"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Level</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Level</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -421,7 +407,7 @@ export default function NewUserPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -429,8 +415,8 @@ export default function NewUserPage() {
                     control={form.control}
                     name="workLocation"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Work Location</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Work Location</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -450,7 +436,7 @@ export default function NewUserPage() {
                             )}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -458,8 +444,8 @@ export default function NewUserPage() {
                     control={form.control}
                     name="role"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-xs">Role</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Role</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -474,7 +460,7 @@ export default function NewUserPage() {
                             <SelectItem value="Admin">Admin</SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -482,7 +468,7 @@ export default function NewUserPage() {
               </div>
 
 
-              <div className="flex justify-end space-x-2 pt-4">
+              <div className="flex justify-end gap-2 pt-8">
                 <Button
                   type="button"
                   variant="outline"
@@ -502,5 +488,3 @@ export default function NewUserPage() {
     </div>
   );
 }
-
-    
