@@ -246,7 +246,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-2 gap-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6">
+              {/* Outstanding Tasks */}
               <div className="flex items-start col-span-2 gap-4">
                 <div className="w-1/3">
                   <Label className="text-xs font-bold">Outstanding Tasks</Label>
@@ -269,6 +270,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   )}
                 </div>
               </div>
+
+              {/* Confirm Task Completion */}
               <div className="flex items-start col-span-1 gap-4">
                 <div className="w-2/3">
                   <Label className="text-xs font-bold">Confirm Task Completion</Label>
@@ -298,7 +301,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <Label className="text-xs font-bold">Notes</Label>
                 <p className="text-xs text-muted-foreground">Add resolution notes.</p>
               </div>
-              <div className="md:col-span-1">
+              <div className="md:col-span-2">
                 <Textarea
                   value={resolveCompleteNotes}
                   onChange={(e) => setResolveCompleteNotes(e.target.value)}
@@ -332,7 +335,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
             <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
               <Label className="md:col-span-1 text-xs font-semibold">Reason*</Label>
-              <div className="md:col-span-1">
+              <div className="md:col-span-2">
                  <Select onValueChange={setReindexReason} value={reindexReason}>
                    <SelectTrigger className="h-9 text-sm">
                      <SelectValue />
@@ -365,7 +368,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
              </div>
             <div className="grid grid-cols-1 md:grid-cols-4 items-start gap-4">
                <Label className="md:col-span-1 text-xs font-semibold">Note*</Label>
-              <div className="md:col-span-1">
+              <div className="md:col-span-2">
                 <Textarea
                     value={reindexNotes}
                     onChange={(e) => setReindexNotes(e.target.value)}
@@ -384,7 +387,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     <Label className="text-xs font-bold">New Process</Label>
                     <p className="text-xs text-muted-foreground">Select the process for the cloned item.</p>
                   </div>
-                  <div className="md:col-span-1">
+                  <div className="md:col-span-2">
                     <Select onValueChange={setCloneToProcess} value={cloneToProcess}>
                         <SelectTrigger className="h-9 text-sm">
                             <SelectValue placeholder="Select Process for Cloned Item" />
@@ -403,7 +406,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                          <Label className="text-xs font-bold">Initial Tasks</Label>
                          <p className="text-xs text-muted-foreground">Select tasks for the cloned case.</p>
                        </div>
-                       <div className="md:col-span-1">
+                       <div className="md:col-span-2">
                         <Popover>
                             <PopoverTrigger asChild>
                             <Button
@@ -464,7 +467,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       <Label className="text-xs font-bold">Notes</Label>
                       <p className="text-xs text-muted-foreground">Provide a reason for cloning.</p>
                     </div>
-                    <div className="md:col-span-1">
+                    <div className="md:col-span-2">
                       <Textarea
                           value={cloneNotes}
                           onChange={(e) => setCloneNotes(e.target.value)}
@@ -483,7 +486,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Reason</Label>
                   <p className="text-xs text-muted-foreground">Select a reason for termination.</p>
                 </div>
-                <div className="md:col-span-1">
+                <div className="md:col-span-2">
                   <Select onValueChange={setTerminateReason} value={terminateReason}>
                       <SelectTrigger className="h-9 text-sm">
                           <SelectValue placeholder="Select termination reason" />
@@ -502,7 +505,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Notes</Label>
                   <p className="text-xs text-muted-foreground">Add termination notes.</p>
                 </div>
-                <div className="md:col-span-1">
+                <div className="md:col-span-2">
                   <Textarea
                       value={terminateNotes}
                       onChange={(e) => setTerminateNotes(e.target.value)}
@@ -521,7 +524,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Transfer To</Label>
                   <p className="text-xs text-muted-foreground">Select a user to transfer the case to.</p>
                 </div>
-                <div className="md:col-span-1">
+                <div className="md:col-span-2">
                   <Select onValueChange={setTransferToUser} value={transferToUser} disabled={isLoadingUsers}>
                   <SelectTrigger className="h-9 text-sm">
                       <SelectValue placeholder={isLoadingUsers ? "Loading users..." : "Select user to transfer to"} />
@@ -539,7 +542,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Notes</Label>
                   <p className="text-xs text-muted-foreground">Provide a reason for the transfer.</p>
                 </div>
-                <div className="md:col-span-1">
+                <div className="md:col-span-2">
                   <Textarea
                       value={transferNotes}
                       onChange={(e) => setTransferNotes(e.target.value)}
@@ -558,7 +561,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Reason</Label>
                   <p className="text-xs text-muted-foreground">Select a reason for pending the case.</p>
                 </div>
-                <div className="md:col-span-1">
+                <div className="md:col-span-2">
                   <Select onValueChange={setPendReason} value={pendReason}>
                       <SelectTrigger className="h-9 text-sm">
                           <SelectValue placeholder="Select pend reason" />
@@ -577,7 +580,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Pend Until</Label>
                   <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
                 </div>
-                <div className="md:col-span-1">
+                <div className="md:col-span-2">
                   <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
                 </div>
             </div>
@@ -586,7 +589,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Notes</Label>
                   <p className="text-xs text-muted-foreground">Add any relevant notes.</p>
                 </div>
-                <div className="md:col-span-1">
+                <div className="md:col-span-2">
                   <Textarea
                       value={pendNotes}
                       onChange={(e) => setPendNotes(e.target.value)}
@@ -1486,4 +1489,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </>
   );
 }
-
