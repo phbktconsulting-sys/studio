@@ -166,6 +166,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const { toast } = useToast();
   const { role } = useUser();
   const [selectedAction, setSelectedAction] = useState<string>('resolve-complete');
+  const [dropdownValue, setDropdownValue] = useState<string | undefined>(undefined);
   
   // Form field states
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
@@ -740,17 +741,15 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     }
   };
 
-  const actionOptions = [
+  const availableActions = [
       { value: 'resolve-complete', label: 'Resolve Complete' },
       { value: 're-index', label: 'Re-Index' },
       { value: 'clone', label: 'Clone Work Item' },
       { value: 'terminate', label: 'Terminate' },
-      { value: 'transfer', label: 'Transfer'},
+      { value: 'transfer', label: 'Transfer' },
       { value: 'pend', label: 'Pend' }
   ];
   
-  const availableActions = actionOptions;
-
 
   return (
     <form onSubmit={handleSubmit}>
@@ -760,9 +759,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="flex items-center gap-4">
               <span className="text-xs font-bold uppercase">{getActionDisplayName(selectedAction)}</span>
               <span className="text-xs uppercase">OR</span>
-              <Select onValueChange={(value) => setSelectedAction(value as string)} value={selectedAction}>
+              <Select onValueChange={(value) => {
+                setSelectedAction(value);
+                setDropdownValue(undefined);
+              }} value={dropdownValue}>
                 <SelectTrigger className="h-6 w-80 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs">
-                  <SelectValue placeholder="-- Select a different action --" />
+                  <SelectValue placeholder="--- select a different action ---" />
                 </SelectTrigger>
                 <SelectContent>
                   {availableActions.map(opt => (
