@@ -148,16 +148,18 @@ export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
 
 
 export const WorkItemCreateSchema = z.object({
-  employmentType: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: 'You have to select at least one employment type.',
-  }),
-  workingSchedule: z.string().optional(),
-  workingScheduleBadges: z.array(z.string()).optional(),
-  salaryType: z.enum(['hourly', 'custom']),
-  hourlyRate: z.number().optional(),
-  salaryIsNegotiable: z.boolean().default(false),
-  hiringMultipleCandidates: z.boolean().default(false),
+  process: z.string().min(1, 'Process is required'),
+  urgency: z.enum(['Low', 'Medium', 'High']),
+  customerName: z.string().min(1, 'Customer name is required'),
+  customerEmail: z.string().email('Invalid email address'),
+  customerPhone: z.string().min(1, 'Customer phone is required'),
+  customerPhoneSecondary: z.string().optional(),
+  customerAddress: z.string().optional(),
+  overview: z.string().min(1, 'Overview is required'),
+  initialTasks: z.array(z.string()).optional(),
+  assignTo: z.enum(['initial_indexing', 'myself']).default('initial_indexing'),
 });
+
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 
 export const ServerWorkItemCreateSchema = z.object({
