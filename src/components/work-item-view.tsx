@@ -164,7 +164,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const { firestore, user } = useFirebase();
   const { openTab } = useTabs();
   const { toast } = useToast();
-
+  const { role } = useUser();
   const [selectedAction, setSelectedAction] = useState<string>('resolve-complete');
   
   // Form field states
@@ -195,7 +195,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [users, setUsers] = useState<User[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   
-  // Pre-fetch users for the transfer dropdown
   useEffect(() => {
     async function fetchUsers() {
       if (firestore) {
@@ -682,8 +681,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             noteText = `Work item transferred to ${newAssignee?.displayName || 'Unknown User'}. ${transferNotes}`;
             workItemUpdate.assignedTo = transferToUser;
             
-            // Perform the update and note creation here before cancelling
             updateDocumentNonBlocking(workItemRef, workItemUpdate);
+            
             addDocumentNonBlocking(collection(firestore, `work_items/${workItem.id}/notes`), {
               authorId: user.uid,
               text: noteText,
@@ -695,7 +694,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
             toast({ title: 'Work Item Transferred', description: `Case has been transferred to ${newAssignee?.displayName}.` });
             onCancel();
-            return; // Exit after handling transfer
+            return;
         }
         case 'pend':
             if (!pendReason) {
@@ -757,11 +756,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     <form onSubmit={handleSubmit}>
       <Card className="mt-4 border-none shadow-none p-0">
         <CardHeader className="flex-row items-center gap-4 p-0">
-          <div className="flex h-9 w-full items-center justify-between bg-black px-4 text-white">
+          <div className="flex h-7 w-full items-center justify-between bg-black px-4 text-white">
             <div className="flex items-center gap-4">
-              <span className="text-xs font-bold uppercase">{getActionDisplayName(selectedAction)} OR</span>
+              <span className="text-xs font-bold uppercase">{getActionDisplayName(selectedAction)}</span>
+              <span className="text-xs uppercase">OR</span>
               <Select onValueChange={(value) => setSelectedAction(value as string)} value={selectedAction}>
-                <SelectTrigger className="h-7 w-auto border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs">
+                <SelectTrigger className="h-6 w-auto border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs">
                   <SelectValue placeholder="-- Select a different action --" />
                 </SelectTrigger>
                 <SelectContent>
