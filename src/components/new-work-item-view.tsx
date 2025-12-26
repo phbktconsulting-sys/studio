@@ -161,7 +161,7 @@ export function NewWorkItemView() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 
-                {/* --- Form Row: Process & Urgency --- */}
+                {/* --- Form Row: Process --- */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                     <FormField
                       control={form.control}
@@ -192,35 +192,8 @@ export function NewWorkItemView() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="urgency"
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-3 gap-4 items-start">
-                          <div className="col-span-1 pt-1.5">
-                            <FormLabel>Urgency</FormLabel>
-                            <p className="text-xs text-muted-foreground mt-1">Set the priority level.</p>
-                          </div>
-                          <div className="col-span-2">
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select urgency" />
-                                </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                <SelectItem value="Low">Low</SelectItem>
-                                <SelectItem value="Medium">Medium</SelectItem>
-                                <SelectItem value="High">High</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
                 </div>
-                
+
                  {/* --- Form Row: Initial Tasks --- */}
                  <FormField
                   control={form.control}
@@ -357,6 +330,36 @@ export function NewWorkItemView() {
                           </FormItem>
                         )}
                       />
+                </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                      <FormField
+                          control={form.control}
+                          name="urgency"
+                          render={({ field }) => (
+                            <FormItem className="grid grid-cols-3 gap-4 items-start">
+                              <div className="col-span-1 pt-1.5">
+                                <FormLabel>Urgency</FormLabel>
+                                <p className="text-xs text-muted-foreground mt-1">Set the priority level.</p>
+                              </div>
+                              <div className="col-span-2">
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select urgency" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                    <SelectItem value="Low">Low</SelectItem>
+                                    <SelectItem value="Medium">Medium</SelectItem>
+                                    <SelectItem value="High">High</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </div>
+                            </FormItem>
+                          )}
+                        />
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4 items-start">
