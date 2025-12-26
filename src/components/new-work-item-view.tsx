@@ -145,7 +145,7 @@ export function NewWorkItemView() {
 
   return (
     <div className="p-4 sm:p-6 bg-slate-50">
-      <div className="max-w-4xl mx-auto">
+      <div className="">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="icon" onClick={handleCancel} className="h-8 w-8">
             <ArrowLeft className="h-5 w-5" />
