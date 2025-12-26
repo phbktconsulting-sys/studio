@@ -667,7 +667,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             workItemUpdate.status = 'Closed';
             workItemUpdate.lockInfo = null;
             break;
-        case 'transfer':
+        case 'transfer': {
             if (!transferToUser) {
               toast({ variant: 'destructive', title: 'Error', description: 'You must select a user to transfer to.' });
               return;
@@ -696,6 +696,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             toast({ title: 'Work Item Transferred', description: `Case has been transferred to ${newAssignee?.displayName}.` });
             onCancel();
             return; // Exit after handling transfer
+        }
         case 'pend':
             if (!pendReason) {
               toast({ variant: 'destructive', title: 'Error', description: 'A reason is required to pend.' });
@@ -760,7 +761,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             {getActionDisplayName(selectedAction)}
           </CardTitle>
           <Select onValueChange={(value) => setSelectedAction(value as string)} value={selectedAction}>
-            <SelectTrigger className="h-7 w-auto flex-1 bg-black text-white hover:bg-black/90 focus:ring-black text-xs">
+            <SelectTrigger className="h-7 w-auto bg-black text-white hover:bg-black/90 focus:ring-black text-xs">
                 <SelectValue placeholder="-- Or select a different action --" />
             </SelectTrigger>
             <SelectContent>
