@@ -3,8 +3,8 @@
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
-import { Firestore, doc, getDoc } from 'firebase/firestore';
-import { Auth, User as AuthUser, onAuthStateChanged, getIdTokenResult } from 'firebase/auth';
+import { Firestore, doc, onSnapshot } from 'firebase/firestore';
+import { Auth, User as AuthUser, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 import type { User as UserProfile } from '@/lib/types';
 
@@ -77,40 +77,55 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
-    if (!auth) { // If no Auth service instance, cannot determine user state
+    if (!auth) {
       setUserAuthState({ user: null, role: null, isUserLoading: false, userError: new Error("Auth service not provided.") });
       return;
     }
 
-    setUserAuthState({ user: null, role: null, isUserLoading: true, userError: null }); // Reset on auth instance change
+    let profileUnsubscribe: (() => void) | undefined;
 
-    const unsubscribe = onAuthStateChanged(
+    const authUnsubscribe = onAuthStateChanged(
       auth,
-      async (firebaseUser) => { // Auth state determined
-        if (firebaseUser) {
-            try {
-              // Fetch the user's profile from Firestore to get the real-time role
-              const userProfileRef = doc(firestore, 'users', firebaseUser.uid);
-              const userProfileSnap = await getDoc(userProfileRef);
+      (firebaseUser) => {
+        // Cleanup previous profile listener
+        if (profileUnsubscribe) {
+          profileUnsubscribe();
+        }
 
-              if (userProfileSnap.exists()) {
-                const userProfileData = userProfileSnap.data() as UserProfile;
+        if (firebaseUser) {
+          const userProfileRef = doc(firestore, 'users', firebaseUser.uid);
+          
+          // Set up a real-time listener for the user's profile
+          profileUnsubscribe = onSnapshot(
+            userProfileRef,
+            (docSnap) => {
+              if (docSnap.exists()) {
+                const userProfileData = docSnap.data() as UserProfile;
                 const combinedUser = { ...firebaseUser, ...userProfileData };
-                 // The role is now sourced directly from the Firestore document
-                 setUserAuthState({ user: combinedUser, role: userProfileData.role, isUserLoading: false, userError: null });
+                setUserAuthState({
+                  user: combinedUser,
+                  role: userProfileData.role,
+                  isUserLoading: false,
+                  userError: null
+                });
               } else {
-                 // Handle case where user exists in Auth but not in Firestore yet
-                 // Fallback to token claims if profile doesn't exist
-                  const idTokenResult = await getIdTokenResult(firebaseUser);
-                  const userRole = idTokenResult.claims.role as 'Admin' | 'User' | null;
-                 setUserAuthState({ user: firebaseUser as (AuthUser & UserProfile), role: userRole, isUserLoading: false, userError: null });
+                // User exists in auth but not in Firestore. This might be a new user.
+                setUserAuthState({
+                  user: firebaseUser as (AuthUser & UserProfile),
+                  role: 'User', // Default to 'User'
+                  isUserLoading: false,
+                  userError: null
+                });
               }
-            } catch (error) {
-               console.error("FirebaseProvider: Error getting user profile/token:", error);
-               setUserAuthState({ user: firebaseUser as (AuthUser & UserProfile), role: null, isUserLoading: false, userError: error as Error });
+            },
+            (error) => {
+              console.error("FirebaseProvider: Error listening to user profile:", error);
+              setUserAuthState({ user: firebaseUser as (AuthUser & UserProfile), role: null, isUserLoading: false, userError: error });
             }
+          );
         } else {
-            setUserAuthState({ user: null, role: null, isUserLoading: false, userError: null });
+          // User signed out
+          setUserAuthState({ user: null, role: null, isUserLoading: false, userError: null });
         }
       },
       (error) => { // Auth listener error
@@ -118,8 +133,14 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
         setUserAuthState({ user: null, role: null, isUserLoading: false, userError: error });
       }
     );
-    return () => unsubscribe(); // Cleanup
-  }, [auth, firestore]); // Depends on the auth instance
+
+    return () => {
+      authUnsubscribe();
+      if (profileUnsubscribe) {
+        profileUnsubscribe();
+      }
+    };
+  }, [auth, firestore]);
 
   // Memoize the context value
   const contextValue = useMemo((): FirebaseContextState => {
