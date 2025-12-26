@@ -198,17 +198,18 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   
   useEffect(() => {
     async function fetchUsers() {
-      if (firestore) {
+      if (firestore && user) { // Fetch for any user now
         setIsLoadingUsers(true);
         const usersCol = collection(firestore, 'users');
         const userSnapshot = await getDocs(usersCol);
-        const userList = userSnapshot.docs.map(doc => doc.data() as User);
+        // Exclude the current user from the transfer list
+        const userList = userSnapshot.docs.map(doc => doc.data() as User).filter(u => u.uid !== user.uid);
         setUsers(userList);
         setIsLoadingUsers(false);
       }
     }
     fetchUsers();
-  }, [firestore]);
+  }, [firestore, user]);
   
   const getActionDisplayName = (actionValue: string) => {
     if (!actionValue) return 'VERIFY CUSTOMER AUTHORITY';
