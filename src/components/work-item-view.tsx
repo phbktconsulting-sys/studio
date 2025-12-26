@@ -302,7 +302,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   value={resolveCompleteNotes}
                   onChange={(e) => setResolveCompleteNotes(e.target.value)}
                   placeholder="Add resolution notes..."
-                  className="min-h-[80px] text-xs w-2/5"
+                  className="min-h-[80px] text-xs w-3/5"
                 />
               </div>
             </div>
@@ -369,7 +369,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     value={reindexNotes}
                     onChange={(e) => setReindexNotes(e.target.value)}
                     placeholder="Add re-indexing notes..."
-                    className="min-h-[80px] text-xs w-2/5"
+                    className="min-h-[80px] text-xs w-3/5"
                     />
               </div>
             </div>
@@ -468,7 +468,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                           value={cloneNotes}
                           onChange={(e) => setCloneNotes(e.target.value)}
                           placeholder="Add cloning notes/reason..."
-                          className="min-h-[80px] text-xs w-2/5"
+                          className="min-h-[80px] text-xs w-3/5"
                       />
                     </div>
                  </div>
@@ -506,7 +506,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       value={terminateNotes}
                       onChange={(e) => setTerminateNotes(e.target.value)}
                       placeholder="Add termination notes..."
-                      className="min-h-[80px] text-xs w-2/5"
+                      className="min-h-[80px] text-xs w-3/5"
                   />
                 </div>
              </div>
@@ -543,7 +543,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       value={transferNotes}
                       onChange={(e) => setTransferNotes(e.target.value)}
                       placeholder="Add transfer notes..."
-                      className="min-h-[80px] text-xs w-2/5"
+                      className="min-h-[80px] text-xs w-3/5"
                   />
                 </div>
             </div>
@@ -590,7 +590,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       value={pendNotes}
                       onChange={(e) => setPendNotes(e.target.value)}
                       placeholder="Add pend notes..."
-                      className="min-h-[80px] text-xs w-2/5"
+                      className="min-h-[80px] text-xs w-3/5"
                   />
                 </div>
             </div>
