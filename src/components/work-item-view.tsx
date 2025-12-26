@@ -909,26 +909,27 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     <form onSubmit={handleSubmit}>
       <Card className="mt-4 border-none shadow-none p-0">
          <CardHeader className="flex-row items-center gap-4 p-0">
-          <div className="flex h-7 w-full items-center justify-between bg-black px-4 text-white">
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-bold uppercase">{getActionDisplayName(selectedAction)}</span>
-              <span className="text-xs uppercase">OR</span>
-               <Select onValueChange={(value) => {
+            <div className="flex h-7 w-full items-center justify-between bg-black px-4 text-white">
+              <div className="flex items-center gap-4">
+                <span className="text-xs font-bold uppercase">{getActionDisplayName(selectedAction)}</span>
+                <span className="text-xs uppercase">OR</span>
+                 <Select onValueChange={(value) => {
                     setSelectedAction(value);
                     setDropdownValue(undefined);
-                }} value={dropdownValue}>
-                <SelectTrigger className="h-6 w-80 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs"
-                 >
-                  <SelectValue placeholder="--- select a different action ---" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableActions.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  }} value={dropdownValue}>
+                  <SelectTrigger
+                    className="h-6 w-80 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs"
+                  >
+                    <SelectValue placeholder="--- select a different action ---" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableActions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
         </CardHeader>
         <CardContent className='p-4 border bg-card rounded-b-md'>
           <div>
