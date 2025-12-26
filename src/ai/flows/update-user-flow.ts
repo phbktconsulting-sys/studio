@@ -61,7 +61,7 @@ const updateUserFlow = ai.defineFlow(
     const adminFirestore = getFirestore(adminApp);
     
     try {
-      const { uid, email, ...updateData } = payload;
+      const { uid, ...updateData } = payload;
       const displayName = `${updateData.firstName} ${updateData.middleName ? updateData.middleName + ' ' : ''}${updateData.lastName}`;
       
       const firestoreUpdatePayload: Record<string, any> = {

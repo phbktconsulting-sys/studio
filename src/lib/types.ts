@@ -200,6 +200,7 @@ export type DeleteCustomerInput = z.infer<typeof DeleteCustomerSchema>;
 
 // Schema for updating a user profile
 export const UpdateUserInputSchema = z.object({
+  email: z.string().email(),
   firstName: z.string().min(1, { message: 'First name is required' }),
   middleName: z.string().optional(),
   lastName: z.string().min(1, { message: 'Last name is required' }),
@@ -219,10 +220,9 @@ export const UpdateUserInputSchema = z.object({
 });
 export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
 
-export const ServerUpdateUserInputSchema = UpdateUserInputSchema.extend({
+export const ServerUpdateUserInputSchema = UpdateUserInputSchema.omit({ email: true }).extend({
   uid: z.string(),
   dob: z.string(),
-  email: z.string().email(),
 });
 export type ServerUpdateUserInput = z.infer<typeof ServerUpdateUserInputSchema>;
 
