@@ -337,7 +337,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </RadioGroup>
               </div>
             </div>
-            <div className="grid grid-cols-3 items-center gap-2">
+             <div className="grid grid-cols-3 items-center gap-2">
               <Label className="col-span-1">Reason for Re-index*</Label>
               <div className="col-span-2">
                  <Select onValueChange={setReindexReasonForReindex} value={reindexReasonForReindex}>
@@ -354,7 +354,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                  </Select>
               </div>
            </div>
-
             <div className="grid grid-cols-3 items-center gap-2">
               <Label className="col-span-1">Process*</Label>
               <div className="col-span-2">
@@ -590,10 +589,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                           <SelectValue placeholder="Select termination reason" />
                       </SelectTrigger>
                       <SelectContent>
-                          <SelectItem value="Customer Request" className="text-sm">Customer Request</SelectItem>
-                          <SelectItem value="No Response" className="text-sm">No Response</SelectItem>
-                          <SelectItem value="Duplicate Entry" className="text-sm">Duplicate Entry</SelectItem>
-                          <SelectItem value="Other" className="text-sm">Other</SelectItem>
+                          <SelectItem value="Duplicate Work Item" className="text-sm">Duplicate Work Item</SelectItem>
+                          <SelectItem value="Already Processed in Another Item" className="text-sm">Already Processed in Another Item</SelectItem>
+                          <SelectItem value="Previously Resolved" className="text-sm">Previously Resolved</SelectItem>
+                          <SelectItem value="Accidental Creation" className="text-sm">Accidental Creation</SelectItem>
+                          <SelectItem value="Request No Longer Needed" className="text-sm">Request No Longer Needed</SelectItem>
+                          <SelectItem value="Internal Administrative Closure" className="text-sm">Internal Administrative Closure</SelectItem>
                       </SelectContent>
                   </Select>
                 </div>
