@@ -172,8 +172,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(() => new Set(workItem.tasks?.filter(t => t.completed).map(t => t.id) || []));
   const [allTasksCompleted, setAllTasksCompleted] = useState<'yes' | 'no' | undefined>();
 
-
-  const [reindexReason, setReindexReason] = useState<string>('');
+  const [reindexReasonForReindex, setReindexReasonForReindex] = useState<string>('');
+  const [reindexProcess, setReindexProcess] = useState<string>('');
   const [reindexTasks, setReindexTasks] = useState<string[]>([]);
   const [reindexNotes, setReindexNotes] = useState('');
   const [shouldCopyNotes, setShouldCopyNotes] = useState<'yes' | 'no'>('yes');
@@ -310,6 +310,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
           </div>
         );
        case 're-index':
+        const reindexReasonOptions = [
+            "Incorrect Category Selected",
+            "Assigned to Wrong Department",
+            "Assigned to Wrong Person",
+            "Escalation to Management",
+            "Client Requested Delay",
+            "Internal Request"
+        ];
         return (
           <div className="space-y-4">
              <div className="grid grid-cols-3 items-center gap-2">
@@ -329,11 +337,28 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </RadioGroup>
               </div>
             </div>
+            <div className="grid grid-cols-3 items-center gap-2">
+              <Label className="col-span-1">Reason for Re-index*</Label>
+              <div className="col-span-2">
+                 <Select onValueChange={setReindexReasonForReindex} value={reindexReasonForReindex}>
+                   <SelectTrigger className="h-7 text-xs w-2/5">
+                     <SelectValue placeholder="Select a reason" />
+                   </SelectTrigger>
+                   <SelectContent>
+                     {reindexReasonOptions.map((reason) => (
+                        <SelectItem key={reason} value={reason} className="text-sm">
+                          {reason}
+                        </SelectItem>
+                      ))}
+                   </SelectContent>
+                 </Select>
+              </div>
+           </div>
 
             <div className="grid grid-cols-3 items-center gap-2">
               <Label className="col-span-1">Process*</Label>
               <div className="col-span-2">
-                 <Select onValueChange={(value) => { setReindexReason(value); setReindexTasks([]); }} value={reindexReason}>
+                 <Select onValueChange={(value) => { setReindexProcess(value); setReindexTasks([]); }} value={reindexProcess}>
                    <SelectTrigger className="h-7 text-xs w-2/5">
                      <SelectValue placeholder="Select a new process" />
                    </SelectTrigger>
@@ -348,7 +373,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
            </div>
            
-           {reindexReason && (
+           {reindexProcess && (
              <div className="grid grid-cols-3 items-start gap-2">
                 <Label className="col-span-1 self-start pt-1.5">Task</Label>
                 <div className="col-span-2 flex flex-col gap-2">
@@ -369,7 +394,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                             <CommandList>
                             <CommandEmpty>No tasks found for this process.</CommandEmpty>
                             <CommandGroup>
-                                {(processTaskMap[reindexReason] || []).map((task) => (
+                                {(processTaskMap[reindexProcess] || []).map((task) => (
                                     <CommandItem
                                         key={task}
                                         onSelect={() => {
@@ -722,13 +747,17 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 toast({ variant: 'destructive', title: 'Error', description: 'Note is required for re-indexing.' });
                 return;
             }
-            if (!reindexReason) {
+            if (!reindexProcess) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Please select a new process for re-indexing.' });
                 return;
             }
+            if (!reindexReasonForReindex) {
+              toast({ variant: 'destructive', title: 'Error', description: 'Reason for re-index is required.' });
+              return;
+            }
 
             const isAssigningToQueue = reindexOption === 'initial';
-            const newProcess = reindexReason;
+            const newProcess = reindexProcess;
             const assignedTo = isAssigningToQueue ? newProcess : user.uid;
 
             const reindexPayload = {
@@ -746,7 +775,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     createdAt: new Date().toISOString()
                 })),
               sourceWorkItemId: shouldCopyNotes === 'yes' ? workItem.id : undefined,
-              reindexReason: reindexReason, 
+              reindexReason: reindexReasonForReindex, 
               reindexNote: `Original Case ID: ${workItem.customId}. ${reindexNotes}`,
             };
             
