@@ -756,12 +756,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     <form onSubmit={handleSubmit}>
       <Card className="mt-4 border-none shadow-none p-0">
         <CardHeader className="flex-row items-center gap-4 p-0">
-          <div className="flex h-7 w-full items-center justify-between bg-black px-4 text-white">
+           <div className="flex h-7 w-full items-center justify-between bg-black px-4 text-white">
             <div className="flex items-center gap-4">
               <span className="text-xs font-bold uppercase">{getActionDisplayName(selectedAction)}</span>
               <span className="text-xs uppercase">OR</span>
               <Select onValueChange={(value) => setSelectedAction(value as string)} value={selectedAction}>
-                <SelectTrigger className="h-6 w-auto border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs">
+                <SelectTrigger className="h-6 w-64 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs">
                   <SelectValue placeholder="-- Select a different action --" />
                 </SelectTrigger>
                 <SelectContent>
