@@ -148,17 +148,15 @@ export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
 
 
 export const WorkItemCreateSchema = z.object({
-  process: z.string().min(1, 'Process is required.'),
-  tasks: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one task.",
+  employmentType: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: 'You have to select at least one employment type.',
   }),
-  customerName: z.string().min(2, 'Customer name is required.'),
-  customerEmail: z.string().email('Invalid email address.'),
-  customerPhone: z.string().min(1, 'Customer phone is required.'),
-  customerPhoneSecondary: z.string().optional(),
-  customerAddress: z.string().optional(),
-  urgency: z.enum(['Low', 'Medium', 'High']),
-  overview: z.string().min(1, 'Overview is required.'),
+  workingSchedule: z.string().optional(),
+  workingScheduleBadges: z.array(z.string()).optional(),
+  salaryType: z.enum(['hourly', 'custom']),
+  hourlyRate: z.number().optional(),
+  salaryIsNegotiable: z.boolean().default(false),
+  hiringMultipleCandidates: z.boolean().default(false),
 });
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 
