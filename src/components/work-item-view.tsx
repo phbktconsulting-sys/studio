@@ -576,7 +576,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label>Pend Until</Label>
                   <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-2 w-1/2">
                   <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
                 </div>
             </div>
