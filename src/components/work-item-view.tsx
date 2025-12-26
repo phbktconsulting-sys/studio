@@ -279,11 +279,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                  <RadioGroup value={allTasksCompleted} onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')} className="flex flex-col space-y-2 text-xs">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="yes" id="tasks-yes" />
-                        <Label htmlFor="tasks-yes" className="text-xs font-normal">All tasks completed</Label>
+                        <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="no" id="tasks-no" />
-                        <Label htmlFor="tasks-no" className="text-xs font-normal">Not all tasks completed</Label>
+                        <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
                     </div>
                 </RadioGroup>
               </div>
@@ -855,8 +855,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
          <CardHeader className="flex-row items-center gap-4 p-0">
             <div className="flex h-7 w-full items-center justify-between bg-black px-4 text-white">
               <div className="flex items-center gap-4">
-                <span className="text-xs font-bold uppercase">{getActionDisplayName(selectedAction)}</span>
-                <span className="text-xs uppercase">OR</span>
+                <span className="text-sm font-bold uppercase">{getActionDisplayName(selectedAction)}</span>
+                <span className="text-sm uppercase">OR</span>
                  <Select 
                     onValueChange={(value) => {
                         setSelectedAction(value);
