@@ -246,55 +246,51 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-2">
-                <div className="col-span-1">
-                  <Label>Outstanding Tasks</Label>
-                  <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
+            <div className="flex items-start gap-2">
+                <div className="w-1/2">
+                    <Label>Outstanding Tasks</Label>
+                    <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
                 </div>
-                <div className="col-span-1">
-                  <div className="mt-2 space-y-2">
-                    {workItem.tasks.length > 0 ? (
-                      workItem.tasks.map(task => (
-                        <div key={task.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`complete-${task.id}`}
-                            checked={completedTasks.has(task.id)}
-                            onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
-                          />
-                          <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
-                    )}
-                  </div>
+                <div className="w-1/2">
+                    <div className="space-y-2">
+                        {workItem.tasks.length > 0 ? (
+                            workItem.tasks.map(task => (
+                                <div key={task.id} className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id={`complete-${task.id}`}
+                                        checked={completedTasks.has(task.id)}
+                                        onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
+                                    />
+                                    <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
+                        )}
+                    </div>
                 </div>
-              </div>
             </div>
-            <div className="space-y-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-2">
-                <div className="col-span-1">
-                  <Label>Confirm Task Completion</Label>
-                  <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
+            <div className="flex items-center gap-2">
+                <div className="w-1/2">
+                    <Label>Confirm Task Completion</Label>
+                    <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
                 </div>
-                <div className="col-span-1">
-                  <RadioGroup
-                    value={allTasksCompleted}
-                    onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
-                    className="flex flex-row space-x-4 text-xs"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="yes" id="tasks-yes" />
-                      <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="no" id="tasks-no" />
-                      <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
-                    </div>
-                  </RadioGroup>
+                <div className="w-1/2">
+                    <RadioGroup
+                        value={allTasksCompleted}
+                        onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
+                        className="flex flex-row space-x-4 text-xs"
+                    >
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="yes" id="tasks-yes" />
+                            <Label htmlFor="tasks-yes" className="font-normal">Yes</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="no" id="tasks-no" />
+                            <Label htmlFor="tasks-no" className="font-normal">No</Label>
+                        </div>
+                    </RadioGroup>
                 </div>
-              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-2">
               <div className="md:col-span-1">
@@ -323,11 +319,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="myself" id="reindex-myself" />
-                        <Label htmlFor="reindex-myself" className="text-xs font-normal">Re-index case myself</Label>
+                        <Label htmlFor="reindex-myself" className="font-normal">Re-index case myself</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="initial" id="reindex-initial" />
-                        <Label htmlFor="reindex-initial" className="text-xs font-normal">Return to initial Indexing</Label>
+                        <Label htmlFor="reindex-initial" className="font-normal">Return to initial Indexing</Label>
                     </div>
                 </RadioGroup>
               </div>
@@ -357,11 +353,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
                       <div className="flex items-center space-x-2">
                           <RadioGroupItem value="yes" id="copy-yes" />
-                          <Label htmlFor="copy-yes" className="text-xs font-normal">Yes</Label>
+                          <Label htmlFor="copy-yes" className="font-normal">Yes</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                           <RadioGroupItem value="no" id="copy-no" />
-                          <Label htmlFor="copy-no" className="text-xs font-normal">No</Label>
+                          <Label htmlFor="copy-no" className="font-normal">No</Label>
                       </div>
                   </RadioGroup>
                 </div>
@@ -453,11 +449,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       <RadioGroup value={cloneOption} onValueChange={(v) => setCloneOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
                           <div className="flex items-center space-x-2">
                               <RadioGroupItem value="myself" id="clone-myself" />
-                              <Label htmlFor="clone-myself" className="text-xs font-normal">Assign to myself</Label>
+                              <Label htmlFor="clone-myself" className="font-normal">Assign to myself</Label>
                           </div>
                           <div className="flex items-center space-x-2">
                               <RadioGroupItem value="initial" id="clone-initial" />
-                              <Label htmlFor="clone-initial" className="text-xs font-normal">Return to initial Indexing</Label>
+                              <Label htmlFor="clone-initial" className="font-normal">Return to initial Indexing</Label>
                           </div>
                       </RadioGroup>
                     </div>
