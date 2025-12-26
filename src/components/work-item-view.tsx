@@ -298,7 +298,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <Label className="text-xs font-bold">Notes</Label>
                 <p className="text-xs text-muted-foreground">Add resolution notes.</p>
               </div>
-              <div className="md:col-span-3">
+              <div className="md:col-span-2">
                 <Textarea
                   value={resolveCompleteNotes}
                   onChange={(e) => setResolveCompleteNotes(e.target.value)}
@@ -365,7 +365,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
              </div>
             <div className="grid grid-cols-1 md:grid-cols-4 items-start gap-4">
                <Label className="md:col-span-1 text-xs font-semibold">Note*</Label>
-              <div className="md:col-span-3">
+              <div className="md:col-span-2">
                 <Textarea
                     value={reindexNotes}
                     onChange={(e) => setReindexNotes(e.target.value)}
@@ -464,7 +464,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       <Label className="text-xs font-bold">Notes</Label>
                       <p className="text-xs text-muted-foreground">Provide a reason for cloning.</p>
                     </div>
-                    <div className="md:col-span-3">
+                    <div className="md:col-span-2">
                       <Textarea
                           value={cloneNotes}
                           onChange={(e) => setCloneNotes(e.target.value)}
@@ -502,7 +502,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Notes</Label>
                   <p className="text-xs text-muted-foreground">Add termination notes.</p>
                 </div>
-                <div className="md:col-span-3">
+                <div className="md:col-span-2">
                   <Textarea
                       value={terminateNotes}
                       onChange={(e) => setTerminateNotes(e.target.value)}
@@ -539,7 +539,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Notes</Label>
                   <p className="text-xs text-muted-foreground">Provide a reason for the transfer.</p>
                 </div>
-                <div className="md:col-span-3">
+                <div className="md:col-span-2">
                   <Textarea
                       value={transferNotes}
                       onChange={(e) => setTransferNotes(e.target.value)}
@@ -586,7 +586,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Notes</Label>
                   <p className="text-xs text-muted-foreground">Add any relevant notes.</p>
                 </div>
-                <div className="md:col-span-3">
+                <div className="md:col-span-2">
                   <Textarea
                       value={pendNotes}
                       onChange={(e) => setPendNotes(e.target.value)}
