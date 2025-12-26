@@ -246,8 +246,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-2 gap-y-6">
+              <div className="md:col-span-1">
                 <Label className="text-xs font-bold">Outstanding Tasks</Label>
                 <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
                 <div className="mt-2 space-y-2">
@@ -267,14 +267,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   )}
                 </div>
               </div>
-              <div>
+              <div className="md:col-span-1">
                 <Label className="text-xs font-bold">Confirm Task Completion</Label>
                 <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
                 <div className="mt-2">
                   <RadioGroup
                     value={allTasksCompleted}
                     onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
-                    className="flex items-center gap-4 text-xs"
+                    className="flex flex-row items-center gap-4 text-xs"
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="tasks-yes" />
