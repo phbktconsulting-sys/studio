@@ -1109,7 +1109,7 @@ function PendingWorkItemInfo({ workItemId, note }: { workItemId: string, note: N
         <Clock className="h-5 w-5 text-orange-500" />
         <span className="font-medium">Case Pended until {untilDate}:</span>
         <Separator orientation="vertical" className="h-4" />
-        <span className="text-muted-foreground">{reason} by {authorUser?.displayName || note?.authorId || '...'}</span>
+        <span className="text-muted-foreground">{reason} by {authorUser?.displayName || '...'}</span>
       </div>
       <Button onClick={handleResume} size="sm" className="h-7 text-xs">Resume Work</Button>
     </div>
@@ -1398,7 +1398,7 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
             <TabsTrigger value="images" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Images</TabsTrigger>
             <TabsTrigger value="associations" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Associations</TabsTrigger>
             <TabsTrigger value="tasks" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Tasks</TabsTrigger>
-            <TabsTrigger value="policy" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Policy</TabsTrigger>
+            <TabsTrigger value="quotation" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Quotation</TabsTrigger>
             <TabsTrigger value="agency" className="relative flex-1 justify-center h-7 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-1 text-xs text-white transition-none hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none">Agency</TabsTrigger>
           </TabsList>
           
@@ -1599,8 +1599,8 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="policy" className="mt-0">
-              <PlaceholderContent title="Policy" />
+            <TabsContent value="quotation" className="mt-0">
+              <PlaceholderContent title="Quotation" />
             </TabsContent>
             <TabsContent value="agency" className="mt-0">
               <PlaceholderContent title="Agency" />
