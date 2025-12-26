@@ -161,6 +161,40 @@ export function NewWorkItemView() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 
+                {/* --- Form Row: Assignment --- */}
+                <FormField
+                  control={form.control}
+                  name="assignTo"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                       <div className="col-span-1 pt-1.5">
+                            <FormLabel>Assign To</FormLabel>
+                            <p className="text-xs text-muted-foreground mt-1">Choose who this work item will be assigned to upon creation.</p>
+                       </div>
+                       <div className="col-span-2">
+                            <RadioGroup
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                className="flex space-x-4 pt-1.5"
+                            >
+                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                    <RadioGroupItem value="initial_indexing" />
+                                </FormControl>
+                                <FormLabel className="font-normal">Initial Indexing Queue</FormLabel>
+                                </FormItem>
+                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                    <RadioGroupItem value="myself" />
+                                </FormControl>
+                                <FormLabel className="font-normal">Assign to Myself</FormLabel>
+                                </FormItem>
+                            </RadioGroup>
+                       </div>
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="process"
@@ -450,41 +484,6 @@ export function NewWorkItemView() {
                         <Textarea {...field} className="min-h-24" />
                         <FormMessage />
                       </div>
-                    </FormItem>
-                  )}
-                />
-
-                
-                 {/* --- Form Row: Assignment --- */}
-                <FormField
-                  control={form.control}
-                  name="assignTo"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-3 gap-4 items-start">
-                       <div className="col-span-1 pt-1.5">
-                            <FormLabel>Assign To</FormLabel>
-                            <p className="text-xs text-muted-foreground mt-1">Choose who this work item will be assigned to upon creation.</p>
-                       </div>
-                       <div className="col-span-2">
-                            <RadioGroup
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                                className="flex space-x-4 pt-1.5"
-                            >
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl>
-                                    <RadioGroupItem value="initial_indexing" />
-                                </FormControl>
-                                <FormLabel className="font-normal">Initial Indexing Queue</FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl>
-                                    <RadioGroupItem value="myself" />
-                                </FormControl>
-                                <FormLabel className="font-normal">Assign to Myself</FormLabel>
-                                </FormItem>
-                            </RadioGroup>
-                       </div>
                     </FormItem>
                   )}
                 />
