@@ -246,15 +246,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6">
-              {/* Outstanding Tasks */}
-              <div className="flex items-start col-span-2 gap-4">
-                <div className="w-1/3">
-                  <Label className="text-xs font-bold">Outstanding Tasks</Label>
-                  <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
-                </div>
-                <div className="w-2/3 mt-2 space-y-2">
-                  {workItem.tasks.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-x-8 gap-y-6">
+               <div className="flex items-start col-span-3 gap-4">
+                 <div className="w-1/4">
+                   <Label className="text-xs font-bold">Outstanding Tasks</Label>
+                   <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
+                 </div>
+                 <div className="w-3/4 mt-2 space-y-2">
+                   {workItem.tasks.length > 0 ? (
                     workItem.tasks.map(task => (
                       <div key={task.id} className="flex items-center space-x-2">
                         <Checkbox
@@ -268,16 +267,15 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   ) : (
                     <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
                   )}
-                </div>
-              </div>
-
-              {/* Confirm Task Completion */}
-              <div className="flex items-start col-span-1 gap-4">
-                <div className="w-2/3">
-                  <Label className="text-xs font-bold">Confirm Task Completion</Label>
-                  <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
-                </div>
-                <div className="w-1/3 mt-2">
+                 </div>
+               </div>
+ 
+               <div className="flex items-start col-span-2 gap-4">
+                 <div className="w-1/2">
+                   <Label className="text-xs font-bold">Confirm Task Completion</Label>
+                   <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
+                 </div>
+                 <div className="w-1/2 mt-2">
                   <RadioGroup
                     value={allTasksCompleted}
                     onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
@@ -292,9 +290,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
                     </div>
                   </RadioGroup>
-                </div>
-              </div>
-            </div>
+                 </div>
+               </div>
+             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 items-start gap-4">
               <div className="md:col-span-1">
@@ -368,7 +366,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
              </div>
             <div className="grid grid-cols-1 md:grid-cols-4 items-start gap-4">
                <Label className="md:col-span-1 text-xs font-semibold">Note*</Label>
-              <div className="md:col-span-2">
+              <div className="md:col-span-1">
                 <Textarea
                     value={reindexNotes}
                     onChange={(e) => setReindexNotes(e.target.value)}
@@ -467,7 +465,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       <Label className="text-xs font-bold">Notes</Label>
                       <p className="text-xs text-muted-foreground">Provide a reason for cloning.</p>
                     </div>
-                    <div className="md:col-span-2">
+                    <div className="md:col-span-1">
                       <Textarea
                           value={cloneNotes}
                           onChange={(e) => setCloneNotes(e.target.value)}
@@ -505,7 +503,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Notes</Label>
                   <p className="text-xs text-muted-foreground">Add termination notes.</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <Textarea
                       value={terminateNotes}
                       onChange={(e) => setTerminateNotes(e.target.value)}
@@ -542,7 +540,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Notes</Label>
                   <p className="text-xs text-muted-foreground">Provide a reason for the transfer.</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <Textarea
                       value={transferNotes}
                       onChange={(e) => setTransferNotes(e.target.value)}
@@ -589,7 +587,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Notes</Label>
                   <p className="text-xs text-muted-foreground">Add any relevant notes.</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <Textarea
                       value={pendNotes}
                       onChange={(e) => setPendNotes(e.target.value)}
@@ -1489,3 +1487,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </>
   );
 }
+
+    
