@@ -251,7 +251,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <Label>Outstanding Tasks</Label>
                 <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
               </div>
-              <div className="col-span-1">
+              <div className="col-span-2">
                 <div className="space-y-2">
                   {workItem.tasks.length > 0 ? (
                     workItem.tasks.map(task => (
@@ -275,7 +275,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <Label>Confirm Task Completion</Label>
                 <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
               </div>
-              <div className="col-span-1">
+              <div className="col-span-2">
                 <RadioGroup
                   value={allTasksCompleted}
                   onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
@@ -297,12 +297,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <Label>Notes</Label>
                 <p className="text-xs text-muted-foreground">Add resolution notes.</p>
               </div>
-              <div className="col-span-1">
+              <div className="col-span-2">
                 <Textarea
                   value={resolveCompleteNotes}
                   onChange={(e) => setResolveCompleteNotes(e.target.value)}
                   placeholder="Add resolution notes..."
-                  className="min-h-[80px] text-xs"
+                  className="min-h-[80px] text-xs w-2/5"
                 />
               </div>
             </div>
@@ -315,7 +315,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                <div className="col-span-1">
                  <Label>Please select the correct Re-index option*</Label>
                </div>
-              <div className="col-span-1">
+              <div className="col-span-2">
                 <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="myself" id="reindex-myself" />
@@ -331,9 +331,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
             <div className="grid grid-cols-3 items-center gap-2">
               <Label className="col-span-1">Reason*</Label>
-              <div className="col-span-1">
+              <div className="col-span-2">
                  <Select onValueChange={setReindexReason} value={reindexReason}>
-                   <SelectTrigger className="h-7 text-xs">
+                   <SelectTrigger className="h-7 text-xs w-2/5">
                      <SelectValue />
                    </SelectTrigger>
                    <SelectContent>
@@ -349,7 +349,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             
              <div className="grid grid-cols-3 items-center gap-2">
                 <Label className="col-span-1">Do you want to copy the notes to the new case?</Label>
-                <div className="col-span-1">
+                <div className="col-span-2">
                   <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
                       <div className="flex items-center space-x-2">
                           <RadioGroupItem value="yes" id="copy-yes" />
@@ -369,7 +369,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     value={reindexNotes}
                     onChange={(e) => setReindexNotes(e.target.value)}
                     placeholder="Add re-indexing notes..."
-                    className="min-h-[80px] text-xs"
+                    className="min-h-[80px] text-xs w-2/5"
                     />
               </div>
             </div>
@@ -383,9 +383,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     <Label>New Process</Label>
                     <p className="text-xs text-muted-foreground">Select the process for the cloned item.</p>
                   </div>
-                  <div className="col-span-1">
+                  <div className="col-span-2">
                     <Select onValueChange={setCloneToProcess} value={cloneToProcess}>
-                        <SelectTrigger className="h-7 text-xs">
+                        <SelectTrigger className="h-7 text-xs w-2/5">
                             <SelectValue placeholder="Select Process for Cloned Item" />
                         </SelectTrigger>
                         <SelectContent>
@@ -402,13 +402,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                          <Label>Initial Tasks</Label>
                          <p className="text-xs text-muted-foreground">Select tasks for the cloned case.</p>
                        </div>
-                       <div className="col-span-1">
+                       <div className="col-span-2">
                         <Popover>
                             <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
                                 role="combobox"
-                                className={cn("w-full justify-between h-7 text-xs", !cloneTasks?.length && "text-muted-foreground")}
+                                className={cn("w-2/5 justify-between h-7 text-xs", !cloneTasks?.length && "text-muted-foreground")}
                             >
                                 {cloneTasks?.length > 0 ? `${cloneTasks.length} tasks selected` : "Select initial tasks for cloned case"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -445,7 +445,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       <Label>Assignment</Label>
                       <p className="text-xs text-muted-foreground">Who should the cloned case be assigned to?</p>
                     </div>
-                    <div className="col-span-1">
+                    <div className="col-span-2">
                       <RadioGroup value={cloneOption} onValueChange={(v) => setCloneOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
                           <div className="flex items-center space-x-2">
                               <RadioGroupItem value="myself" id="clone-myself" />
@@ -468,7 +468,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                           value={cloneNotes}
                           onChange={(e) => setCloneNotes(e.target.value)}
                           placeholder="Add cloning notes/reason..."
-                          className="min-h-[80px] text-xs"
+                          className="min-h-[80px] text-xs w-2/5"
                       />
                     </div>
                  </div>
@@ -482,9 +482,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label>Reason</Label>
                   <p className="text-xs text-muted-foreground">Select a reason for termination.</p>
                 </div>
-                <div className="col-span-1">
+                <div className="col-span-2">
                   <Select onValueChange={setTerminateReason} value={terminateReason}>
-                      <SelectTrigger className="h-7 text-xs">
+                      <SelectTrigger className="h-7 text-xs w-2/5">
                           <SelectValue placeholder="Select termination reason" />
                       </SelectTrigger>
                       <SelectContent>
@@ -506,7 +506,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       value={terminateNotes}
                       onChange={(e) => setTerminateNotes(e.target.value)}
                       placeholder="Add termination notes..."
-                      className="min-h-[80px] text-xs"
+                      className="min-h-[80px] text-xs w-2/5"
                   />
                 </div>
              </div>
@@ -520,9 +520,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label>Transfer To</Label>
                   <p className="text-xs text-muted-foreground">Select a user to transfer the case to.</p>
                 </div>
-                <div className="col-span-1">
+                <div className="col-span-2">
                   <Select onValueChange={setTransferToUser} value={transferToUser} disabled={isLoadingUsers}>
-                  <SelectTrigger className="h-7 text-xs">
+                  <SelectTrigger className="h-7 text-xs w-2/5">
                       <SelectValue placeholder={isLoadingUsers ? "Loading users..." : "Select user to transfer to"} />
                   </SelectTrigger>
                   <SelectContent>
@@ -543,7 +543,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       value={transferNotes}
                       onChange={(e) => setTransferNotes(e.target.value)}
                       placeholder="Add transfer notes..."
-                      className="min-h-[80px] text-xs"
+                      className="min-h-[80px] text-xs w-2/5"
                   />
                 </div>
             </div>
@@ -557,9 +557,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label>Reason</Label>
                   <p className="text-xs text-muted-foreground">Select a reason for pending the case.</p>
                 </div>
-                <div className="col-span-1">
+                <div className="col-span-2">
                   <Select onValueChange={setPendReason} value={pendReason}>
-                      <SelectTrigger className="h-7 text-xs">
+                      <SelectTrigger className="h-7 text-xs w-2/5">
                           <SelectValue placeholder="Select pend reason" />
                       </SelectTrigger>
                       <SelectContent>
@@ -576,7 +576,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label>Pend Until</Label>
                   <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
                 </div>
-                <div className="col-span-1">
+                <div className="col-span-2">
                   <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
                 </div>
             </div>
@@ -590,7 +590,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       value={pendNotes}
                       onChange={(e) => setPendNotes(e.target.value)}
                       placeholder="Add pend notes..."
-                      className="min-h-[80px] text-xs"
+                      className="min-h-[80px] text-xs w-2/5"
                   />
                 </div>
             </div>
@@ -858,7 +858,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
          <CardHeader className="flex-row items-center gap-4 p-0">
             <div className="flex h-7 w-full items-center justify-between bg-black px-4 text-white">
               <div className="flex items-center gap-4">
-                <span className="text-sm font-bold uppercase">{getActionDisplayName(selectedAction)}</span>
+                <span className="text-sm uppercase">{getActionDisplayName(selectedAction)}</span>
                 <span className="text-sm uppercase">OR</span>
                  <Select 
                     onValueChange={(value) => {
