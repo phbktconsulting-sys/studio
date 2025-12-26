@@ -52,7 +52,7 @@ const processTypes = [
   "New Business Request",
   "Development Services (Web & App)",
   "Operations & Support (Backend)",
-  "Digital Service Request",
+  "Digital Services Request",
   "Feedback / Complaint",
   "Other Service Request"
 ];
@@ -202,18 +202,41 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
     );
   }, [firestore]);
 
-  const usersQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'users'));
-  }, [firestore]);
-
   const { data: workItems, isLoading: workItemsLoading } = useCollection<WorkItem>(workItemsQuery);
-  const { data: users, isLoading: usersLoading } = useCollection<User>(usersQuery);
+  const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
 
-  const usersMap = useMemo(() => {
-    if (!users) return new Map();
-    return new Map(users.map((u) => [u.uid, u.displayName]));
-  }, [users]);
+  // Effect to fetch user data on demand
+  useEffect(() => {
+    if (!workItems || !firestore) return;
+
+    const fetchUsers = async () => {
+      const userIds = [...new Set(workItems.map(item => item.createdBy))];
+      const newUsersMap = new Map(usersMap);
+      const idsToFetch: string[] = [];
+
+      userIds.forEach(id => {
+        if (!newUsersMap.has(id)) {
+          idsToFetch.push(id);
+        }
+      });
+      
+      if (idsToFetch.length === 0) return;
+      
+      for (let i = 0; i < idsToFetch.length; i += 30) {
+        const chunk = idsToFetch.slice(i, i + 30);
+        const usersQuery = query(collection(firestore, 'users'), where('uid', 'in', chunk));
+        const userSnapshot = await getDocs(usersQuery);
+        userSnapshot.forEach(doc => {
+          const user = doc.data() as User;
+          newUsersMap.set(user.uid, user.displayName || user.email || 'Unknown');
+        });
+      }
+      setUsersMap(newUsersMap);
+    };
+
+    fetchUsers();
+  }, [workItems, firestore, usersMap]);
+
 
   const handleRowClick = (item: WorkItem) => {
     openTab({
@@ -308,7 +331,7 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
     }
   }
 
-  const isLoading = workItemsLoading || usersLoading;
+  const isLoading = workItemsLoading;
 
   return (
     <>

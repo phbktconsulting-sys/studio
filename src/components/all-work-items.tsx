@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import { collection, query, updateDoc, addDoc, doc, getDocs } from 'firebase/firestore';
+import { collection, query, updateDoc, addDoc, doc, getDocs, where } from 'firebase/firestore';
 import { useCollection, useFirebase, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import type { WorkItem, User } from '@/lib/types';
 import {
@@ -278,18 +278,41 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
 
   const { data: workItems, isLoading: workItemsLoading } = useCollection<WorkItem>(workItemsQuery);
 
-  const usersQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'users'));
-  }, [firestore]);
+  const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
 
-  const { data: usersData, isLoading: usersLoading } = useCollection<User>(usersQuery);
+  // Effect to fetch user data on demand
+  useEffect(() => {
+    if (!workItems || !firestore) return;
 
+    const fetchUsers = async () => {
+      const userIds = [...new Set(workItems.map(item => item.assignedTo))];
+      const newUsersMap = new Map(usersMap);
+      const idsToFetch: string[] = [];
 
-  const usersMap = useMemo(() => {
-    if (!usersData) return new Map();
-    return new Map(usersData.map((u) => [u.uid, u.displayName]));
-  }, [usersData]);
+      userIds.forEach(id => {
+        if (!newUsersMap.has(id)) {
+          idsToFetch.push(id);
+        }
+      });
+      
+      if (idsToFetch.length === 0) return;
+
+      // Firestore 'in' query is limited to 30 items
+      for (let i = 0; i < idsToFetch.length; i += 30) {
+        const chunk = idsToFetch.slice(i, i + 30);
+        const usersQuery = query(collection(firestore, 'users'), where('uid', 'in', chunk));
+        const userSnapshot = await getDocs(usersQuery);
+        userSnapshot.forEach(doc => {
+          const user = doc.data() as User;
+          newUsersMap.set(user.uid, user.displayName || user.email || 'Unknown');
+        });
+      }
+      setUsersMap(newUsersMap);
+    };
+
+    fetchUsers();
+  }, [workItems, firestore, usersMap]);
+
 
   const handleRowClick = (item: WorkItem) => {
     openTab({
@@ -377,7 +400,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   };
 
 
-  const isLoading = workItemsLoading || usersLoading;
+  const isLoading = workItemsLoading;
 
   if (isLoading) {
     return (
@@ -408,7 +431,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                   </SelectTrigger>
                   <SelectContent>
                       <SelectItem value="all" className="text-xs">All Users</SelectItem>
-                      {usersData?.map(user => <SelectItem key={user.uid} value={user.uid} className="text-xs">{user.displayName}</SelectItem>)}
+                      {Array.from(usersMap.entries()).map(([uid, name]) => <SelectItem key={uid} value={uid} className="text-xs">{name}</SelectItem>)}
                   </SelectContent>
               </Select>
               <Select value={processFilter} onValueChange={setProcessFilter}>
