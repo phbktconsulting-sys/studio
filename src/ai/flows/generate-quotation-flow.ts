@@ -5,6 +5,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { generateImageFromHtml } from '@/services/image-generation-service';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const GenerateQuotationInputSchema = z.object({
   process: z.string(),
@@ -25,6 +26,7 @@ export async function generateQuotation(
 
 const quotationHtmlPrompt = ai.definePrompt({
     name: 'quotationHtmlPrompt',
+    model: googleAI.model('gemini-1.5-flash'),
     input: { schema: z.object({
         process: z.string(),
         tasks: z.array(z.string()),
