@@ -271,7 +271,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 <Label className="text-xs font-bold">Confirm Task Completion</Label>
                 <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
                 <div className="mt-2">
-                  <RadioGroup value={allTasksCompleted} onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')} className="flex flex-col space-y-2 text-xs">
+                  <RadioGroup value={allTasksCompleted} onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')} className="flex items-center gap-4 text-xs">
                       <div className="flex items-center space-x-2">
                           <RadioGroupItem value="yes" id="tasks-yes" />
                           <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
