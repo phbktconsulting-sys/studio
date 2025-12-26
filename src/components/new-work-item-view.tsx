@@ -165,8 +165,8 @@ export function NewWorkItemView() {
             <span className="sr-only">Back</span>
           </Button>
           <div>
-            <h1 className="font-headline text-xl font-bold tracking-tight">Create New Work Item</h1>
-            <p className="text-sm text-muted-foreground">Fill out the details below to create a new work item.</p>
+            <h1 className="font-headline text-lg font-bold tracking-tight">Create New Work Item</h1>
+            <p className="text-xs text-muted-foreground">Fill out the details below to create a new work item.</p>
           </div>
         </div>
         <Card className="shadow-lg">
@@ -206,7 +206,7 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="process"
@@ -306,7 +306,7 @@ export function NewWorkItemView() {
                     </FormItem>
                   )}
                 />
-
+                
                 <FormField
                   control={form.control}
                   name="customerName"
@@ -337,7 +337,6 @@ export function NewWorkItemView() {
                       </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="customerPhone"
@@ -369,7 +368,7 @@ export function NewWorkItemView() {
                   )}
                 />
 
-                 <FormField
+                <FormField
                     control={form.control}
                     name="urgency"
                     render={({ field }) => (
@@ -515,5 +514,3 @@ export function NewWorkItemView() {
     </div>
   );
 }
-
-    
