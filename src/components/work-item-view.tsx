@@ -666,10 +666,17 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                           <SelectValue placeholder="Select pend reason" />
                       </SelectTrigger>
                       <SelectContent>
-                          <SelectItem value="Awaiting Customer Response" className="text-sm">Awaiting Customer Response</SelectItem>
-                          <SelectItem value="Awaiting Internal Approval" className="text-sm">Awaiting Internal Approval</SelectItem>
-                          <SelectItem value="Further Investigation Needed" className="text-sm">Further Investigation Needed</SelectItem>
-                          <SelectItem value="Other" className="text-sm">Other</SelectItem>
+                          <SelectItem value="Pending Internal Action" className="text-sm">Pending Internal Action</SelectItem>
+                          <SelectItem value="Awaiting Other Team Response" className="text-sm">Awaiting Other Team Response</SelectItem>
+                          <SelectItem value="Awaiting Client Feedback" className="text-sm">Awaiting Client Feedback</SelectItem>
+                          <SelectItem value="Blocked by Another Task" className="text-sm">Blocked by Another Task</SelectItem>
+                          <SelectItem value="Pending Final Review" className="text-sm">Pending Final Review</SelectItem>
+                          <SelectItem value="Scheduled for Later" className="text-sm">Scheduled for Later</SelectItem>
+                          <SelectItem value="Under Technical Investigation" className="text-sm">Under Technical Investigation</SelectItem>
+                          <SelectItem value="Clarification Needed" className="text-sm">Clarification Needed</SelectItem>
+                          <SelectItem value="On Hold by Request" className="text-sm">On Hold by Request</SelectItem>
+                          <SelectItem value="Awaiting Developer Action" className="text-sm">Awaiting Developer Action</SelectItem>
+                          <SelectItem value="Other Reason" className="text-sm">Other Reason</SelectItem>
                       </SelectContent>
                   </Select>
                 </div>
@@ -679,7 +686,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label>Pend Until</Label>
                   <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
                 </div>
-                <div className="col-span-2 w-1/2">
+                <div className="w-1/2">
                   <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
                 </div>
             </div>
