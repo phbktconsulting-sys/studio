@@ -26,7 +26,7 @@ export async function generateQuotation(
 
 const quotationHtmlPrompt = ai.definePrompt({
     name: 'quotationHtmlPrompt',
-    model: googleAI.model('gemini-1.5-flash'),
+    model: googleAI.model('gemini-1.5-flash-latest'),
     input: { schema: z.object({
         process: z.string(),
         tasks: z.array(z.string()),
