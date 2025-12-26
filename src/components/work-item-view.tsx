@@ -333,7 +333,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             <div className="grid grid-cols-3 items-center gap-2">
               <Label className="col-span-1">Process*</Label>
               <div className="col-span-2">
-                 <Select onValueChange={setReindexReason} value={reindexReason}>
+                 <Select onValueChange={(value) => { setReindexReason(value); setReindexTasks([]); }} value={reindexReason}>
                    <SelectTrigger className="h-7 text-xs w-2/5">
                      <SelectValue placeholder="Select a new process" />
                    </SelectTrigger>
@@ -349,15 +349,15 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
            </div>
            
            {reindexReason && (
-            <div className="grid grid-cols-3 items-center gap-2">
-                <Label className="col-span-1">Task</Label>
-                <div className="col-span-2">
+             <div className="grid grid-cols-3 items-start gap-2">
+                <Label className="col-span-1 self-start pt-1.5">Task</Label>
+                <div className="col-span-2 flex flex-col gap-2">
                     <Popover>
                         <PopoverTrigger asChild>
                         <Button
                             variant="outline"
                             role="combobox"
-                            className={cn("w-2/5 justify-between h-7 text-xs", !reindexTasks?.length && "text-muted-foreground")}
+                            className={cn("w-full md:w-2/5 justify-between h-7 text-xs", !reindexTasks?.length && "text-muted-foreground")}
                         >
                             {reindexTasks?.length > 0 ? `${reindexTasks.length} tasks selected` : "Select initial tasks"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -386,6 +386,23 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                         </Command>
                         </PopoverContent>
                     </Popover>
+                    {reindexTasks.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                            {reindexTasks.map(task => (
+                                <Badge key={task} variant="secondary" className="text-xs font-normal">
+                                    {task}
+                                    <button
+                                        type="button"
+                                        className="ml-1.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                                        onClick={() => setReindexTasks(prev => prev.filter(t => t !== task))}
+                                    >
+                                        <X className="h-3 w-3" />
+                                        <span className="sr-only">Remove {task}</span>
+                                    </button>
+                                </Badge>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
            )}
@@ -427,7 +444,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     <p className="text-xs text-muted-foreground">Select the process for the cloned item.</p>
                   </div>
                   <div className="col-span-2">
-                    <Select onValueChange={setCloneToProcess} value={cloneToProcess}>
+                    <Select onValueChange={(value) => { setCloneToProcess(value); setCloneTasks([]); }} value={cloneToProcess}>
                         <SelectTrigger className="h-7 text-xs w-2/5">
                             <SelectValue placeholder="Select Process for Cloned Item" />
                         </SelectTrigger>
@@ -440,18 +457,18 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   </div>
                </div>
                 {cloneToProcess && (
-                    <div className="grid grid-cols-3 items-center gap-2">
-                       <div className="col-span-1">
+                    <div className="grid grid-cols-3 items-start gap-2">
+                       <div className="col-span-1 self-start pt-1.5">
                          <Label>Initial Tasks</Label>
                          <p className="text-xs text-muted-foreground">Select tasks for the cloned case.</p>
                        </div>
-                       <div className="col-span-2">
+                       <div className="col-span-2 flex flex-col gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
                                 role="combobox"
-                                className={cn("w-2/5 justify-between h-7 text-xs", !cloneTasks?.length && "text-muted-foreground")}
+                                className={cn("w-full md:w-2/5 justify-between h-7 text-xs", !cloneTasks?.length && "text-muted-foreground")}
                             >
                                 {cloneTasks?.length > 0 ? `${cloneTasks.length} tasks selected` : "Select initial tasks for cloned case"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -480,6 +497,23 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                             </Command>
                             </PopoverContent>
                         </Popover>
+                        {cloneTasks.length > 0 && (
+                            <div className="flex flex-wrap gap-1 pt-1">
+                                {cloneTasks.map(task => (
+                                    <Badge key={task} variant="secondary" className="text-xs font-normal">
+                                        {task}
+                                        <button
+                                            type="button"
+                                            className="ml-1.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                                            onClick={() => setCloneTasks(prev => prev.filter(t => t !== task))}
+                                        >
+                                            <X className="h-3 w-3" />
+                                            <span className="sr-only">Remove {task}</span>
+                                        </button>
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
                        </div>
                     </div>
                 )}
