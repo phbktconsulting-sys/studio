@@ -153,18 +153,6 @@ export function EditContactInfoDialog({
                  <FormLabel>Address</FormLabel>
                   <FormField
                     control={form.control}
-                    name="address.country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input {...field} placeholder="Country" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
                     name="address.line1"
                     render={({ field }) => (
                       <FormItem>
@@ -187,12 +175,12 @@ export function EditContactInfoDialog({
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                     <FormField
                       control={form.control}
                       name="address.city"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="col-span-2">
                           <FormControl>
                             <Input {...field} placeholder="City" />
                           </FormControl>
@@ -214,17 +202,29 @@ export function EditContactInfoDialog({
                     />
                     <FormField
                       control={form.control}
-                      name="address.zipcode"
+                      name="address.country"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input {...field} placeholder="Zipcode" />
+                            <Input {...field} placeholder="Country" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
+                  <FormField
+                    control={form.control}
+                    name="address.zipcode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input {...field} placeholder="Zipcode" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                </div>
               <FormField
                 control={form.control}
