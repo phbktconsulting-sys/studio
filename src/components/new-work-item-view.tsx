@@ -161,38 +161,35 @@ export function NewWorkItemView() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 
-                {/* --- Form Row: Process --- */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                    <FormField
-                      control={form.control}
-                      name="process"
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-3 gap-4 items-start">
-                          <div className="col-span-1 pt-1.5">
-                            <FormLabel>Process</FormLabel>
-                            <p className="text-xs text-muted-foreground mt-1">Select the type of work.</p>
-                          </div>
-                          <div className="col-span-2">
-                            <Select onValueChange={(value) => { field.onChange(value); form.setValue('initialTasks', []); }} value={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a process" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {processTypes.map((type) => (
-                                  <SelectItem key={type} value={type}>
-                                    {type}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="process"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                      <div className="col-span-1 pt-1.5">
+                        <FormLabel>Process</FormLabel>
+                        <p className="text-xs text-muted-foreground mt-1">Select the type of work.</p>
+                      </div>
+                      <div className="col-span-2">
+                        <Select onValueChange={(value) => { field.onChange(value); form.setValue('initialTasks', []); }} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a process" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {processTypes.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
 
                  {/* --- Form Row: Initial Tasks --- */}
                  <FormField
@@ -265,103 +262,96 @@ export function NewWorkItemView() {
                   )}
                 />
 
-                {/* --- Form Row: Customer Info --- */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                     <FormField
-                        control={form.control}
-                        name="customerName"
-                        render={({ field }) => (
-                            <FormItem className="grid grid-cols-3 gap-4 items-start">
-                                <div className="col-span-1 pt-1.5">
-                                    <FormLabel>Customer Name</FormLabel>
-                                </div>
-                                <div className="col-span-2">
-                                    <Input {...field} />
-                                    <FormMessage />
-                                </div>
-                            </FormItem>
-                        )}
-                        />
-                     <FormField
-                        control={form.control}
-                        name="customerEmail"
-                        render={({ field }) => (
-                            <FormItem className="grid grid-cols-3 gap-4 items-start">
-                                <div className="col-span-1 pt-1.5">
-                                    <FormLabel>Customer Email</FormLabel>
-                                </div>
-                                <div className="col-span-2">
-                                    <Input type="email" {...field} />
-                                    <FormMessage />
-                                </div>
-                            </FormItem>
-                        )}
-                        />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="customerName"
+                  render={({ field }) => (
+                      <FormItem className="grid grid-cols-3 gap-4 items-start">
+                          <div className="col-span-1 pt-1.5">
+                              <FormLabel>Customer Name</FormLabel>
+                          </div>
+                          <div className="col-span-2">
+                              <Input {...field} />
+                              <FormMessage />
+                          </div>
+                      </FormItem>
+                  )}
+                  />
+                <FormField
+                  control={form.control}
+                  name="customerEmail"
+                  render={({ field }) => (
+                      <FormItem className="grid grid-cols-3 gap-4 items-start">
+                          <div className="col-span-1 pt-1.5">
+                              <FormLabel>Customer Email</FormLabel>
+                          </div>
+                          <div className="col-span-2">
+                              <Input type="email" {...field} />
+                              <FormMessage />
+                          </div>
+                      </FormItem>
+                  )}
+                />
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                     <FormField
-                        control={form.control}
-                        name="customerPhone"
-                        render={({ field }) => (
-                            <FormItem className="grid grid-cols-3 gap-4 items-start">
-                                <div className="col-span-1 pt-1.5">
-                                    <FormLabel>Customer Phone</FormLabel>
-                                </div>
-                                <div className="col-span-2">
-                                    <Input {...field} />
-                                    <FormMessage />
-                                </div>
-                            </FormItem>
-                        )}
-                        />
-                      <FormField
-                        control={form.control}
-                        name="customerPhoneSecondary"
-                        render={({ field }) => (
-                          <FormItem className="grid grid-cols-3 gap-4 items-start">
-                                <div className="col-span-1 pt-1.5">
-                                    <FormLabel>Secondary Phone</FormLabel>
-                                </div>
-                                <div className="col-span-2">
-                                    <Input {...field} placeholder="(Optional)" />
-                                    <FormMessage />
-                                </div>
-                          </FormItem>
-                        )}
-                      />
-                </div>
-
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                      <FormField
-                          control={form.control}
-                          name="urgency"
-                          render={({ field }) => (
-                            <FormItem className="grid grid-cols-3 gap-4 items-start">
-                              <div className="col-span-1 pt-1.5">
-                                <FormLabel>Urgency</FormLabel>
-                                <p className="text-xs text-muted-foreground mt-1">Set the priority level.</p>
-                              </div>
-                              <div className="col-span-2">
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select urgency" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    <SelectItem value="Low">Low</SelectItem>
-                                    <SelectItem value="Medium">Medium</SelectItem>
-                                    <SelectItem value="High">High</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="customerPhone"
+                  render={({ field }) => (
+                      <FormItem className="grid grid-cols-3 gap-4 items-start">
+                          <div className="col-span-1 pt-1.5">
+                              <FormLabel>Customer Phone</FormLabel>
+                          </div>
+                          <div className="col-span-2">
+                              <Input {...field} />
+                              <FormMessage />
+                          </div>
+                      </FormItem>
+                  )}
+                  />
+                <FormField
+                  control={form.control}
+                  name="customerPhoneSecondary"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                          <div className="col-span-1 pt-1.5">
+                              <FormLabel>Secondary Phone</FormLabel>
+                          </div>
+                          <div className="col-span-2">
+                              <Input {...field} placeholder="(Optional)" />
+                              <FormMessage />
+                          </div>
+                    </FormItem>
+                  )}
+                />
                 
+                <FormField
+                    control={form.control}
+                    name="urgency"
+                    render={({ field }) => (
+                      <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5">
+                          <FormLabel>Urgency</FormLabel>
+                          <p className="text-xs text-muted-foreground mt-1">Set the priority level.</p>
+                        </div>
+                        <div className="col-span-2">
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                              <SelectTrigger>
+                                  <SelectValue placeholder="Select urgency" />
+                              </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                              <SelectItem value="Low">Low</SelectItem>
+                              <SelectItem value="Medium">Medium</SelectItem>
+                              <SelectItem value="High">High</SelectItem>
+                              </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
                 <div className="grid grid-cols-3 gap-4 items-start">
                     <div className="col-span-1 pt-1.5">
                         <FormLabel>Customer Address</FormLabel>
@@ -515,5 +505,3 @@ export function NewWorkItemView() {
     </div>
   );
 }
-
-    
