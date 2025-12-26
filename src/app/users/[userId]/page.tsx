@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,14 +22,15 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { doc } from 'firebase/firestore';
-import { useDoc, useFirebase, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
-import { CreateUserInputSchema, type CreateUserInput, type User as UserProfile } from '@/lib/types';
+import { useDoc, useFirebase, useMemoFirebase } from '@/firebase';
+import { UpdateUserInputSchema, type UpdateUserInput, type User as UserProfile } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import { CustomCalendar } from '@/components/custom-calendar';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { updateUser } from '@/ai/flows/update-user-flow';
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -48,13 +48,12 @@ export default function UserProfilePage() {
 
   const { data: userProfile, isLoading } = useDoc<UserProfile>(userProfileRef);
 
-  const form = useForm<CreateUserInput>({
-    resolver: zodResolver(CreateUserInputSchema),
+  const form = useForm<UpdateUserInput>({
+    resolver: zodResolver(UpdateUserInputSchema),
     defaultValues: {
       firstName: '',
       middleName: '',
       lastName: '',
-      email: '',
       password: '',
       mobileNumber: '',
       department: 'Operation',
@@ -85,24 +84,28 @@ export default function UserProfilePage() {
     }
   }, [userProfile, form]);
 
-  const onUpdate = async (data: CreateUserInput) => {
+  const onUpdate = async (data: UpdateUserInput) => {
     setIsSubmitting(true);
     if (!userProfileRef) return;
     
     try {
       const payload = {
+        uid: userId,
         ...data,
         dob: format(data.dob, 'yyyy-MM-dd'),
       };
-      // Note: password is not updated here as it requires special handling
-      const { password, ...updateData } = payload;
-      updateDocumentNonBlocking(userProfileRef, updateData);
+      
+      const result = await updateUser(payload);
 
-      toast({
-        title: 'User Updated',
-        description: `User ${data.firstName} ${data.lastName} has been successfully updated.`,
-      });
-      router.back();
+      if(result.success) {
+        toast({
+            title: 'User Updated',
+            description: `User ${data.firstName} ${data.lastName} has been successfully updated.`,
+        });
+        router.back();
+      } else {
+        throw new Error(result.error || 'An unknown error occurred.');
+      }
     } catch (error: any) {
       toast({
         variant: 'destructive',
