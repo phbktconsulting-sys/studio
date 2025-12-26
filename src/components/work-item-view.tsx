@@ -173,7 +173,8 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [allTasksCompleted, setAllTasksCompleted] = useState<'yes' | 'no' | undefined>();
 
 
-  const [reindexReason, setReindexReason] = useState<string>('Wrong Process');
+  const [reindexReason, setReindexReason] = useState<string>('');
+  const [reindexTasks, setReindexTasks] = useState<string[]>([]);
   const [reindexNotes, setReindexNotes] = useState('');
   const [shouldCopyNotes, setShouldCopyNotes] = useState<'yes' | 'no'>('yes');
   const [reindexOption, setReindexOption] = useState<'myself' | 'initial'>('myself');
@@ -330,11 +331,11 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
             </div>
 
             <div className="grid grid-cols-3 items-center gap-2">
-              <Label className="col-span-1">Reason*</Label>
+              <Label className="col-span-1">Process*</Label>
               <div className="col-span-2">
                  <Select onValueChange={setReindexReason} value={reindexReason}>
                    <SelectTrigger className="h-7 text-xs w-2/5">
-                     <SelectValue />
+                     <SelectValue placeholder="Select a new process" />
                    </SelectTrigger>
                    <SelectContent>
                      {processTypes.map((type) => (
@@ -346,6 +347,48 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                  </Select>
               </div>
            </div>
+           
+           {reindexReason && (
+            <div className="grid grid-cols-3 items-center gap-2">
+                <Label className="col-span-1">Task</Label>
+                <div className="col-span-2">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn("w-2/5 justify-between h-7 text-xs", !reindexTasks?.length && "text-muted-foreground")}
+                        >
+                            {reindexTasks?.length > 0 ? `${reindexTasks.length} tasks selected` : "Select initial tasks"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                            <CommandInput placeholder="Search tasks..." />
+                            <CommandList>
+                            <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                            <CommandGroup>
+                                {(processTaskMap[reindexReason] || []).map((task) => (
+                                    <CommandItem
+                                        key={task}
+                                        onSelect={() => {
+                                            const isSelected = reindexTasks.includes(task);
+                                            setReindexTasks(isSelected ? reindexTasks.filter(t => t !== task) : [...reindexTasks, task]);
+                                        }}
+                                    >
+                                        <Checkbox checked={reindexTasks.includes(task)} className="mr-2" />
+                                        {task}
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                            </CommandList>
+                        </Command>
+                        </PopoverContent>
+                    </Popover>
+                </div>
+            </div>
+           )}
             
              <div className="grid grid-cols-3 items-center gap-2">
                 <Label className="col-span-1">Do you want to copy the notes to the new case?</Label>
@@ -646,7 +689,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 return;
             }
             if (!reindexReason) {
-                toast({ variant: 'destructive', title: 'Error', description: 'Please select a reason for re-indexing.' });
+                toast({ variant: 'destructive', title: 'Error', description: 'Please select a new process for re-indexing.' });
                 return;
             }
 
@@ -661,7 +704,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               createdBy: user.uid,
               relatedContact: workItem.relatedContact,
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
-              tasks: [],
+              tasks: reindexTasks.map(taskText => ({ 
+                    id: `task-${Date.now()}-${Math.random()}`, 
+                    text: taskText, 
+                    completed: false,
+                    createdBy: user.uid,
+                    createdAt: new Date().toISOString()
+                })),
               sourceWorkItemId: shouldCopyNotes === 'yes' ? workItem.id : undefined,
               reindexReason: reindexReason, 
               reindexNote: `Original Case ID: ${workItem.customId}. ${reindexNotes}`,
