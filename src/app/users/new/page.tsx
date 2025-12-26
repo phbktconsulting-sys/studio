@@ -124,8 +124,8 @@ export default function NewUserPage() {
           <span className="sr-only">Back</span>
         </Button>
         <div>
-          <h1 className="font-headline text-xl font-bold tracking-tight">Create New User</h1>
-          <p className="text-sm text-muted-foreground">Fill out the details below to create a new user account.</p>
+          <h1 className="font-headline text-lg font-bold tracking-tight">Create New User</h1>
+          <p className="text-xs text-muted-foreground">Fill out the details below to create a new user account.</p>
         </div>
       </div>
       <Card className="shadow-lg">

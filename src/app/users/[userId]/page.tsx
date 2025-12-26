@@ -143,8 +143,8 @@ export default function UserProfilePage() {
           <span className="sr-only">Back</span>
         </Button>
         <div>
-          <h1 className="font-headline text-xl font-bold tracking-tight">Edit User Profile</h1>
-          <p className="text-sm text-muted-foreground">Modify the details for {userProfile.displayName}.</p>
+          <h1 className="font-headline text-lg font-bold tracking-tight">Edit User Profile</h1>
+          <p className="text-xs text-muted-foreground">Modify the details for {userProfile.displayName}.</p>
         </div>
       </div>
       <Card className="shadow-lg">
