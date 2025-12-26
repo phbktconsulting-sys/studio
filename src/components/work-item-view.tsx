@@ -198,17 +198,24 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
   useEffect(() => {
     async function fetchUsers() {
-      if (firestore && user) {
+        if (!firestore || !user) return;
         setIsLoadingUsers(true);
-        const usersCol = collection(firestore, 'users');
-        const userSnapshot = await getDocs(usersCol);
-        const userList = userSnapshot.docs.map(doc => doc.data() as User).filter(u => u.uid !== user.uid);
-        setUsers(userList);
-        setIsLoadingUsers(false);
-      }
+        try {
+            const usersCol = collection(firestore, 'users');
+            const userSnapshot = await getDocs(usersCol);
+            const userList = userSnapshot.docs
+                .map(doc => doc.data() as User)
+                .filter(u => u.uid !== user.uid); // Exclude current user
+            setUsers(userList);
+        } catch (error) {
+            console.error("Failed to fetch users:", error);
+            toast({ variant: 'destructive', title: 'Error', description: 'Could not load users for transfer.' });
+        } finally {
+            setIsLoadingUsers(false);
+        }
     }
     fetchUsers();
-  }, [firestore, user]);
+}, [firestore, user, toast]);
   
   const getActionDisplayName = (actionValue: string) => {
     if (!actionValue) return 'VERIFY CUSTOMER AUTHORITY';
@@ -240,35 +247,28 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-              <div className="md:col-span-2">
-                <Label className="text-xs font-bold">Outstanding Tasks</Label>
-                <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
-              </div>
-              <div className="md:col-span-2">
-                 {workItem.tasks.length > 0 ? (
-                    workItem.tasks.map(task => (
-                        <div key={task.id} className="flex items-center space-x-2">
-                            <Checkbox
-                                id={`complete-${task.id}`}
-                                checked={completedTasks.has(task.id)}
-                                onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
-                            />
-                            <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
-                        </div>
-                    ))
-                ) : (
-                    <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
-                )}
-              </div>
+             <div className="space-y-2">
+              <Label className="text-xs font-bold">Outstanding Tasks</Label>
+              <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
+               {workItem.tasks.length > 0 ? (
+                  workItem.tasks.map(task => (
+                      <div key={task.id} className="flex items-center space-x-2">
+                          <Checkbox
+                              id={`complete-${task.id}`}
+                              checked={completedTasks.has(task.id)}
+                              onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
+                          />
+                          <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
+                      </div>
+                  ))
+              ) : (
+                  <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-              <div className="md:col-span-2">
+            <div className="space-y-2">
                 <Label className="text-xs font-bold">Confirm Task Completion</Label>
-                 <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
-              </div>
-              <div className="md:col-span-2">
+                <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
                  <RadioGroup value={allTasksCompleted} onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs mt-2">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="yes" id="tasks-yes" />
@@ -279,361 +279,292 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                         <Label htmlFor="tasks-no" className="text-xs font-normal">Not all tasks completed</Label>
                     </div>
                 </RadioGroup>
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-               <div className="md:col-span-2">
-                 <Label className="text-xs font-bold">Notes</Label>
-                 <p className="text-xs text-muted-foreground">Add resolution notes.</p>
-               </div>
-               <div className="md:col-span-2">
-                <Textarea
-                  value={resolveCompleteNotes}
-                  onChange={(e) => setResolveCompleteNotes(e.target.value)}
-                  placeholder="Add resolution notes..."
-                  className="min-h-[80px]"
-                />
-               </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold">Notes</Label>
+              <p className="text-xs text-muted-foreground">Add resolution notes.</p>
+              <Textarea
+                value={resolveCompleteNotes}
+                onChange={(e) => setResolveCompleteNotes(e.target.value)}
+                placeholder="Add resolution notes..."
+                className="min-h-[80px]"
+              />
             </div>
           </div>
         );
        case 're-index':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-              <div className="md:col-span-2">
-                <Label className="text-xs font-bold">New Process</Label>
-                <p className="text-xs text-muted-foreground">Select the process to re-index to.</p>
-              </div>
-              <div className="md:col-span-2">
-                <Select onValueChange={setReindexToProcess} value={reindexToProcess}>
-                  <SelectTrigger className="h-9 text-xs">
-                    <SelectValue placeholder="Select New Process" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {processTypes.map((type) => (
-                      <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold">New Process</Label>
+              <p className="text-xs text-muted-foreground">Select the process to re-index to.</p>
+              <Select onValueChange={setReindexToProcess} value={reindexToProcess}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Select New Process" />
+                </SelectTrigger>
+                <SelectContent>
+                  {processTypes.map((type) => (
+                    <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             {reindexToProcess && (
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                    <div className="md:col-span-2">
-                        <Label className="text-xs font-bold">Initial Tasks</Label>
-                        <p className="text-xs text-muted-foreground">Select tasks for the new case.</p>
-                    </div>
-                    <div className="md:col-span-2">
-                        <Popover>
-                            <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn("w-full justify-between h-9 text-xs", !reindexTasks?.length && "text-muted-foreground")}
-                            >
-                                {reindexTasks?.length > 0 ? `${reindexTasks.length} tasks selected` : "Select initial tasks for new case"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                            <Command>
-                                <CommandInput placeholder="Search tasks..." />
-                                <CommandList>
-                                <CommandEmpty>No tasks found.</CommandEmpty>
-                                <CommandGroup>
-                                    {(processTaskMap[reindexToProcess] || []).map((task) => (
-                                        <CommandItem
-                                            key={task}
-                                            onSelect={() => {
-                                                const isSelected = reindexTasks.includes(task);
-                                                setReindexTasks(isSelected ? reindexTasks.filter(t => t !== task) : [...reindexTasks, task]);
-                                            }}
-                                        >
-                                            <Checkbox checked={reindexTasks.includes(task)} className="mr-2" />
-                                            {task}
-                                        </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                                </CommandList>
-                            </Command>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
+                <div className="space-y-2">
+                    <Label className="text-xs font-bold">Initial Tasks</Label>
+                    <p className="text-xs text-muted-foreground">Select tasks for the new case.</p>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn("w-full justify-between h-9 text-xs", !reindexTasks?.length && "text-muted-foreground")}
+                        >
+                            {reindexTasks?.length > 0 ? `${reindexTasks.length} tasks selected` : "Select initial tasks for new case"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                            <CommandInput placeholder="Search tasks..." />
+                            <CommandList>
+                            <CommandEmpty>No tasks found.</CommandEmpty>
+                            <CommandGroup>
+                                {(processTaskMap[reindexToProcess] || []).map((task) => (
+                                    <CommandItem
+                                        key={task}
+                                        onSelect={() => {
+                                            const isSelected = reindexTasks.includes(task);
+                                            setReindexTasks(isSelected ? reindexTasks.filter(t => t !== task) : [...reindexTasks, task]);
+                                        }}
+                                    >
+                                        <Checkbox checked={reindexTasks.includes(task)} className="mr-2" />
+                                        {task}
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                            </CommandList>
+                        </Command>
+                        </PopoverContent>
+                    </Popover>
                 </div>
             )}
-             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Assignment</Label>
-                    <p className="text-xs text-muted-foreground">Who should the new case be assigned to?</p>
-                </div>
-                <div className="md:col-span-2">
-                    <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="myself" id="reindex-myself" />
-                            <Label htmlFor="reindex-myself" className="text-xs font-normal">Assign to myself</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="initial" id="reindex-initial" />
-                            <Label htmlFor="reindex-initial" className="text-xs font-normal">Return to initial Indexing</Label>
-                        </div>
-                    </RadioGroup>
-                </div>
+             <div className="space-y-2">
+                <Label className="text-xs font-bold">Assignment</Label>
+                <p className="text-xs text-muted-foreground">Who should the new case be assigned to?</p>
+                <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="myself" id="reindex-myself" />
+                        <Label htmlFor="reindex-myself" className="text-xs font-normal">Assign to myself</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="initial" id="reindex-initial" />
+                        <Label htmlFor="reindex-initial" className="text-xs font-normal">Return to initial Indexing</Label>
+                    </div>
+                </RadioGroup>
              </div>
-             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Copy Notes</Label>
-                    <p className="text-xs text-muted-foreground">Copy all existing notes to the new case?</p>
-                </div>
-                <div className="md:col-span-2">
-                    <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="yes" id="copy-yes" />
-                            <Label htmlFor="copy-yes" className="text-xs font-normal">Copy all notes to new case</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="no" id="copy-no" />
-                            <Label htmlFor="copy-no" className="text-xs font-normal">Do not copy notes</Label>
-                        </div>
-                    </RadioGroup>
-                </div>
+             <div className="space-y-2">
+                <Label className="text-xs font-bold">Copy Notes</Label>
+                <p className="text-xs text-muted-foreground">Copy all existing notes to the new case?</p>
+                <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="copy-yes" />
+                        <Label htmlFor="copy-yes" className="text-xs font-normal">Copy all notes to new case</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="copy-no" />
+                        <Label htmlFor="copy-no" className="text-xs font-normal">Do not copy notes</Label>
+                    </div>
+                </RadioGroup>
              </div>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Notes</Label>
-                    <p className="text-xs text-muted-foreground">Provide a reason for re-indexing.</p>
-                </div>
-                <div className="md:col-span-2">
-                    <Textarea
-                        value={reindexNotes}
-                        onChange={(e) => setReindexNotes(e.target.value)}
-                        placeholder="Add re-indexing notes..."
-                        className="min-h-[80px]"
-                        />
-                </div>
+            <div className="space-y-2">
+                <Label className="text-xs font-bold">Notes</Label>
+                <p className="text-xs text-muted-foreground">Provide a reason for re-indexing.</p>
+                <Textarea
+                    value={reindexNotes}
+                    onChange={(e) => setReindexNotes(e.target.value)}
+                    placeholder="Add re-indexing notes..."
+                    className="min-h-[80px]"
+                    />
             </div>
           </div>
         );
         case 'clone':
         return (
             <div className="space-y-4">
-               <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                  <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">New Process</Label>
-                    <p className="text-xs text-muted-foreground">Select the process for the cloned item.</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <Select onValueChange={setCloneToProcess} value={cloneToProcess}>
-                        <SelectTrigger className="h-9 text-xs">
-                            <SelectValue placeholder="Select Process for Cloned Item" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {processTypes.map((type) => (
-                                <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                  </div>
+               <div className="space-y-2">
+                  <Label className="text-xs font-bold">New Process</Label>
+                  <p className="text-xs text-muted-foreground">Select the process for the cloned item.</p>
+                  <Select onValueChange={setCloneToProcess} value={cloneToProcess}>
+                      <SelectTrigger className="h-9 text-xs">
+                          <SelectValue placeholder="Select Process for Cloned Item" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {processTypes.map((type) => (
+                              <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
                </div>
                 {cloneToProcess && (
-                    <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                       <div className="md:col-span-2">
-                         <Label className="text-xs font-bold">Initial Tasks</Label>
-                         <p className="text-xs text-muted-foreground">Select tasks for the cloned case.</p>
-                       </div>
-                       <div className="md:col-span-2">
-                        <Popover>
-                            <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn("w-full justify-between h-9 text-xs", !cloneTasks?.length && "text-muted-foreground")}
-                            >
-                                {cloneTasks?.length > 0 ? `${cloneTasks.length} tasks selected` : "Select initial tasks for cloned case"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                            <Command>
-                                <CommandInput placeholder="Search tasks..." />
-                                <CommandList>
-                                <CommandEmpty>No tasks found.</CommandEmpty>
-                                <CommandGroup>
-                                    {(processTaskMap[cloneToProcess] || []).map((task) => (
-                                        <CommandItem
-                                            key={task}
-                                            onSelect={() => {
-                                                const isSelected = cloneTasks.includes(task);
-                                                setCloneTasks(isSelected ? cloneTasks.filter(t => t !== task) : [...cloneTasks, task]);
-                                            }}
-                                        >
-                                            <Checkbox checked={cloneTasks.includes(task)} className="mr-2" />
-                                            {task}
-                                        </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                                </CommandList>
-                            </Command>
-                            </PopoverContent>
-                        </Popover>
-                       </div>
+                    <div className="space-y-2">
+                       <Label className="text-xs font-bold">Initial Tasks</Label>
+                       <p className="text-xs text-muted-foreground">Select tasks for the cloned case.</p>
+                      <Popover>
+                          <PopoverTrigger asChild>
+                          <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn("w-full justify-between h-9 text-xs", !cloneTasks?.length && "text-muted-foreground")}
+                          >
+                              {cloneTasks?.length > 0 ? `${cloneTasks.length} tasks selected` : "Select initial tasks for cloned case"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                          <Command>
+                              <CommandInput placeholder="Search tasks..." />
+                              <CommandList>
+                              <CommandEmpty>No tasks found.</CommandEmpty>
+                              <CommandGroup>
+                                  {(processTaskMap[cloneToProcess] || []).map((task) => (
+                                      <CommandItem
+                                          key={task}
+                                          onSelect={() => {
+                                              const isSelected = cloneTasks.includes(task);
+                                              setCloneTasks(isSelected ? cloneTasks.filter(t => t !== task) : [...cloneTasks, task]);
+                                          }}
+                                      >
+                                          <Checkbox checked={cloneTasks.includes(task)} className="mr-2" />
+                                          {task}
+                                      </CommandItem>
+                                  ))}
+                              </CommandGroup>
+                              </CommandList>
+                          </Command>
+                          </PopoverContent>
+                      </Popover>
                     </div>
                 )}
-                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                    <div className="md:col-span-2">
-                        <Label className="text-xs font-bold">Assignment</Label>
-                        <p className="text-xs text-muted-foreground">Who should the cloned case be assigned to?</p>
-                    </div>
-                    <div className="md:col-span-2">
-                        <RadioGroup value={cloneOption} onValueChange={(v) => setCloneOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="myself" id="clone-myself" />
-                                <Label htmlFor="clone-myself" className="text-xs font-normal">Assign to myself</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="initial" id="clone-initial" />
-                                <Label htmlFor="clone-initial" className="text-xs font-normal">Return to initial Indexing</Label>
-                            </div>
-                        </RadioGroup>
-                    </div>
+                 <div className="space-y-2">
+                    <Label className="text-xs font-bold">Assignment</Label>
+                    <p className="text-xs text-muted-foreground">Who should the cloned case be assigned to?</p>
+                    <RadioGroup value={cloneOption} onValueChange={(v) => setCloneOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="myself" id="clone-myself" />
+                            <Label htmlFor="clone-myself" className="text-xs font-normal">Assign to myself</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="initial" id="clone-initial" />
+                            <Label htmlFor="clone-initial" className="text-xs font-normal">Return to initial Indexing</Label>
+                        </div>
+                    </RadioGroup>
                  </div>
-                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                    <div className="md:col-span-2">
-                        <Label className="text-xs font-bold">Notes</Label>
-                        <p className="text-xs text-muted-foreground">Provide a reason for cloning.</p>
-                    </div>
-                    <div className="md:col-span-2">
-                        <Textarea
-                            value={cloneNotes}
-                            onChange={(e) => setCloneNotes(e.target.value)}
-                            placeholder="Add cloning notes/reason..."
-                            className="min-h-[80px]"
-                        />
-                    </div>
+                 <div className="space-y-2">
+                    <Label className="text-xs font-bold">Notes</Label>
+                    <p className="text-xs text-muted-foreground">Provide a reason for cloning.</p>
+                    <Textarea
+                        value={cloneNotes}
+                        onChange={(e) => setCloneNotes(e.target.value)}
+                        placeholder="Add cloning notes/reason..."
+                        className="min-h-[80px]"
+                    />
                  </div>
             </div>
         );
       case 'terminate':
         return (
           <div className="space-y-4">
-             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Reason</Label>
-                    <p className="text-xs text-muted-foreground">Select a reason for termination.</p>
-                </div>
-                <div className="md:col-span-2">
-                    <Select onValueChange={setTerminateReason} value={terminateReason}>
-                        <SelectTrigger className="h-9 text-xs">
-                            <SelectValue placeholder="Select termination reason" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Customer Request" className="text-xs">Customer Request</SelectItem>
-                            <SelectItem value="No Response" className="text-xs">No Response</SelectItem>
-                            <SelectItem value="Duplicate Entry" className="text-xs">Duplicate Entry</SelectItem>
-                            <SelectItem value="Other" className="text-xs">Other</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+             <div className="space-y-2">
+                <Label className="text-xs font-bold">Reason</Label>
+                <p className="text-xs text-muted-foreground">Select a reason for termination.</p>
+                <Select onValueChange={setTerminateReason} value={terminateReason}>
+                    <SelectTrigger className="h-9 text-xs">
+                        <SelectValue placeholder="Select termination reason" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Customer Request" className="text-xs">Customer Request</SelectItem>
+                        <SelectItem value="No Response" className="text-xs">No Response</SelectItem>
+                        <SelectItem value="Duplicate Entry" className="text-xs">Duplicate Entry</SelectItem>
+                        <SelectItem value="Other" className="text-xs">Other</SelectItem>
+                    </SelectContent>
+                </Select>
              </div>
-             <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Notes</Label>
-                    <p className="text-xs text-muted-foreground">Add termination notes.</p>
-                </div>
-                <div className="md:col-span-2">
-                    <Textarea
-                        value={terminateNotes}
-                        onChange={(e) => setTerminateNotes(e.target.value)}
-                        placeholder="Add termination notes..."
-                        className="min-h-[80px]"
-                    />
-                </div>
+             <div className="space-y-2">
+                <Label className="text-xs font-bold">Notes</Label>
+                <p className="text-xs text-muted-foreground">Add termination notes.</p>
+                <Textarea
+                    value={terminateNotes}
+                    onChange={(e) => setTerminateNotes(e.target.value)}
+                    placeholder="Add termination notes..."
+                    className="min-h-[80px]"
+                />
              </div>
           </div>
         );
       case 'transfer':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Transfer To</Label>
-                    <p className="text-xs text-muted-foreground">Select a user to transfer the case to.</p>
-                </div>
-                <div className="md:col-span-2">
-                    <Select onValueChange={setTransferToUser} value={transferToUser} disabled={isLoadingUsers}>
-                    <SelectTrigger className="h-9 text-xs">
-                        <SelectValue placeholder={isLoadingUsers ? "Loading users..." : "Select user to transfer to"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {users.map(u => (
-                        <SelectItem key={u.uid} value={u.uid} className="text-xs">{u.displayName}</SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                </div>
+            <div className="space-y-2">
+                <Label className="text-xs font-bold">Transfer To</Label>
+                <p className="text-xs text-muted-foreground">Select a user to transfer the case to.</p>
+                <Select onValueChange={setTransferToUser} value={transferToUser} disabled={isLoadingUsers}>
+                <SelectTrigger className="h-9 text-xs">
+                    <SelectValue placeholder={isLoadingUsers ? "Loading users..." : "Select user to transfer to"} />
+                </SelectTrigger>
+                <SelectContent>
+                    {users.map(u => (
+                    <SelectItem key={u.uid} value={u.uid} className="text-xs">{u.displayName}</SelectItem>
+                    ))}
+                </SelectContent>
+                </Select>
             </div>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Notes</Label>
-                    <p className="text-xs text-muted-foreground">Provide a reason for the transfer.</p>
-                </div>
-                <div className="md:col-span-2">
-                    <Textarea
-                        value={transferNotes}
-                        onChange={(e) => setTransferNotes(e.target.value)}
-                        placeholder="Add transfer notes..."
-                        className="min-h-[80px]"
-                    />
-                </div>
+            <div className="space-y-2">
+                <Label className="text-xs font-bold">Notes</Label>
+                <p className="text-xs text-muted-foreground">Provide a reason for the transfer.</p>
+                <Textarea
+                    value={transferNotes}
+                    onChange={(e) => setTransferNotes(e.target.value)}
+                    placeholder="Add transfer notes..."
+                    className="min-h-[80px]"
+                />
             </div>
           </div>
         );
       case 'pend':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Reason</Label>
-                    <p className="text-xs text-muted-foreground">Select a reason for pending the case.</p>
-                </div>
-                <div className="md:col-span-2">
-                    <Select onValueChange={setPendReason} value={pendReason}>
-                        <SelectTrigger className="h-9 text-xs">
-                            <SelectValue placeholder="Select pend reason" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Awaiting Customer Response" className="text-xs">Awaiting Customer Response</SelectItem>
-                            <SelectItem value="Awaiting Internal Approval" className="text-xs">Awaiting Internal Approval</SelectItem>
-                            <SelectItem value="Further Investigation Needed" className="text-xs">Further Investigation Needed</SelectItem>
-                            <SelectItem value="Other" className="text-xs">Other</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+            <div className="space-y-2">
+                <Label className="text-xs font-bold">Reason</Label>
+                <p className="text-xs text-muted-foreground">Select a reason for pending the case.</p>
+                <Select onValueChange={setPendReason} value={pendReason}>
+                    <SelectTrigger className="h-9 text-xs">
+                        <SelectValue placeholder="Select pend reason" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Awaiting Customer Response" className="text-xs">Awaiting Customer Response</SelectItem>
+                        <SelectItem value="Awaiting Internal Approval" className="text-xs">Awaiting Internal Approval</SelectItem>
+                        <SelectItem value="Further Investigation Needed" className="text-xs">Further Investigation Needed</SelectItem>
+                        <SelectItem value="Other" className="text-xs">Other</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Pend Until</Label>
-                    <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
-                </div>
-                <div className="md:col-span-2">
-                    <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
-                </div>
+            <div className="space-y-2">
+                <Label className="text-xs font-bold">Pend Until</Label>
+                <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
+                <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
             </div>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                <div className="md:col-span-2">
-                    <Label className="text-xs font-bold">Notes</Label>
-                    <p className="text-xs text-muted-foreground">Add any relevant notes.</p>
-                </div>
-                <div className="md:col-span-2">
-                    <Textarea
-                        value={pendNotes}
-                        onChange={(e) => setPendNotes(e.target.value)}
-                        placeholder="Add pend notes..."
-                        className="min-h-[80px]"
-                    />
-                </div>
+            <div className="space-y-2">
+                <Label className="text-xs font-bold">Notes</Label>
+                <p className="text-xs text-muted-foreground">Add any relevant notes.</p>
+                <Textarea
+                    value={pendNotes}
+                    onChange={(e) => setPendNotes(e.target.value)}
+                    placeholder="Add pend notes..."
+                    className="min-h-[80px]"
+                />
             </div>
           </div>
         );
