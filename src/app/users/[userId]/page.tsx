@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,8 +30,6 @@ import { CustomCalendar } from '@/components/custom-calendar';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { updateUser } from '@/ai/flows/update-user-flow';
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -136,10 +135,10 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-4 sm:p-6 bg-slate-50">
        <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
+        <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8">
+          <ArrowLeft className="h-5 w-5" />
           <span className="sr-only">Back</span>
         </Button>
         <div>
@@ -147,211 +146,207 @@ export default function UserProfilePage() {
           <p className="text-sm text-muted-foreground">Modify the details for {userProfile.displayName}.</p>
         </div>
       </div>
-      <Card>
-        <CardContent className="p-6">
+      <Card className="shadow-lg">
+        <CardContent className="p-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onUpdate)} className="space-y-8">
               
-              {/* Official Details Section */}
-              <div className="space-y-4">
-                 <h2 className="text-lg font-semibold text-primary">Official Details</h2>
-                 <Separator />
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-                  <FormItem>
-                    <FormLabel className="font-bold">Employee ID</FormLabel>
-                    <FormControl>
-                      <Input readOnly disabled value={userProfile.employeeId} className="bg-muted/50" />
-                    </FormControl>
-                  </FormItem>
-                  <FormField
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-primary border-b pb-2">Official Details</h2>
+                <FormItem className="grid grid-cols-3 gap-4 items-start">
+                    <div className="col-span-1 pt-1.5">
+                        <FormLabel>Employee ID</FormLabel>
+                        <p className="text-xs text-muted-foreground mt-1">This ID is read-only.</p>
+                    </div>
+                    <div className="col-span-2">
+                        <FormControl>
+                            <Input readOnly disabled value={userProfile.employeeId} className="bg-muted/50 w-2/5" />
+                        </FormControl>
+                    </div>
+                </FormItem>
+                <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            {...field}
-                            readOnly
-                            disabled
-                            className="bg-muted/50"
-                          />
-                        </FormControl>
-                        <FormMessage />
+                      <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5">
+                            <FormLabel>Email</FormLabel>
+                            <p className="text-xs text-muted-foreground mt-1">Email cannot be changed.</p>
+                        </div>
+                        <div className="col-span-2">
+                            <FormControl>
+                                <Input type="email" {...field} readOnly disabled className="bg-muted/50 w-2/5" />
+                            </FormControl>
+                            <FormMessage />
+                        </div>
                       </FormItem>
                     )}
-                  />
-                  <FormField
+                />
+                <FormField
                     control={form.control}
                     name="company"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Company</FormLabel>
-                        <FormControl>
-                          <Input {...field} disabled className="bg-muted/50" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-
-              {/* Personal Information Section */}
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-primary">Personal Information</h2>
-                <Separator />
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">First Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="middleName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Middle Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Optional" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Last Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                   <FormField
-                    control={form.control}
-                    name="dob"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Date of Birth</FormLabel>
-                        <FormControl>
-                          <CustomCalendar
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-4">
-                  <FormField
-                    control={form.control}
-                    name="mobileNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Mobile Number</FormLabel>
-                        <div className="relative">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <span className="text-gray-500 sm:text-sm">+91</span>
-                          </div>
-                          <FormControl>
-                            <Input {...field} className="pl-10" />
-                          </FormControl>
+                      <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5">
+                            <FormLabel>Company</FormLabel>
                         </div>
-                        <FormMessage />
+                        <div className="col-span-2">
+                            <FormControl>
+                                <Input {...field} disabled className="bg-muted/50 w-2/5" />
+                            </FormControl>
+                            <FormMessage />
+                        </div>
                       </FormItem>
                     )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="aadharNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Aadhar Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="panNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">PAN Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">New Password</FormLabel>
-                          <div className="relative">
-                              <FormControl>
-                              <Input
-                                  type={showPassword ? 'text' : 'password'}
-                                  {...field}
-                                  placeholder="Leave blank to keep unchanged"
-                              />
-                              </FormControl>
-                              <Button
-                              variant="ghost"
-                              type="button"
-                              size="icon"
-                              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
-                              onClick={() => setShowPassword(!showPassword)}
-                              >
-                              {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                              ) : (
-                                  <Eye className="h-4 w-4" />
-                              )}
-                              </Button>
-                          </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                />
               </div>
 
-              {/* Employment Details Section */}
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-primary">Employment Details</h2>
-                <Separator />
-                  <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-5">
-                   <FormField
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-primary border-b pb-2">Personal Information</h2>
+                 <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+                    <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="middleName"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Middle Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Optional" />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="dob"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Date of Birth</FormLabel>
+                            <FormControl>
+                              <CustomCalendar
+                                value={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="mobileNumber"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Mobile Number</FormLabel>
+                            <div className="relative">
+                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <span className="text-gray-500 sm:text-sm">+91</span>
+                              </div>
+                              <FormControl>
+                                <Input {...field} className="pl-10" />
+                              </FormControl>
+                            </div>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="aadharNumber"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>Aadhar Number</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="panNumber"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>PAN Number</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-4 items-center">
+                            <FormLabel>New Password</FormLabel>
+                            <div className="relative">
+                                <FormControl>
+                                  <Input
+                                      type={showPassword ? 'text' : 'password'}
+                                      {...field}
+                                      placeholder="Leave blank to keep unchanged"
+                                  />
+                                </FormControl>
+                                <Button
+                                  variant="ghost"
+                                  type="button"
+                                  size="icon"
+                                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                >
+                                  {showPassword ? (
+                                      <EyeOff className="h-4 w-4" />
+                                  ) : (
+                                      <Eye className="h-4 w-4" />
+                                  )}
+                                </Button>
+                            </div>
+                            <FormMessage className="col-span-full col-start-2" />
+                        </FormItem>
+                        )}
+                    />
+                 </div>
+              </div>
+
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-primary border-b pb-2">Employment Details</h2>
+                <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+                    <FormField
                     control={form.control}
                     name="department"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Department</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Department</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
@@ -363,12 +358,7 @@ export default function UserProfilePage() {
                           </FormControl>
                           <SelectContent>
                             {[
-                              'Operation',
-                              'HR',
-                              'Risk',
-                              'Admin',
-                              'Marketing',
-                              'Other',
+                              'Operation', 'HR', 'Risk', 'Admin', 'Marketing', 'Other',
                             ].map((dep) => (
                               <SelectItem key={dep} value={dep}>
                                 {dep}
@@ -376,7 +366,7 @@ export default function UserProfilePage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -384,8 +374,8 @@ export default function UserProfilePage() {
                     control={form.control}
                     name="jobTitle"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Job Title</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Job Title</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
@@ -397,12 +387,7 @@ export default function UserProfilePage() {
                           </FormControl>
                           <SelectContent>
                             {[
-                              'Associate',
-                              'Senior Associate',
-                              'Team Lead',
-                              'Assistant Manager',
-                              'Manager',
-                              'Senior Manager',
+                              'Associate', 'Senior Associate', 'Team Lead', 'Assistant Manager', 'Manager', 'Senior Manager',
                             ].map((title) => (
                               <SelectItem key={title} value={title}>
                                 {title}
@@ -410,7 +395,7 @@ export default function UserProfilePage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -418,8 +403,8 @@ export default function UserProfilePage() {
                     control={form.control}
                     name="level"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Level</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Level</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
@@ -440,7 +425,7 @@ export default function UserProfilePage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -448,8 +433,8 @@ export default function UserProfilePage() {
                     control={form.control}
                     name="workLocation"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Work Location</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Work Location</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
@@ -469,7 +454,7 @@ export default function UserProfilePage() {
                             )}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -477,8 +462,8 @@ export default function UserProfilePage() {
                     control={form.control}
                     name="role"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Role</FormLabel>
+                      <FormItem className="grid grid-cols-2 gap-4 items-center">
+                        <FormLabel>Role</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
@@ -493,7 +478,7 @@ export default function UserProfilePage() {
                             <SelectItem value="Admin">Admin</SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="col-span-full col-start-2" />
                       </FormItem>
                     )}
                   />
@@ -501,8 +486,7 @@ export default function UserProfilePage() {
               </div>
 
 
-              <div className="flex justify-end pt-4">
-                <div className="flex space-x-2">
+              <div className="flex justify-end pt-4 gap-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -514,7 +498,6 @@ export default function UserProfilePage() {
                   <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? 'Updating...' : 'Update User'}
                   </Button>
-                </div>
               </div>
             </form>
           </Form>
