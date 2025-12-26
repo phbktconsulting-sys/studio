@@ -173,8 +173,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const [allTasksCompleted, setAllTasksCompleted] = useState<'yes' | 'no' | undefined>();
 
 
-  const [reindexToProcess, setReindexToProcess] = useState('');
-  const [reindexTasks, setReindexTasks] = useState<string[]>([]);
+  const [reindexReason, setReindexReason] = useState<string>('Wrong Process');
   const [reindexNotes, setReindexNotes] = useState('');
   const [shouldCopyNotes, setShouldCopyNotes] = useState<'yes' | 'no'>('yes');
   const [reindexOption, setReindexOption] = useState<'myself' | 'initial'>('myself');
@@ -309,109 +308,53 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-4">
-              <div className="md:col-span-2">
-                <Label className="text-xs font-bold">New Process</Label>
-                <p className="text-xs text-muted-foreground">Select the process to re-index to.</p>
-              </div>
+              <Label className="md:col-span-2 text-xs font-semibold">Please select the correct Re-index option*</Label>
               <div className="md:col-span-3">
-                <Select onValueChange={setReindexToProcess} value={reindexToProcess}>
-                  <SelectTrigger className="h-9 text-xs">
-                    <SelectValue placeholder="Select New Process" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {processTypes.map((type) => (
-                      <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="myself" id="reindex-myself" />
+                        <Label htmlFor="reindex-myself" className="text-xs font-normal">Re-index case myself</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="initial" id="reindex-initial" />
+                        <Label htmlFor="reindex-initial" className="text-xs font-normal">Return to initial Indexing</Label>
+                    </div>
+                </RadioGroup>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-4">
+               <Label className="md:col-span-2 text-xs font-semibold">Reason*</Label>
+               <div className="md:col-span-3">
+                  <Select onValueChange={setReindexReason} value={reindexReason}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Wrong Process" className="text-xs">Wrong Process</SelectItem>
+                      {/* Add other reasons if needed */}
+                    </SelectContent>
+                  </Select>
+               </div>
+            </div>
             
-            {reindexToProcess && (
-                <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-4">
-                    <div className="md:col-span-2">
-                      <Label className="text-xs font-bold">Initial Tasks</Label>
-                      <p className="text-xs text-muted-foreground">Select tasks for the new case.</p>
-                    </div>
-                    <div className="md:col-span-3">
-                      <Popover>
-                          <PopoverTrigger asChild>
-                          <Button
-                              variant="outline"
-                              role="combobox"
-                              className={cn("w-full justify-between h-9 text-xs", !reindexTasks?.length && "text-muted-foreground")}
-                          >
-                              {reindexTasks?.length > 0 ? `${reindexTasks.length} tasks selected` : "Select initial tasks for new case"}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                          <Command>
-                              <CommandInput placeholder="Search tasks..." />
-                              <CommandList>
-                              <CommandEmpty>No tasks found.</CommandEmpty>
-                              <CommandGroup>
-                                  {(processTaskMap[reindexToProcess] || []).map((task) => (
-                                      <CommandItem
-                                          key={task}
-                                          onSelect={() => {
-                                              const isSelected = reindexTasks.includes(task);
-                                              setReindexTasks(isSelected ? reindexTasks.filter(t => t !== task) : [...reindexTasks, task]);
-                                          }}
-                                      >
-                                          <Checkbox checked={reindexTasks.includes(task)} className="mr-2" />
-                                          {task}
-                                      </CommandItem>
-                                  ))}
-                              </CommandGroup>
-                              </CommandList>
-                          </Command>
-                          </PopoverContent>
-                      </Popover>
-                    </div>
-                </div>
-            )}
              <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-4">
-                <div className="md:col-span-2">
-                  <Label className="text-xs font-bold">Assignment</Label>
-                  <p className="text-xs text-muted-foreground">Who should the new case be assigned to?</p>
-                </div>
-                <div className="md:col-span-3">
-                  <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
-                      <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="myself" id="reindex-myself" />
-                          <Label htmlFor="reindex-myself" className="text-xs font-normal">Assign to myself</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="initial" id="reindex-initial" />
-                          <Label htmlFor="reindex-initial" className="text-xs font-normal">Return to initial Indexing</Label>
-                      </div>
-                  </RadioGroup>
-                </div>
-             </div>
-             <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-4">
-                <div className="md:col-span-2">
-                  <Label className="text-xs font-bold">Copy Notes</Label>
-                  <p className="text-xs text-muted-foreground">Copy all existing notes to the new case?</p>
-                </div>
+                <Label className="md:col-span-2 text-xs font-semibold">Do you want to copy the notes to the new case?</Label>
                 <div className="md:col-span-3">
                   <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
                       <div className="flex items-center space-x-2">
                           <RadioGroupItem value="yes" id="copy-yes" />
-                          <Label htmlFor="copy-yes" className="text-xs font-normal">Copy all notes to new case</Label>
+                          <Label htmlFor="copy-yes" className="text-xs font-normal">Yes</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                           <RadioGroupItem value="no" id="copy-no" />
-                          <Label htmlFor="copy-no" className="text-xs font-normal">Do not copy notes</Label>
+                          <Label htmlFor="copy-no" className="text-xs font-normal">No</Label>
                       </div>
                   </RadioGroup>
                 </div>
              </div>
             <div className="grid grid-cols-1 md:grid-cols-5 items-start gap-4">
-              <div className="md:col-span-2">
-                <Label className="text-xs font-bold">Notes</Label>
-                <p className="text-xs text-muted-foreground">Provide a reason for re-indexing.</p>
-              </div>
+               <Label className="md:col-span-2 text-xs font-semibold">Note*</Label>
               <div className="md:col-span-3">
                 <Textarea
                     value={reindexNotes}
@@ -690,33 +633,28 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         }
        case 're-index': {
             if (!reindexNotes) {
-                toast({ variant: 'destructive', title: 'Error', description: 'Notes are required for re-indexing.' });
+                toast({ variant: 'destructive', title: 'Error', description: 'Note is required for re-indexing.' });
                 return;
             }
-            if (!reindexToProcess) {
-                toast({ variant: 'destructive', title: 'Error', description: 'Please select a process for re-indexing.' });
+            if (!reindexReason) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Please select a reason for re-indexing.' });
                 return;
             }
 
             const isAssigningToQueue = reindexOption === 'initial';
-            const assignedTo = isAssigningToQueue ? reindexToProcess : user.uid;
+            const newProcess = reindexReason === 'Wrong Process' ? 'New Business Request' : reindexReason; // Simplified logic
+            const assignedTo = isAssigningToQueue ? newProcess : user.uid;
 
             const reindexPayload = {
-              process: reindexToProcess,
+              process: newProcess,
               urgency: workItem.urgency,
               assignedTo: assignedTo,
               createdBy: user.uid,
               relatedContact: workItem.relatedContact,
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
-              tasks: reindexTasks.map(taskText => ({ 
-                id: `task-${Date.now()}-${Math.random()}`, 
-                text: taskText, 
-                completed: false,
-                createdBy: user.uid,
-                createdAt: new Date().toISOString(),
-              })),
+              tasks: [],
               sourceWorkItemId: shouldCopyNotes === 'yes' ? workItem.id : undefined,
-              reindexReason: reindexToProcess, 
+              reindexReason: reindexReason, 
               reindexNote: `Original Case ID: ${workItem.customId}. ${reindexNotes}`,
             };
             
