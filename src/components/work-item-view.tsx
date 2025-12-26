@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -308,7 +309,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-4">
-              <Label className="md:col-span-2 text-xs font-semibold">Please select the correct Re-index option*</Label>
+               <Label className="md:col-span-2 text-xs font-semibold">Please select the correct Re-index option*</Label>
               <div className="md:col-span-3">
                 <RadioGroup value={reindexOption} onValueChange={(v) => setReindexOption(v as 'myself' | 'initial')} className="flex h-7 items-center gap-4 text-xs">
                     <div className="flex items-center space-x-2">
@@ -859,13 +860,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     value={dropdownValue}
                   >
                   <SelectTrigger
-                    className="h-6 w-80 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-xs"
+                    className="h-6 w-80 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-sm"
                   >
                     <SelectValue placeholder="--- select a different action ---" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableActions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className="text-sm">{opt.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
