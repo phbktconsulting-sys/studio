@@ -166,7 +166,6 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
   const { toast } = useToast();
   const { role } = useUser();
   const [selectedAction, setSelectedAction] = useState<string>('resolve-complete');
-  const [dropdownValue, setDropdownValue] = useState<string | undefined>();
   
   // Form field states
   const [resolveCompleteNotes, setResolveCompleteNotes] = useState('');
@@ -857,9 +856,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                  <Select 
                     onValueChange={(value) => {
                         setSelectedAction(value);
-                        setDropdownValue(undefined);
-                    }} 
-                    value={dropdownValue}
+                    }}
                   >
                   <SelectTrigger
                     className="h-6 w-80 border-slate-400 bg-slate-100 text-black hover:bg-slate-200 focus:ring-slate-300 text-sm"
