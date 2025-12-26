@@ -247,49 +247,49 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-2 gap-y-6">
-              <div className="flex items-start gap-4">
-                  <div className="w-1/3">
-                      <Label className="text-xs font-bold">Outstanding Tasks</Label>
-                      <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
-                  </div>
-                  <div className="w-2/3 mt-2 space-y-2">
-                      {workItem.tasks.length > 0 ? (
-                          workItem.tasks.map(task => (
-                              <div key={task.id} className="flex items-center space-x-2">
-                                  <Checkbox
-                                      id={`complete-${task.id}`}
-                                      checked={completedTasks.has(task.id)}
-                                      onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
-                                  />
-                                  <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
-                              </div>
-                          ))
-                      ) : (
-                          <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
-                      )}
-                  </div>
+              <div className="flex items-start col-span-2 gap-4">
+                <div className="w-1/3">
+                  <Label className="text-xs font-bold">Outstanding Tasks</Label>
+                  <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
+                </div>
+                <div className="w-2/3 mt-2 space-y-2">
+                  {workItem.tasks.length > 0 ? (
+                    workItem.tasks.map(task => (
+                      <div key={task.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`complete-${task.id}`}
+                          checked={completedTasks.has(task.id)}
+                          onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
+                        />
+                        <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
+                  )}
+                </div>
               </div>
-              <div className="flex items-start gap-4">
-                  <div className="w-1/2">
-                      <Label className="text-xs font-bold">Confirm Task Completion</Label>
-                      <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
-                  </div>
-                   <div className="w-1/2 mt-2">
-                      <RadioGroup
-                          value={allTasksCompleted}
-                          onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
-                          className="flex flex-col space-y-2 text-xs"
-                      >
-                          <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="yes" id="tasks-yes" />
-                              <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="no" id="tasks-no" />
-                              <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
-                          </div>
-                      </RadioGroup>
-                  </div>
+              <div className="flex items-start col-span-1 gap-4">
+                <div className="w-2/3">
+                  <Label className="text-xs font-bold">Confirm Task Completion</Label>
+                  <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
+                </div>
+                <div className="w-1/3 mt-2">
+                  <RadioGroup
+                    value={allTasksCompleted}
+                    onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
+                    className="flex flex-row space-x-4 text-xs"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="yes" id="tasks-yes" />
+                      <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="no" id="tasks-no" />
+                      <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
               </div>
             </div>
 
@@ -332,14 +332,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
 
             <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
               <Label className="md:col-span-1 text-xs font-semibold">Reason*</Label>
-              <div className="md:col-span-2">
+              <div className="md:col-span-1">
                  <Select onValueChange={setReindexReason} value={reindexReason}>
-                   <SelectTrigger className="h-9 text-xs">
+                   <SelectTrigger className="h-9 text-sm">
                      <SelectValue />
                    </SelectTrigger>
                    <SelectContent>
                      {processTypes.map((type) => (
-                        <SelectItem key={type} value={type} className="text-xs">
+                        <SelectItem key={type} value={type} className="text-sm">
                           {type}
                         </SelectItem>
                       ))}
@@ -384,14 +384,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                     <Label className="text-xs font-bold">New Process</Label>
                     <p className="text-xs text-muted-foreground">Select the process for the cloned item.</p>
                   </div>
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-1">
                     <Select onValueChange={setCloneToProcess} value={cloneToProcess}>
-                        <SelectTrigger className="h-9 text-xs">
+                        <SelectTrigger className="h-9 text-sm">
                             <SelectValue placeholder="Select Process for Cloned Item" />
                         </SelectTrigger>
                         <SelectContent>
                             {processTypes.map((type) => (
-                                <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
+                                <SelectItem key={type} value={type} className="text-sm">{type}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
@@ -403,13 +403,13 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                          <Label className="text-xs font-bold">Initial Tasks</Label>
                          <p className="text-xs text-muted-foreground">Select tasks for the cloned case.</p>
                        </div>
-                       <div className="md:col-span-2">
+                       <div className="md:col-span-1">
                         <Popover>
                             <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
                                 role="combobox"
-                                className={cn("w-full justify-between h-9 text-xs", !cloneTasks?.length && "text-muted-foreground")}
+                                className={cn("w-full justify-between h-9 text-sm", !cloneTasks?.length && "text-muted-foreground")}
                             >
                                 {cloneTasks?.length > 0 ? `${cloneTasks.length} tasks selected` : "Select initial tasks for cloned case"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -483,16 +483,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Reason</Label>
                   <p className="text-xs text-muted-foreground">Select a reason for termination.</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <Select onValueChange={setTerminateReason} value={terminateReason}>
-                      <SelectTrigger className="h-9 text-xs">
+                      <SelectTrigger className="h-9 text-sm">
                           <SelectValue placeholder="Select termination reason" />
                       </SelectTrigger>
                       <SelectContent>
-                          <SelectItem value="Customer Request" className="text-xs">Customer Request</SelectItem>
-                          <SelectItem value="No Response" className="text-xs">No Response</SelectItem>
-                          <SelectItem value="Duplicate Entry" className="text-xs">Duplicate Entry</SelectItem>
-                          <SelectItem value="Other" className="text-xs">Other</SelectItem>
+                          <SelectItem value="Customer Request" className="text-sm">Customer Request</SelectItem>
+                          <SelectItem value="No Response" className="text-sm">No Response</SelectItem>
+                          <SelectItem value="Duplicate Entry" className="text-sm">Duplicate Entry</SelectItem>
+                          <SelectItem value="Other" className="text-sm">Other</SelectItem>
                       </SelectContent>
                   </Select>
                 </div>
@@ -521,14 +521,14 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Transfer To</Label>
                   <p className="text-xs text-muted-foreground">Select a user to transfer the case to.</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <Select onValueChange={setTransferToUser} value={transferToUser} disabled={isLoadingUsers}>
-                  <SelectTrigger className="h-9 text-xs">
+                  <SelectTrigger className="h-9 text-sm">
                       <SelectValue placeholder={isLoadingUsers ? "Loading users..." : "Select user to transfer to"} />
                   </SelectTrigger>
                   <SelectContent>
                       {users.map(u => (
-                      <SelectItem key={u.uid} value={u.uid} className="text-xs">{u.displayName}</SelectItem>
+                      <SelectItem key={u.uid} value={u.uid} className="text-sm">{u.displayName}</SelectItem>
                       ))}
                   </SelectContent>
                   </Select>
@@ -558,16 +558,16 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Reason</Label>
                   <p className="text-xs text-muted-foreground">Select a reason for pending the case.</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <Select onValueChange={setPendReason} value={pendReason}>
-                      <SelectTrigger className="h-9 text-xs">
+                      <SelectTrigger className="h-9 text-sm">
                           <SelectValue placeholder="Select pend reason" />
                       </SelectTrigger>
                       <SelectContent>
-                          <SelectItem value="Awaiting Customer Response" className="text-xs">Awaiting Customer Response</SelectItem>
-                          <SelectItem value="Awaiting Internal Approval" className="text-xs">Awaiting Internal Approval</SelectItem>
-                          <SelectItem value="Further Investigation Needed" className="text-xs">Further Investigation Needed</SelectItem>
-                          <SelectItem value="Other" className="text-xs">Other</SelectItem>
+                          <SelectItem value="Awaiting Customer Response" className="text-sm">Awaiting Customer Response</SelectItem>
+                          <SelectItem value="Awaiting Internal Approval" className="text-sm">Awaiting Internal Approval</SelectItem>
+                          <SelectItem value="Further Investigation Needed" className="text-sm">Further Investigation Needed</SelectItem>
+                          <SelectItem value="Other" className="text-sm">Other</SelectItem>
                       </SelectContent>
                   </Select>
                 </div>
@@ -577,7 +577,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label className="text-xs font-bold">Pend Until</Label>
                   <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
                 </div>
             </div>
