@@ -245,9 +245,9 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
     switch (selectedAction) {
       case 'resolve-complete':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="space-y-4">
-               <div className="flex items-start gap-x-4">
+              <div className="flex items-start gap-x-4">
                   <div className="w-1/3">
                       <Label className="text-xs font-bold">Outstanding Tasks</Label>
                       <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
@@ -270,17 +270,19 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       )}
                       </div>
                   </div>
-                </div>
+              </div>
+            </div>
+             <div className="space-y-4">
                 <div className="flex items-start gap-x-4">
                   <div className="w-1/3">
                       <Label className="text-xs font-bold">Confirm Task Completion</Label>
                       <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
                   </div>
-                  <div className="w-2/3">
+                  <div className="w-2/3 flex items-center">
                     <RadioGroup
                           value={allTasksCompleted}
                           onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
-                          className="mt-2 flex flex-row space-x-4 text-xs"
+                          className="flex flex-row space-x-4 text-xs"
                       >
                           <div className="flex items-center space-x-2">
                           <RadioGroupItem value="yes" id="tasks-yes" />
@@ -313,7 +315,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
        case 're-index':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
              <div className="grid grid-cols-3 items-center gap-4">
                <div className="col-span-1">
                  <Label className="text-xs font-semibold">Please select the correct Re-index option*</Label>
@@ -380,7 +382,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
         case 'clone':
         return (
-            <div className="space-y-6">
+            <div className="space-y-4">
                <div className="grid grid-cols-3 items-center gap-4">
                   <div className="col-span-1">
                     <Label className="text-xs font-bold">New Process</Label>
@@ -479,7 +481,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'terminate':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
              <div className="grid grid-cols-3 items-center gap-4">
                 <div className="col-span-1">
                   <Label className="text-xs font-bold">Reason</Label>
@@ -517,7 +519,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'transfer':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="grid grid-cols-3 items-center gap-4">
                 <div className="col-span-1">
                   <Label className="text-xs font-bold">Transfer To</Label>
@@ -554,7 +556,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         );
       case 'pend':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="grid grid-cols-3 items-center gap-4">
                 <div className="col-span-1">
                   <Label className="text-xs font-bold">Reason</Label>
