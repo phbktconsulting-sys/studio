@@ -1064,6 +1064,13 @@ function ClosedWorkItemInfo({ workItem, lastNote }: { workItem: WorkItem; lastNo
 function PendingWorkItemInfo({ workItemId, note }: { workItemId: string, note: Note | undefined }) {
   const { firestore, user } = useFirebase();
   const { toast } = useToast();
+  
+  const authorUserRef = useMemoFirebase(() => {
+    if (!firestore || !note?.authorId) return null;
+    return doc(firestore, 'users', note.authorId);
+  }, [firestore, note?.authorId]);
+
+  const { data: authorUser } = useDoc<User>(authorUserRef);
 
   const handleResume = () => {
     if (!firestore || !user) return;
@@ -1096,13 +1103,13 @@ function PendingWorkItemInfo({ workItemId, note }: { workItemId: string, note: N
 
   return (
     <div className="flex items-center justify-between gap-4 py-2 text-xs">
-        <div className="flex items-center gap-4">
-            <Clock className="h-5 w-5 text-orange-500" />
-            <span className="font-medium">Case Pended until {untilDate}:</span>
-            <Separator orientation="vertical" className="h-4" />
-            <span className="text-muted-foreground">{reason}</span>
-        </div>
-        <Button onClick={handleResume} size="sm" className="h-7 text-xs">Resume Work</Button>
+      <div className="flex items-center gap-4">
+        <Clock className="h-5 w-5 text-orange-500" />
+        <span className="font-medium">Case Pended until {untilDate}:</span>
+        <Separator orientation="vertical" className="h-4" />
+        <span className="text-muted-foreground">{reason} by {authorUser?.displayName || note?.authorId}</span>
+      </div>
+      <Button onClick={handleResume} size="sm" className="h-7 text-xs">Resume Work</Button>
     </div>
   );
 }
