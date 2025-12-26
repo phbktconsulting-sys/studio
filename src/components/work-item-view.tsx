@@ -337,7 +337,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                 </RadioGroup>
               </div>
             </div>
-             <div className="grid grid-cols-3 items-center gap-2">
+            <div className="grid grid-cols-3 items-center gap-2">
               <Label className="col-span-1">Reason for Re-index*</Label>
               <div className="col-span-2">
                  <Select onValueChange={setReindexReasonForReindex} value={reindexReasonForReindex}>
@@ -589,12 +589,12 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                           <SelectValue placeholder="Select termination reason" />
                       </SelectTrigger>
                       <SelectContent>
-                          <SelectItem value="Duplicate Work Item" className="text-sm">Duplicate Work Item</SelectItem>
-                          <SelectItem value="Already Processed in Another Item" className="text-sm">Already Processed in Another Item</SelectItem>
-                          <SelectItem value="Previously Resolved" className="text-sm">Previously Resolved</SelectItem>
-                          <SelectItem value="Accidental Creation" className="text-sm">Accidental Creation</SelectItem>
-                          <SelectItem value="Request No Longer Needed" className="text-sm">Request No Longer Needed</SelectItem>
-                          <SelectItem value="Internal Administrative Closure" className="text-sm">Internal Administrative Closure</SelectItem>
+                        <SelectItem value="Duplicate Work Item" className="text-sm">Duplicate Work Item</SelectItem>
+                        <SelectItem value="Already Processed in Another Item" className="text-sm">Already Processed in Another Item</SelectItem>
+                        <SelectItem value="Previously Resolved" className="text-sm">Previously Resolved</SelectItem>
+                        <SelectItem value="Accidental Creation" className="text-sm">Accidental Creation</SelectItem>
+                        <SelectItem value="Request No Longer Needed" className="text-sm">Request No Longer Needed</SelectItem>
+                        <SelectItem value="Internal Administrative Closure" className="text-sm">Internal Administrative Closure</SelectItem>
                       </SelectContent>
                   </Select>
                 </div>
@@ -686,7 +686,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   <Label>Pend Until</Label>
                   <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
                 </div>
-                <div className="w-1/2">
+                <div className="w-full">
                   <CustomCalendar value={pendUntilDate} onChange={setPendUntilDate} />
                 </div>
             </div>
