@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -773,7 +774,10 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               urgency: workItem.urgency,
               assignedTo: assignedTo,
               createdBy: user.uid,
-              relatedContact: workItem.relatedContact,
+              relatedContact: {
+                ...workItem.relatedContact,
+                address: workItem.relatedContact.address ? { ...workItem.relatedContact.address } : undefined,
+              },
               overview: `Re-indexed from ${workItem.customId}. Original overview: ${workItem.overview}`,
               tasks: reindexTasks.map(taskText => ({ 
                     id: `task-${Date.now()}-${Math.random()}`, 
