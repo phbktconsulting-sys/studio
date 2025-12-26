@@ -221,6 +221,77 @@ export function NewWorkItemView() {
                     />
                 </div>
                 
+                 {/* --- Form Row: Initial Tasks --- */}
+                 <FormField
+                  control={form.control}
+                  name="initialTasks"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                        <div className="col-span-1 pt-1.5">
+                            <FormLabel>Initial Tasks</FormLabel>
+                            <p className="text-xs text-muted-foreground mt-1">Select one or more initial tasks to add to this work item.</p>
+                        </div>
+                        <div className="col-span-2 flex flex-col gap-2">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                <FormControl>
+                                    <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className={cn("w-full justify-between", !field.value?.length && "text-muted-foreground")}
+                                    disabled={!selectedProcess}
+                                    >
+                                    {field.value?.length > 0 ? `${field.value.length} tasks selected` : (selectedProcess ? "Select initial tasks" : "Select a process first")}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search tasks..." />
+                                    <CommandList>
+                                    <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                    <CommandGroup>
+                                        {(processTaskMap[selectedProcess] || []).map((task) => (
+                                            <CommandItem
+                                                key={task}
+                                                onSelect={() => {
+                                                    const isSelected = field.value?.includes(task);
+                                                    field.onChange(isSelected ? field.value?.filter(t => t !== task) : [...(field.value || []), task]);
+                                                }}
+                                            >
+                                                <Checkbox checked={field.value?.includes(task)} className="mr-2" />
+                                                {task}
+                                            </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                                </PopoverContent>
+                            </Popover>
+                             {field.value && field.value.length > 0 && (
+                                <div className="flex flex-wrap gap-1 pt-1">
+                                    {field.value.map(task => (
+                                        <Badge key={task} variant="secondary" className="font-normal">
+                                            {task}
+                                            <button
+                                                type="button"
+                                                className="ml-1.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                                                onClick={() => field.onChange(field.value?.filter(t => t !== task))}
+                                            >
+                                                <X className="h-3 w-3" />
+                                                <span className="sr-only">Remove {task}</span>
+                                            </button>
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                  )}
+                />
+
                 {/* --- Form Row: Customer Info --- */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                      <FormField
@@ -377,12 +448,12 @@ export function NewWorkItemView() {
                   control={form.control}
                   name="overview"
                   render={({ field }) => (
-                    <FormItem className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                      <div className="md:col-span-1 pt-1.5">
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                      <div className="col-span-1 pt-1.5">
                         <FormLabel>Overview</FormLabel>
                         <p className="text-xs text-muted-foreground mt-1">Provide a detailed description of the work item.</p>
                       </div>
-                      <div className="md:col-span-2">
+                      <div className="col-span-2">
                         <Textarea {...field} className="min-h-24" />
                         <FormMessage />
                       </div>
@@ -390,88 +461,18 @@ export function NewWorkItemView() {
                   )}
                 />
 
-                {/* --- Form Row: Initial Tasks --- */}
-                <FormField
-                  control={form.control}
-                  name="initialTasks"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                        <div className="md:col-span-1 pt-1.5">
-                            <FormLabel>Initial Tasks</FormLabel>
-                            <p className="text-xs text-muted-foreground mt-1">Select one or more initial tasks to add to this work item.</p>
-                        </div>
-                        <div className="md:col-span-2 flex flex-col gap-2">
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className={cn("w-full justify-between", !field.value?.length && "text-muted-foreground")}
-                                    disabled={!selectedProcess}
-                                    >
-                                    {field.value?.length > 0 ? `${field.value.length} tasks selected` : (selectedProcess ? "Select initial tasks" : "Select a process first")}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
-                                </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                <Command>
-                                    <CommandInput placeholder="Search tasks..." />
-                                    <CommandList>
-                                    <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                    <CommandGroup>
-                                        {(processTaskMap[selectedProcess] || []).map((task) => (
-                                            <CommandItem
-                                                key={task}
-                                                onSelect={() => {
-                                                    const isSelected = field.value?.includes(task);
-                                                    field.onChange(isSelected ? field.value?.filter(t => t !== task) : [...(field.value || []), task]);
-                                                }}
-                                            >
-                                                <Checkbox checked={field.value?.includes(task)} className="mr-2" />
-                                                {task}
-                                            </CommandItem>
-                                        ))}
-                                    </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                                </PopoverContent>
-                            </Popover>
-                             {field.value && field.value.length > 0 && (
-                                <div className="flex flex-wrap gap-1 pt-1">
-                                    {field.value.map(task => (
-                                        <Badge key={task} variant="secondary" className="font-normal">
-                                            {task}
-                                            <button
-                                                type="button"
-                                                className="ml-1.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
-                                                onClick={() => field.onChange(field.value?.filter(t => t !== task))}
-                                            >
-                                                <X className="h-3 w-3" />
-                                                <span className="sr-only">Remove {task}</span>
-                                            </button>
-                                        </Badge>
-                                    ))}
-                                </div>
-                            )}
-                            <FormMessage />
-                        </div>
-                    </FormItem>
-                  )}
-                />
                 
                  {/* --- Form Row: Assignment --- */}
                 <FormField
                   control={form.control}
                   name="assignTo"
                   render={({ field }) => (
-                    <FormItem className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                       <div className="md:col-span-1 pt-1.5">
+                    <FormItem className="grid grid-cols-3 gap-4 items-start">
+                       <div className="col-span-1 pt-1.5">
                             <FormLabel>Assign To</FormLabel>
                             <p className="text-xs text-muted-foreground mt-1">Choose who this work item will be assigned to upon creation.</p>
                        </div>
-                       <div className="md:col-span-2">
+                       <div className="col-span-2">
                             <RadioGroup
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
@@ -511,3 +512,5 @@ export function NewWorkItemView() {
     </div>
   );
 }
+
+    
