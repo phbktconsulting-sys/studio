@@ -246,51 +246,45 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'resolve-complete':
         return (
           <div className="space-y-6">
-            <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                    <div className="w-1/4">
-                        <Label className="text-xs font-bold">Outstanding Tasks</Label>
-                        <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
-                    </div>
-                    <div className="w-3/4 mt-2 space-y-2">
-                        {workItem.tasks.length > 0 ? (
-                        workItem.tasks.map(task => (
-                        <div key={task.id} className="flex items-center space-x-2">
-                            <Checkbox
-                            id={`complete-${task.id}`}
-                            checked={completedTasks.has(task.id)}
-                            onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
-                            />
-                            <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
-                        </div>
-                        ))
-                    ) : (
-                        <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
-                    )}
-                    </div>
-                </div>
-                <div className="flex items-start gap-4">
-                    <div className="w-1/4">
-                        <Label className="text-xs font-bold">Confirm Task Completion</Label>
-                        <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
-                    </div>
-                    <div className="w-3/4 mt-2">
-                    <RadioGroup
-                        value={allTasksCompleted}
-                        onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
-                        className="flex flex-col space-y-2 text-xs"
-                    >
-                        <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="tasks-yes" />
-                        <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="tasks-no" />
-                        <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
-                        </div>
-                    </RadioGroup>
-                    </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-x-4 gap-y-4">
+              <div>
+                  <Label className="text-xs font-bold">Outstanding Tasks</Label>
+                  <p className="text-xs text-muted-foreground">Mark any completed tasks.</p>
+                  <div className="mt-2 space-y-2">
+                      {workItem.tasks.length > 0 ? (
+                      workItem.tasks.map(task => (
+                      <div key={task.id} className="flex items-center space-x-2">
+                          <Checkbox
+                          id={`complete-${task.id}`}
+                          checked={completedTasks.has(task.id)}
+                          onCheckedChange={(checked) => handleTaskCompletionChange(task.id, !!checked)}
+                          />
+                          <label htmlFor={`complete-${task.id}`} className="text-xs">{task.text}</label>
+                      </div>
+                      ))
+                  ) : (
+                      <p className="text-xs text-muted-foreground">No tasks for this work item.</p>
+                  )}
+                  </div>
+              </div>
+              <div>
+                  <Label className="text-xs font-bold">Confirm Task Completion</Label>
+                  <p className="text-xs text-muted-foreground">Have all tasks been finished?</p>
+                   <RadioGroup
+                      value={allTasksCompleted}
+                      onValueChange={(v) => setAllTasksCompleted(v as 'yes' | 'no')}
+                      className="mt-2 flex flex-row space-x-4 text-xs"
+                  >
+                      <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="yes" id="tasks-yes" />
+                      <Label htmlFor="tasks-yes" className="text-xs font-normal">Yes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="no" id="tasks-no" />
+                      <Label htmlFor="tasks-no" className="text-xs font-normal">No</Label>
+                      </div>
+                  </RadioGroup>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-4">
@@ -312,7 +306,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
        case 're-index':
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                <div className="md:col-span-1">
                  <Label className="text-xs font-semibold">Please select the correct Re-index option*</Label>
                </div>
@@ -330,7 +324,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
               <Label className="md:col-span-1 text-xs font-semibold">Reason*</Label>
               <div className="md:col-span-1">
                  <Select onValueChange={setReindexReason} value={reindexReason}>
@@ -348,7 +342,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
               </div>
            </div>
             
-             <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+             <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                 <Label className="md:col-span-1 text-xs font-semibold">Do you want to copy the notes to the new case?</Label>
                 <div className="md:col-span-1">
                   <RadioGroup value={shouldCopyNotes} onValueChange={(v) => setShouldCopyNotes(v as 'yes' | 'no')} className="flex h-7 items-center gap-4 text-xs">
@@ -379,7 +373,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
         case 'clone':
         return (
             <div className="space-y-6">
-               <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+               <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                   <div className="md:col-span-1">
                     <Label className="text-xs font-bold">New Process</Label>
                     <p className="text-xs text-muted-foreground">Select the process for the cloned item.</p>
@@ -398,7 +392,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   </div>
                </div>
                 {cloneToProcess && (
-                    <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                        <div className="md:col-span-1">
                          <Label className="text-xs font-bold">Initial Tasks</Label>
                          <p className="text-xs text-muted-foreground">Select tasks for the cloned case.</p>
@@ -441,7 +435,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                        </div>
                     </div>
                 )}
-                 <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                     <div className="md:col-span-1">
                       <Label className="text-xs font-bold">Assignment</Label>
                       <p className="text-xs text-muted-foreground">Who should the cloned case be assigned to?</p>
@@ -478,7 +472,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'terminate':
         return (
           <div className="space-y-6">
-             <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+             <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                 <div className="md:col-span-1">
                   <Label className="text-xs font-bold">Reason</Label>
                   <p className="text-xs text-muted-foreground">Select a reason for termination.</p>
@@ -516,7 +510,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'transfer':
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                 <div className="md:col-span-1">
                   <Label className="text-xs font-bold">Transfer To</Label>
                   <p className="text-xs text-muted-foreground">Select a user to transfer the case to.</p>
@@ -553,7 +547,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
       case 'pend':
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                 <div className="md:col-span-1">
                   <Label className="text-xs font-bold">Reason</Label>
                   <p className="text-xs text-muted-foreground">Select a reason for pending the case.</p>
@@ -572,7 +566,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                   </Select>
                 </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                 <div className="md:col-span-1">
                   <Label className="text-xs font-bold">Pend Until</Label>
                   <p className="text-xs text-muted-foreground">Select a date to pend the case until.</p>
