@@ -284,16 +284,16 @@ export const QuotationTaskSchema = z.object({
   quantity: z.number().optional(),
   unitPrice: z.number().optional(),
 }).refine(data => {
-  // A row is considered "partially filled" if process/task is selected, or if quantity/price has been entered.
-  const isPartiallyFilled = (data.process && data.task) || (data.quantity && data.quantity > 0) || (data.unitPrice && data.unitPrice > 0);
+  // A row is considered "partially filled" if the user has selected a process/task or entered an item name.
+  const isPartiallyFilled = !!data.process || !!data.task || !!data.item;
   
-  // If it's not even partially filled, it's a valid empty row.
+  // If not partially filled, it's a valid empty row, so we don't validate it.
   if (!isPartiallyFilled) return true;
   
   // If it IS partially filled, then process, task, and quantity must all be present and valid.
-  return !!data.process && !!data.task && data.quantity !== undefined && data.quantity > 0;
+  return !!data.process && !!data.task && !!data.item && data.quantity !== undefined && data.quantity > 0;
 }, {
-  message: "Process, Task, and Quantity are required if any other field is filled.",
+  message: "Process, Task and Quantity are required if any other field is filled.",
   path: ['task'], // Show the error on the task field
 });
 
@@ -304,9 +304,10 @@ export const QuotationFormSchema = z.object({
   customerPhone: z.string().min(1, 'Customer phone is required.'),
   customerBusinessName: z.string().optional(),
   customerAddress: z.string().optional(),
-  tasks: z.array(QuotationTaskSchema).refine(
-    (tasks) => tasks.filter(task => task.process && task.task && task.quantity && task.quantity > 0).length > 0,
-    { message: "At least one complete line item is required." }
-  ),
-});
+  tasks: z.array(QuotationTaskSchema),
+}).refine(
+  (data) => data.tasks.filter(task => !!task.process && !!task.task && !!task.item && !!task.quantity && task.quantity > 0).length > 0,
+  { message: "At least one complete line item is required.", path: ["tasks"] }
+);
+
 export type QuotationFormValues = z.infer<typeof QuotationFormSchema>;

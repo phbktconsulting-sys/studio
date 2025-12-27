@@ -22,6 +22,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@/lib/utils';
 import { Checkbox } from './ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Badge } from './ui/badge';
 
 
 const processTaskMap: Record<string, string[]> = {
@@ -92,8 +93,8 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
                 <p style={{ color: '#6b7280', margin: 0 }}>{task.description || ''}</p>
               </td>
               <td style={{ padding: '10px', textAlign: 'center', verticalAlign: 'top' }}>{task.quantity}</td>
-              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{task.unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{(task.quantity * task.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{(task.unitPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{((task.quantity || 0) * (task.unitPrice || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
           ))}
         </tbody>
@@ -147,7 +148,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       customerPhone: '',
       customerBusinessName: '',
       customerAddress: '',
-      tasks: [{ process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 }],
+      tasks: [{ process: '', task: '', item: '', description: '', quantity: undefined, unitPrice: 0 }],
     },
   });
 
@@ -157,7 +158,8 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   });
   
   const quotationData = form.watch();
-  const subtotal = quotationData.tasks.slice(0, -1).reduce((acc, task) => acc + (task.quantity * task.unitPrice), 0);
+  const addedTasks = quotationData.tasks.slice(0, -1);
+  const subtotal = addedTasks.reduce((acc, task) => acc + ((task.quantity || 0) * (task.unitPrice || 0)), 0);
   const tax = subtotal * 0.18;
   const grandTotal = subtotal + tax;
   const quoteNumber = `Q-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
@@ -183,7 +185,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         customerPhone: workItem.relatedContact.phone || '',
         customerBusinessName: workItem.relatedContact.businessName || '',
         customerAddress: fullAddress,
-        tasks: [...initialTasks, { process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 }],
+        tasks: [...initialTasks, { process: '', task: '', item: '', description: '', quantity: undefined, unitPrice: 0 }],
       });
     }
   }, [workItem, form]);
@@ -212,9 +214,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     }
 
     try {
-        // We use a clean version of the data for printing.
-        const printableData = { ...data, tasks: finalTasks };
-
         const canvas = await html2canvas(input, { scale: 2 });
         
         setTimeout(async () => {
@@ -224,7 +223,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_Q-${quoteNumber.replace(/[^0-9-]/g, '')}.pdf`;
+            const fileName = `Quotation_${quoteNumber}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
@@ -267,10 +266,10 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   return (
       <div className="p-4 space-y-6">
         <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-             <QuotationPrintTemplate quotation={{...quotationData, tasks: quotationData.tasks.filter(t => t.process && t.task)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
+             <QuotationPrintTemplate quotation={{...quotationData, tasks: addedTasks}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
-           <CardHeader>
+          <CardHeader>
             <CardTitle className="text-sm">Generate Quotation</CardTitle>
           </CardHeader>
           <CardContent>
@@ -400,7 +399,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                           <CommandList>
                                               <CommandEmpty>No tasks found.</CommandEmpty>
                                               <CommandGroup>
-                                              {(processTaskMap[form.watch(`tasks.${fields.length - 1}.process`)] || []).map((task) => (
+                                              {(processTaskMap[form.watch(`tasks.${fields.length - 1}.process`) || ''] || []).map((task) => (
                                                   <CommandItem
                                                   value={task}
                                                   key={task}
@@ -435,7 +434,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                       type="number"
                                       {...field}
                                       className="text-xs"
-                                      onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                                     />
                                   </FormControl>
                                 </FormItem>
@@ -454,7 +453,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                       type="number"
                                       {...field}
                                       className="text-xs"
-                                      onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                                      onChange={(e) => field.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
                                     />
                                   </FormControl>
                                 </FormItem>
@@ -464,19 +463,19 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                            <div className="col-span-2">
                              <FormLabel className='text-xs'>Total</FormLabel>
                              <div className="h-9 flex items-center text-xs font-medium">
-                              ₹{(form.watch(`tasks.${fields.length - 1}.quantity`) * form.watch(`tasks.${fields.length - 1}.unitPrice`)).toLocaleString()}
+                              ₹{((form.watch(`tasks.${fields.length - 1}.quantity`) || 0) * (form.watch(`tasks.${fields.length - 1}.unitPrice`) || 0)).toLocaleString()}
                              </div>
                            </div>
                         </div>
                     <div className="flex justify-end">
-                      <Button type="button" variant="outline" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 })}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: undefined, unitPrice: 0 })}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                       </Button>
                     </div>
                   </div>
                 </div>
                 
-                 {fields.length > 1 && (
+                 {addedTasks.length > 0 && (
                     <div className="mt-6 space-y-2 pt-4">
                         <Table>
                         <TableHeader>
@@ -489,15 +488,15 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                        {fields.slice(0, -1).map((field, index) => (
+                        {addedTasks.map((field, index) => (
                             <TableRow key={field.id}>
                                 <TableCell className='py-2'>
                                 <p className="font-medium text-xs">{field.item}</p>
                                 <p className="text-muted-foreground text-xs">{field.description}</p>
                                 </TableCell>
                                 <TableCell className='text-center text-xs py-2'>{field.quantity}</TableCell>
-                                <TableCell className='text-right text-xs py-2'>₹{field.unitPrice.toLocaleString()}</TableCell>
-                                <TableCell className='text-right text-xs py-2'>₹{(field.quantity * field.unitPrice).toLocaleString()}</TableCell>
+                                <TableCell className='text-right text-xs py-2'>₹{(field.unitPrice || 0).toLocaleString()}</TableCell>
+                                <TableCell className='text-right text-xs py-2'>₹{((field.quantity || 0) * (field.unitPrice || 0)).toLocaleString()}</TableCell>
                                 <TableCell className='py-2'>
                                 <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
                                     <Trash2 className="h-4 w-4 text-destructive" />
