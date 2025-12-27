@@ -214,7 +214,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_${quoteNumber.replace(/Q-/, 'Q-')}.pdf`;
+            const fileName = `Quotation_${quoteNumber.replace(/Quote #:\s*/, '')}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
@@ -266,7 +266,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
           <CardContent>
             <Form {...form}>
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
                    <div className="md:col-span-1 pt-1.5">
                       <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
                    </div>
@@ -331,7 +331,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                     <FormLabel className="text-xs font-semibold">Line Items</FormLabel>
                   </div>
 
-                  <div className="md:col-span-2 space-y-4">
+                  <div className="md:col-span-2 space-y-4" key={fields.length}>
                      <div className="grid grid-cols-12 gap-2 items-start rounded-md">
                           <div className="col-span-3">
                              <FormField
