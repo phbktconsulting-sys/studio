@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export interface User {
@@ -276,8 +277,10 @@ export const LeadCaptureSchema = z.object({
 export type LeadCaptureFormValues = z.infer<typeof LeadCaptureSchema>;
 
 export const QuotationTaskSchema = z.object({
-  item: z.string().min(1, "Item name is required."),
-  description: z.string().optional(),
+  process: z.string().min(1, "Process is required."),
+  task: z.string().min(1, "Task is required."),
+  item: z.string(),
+  description: z.string(),
   quantity: z.number().min(0, "Quantity must be positive."),
   unitPrice: z.number().min(0, "Unit price must be positive."),
 });

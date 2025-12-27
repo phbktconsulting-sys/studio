@@ -11,12 +11,28 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { QuotationFormSchema } from '@/lib/types';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Trash2, PlusCircle, Loader2 } from 'lucide-react';
+import { Trash2, PlusCircle, Loader2, ChevronsUpDown } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import { useFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from './ui/command';
+import { cn } from '@/lib/utils';
+
+
+const processTaskMap: Record<string, string[]> = {
+    "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Call for New Lead", "Request Other Services"],
+    "Development Services (Web & App)": ["New Corporate Website Build", "New E-Commerce Store Build", "Android App Development", "IOS App Development", "Hybrid App Development", "Excel Automation Micros", "CRM / ERP System Development", "Landing Page Creation", "Website Redesign Project", "Payment Gateway Integration", "API Development & Integration", "Admin Panel / Dashboard Build", "User Portal Development", "Chatbot Integration", "SaaS Platform Development", "Plugin / Extension Development", "UI/UX Design Mockups", "Database Structure Design", "Third-Party Tool Integration", "Website Speed Optimization"],
+    "Operations & Support (Backend)": ["Server Down / Critical Issue", "Database Connection Error", "Fix Application Bug", "Restore Data form Backup", "Install SSL Certificate", "Migrate Server to Cloud", "Optimize Server Speed", "Update Security Patches", "Configure Firewalls", "Fix Email/SMTP Issues", "Resolve API Failure", "Clean Malware / Virus", "Update PHP/Node Version", "Manage User Permissions", "Setup Cron Jobs", "Review Error Logs", "DNS / Domain Configuration", "Hosting CPanel Support", "Automation Script Failure", "General Maintenance Task"],
+    "Digital Services Request": ["Start SEO Campaign", "Start Google Ads (PPC)", "Start Facebook/Insta Ads", "Create Social Media Calendar", "Write Blog Content", "Design Marketing Graphics", "Setup Email Newsletter", "Create Promotional Video", "Manage LinkedIn Profile", "Setup Google Analytics", "Optimize Google My Business", "Manage Online Reviews", "Create Landing Page Copy", "Influencer Marketing Setup", "App Store Optimization (ASO)", "YouTube Channel Management", "Brand Identity Design", "Competitor Analysis Report", "Monthly Performance Report"],
+    "Feedback / Complaint": ["Report a System Crash", "Report Slow Performance", "Report Login Issue", "Report Data Error", "Report UI/Design Flaw", "Complaint about Billing", "Complaint about Delay", "Complaint about Support Quality", "Complaint about Communication", "Suggest New Feature", "Suggest Design Change", "Suggest Process Improvement", "Escalation to Management", "Review: Positive Feedback", "Review: Negative Feedback", "Request for Refund", "Request for Contract Cancellation", "Report Security Concern", "Post-Project Feedback", "General Complaint"],
+    "Other Service Request": ["Inquire about Invoice", "Inquire about Job Opening", "Inquire about Internship", "Inquire about Training", "Renew Domain Name", "Renew Hosting Plan", "Purchase Software License", "Update Company Details", "Request Tax Document", "Schedule Annual Review", "Vendor Sales Pitch", "Legal / Compliance Query", "Media / Press Inquiry", "Sponsorship Request", "Employee Referral", "Internal Admin Task", "Hardware Requirement", "Network Setup Request", "Office Visit Request", "Unclassified Request"]
+};
+
+const processTypes = Object.keys(processTaskMap);
 
 interface QuotationTabProps {
   workItem: WorkItem;
@@ -121,7 +137,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const { toast } = useToast();
   const { firestore, user } = useFirebase();
   const [isGenerating, setIsGenerating] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
+  const [openPopovers, setOpenPopovers] = useState<Record<number, boolean>>({});
 
   const form = useForm<QuotationFormValues>({
     resolver: zodResolver(QuotationFormSchema),
@@ -134,7 +150,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: 'tasks',
   });
@@ -158,7 +174,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         customerBusinessName: workItem.relatedContact.businessName || '',
         customerAddress: fullAddress,
         tasks: workItem.tasks?.length > 0 ? workItem.tasks.map(task => ({
+          process: workItem.process,
           item: task.text,
+          task: task.text,
           description: '',
           quantity: 1,
           unitPrice: 0,
@@ -304,36 +322,89 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">Line Items</h3>
                   <div className="space-y-4">
-                    {fields.map((field, index) => (
+                    {fields.map((field, index) => {
+                      const selectedProcess = form.watch(`tasks.${index}.process`);
+                      return (
                       <div key={field.id} className="grid grid-cols-12 gap-2 items-start border p-3 rounded-md">
                         <div className="col-span-3">
-                          <FormField
+                           <FormField
                             control={form.control}
-                            name={`tasks.${index}.item`}
+                            name={`tasks.${index}.process`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-xs">Item / Service</FormLabel>
-                                <FormControl>
-                                  <Input {...field} className="text-xs" />
-                                </FormControl>
+                                <FormLabel className="text-xs">Process</FormLabel>
+                                 <Select 
+                                  onValueChange={(value) => {
+                                      field.onChange(value);
+                                      // Reset task when process changes
+                                      update(index, { ...form.getValues(`tasks.${index}`), task: '', item: '', description: '' });
+                                  }} 
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className='text-xs h-9'>
+                                      <SelectValue placeholder="Select Process" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {processTypes.map((proc) => (
+                                      <SelectItem key={proc} value={proc}>{proc}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
                               </FormItem>
                             )}
                           />
                         </div>
-                        <div className="col-span-5">
-                          <FormField
-                            control={form.control}
-                            name={`tasks.${index}.description`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Description</FormLabel>
-                                <FormControl>
-                                  <Textarea {...field} className="text-xs min-h-[40px] h-10"/>
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
+                        <div className="col-span-4">
+                           <FormField
+                              control={form.control}
+                              name={`tasks.${index}.task`}
+                              render={({ field: taskField }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Task</FormLabel>
+                                  <Popover open={openPopovers[index]} onOpenChange={(isOpen) => setOpenPopovers(prev => ({...prev, [index]: isOpen}))}>
+                                    <PopoverTrigger asChild>
+                                      <FormControl>
+                                        <Button
+                                          variant="outline"
+                                          role="combobox"
+                                          disabled={!selectedProcess}
+                                          className={cn("w-full justify-between text-xs h-9", !taskField.value && "text-muted-foreground")}
+                                        >
+                                          {taskField.value ? taskField.value : "Select Task"}
+                                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                      </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                      <Command>
+                                        <CommandInput placeholder="Search task..." />
+                                        <CommandEmpty>No tasks found.</CommandEmpty>
+                                        <CommandGroup>
+                                          {(processTaskMap[selectedProcess] || []).map((task) => (
+                                            <CommandItem
+                                              value={task}
+                                              key={task}
+                                              onSelect={() => {
+                                                update(index, { ...form.getValues(`tasks.${index}`), task: task, item: task, description: task });
+                                                setOpenPopovers(prev => ({...prev, [index]: false}));
+                                              }}
+                                            >
+                                              {task}
+                                            </CommandItem>
+                                          ))}
+                                        </CommandGroup>
+                                      </Command>
+                                    </PopoverContent>
+                                  </Popover>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                         </div>
+
                         <div className="col-span-1">
                           <FormField
                             control={form.control}
@@ -372,17 +443,39 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             )}
                           />
                         </div>
+                         <div className="col-span-1">
+                           <FormLabel className='text-xs'>Total</FormLabel>
+                           <div className="h-9 flex items-center text-xs font-medium">
+                            ₹{(form.watch(`tasks.${index}.quantity`) * form.watch(`tasks.${index}.unitPrice`)).toLocaleString()}
+                           </div>
+                         </div>
                         <div className="col-span-1 flex items-end h-full">
                           <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-9 w-9">
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
                       </div>
-                    ))}
+                    )})}
                   </div>
-                  <Button type="button" variant="outline" size="sm" onClick={() => append({ item: '', description: '', quantity: 1, unitPrice: 0 })}>
+                  <Button type="button" variant="outline" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 })}>
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                   </Button>
+                </div>
+                 <div className="flex justify-end">
+                    <div className="w-1/3 text-xs space-y-1">
+                        <div className="flex justify-between">
+                            <span>Subtotal:</span>
+                            <span>₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>Tax (18% GST):</span>
+                            <span>₹{tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                        <div className="flex justify-between font-bold text-sm pt-1 border-t">
+                            <span>Grand Total:</span>
+                            <span>₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                    </div>
                 </div>
                 <Button type="submit" disabled={isGenerating}>
                   {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
