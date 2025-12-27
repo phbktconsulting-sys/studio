@@ -260,15 +260,16 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
              <QuotationPrintTemplate quotation={{...quotationData, tasks: quotationData.tasks.slice(0,-1)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm">Generate Quotation</CardTitle>
-            <CardDescription className="text-xs">
-              Fill in the details below to generate a new quotation.
-            </CardDescription>
+            <Button form="quotation-form" type="submit" disabled={isGenerating}>
+              {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isGenerating ? 'Generating...' : 'Generate Quotation'}
+            </Button>
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
+              <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
                    <div className="md:col-span-1 pt-1.5">
                       <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
@@ -471,7 +472,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 
                  {fields.length > 1 && (
                     <div className="mt-6 space-y-2 pt-4">
-                        <h3 className="text-sm font-semibold">Added Items</h3>
                         <Table>
                         <TableHeader>
                             <TableRow>
@@ -518,12 +518,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <span>₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
                     </div>
-                </div>
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={isGenerating}>
-                    {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isGenerating ? 'Generating...' : 'Generate Quotation'}
-                  </Button>
                 </div>
               </form>
             </Form>
