@@ -85,6 +85,10 @@ const processToPrefix: Record<string, string> = {
 export async function createWorkItem(
   payload: any
 ): Promise<WorkItemCreateResponse> {
+  // Add a specific user ID for public submissions
+  if (payload.createdBy === 'public_lead_capture_form') {
+      payload.createdBy = 'Bx6NMfVHH5dFSYDvWP5QBW1giQ23';
+  }
   return createWorkItemFlow(payload);
 }
 

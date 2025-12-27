@@ -265,3 +265,11 @@ export const CreateUserOutputSchema = z.object({
   error: z.string().optional(),
 });
 export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
+
+export const LeadCaptureSchema = z.object({
+  customerName: z.string().min(1, 'Your name is required'),
+  customerEmail: z.string().email('A valid email address is required'),
+  customerPhone: z.string().min(1, 'Your phone number is required'),
+  overview: z.string().min(10, 'Please provide a brief description of your needs.'),
+});
+export type LeadCaptureFormValues = z.infer<typeof LeadCaptureSchema>;
