@@ -10,7 +10,7 @@ export async function generatePdfFromHtml(htmlContent: string): Promise<string> 
     browser = await puppeteer.launch({
       args: [...chromium.args, '--disable-web-security'],
       executablePath: await chromium.executablePath(
-        `https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar`
+        `https://github.com/Sparticuz/chromium/releases/download/v119.0.0/chromium-v119.0.0-pack.tar`
       ),
       headless: chromium.headless,
     });
