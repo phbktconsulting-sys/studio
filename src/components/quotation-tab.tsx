@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Trash2, PlusCircle, Loader2 } from 'lucide-react';
 import { Textarea } from './ui/textarea';
-import { useFirebase } from '@/firebase';
+import { useFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -142,18 +142,13 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     }
   }, [workItem, form]);
 
- const handleGenerateQuote = async (data: QuotationFormValues) => {
+  const handleGenerateQuote = async (data: QuotationFormValues) => {
     if (!firestore || !user) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "You must be logged in to perform this action."
-      });
-      return;
+        toast({ variant: "destructive", title: "Error", description: "You must be logged in." });
+        return;
     }
 
     setIsGenerating(true);
-
     const input = document.getElementById('quotation-to-print');
     if (!input) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not find quotation template to print.' });
@@ -163,46 +158,42 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
 
     try {
         const canvas = await html2canvas(input, { scale: 2 });
-        const imgData = canvas.toDataURL('image/png');
-        
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        
-        const imgProps = pdf.getImageProperties(imgData);
-        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        // Add a short delay to ensure canvas is fully rendered before creating PDF
+        setTimeout(async () => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            
+            const fileName = `Quotation_${workItem.customId}.pdf`;
+            pdf.save(fileName); // Triggers download
 
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-        
-        const fileName = `Quotation_${workItem.customId}.pdf`;
+            // Now, save the log to Firestore
+            const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
+            const newAttachmentRef = doc(attachmentsRef);
+            
+            const attachmentData = {
+                id: newAttachmentRef.id,
+                workItemId: workItem.id,
+                url: '#downloaded-locally', // Placeholder as discussed
+                direction: 'Outbound',
+                fileName: fileName,
+                uploadedAt: new Date().toISOString(),
+                uploadedBy: user.uid,
+                type: 'QUOTE',
+                documentSource: 'System',
+                businessEvent: 'QUOTATION',
+            };
+            
+            await setDoc(newAttachmentRef, attachmentData);
 
-        // 1. Trigger download on the client
-        pdf.save(fileName);
-
-        // 2. Save a log of the generated PDF as an attachment in Firestore
-        const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
-        const newAttachmentRef = doc(attachmentsRef);
-        
-        const attachmentData = {
-            id: newAttachmentRef.id,
-            workItemId: workItem.id,
-            url: '#downloaded-locally', // Store a placeholder instead of the full data URL
-            direction: 'Outbound',
-            fileName: fileName,
-            uploadedAt: new Date().toISOString(),
-            uploadedBy: user.uid,
-            type: 'QUOTE',
-            documentSource: 'System',
-            businessEvent: 'QUOTATION',
-        };
-        
-        // Use setDoc to guarantee the save operation
-        await setDoc(newAttachmentRef, attachmentData);
-
-        toast({
-            title: 'Quotation Generated & Logged',
-            description: 'The PDF has been downloaded and a record has been saved to attachments.',
-        });
+            toast({
+                title: 'Quotation Generated & Logged',
+                description: 'The PDF has been downloaded and a record has been saved to attachments.',
+            });
+            setIsGenerating(false);
+        }, 100); // 100ms delay
 
     } catch (error: any) {
         console.error("Failed to generate or log quotation:", error);
@@ -211,7 +202,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             title: 'Generation Failed',
             description: error.message || 'An unexpected error occurred.',
         });
-    } finally {
         setIsGenerating(false);
     }
   };
@@ -380,3 +370,5 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       </div>
   );
 }
+
+    

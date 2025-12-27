@@ -1147,11 +1147,11 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-1/5 text-xs">Date</TableHead>
-            <TableHead className="w-1/5 text-xs">File Name</TableHead>
-            <TableHead className="w-1/5 text-xs">Type</TableHead>
-            <TableHead className="w-1/5 text-xs">Direction</TableHead>
-            <TableHead className="w-1/5 text-xs">Actions</TableHead>
+            <TableHead className="w-1/4 text-xs">Date</TableHead>
+            <TableHead className="w-1/4 text-xs">File Name</TableHead>
+            <TableHead className="w-1/4 text-xs">Type</TableHead>
+            <TableHead className="w-1/4 text-xs">Direction</TableHead>
+            <TableHead className="text-right text-xs">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -1161,15 +1161,18 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
               <TableCell className="py-2 text-xs">{att.fileName}</TableCell>
               <TableCell className="py-2 text-xs">{att.type}</TableCell>
               <TableCell className="py-2 text-xs">{att.direction}</TableCell>
-              <TableCell className="py-2 text-xs">
-                <div className="flex items-center gap-4">
-                  <a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                    View
-                  </a>
-                  <a href={att.url} download={att.fileName} className="text-primary hover:underline">
-                    Download
-                  </a>
-                </div>
+              <TableCell className="py-2 text-xs text-right">
+                <a
+                  href={att.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    buttonVariants({ variant: 'link', size: 'sm' }),
+                    'h-auto p-0 text-xs'
+                  )}
+                >
+                  View
+                </a>
               </TableCell>
             </TableRow>
           ))}
@@ -1617,3 +1620,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </>
   );
 }
+
+    
