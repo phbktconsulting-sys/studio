@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -214,7 +213,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_${quoteNumber.replace('Quote #: ', 'Q-')}.pdf`;
+            const fileName = `Quotation_Q-${quoteNumber.split('-').pop()}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
@@ -270,58 +269,62 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="customerName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Customer Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} className="text-xs" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="customerPhone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Customer Phone</FormLabel>
-                        <FormControl>
-                          <Input {...field} className="text-xs" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="customerBusinessName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Business Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} className="text-xs" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="customerAddress"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Customer Address</FormLabel>
-                        <FormControl>
-                          <Input {...field} className="text-xs" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="customerName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Customer Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="text-xs" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="customerPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Customer Phone</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="text-xs" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="customerBusinessName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Business Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="text-xs" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="customerAddress"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Customer Address</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="text-xs" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-4">
