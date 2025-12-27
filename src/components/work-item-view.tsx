@@ -14,7 +14,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check, Download, Pencil, Building2, TrendingUp, Handshake, Fingerprint, Banknote } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
@@ -1260,12 +1260,12 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
         <TableBody>
           {attachments && attachments.map(att => (
             <TableRow key={att.id}>
-              <TableCell className="py-2 text-xs">{format(parseISO(att.uploadedAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
-              <TableCell className="py-2 text-xs">{att.fileName}</TableCell>
-              <TableCell className="py-2 text-xs">{att.type}</TableCell>
-              <TableCell className="py-2 text-xs">{att.direction}</TableCell>
-              <TableCell className="py-2 text-xs">{usersMap.get(att.uploadedBy) || '...'}</TableCell>
-              <TableCell className="py-2 text-xs text-right space-x-2">
+              <TableCell className="py-1 text-xs">{format(parseISO(att.uploadedAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
+              <TableCell className="py-1 text-xs">{att.fileName}</TableCell>
+              <TableCell className="py-1 text-xs">{att.type}</TableCell>
+              <TableCell className="py-1 text-xs">{att.direction}</TableCell>
+              <TableCell className="py-1 text-xs">{usersMap.get(att.uploadedBy) || '...'}</TableCell>
+              <TableCell className="py-1 text-xs text-right space-x-2">
                 <Button
                     variant="link"
                     size="sm"
