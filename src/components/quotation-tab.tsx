@@ -15,7 +15,7 @@ import { Trash2, PlusCircle } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { useFirebase, addDocumentNonBlocking } from '@/firebase';
+import { useFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 
 
@@ -289,7 +289,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const { toast } = useToast();
   const { firestore, user } = useFirebase();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [printableData, setPrintableData] = useState<QuotationFormValues | null>(null);
   const printableRef = useRef<HTMLDivElement>(null);
 
 
@@ -330,70 +329,82 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     }
   }, [workItem, form]);
 
-  useEffect(() => {
-    if (printableData && printableRef.current && user && firestore) {
-        const generateAndSavePdf = async () => {
-            try {
-                const canvas = await html2canvas(printableRef.current!, {
-                    scale: 2,
-                    useCORS: true,
-                });
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                
-                const fileName = `Quotation_${workItem.customId}.pdf`;
-                pdf.save(fileName);
-
-                const pdfDataUrl = pdf.output('datauristring');
-                const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
-                const newAttachmentRef = doc(attachmentsRef);
-                
-                await addDocumentNonBlocking(attachmentsRef, {
-                    id: newAttachmentRef.id,
-                    workItemId: workItem.id,
-                    url: pdfDataUrl,
-                    direction: 'Outbound',
-                    fileName: fileName,
-                    uploadedAt: new Date().toISOString(),
-                    uploadedBy: user.uid,
-                    type: 'QUOTE',
-                    documentSource: 'Manual',
-                    businessEvent: 'QUOTATION',
-                });
-
-
-                 toast({
-                    title: 'Quotation Generated',
-                    description: 'The PDF has been downloaded and saved to the work item attachments.',
-                });
-            } catch (error: any) {
-                 toast({
-                    variant: 'destructive',
-                    title: 'Generation Failed',
-                    description: error.message || 'An unexpected error occurred while generating the PDF.',
-                });
-            } finally {
-                setIsGenerating(false);
-                setPrintableData(null); // Reset after generation
-            }
-        };
-        generateAndSavePdf();
-    }
-  }, [printableData, workItem.id, workItem.customId, toast, user, firestore]);
 
   const handleGenerateQuote = (data: QuotationFormValues) => {
+    if (!printableRef.current || !user || !firestore) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not generate PDF. Required components are not ready."
+      });
+      return;
+    }
+    
     setIsGenerating(true);
-    setPrintableData(data);
+
+    const generateAndSavePdf = async () => {
+      try {
+        const canvas = await html2canvas(printableRef.current!, {
+          scale: 2,
+          useCORS: true,
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+        const fileName = `Quotation_${workItem.customId}.pdf`;
+        pdf.save(fileName);
+
+        const pdfDataUrl = pdf.output('datauristring');
+        const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
+        const newAttachmentRef = doc(attachmentsRef);
+        
+        const attachmentData = {
+            id: newAttachmentRef.id,
+            workItemId: workItem.id,
+            url: pdfDataUrl,
+            direction: 'Outbound',
+            fileName: fileName,
+            uploadedAt: new Date().toISOString(),
+            uploadedBy: user.uid,
+            type: 'QUOTE',
+            documentSource: 'Manual',
+            businessEvent: 'QUOTATION',
+        };
+
+        // Use setDoc with an explicit doc ref to ensure ID consistency
+        setDocumentNonBlocking(newAttachmentRef, attachmentData, {});
+
+        toast({
+          title: 'Quotation Generated & Saved',
+          description: 'The PDF has been downloaded and saved to attachments.',
+        });
+      } catch (error: any) {
+        toast({
+          variant: 'destructive',
+          title: 'Generation Failed',
+          description: error.message || 'An unexpected error occurred while generating the PDF.',
+        });
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+    
+    // We need a timeout to ensure the printable component has re-rendered with the latest data
+    setTimeout(generateAndSavePdf, 100);
+  };
+  
+  const onSubmit = (data: QuotationFormValues) => {
+    handleGenerateQuote(data);
   };
 
 
   return (
     <>
     <div style={{ position: 'absolute', left: '-9999px', top: 0, width: '840px' }}>
-        {printableData && <PrintableQuotation data={printableData} forwardedRef={printableRef} />}
+      {<PrintableQuotation data={form.getValues()} forwardedRef={printableRef} />}
     </div>
 
     <div className="p-4 space-y-6">
@@ -406,7 +417,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
