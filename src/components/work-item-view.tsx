@@ -49,7 +49,9 @@ import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { ImageAttachmentDialog } from './image-attachment-dialog';
 import { EditContactInfoDialog } from './edit-contact-info-dialog';
-import { QuotationTab, QuotationPrintTemplate } from './quotation-tab';
+import { QuotationTab } from './quotation-tab';
+import { QuotationPrintTemplate } from '@/components/quotation-tab';
+import { createRoot } from 'react-dom/client';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -1157,28 +1159,33 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
         printContainer.style.left = '-9999px';
         document.body.appendChild(printContainer);
 
-        const ReactDom = await import('react-dom');
-        ReactDom.render(
-            <QuotationPrintTemplate quotation={quoteData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} />,
-            printContainer
+        const root = createRoot(printContainer);
+        root.render(
+            <QuotationPrintTemplate quotation={quoteData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} />
         );
         
         // Slight delay to ensure rendering is complete
         setTimeout(async () => {
-          const canvas = await html2canvas(printContainer.firstChild as HTMLElement, { scale: 2 });
-          const imgData = canvas.toDataURL('image/png');
-          const pdf = new jsPDF('p', 'mm', 'a4');
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          
-          pdf.save(attachment.fileName);
+          try {
+            const canvas = await html2canvas(printContainer.firstChild as HTMLElement, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            
+            pdf.save(attachment.fileName);
 
-          // Cleanup
-          ReactDom.unmountComponentAtNode(printContainer);
-          document.body.removeChild(printContainer);
-          setRegeneratingId(null);
-          toast({ title: 'PDF Regenerated', description: 'The quotation PDF has been downloaded.' });
+            toast({ title: 'PDF Regenerated', description: 'The quotation PDF has been downloaded.' });
+          } catch (e) {
+            console.error("Failed to generate PDF canvas:", e);
+            toast({ variant: 'destructive', title: 'Regeneration Failed', description: 'Could not create PDF content.' });
+          } finally {
+            // Cleanup
+            root.unmount();
+            document.body.removeChild(printContainer);
+            setRegeneratingId(null);
+          }
         }, 200);
 
       } catch (error: any) {
