@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import { Checkbox } from './ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Badge } from './ui/badge';
-import { QuotationPrintTemplate } from './quotation-print-template';
+import type { QuotationPrintTemplate as QuotationPrintTemplateType } from './quotation-print-template';
 
 
 const processTaskMap: Record<string, string[]> = {
@@ -95,7 +95,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         return;
     }
     
-    const finalTasks = data.tasks.filter(task => !!task.process && !!task.task && !!task.item && task.quantity && task.quantity > 0);
+    const finalTasks = data.tasks.filter(task => !!task.process && !!task.task && !!task.item && !!task.quantity && task.quantity > 0);
 
     if (finalTasks.length === 0) {
         toast({ variant: "destructive", title: "Error", description: "Please add at least one complete line item to the quotation." });
@@ -109,6 +109,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         const { default: jsPDF } = await import('jspdf');
         const { default: html2canvas } = await import('html2canvas');
         const { createRoot } = await import('react-dom/client');
+        const { QuotationPrintTemplate } = await import('./quotation-print-template');
 
         const printContainer = document.createElement('div');
         printContainer.style.position = 'absolute';
@@ -209,7 +210,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                    <Input {...field} placeholder="Customer Name" className="text-xs" />
+                                    <Input {...field} placeholder="Customer Name" className="text-xs h-8" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -221,7 +222,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
-                                    <Input {...field} placeholder="Customer Phone" className="text-xs" />
+                                    <Input {...field} placeholder="Customer Phone" className="text-xs h-8" />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -235,7 +236,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>
-                                  <Input {...field} placeholder="Business Name (Optional)" className="text-xs" />
+                                  <Input {...field} placeholder="Business Name (Optional)" className="text-xs h-8" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -247,7 +248,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>
-                                  <Input {...field} placeholder="Customer Address" className="text-xs" />
+                                  <Input {...field} placeholder="Customer Address" className="text-xs h-8" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -279,7 +280,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                     value={field.value}
                                   >
                                     <FormControl>
-                                      <SelectTrigger className='text-xs h-9'>
+                                      <SelectTrigger className='text-xs h-8'>
                                         <SelectValue placeholder="Select Process" />
                                       </SelectTrigger>
                                     </FormControl>
@@ -308,7 +309,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                             variant="outline"
                                             role="combobox"
                                             disabled={!form.watch(`tasks.${fields.length - 1}.process`)}
-                                            className={cn("w-full justify-between text-xs h-9", !taskField.value && "text-muted-foreground")}
+                                            className={cn("w-full justify-between text-xs h-8", !taskField.value && "text-muted-foreground")}
                                           >
                                             {taskField.value ? taskField.value : "Select Task"}
                                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -357,7 +358,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                       {...field}
                                       value={field.value || ''}
                                       onChange={(e) => field.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
-                                      className="text-xs h-9"
+                                      className="text-xs h-8"
                                     />
                                   </FormControl>
                                 </FormItem>
@@ -377,7 +378,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                       {...field}
                                       value={field.value || ''}
                                        onChange={(e) => field.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
-                                      className="text-xs h-9"
+                                      className="text-xs h-8"
                                     />
                                   </FormControl>
                                 </FormItem>
@@ -386,7 +387,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                           </div>
                            <div className="col-span-2">
                              <FormLabel className='text-xs'>Total</FormLabel>
-                             <div className="h-9 flex items-center text-xs font-medium">
+                             <div className="h-8 flex items-center text-xs font-medium">
                               ₹{((form.watch(`tasks.${fields.length - 1}.quantity`) || 0) * (form.watch(`tasks.${fields.length - 1}.unitPrice`) || 0)).toLocaleString()}
                              </div>
                            </div>
@@ -465,3 +466,5 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       </div>
   );
 }
+
+    
