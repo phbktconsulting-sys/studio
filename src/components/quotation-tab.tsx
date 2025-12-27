@@ -95,7 +95,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         return;
     }
     
-    const finalTasks = data.tasks.filter(task => !!task.process && !!task.task && !!task.item && !!task.quantity && task.quantity > 0);
+    const finalTasks = data.tasks.filter(task => !!task.process && !!task.task && !!task.item && task.quantity && task.quantity > 0);
 
     if (finalTasks.length === 0) {
         toast({ variant: "destructive", title: "Error", description: "Please add at least one complete line item to the quotation." });
@@ -109,7 +109,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         const { default: jsPDF } = await import('jspdf');
         const { default: html2canvas } = await import('html2canvas');
         const { createRoot } = await import('react-dom/client');
-        const { QuotationPrintTemplate } = await import('./quotation-print-template');
 
         const printContainer = document.createElement('div');
         printContainer.style.position = 'absolute';
@@ -198,11 +197,11 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
           <CardContent className="p-6">
             <Form {...form}>
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
+                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 border-b pb-6">
                     <div className="md:col-span-1 pt-1.5">
                         <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
                     </div>
-                    <div className="md:col-span-2 space-y-4">
+                    <div className="md:col-span-3 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
@@ -258,12 +257,12 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="md:col-span-1 pt-1.5">
                     <FormLabel className="text-xs font-semibold">Line Items</FormLabel>
                   </div>
 
-                  <div className="md:col-span-2 space-y-4" key={entryFormKey}>
+                  <div className="md:col-span-3 space-y-4" key={entryFormKey}>
                      <div className="grid grid-cols-12 gap-2 items-start rounded-md">
                           <div className="col-span-3">
                              <FormField
@@ -454,7 +453,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                     </div>
                 </div>
                  <div className="flex justify-end pt-4">
-                  <Button form="quotation-form" type="submit" disabled={isGenerating}>
+                  <Button form="quotation-form" type="submit" disabled={isGenerating} className="h-8">
                     {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {isGenerating ? 'Generating...' : 'Generate Quotation'}
                   </Button>
@@ -466,5 +465,3 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       </div>
   );
 }
-
-    
