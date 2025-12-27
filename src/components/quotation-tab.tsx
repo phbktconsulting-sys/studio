@@ -174,25 +174,19 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
 
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
         
-        const pdfDataUrl = pdf.output('datauristring');
         const fileName = `Quotation_${workItem.customId}.pdf`;
 
         // 1. Trigger download on the client
-        const link = document.createElement("a");
-        link.href = pdfDataUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        pdf.save(fileName);
 
-        // 2. Save the generated PDF as an attachment in Firestore
+        // 2. Save a log of the generated PDF as an attachment in Firestore
         const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
         const newAttachmentRef = doc(attachmentsRef);
         
         const attachmentData = {
             id: newAttachmentRef.id,
             workItemId: workItem.id,
-            url: pdfDataUrl,
+            url: '#downloaded-locally', // Store a placeholder instead of the full data URL
             direction: 'Outbound',
             fileName: fileName,
             uploadedAt: new Date().toISOString(),
@@ -202,15 +196,16 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             businessEvent: 'QUOTATION',
         };
         
+        // Use setDoc to guarantee the save operation
         await setDoc(newAttachmentRef, attachmentData);
 
         toast({
-            title: 'Quotation Generated & Saved',
-            description: 'The PDF has been downloaded and saved to attachments.',
+            title: 'Quotation Generated & Logged',
+            description: 'The PDF has been downloaded and a record has been saved to attachments.',
         });
 
     } catch (error: any) {
-        console.error("Failed to generate or save quotation:", error);
+        console.error("Failed to generate or log quotation:", error);
         toast({
             variant: 'destructive',
             title: 'Generation Failed',
