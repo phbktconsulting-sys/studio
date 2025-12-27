@@ -45,29 +45,14 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
-       <header className="absolute top-0 left-0 right-0 p-4 bg-white border-b">
-        <div className="container mx-auto flex justify-between items-center">
-            <Link href="/" className="flex items-center gap-4">
-              <LogoIcon height={40} width={40} />
-              <div className="font-headline text-lg font-bold leading-tight">
-                <div className="flex flex-col text-sm leading-snug text-black">
-                  <span>PHBKT</span>
-                  <span>Group</span>
-                  <span>Limited</span>
-                </div>
-              </div>
-            </Link>
-            <Button asChild>
-                <Link href="/lead-capture">Contact Sales</Link>
-            </Button>
+      <div className="w-full max-w-sm">
+        <div className="mb-4 flex flex-col items-center text-center">
+            <LogoIcon className="h-16 w-16" />
+            <h1 className="text-xl font-bold mt-2">PHBKT Group Limited</h1>
+            <p className="text-sm text-muted-foreground">WorkFlow Management Application</p>
         </div>
-      </header>
-      <div className="w-full max-w-sm pt-20">
-        <Card className="py-6">
-          <CardHeader className="text-center pb-4">
-            <div className="flex justify-center pt-4">
-                <LogoIcon className="h-16 w-16" />
-            </div>
+        <Card>
+          <CardHeader className="text-center">
             <CardTitle className="font-headline text-2xl">Sign In</CardTitle>
             <CardDescription className="text-sm">Enter your credentials to access your account.</CardDescription>
           </CardHeader>
@@ -90,6 +75,13 @@ export default function LoginPage() {
                 Sign In
               </Button>
             </form>
+            <Separator className="my-6" />
+            <div className="text-center">
+                <p className="text-sm text-muted-foreground">Need to submit a lead?</p>
+                <Button asChild variant="link" className="px-0">
+                    <Link href="/lead-capture">Contact our sales team</Link>
+                </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
