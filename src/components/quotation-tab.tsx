@@ -58,7 +58,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, update, replace } = useFieldArray({
     control: form.control,
     name: 'tasks',
   });
@@ -77,25 +77,17 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         ? `${workItem.relatedContact.address.line1}, ${workItem.relatedContact.address.city}, ${workItem.relatedContact.address.state} ${workItem.relatedContact.address.zipcode}`
         : '';
       
-      const initialTasks = workItem.tasks?.length > 0 ? workItem.tasks.map(task => ({
-          process: workItem.process,
-          item: task.text,
-          task: task.text,
-          description: '',
-          quantity: 1,
-          unitPrice: 0,
-        })) : [];
-
       form.reset({
         customerName: workItem.relatedContact.name || '',
         customerPhone: workItem.relatedContact.phone || '',
         customerBusinessName: workItem.relatedContact.businessName || '',
         customerAddress: fullAddress,
-        tasks: [...initialTasks, { process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }],
+        tasks: [{ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }],
       });
-      setEntryFormKey(prev => prev + 1); // Force re-render of entry form
+      setEntryFormKey(prev => prev + 1);
     }
   }, [workItem, form]);
+
 
   const handleGenerateQuote = async (data: QuotationFormValues) => {
     if (!firestore || !user) {
@@ -407,6 +399,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                             </Button>
                         </div>
+                        <div className="w-full border-b border-green-600 my-4" />
                   </div>
                 </div>
                 
