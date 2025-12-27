@@ -140,6 +140,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const { firestore, user } = useFirebase();
   const [isGenerating, setIsGenerating] = useState(false);
   const [openPopovers, setOpenPopovers] = useState<Record<number, boolean>>({});
+  const [entryFormKey, setEntryFormKey] = useState(0);
 
   const form = useForm<QuotationFormValues>({
     resolver: zodResolver(QuotationFormSchema),
@@ -158,7 +159,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   });
   
   const quotationData = form.watch();
-  const addedTasks = quotationData.tasks.slice(0, -1);
+  const addedTasks = fields.slice(0, -1);
   const subtotal = addedTasks.reduce((acc, task) => acc + ((task.quantity || 0) * (task.unitPrice || 0)), 0);
   const tax = subtotal * 0.18;
   const grandTotal = subtotal + tax;
@@ -197,7 +198,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     }
     
     // Filter out any empty rows from the tasks array before processing.
-    const finalTasks = data.tasks.filter(task => task.process && task.task);
+    const finalTasks = data.tasks.filter(task => task.process && task.task && task.quantity);
 
     if (finalTasks.length === 0) {
         toast({ variant: "destructive", title: "Error", description: "Please add at least one line item to the quotation." });
@@ -266,7 +267,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   return (
       <div className="p-4 space-y-6">
         <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-             <QuotationPrintTemplate quotation={{...quotationData, tasks: addedTasks}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
+             <QuotationPrintTemplate quotation={{...quotationData, tasks: addedTasks.map(t => t as any)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
           <CardHeader>
@@ -340,7 +341,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                     <FormLabel className="text-xs font-semibold">Line Items</FormLabel>
                   </div>
 
-                  <div className="md:col-span-2 space-y-4" key={fields.length}>
+                  <div className="md:col-span-2 space-y-4" key={entryFormKey}>
                      <div className="grid grid-cols-12 gap-2 items-start rounded-md">
                           <div className="col-span-3">
                              <FormField
@@ -468,7 +469,10 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                            </div>
                         </div>
                     <div className="flex justify-end">
-                      <Button type="button" variant="outline" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: undefined, unitPrice: 0 })}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => {
+                        append({ process: '', task: '', item: '', description: '', quantity: undefined, unitPrice: 0 });
+                        setEntryFormKey(prev => prev + 1);
+                        }}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                       </Button>
                     </div>
