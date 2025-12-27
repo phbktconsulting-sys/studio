@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -213,7 +214,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_${quoteNumber.replace('#: ', '')}.pdf`;
+            const fileName = `Quotation_${quoteNumber.replace(/Q-/, 'Q-')}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
@@ -273,54 +274,58 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                       <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
                    </div>
                    <div className="md:col-span-2 space-y-4">
-                        <FormField
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="customerName"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                    <Input {...field} placeholder="Customer Name" className="text-xs" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                              control={form.control}
+                              name="customerPhone"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input {...field} placeholder="Customer Phone" className="text-xs" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
                             control={form.control}
-                            name="customerName"
+                            name="customerBusinessName"
                             render={({ field }) => (
-                            <FormItem>
+                              <FormItem>
                                 <FormControl>
-                                <Input {...field} placeholder="Customer Name" className="text-xs" />
+                                  <Input {...field} placeholder="Business Name (Optional)" className="text-xs" />
                                 </FormControl>
                                 <FormMessage />
-                            </FormItem>
+                              </FormItem>
                             )}
-                        />
-                         <FormField
-                          control={form.control}
-                          name="customerPhone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input {...field} placeholder="Customer Phone" className="text-xs" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      <FormField
-                        control={form.control}
-                        name="customerBusinessName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input {...field} placeholder="Business Name (Optional)" className="text-xs" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                       <FormField
-                        control={form.control}
-                        name="customerAddress"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input {...field} placeholder="Customer Address" className="text-xs" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                          />
+                          <FormField
+                            control={form.control}
+                            name="customerAddress"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} placeholder="Customer Address" className="text-xs" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                    </div>
                 </div>
 
@@ -465,37 +470,38 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 </div>
                 
                  {fields.length > 1 && (
-                  <div className="space-y-2 pt-4">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className='text-xs'>Description</TableHead>
-                          <TableHead className='w-[80px] text-center text-xs'>Quantity</TableHead>
-                          <TableHead className='w-[120px] text-right text-xs'>Unit Price</TableHead>
-                          <TableHead className='w-[120px] text-right text-xs'>Total</TableHead>
-                          <TableHead className='w-[50px]'></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                      {fields.slice(0, -1).map((field, index) => (
-                          <TableRow key={field.id}>
-                            <TableCell className='py-2'>
-                              <p className="font-medium text-xs">{field.item}</p>
-                              <p className="text-muted-foreground text-xs">{field.description}</p>
-                            </TableCell>
-                            <TableCell className='text-center text-xs py-2'>{field.quantity}</TableCell>
-                            <TableCell className='text-right text-xs py-2'>₹{field.unitPrice.toLocaleString()}</TableCell>
-                            <TableCell className='text-right text-xs py-2'>₹{(field.quantity * field.unitPrice).toLocaleString()}</TableCell>
-                            <TableCell className='py-2'>
-                              <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                      ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                    <div className="mt-6 space-y-2 pt-4">
+                        <h3 className="text-sm font-semibold">Added Items</h3>
+                        <Table>
+                        <TableHeader>
+                            <TableRow>
+                            <TableHead className='text-xs'>Description</TableHead>
+                            <TableHead className='w-[80px] text-center text-xs'>Quantity</TableHead>
+                            <TableHead className='w-[120px] text-right text-xs'>Unit Price</TableHead>
+                            <TableHead className='w-[120px] text-right text-xs'>Total</TableHead>
+                            <TableHead className='w-[50px]'></TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {fields.slice(0, -1).map((field, index) => (
+                            <TableRow key={field.id}>
+                                <TableCell className='py-2'>
+                                <p className="font-medium text-xs">{field.item}</p>
+                                <p className="text-muted-foreground text-xs">{field.description}</p>
+                                </TableCell>
+                                <TableCell className='text-center text-xs py-2'>{field.quantity}</TableCell>
+                                <TableCell className='text-right text-xs py-2'>₹{field.unitPrice.toLocaleString()}</TableCell>
+                                <TableCell className='text-right text-xs py-2'>₹{(field.quantity * field.unitPrice).toLocaleString()}</TableCell>
+                                <TableCell className='py-2'>
+                                <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                        </Table>
+                    </div>
                 )}
                  <div className="flex justify-end">
                     <div className="w-1/3 text-xs space-y-1">
