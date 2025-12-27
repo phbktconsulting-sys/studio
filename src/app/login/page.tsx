@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useFirebase, initiateEmailSignIn } from '@/firebase';
 import { Fingerprint } from 'lucide-react';
 import { LogoIcon } from '@/components/icons';
+import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
         <Card className="py-6">
           <CardHeader className="text-center pb-4">
@@ -73,6 +74,25 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
+        </Card>
+        
+        <div className="relative my-6">
+          <Separator />
+          <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-background px-2 text-xs text-muted-foreground">OR</span>
+        </div>
+
+        <Card>
+            <CardHeader className="text-center">
+                <CardTitle className="text-xl">New Business Inquiry?</CardTitle>
+                <CardDescription className="text-xs">
+                    If you are a new customer or do not have an account, please use our contact form.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+                <Button asChild variant="outline">
+                    <Link href="/lead-capture">Go to Contact Form</Link>
+                </Button>
+            </CardContent>
         </Card>
       </div>
     </div>
