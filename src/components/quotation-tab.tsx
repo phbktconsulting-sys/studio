@@ -14,8 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Trash2, PlusCircle, Loader2, ChevronsUpDown } from 'lucide-react';
 import { useFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc, setDoc } from 'firebase/firestore';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './ui/command';
@@ -159,6 +157,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   });
   
   const quotationData = form.watch();
+  // We explicitly filter out the last, blank entry row for display and calculation.
   const addedTasks = fields.slice(0, -1);
   const subtotal = addedTasks.reduce((acc, task) => acc + ((task.quantity || 0) * (task.unitPrice || 0)), 0);
   const tax = subtotal * 0.18;
@@ -197,61 +196,90 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         return;
     }
     
-    // Filter out any empty rows from the tasks array before processing.
-    const finalTasks = data.tasks.filter(task => task.process && task.task && task.quantity);
+    // Filter out any empty/incomplete rows from the tasks array before processing.
+    const finalTasks = data.tasks.filter(task => task.process && task.task && task.item && task.quantity && task.quantity > 0);
 
     if (finalTasks.length === 0) {
-        toast({ variant: "destructive", title: "Error", description: "Please add at least one line item to the quotation." });
+        toast({ variant: "destructive", title: "Error", description: "Please add at least one complete line item to the quotation." });
         return;
     }
     const finalQuotationData = { ...data, tasks: finalTasks };
 
     setIsGenerating(true);
-    const input = document.getElementById('quotation-to-print');
-    if (!input) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Could not find quotation template to print.' });
-        setIsGenerating(false);
-        return;
-    }
 
     try {
-        const canvas = await html2canvas(input, { scale: 2 });
+        // Dynamically import libraries
+        const { default: jsPDF } = await import('jspdf');
+        const { default: html2canvas } = await import('html2canvas');
+        const { createRoot } = await import('react-dom/client');
+
+        const printContainer = document.createElement('div');
+        printContainer.style.position = 'absolute';
+        printContainer.style.left = '-9999px';
+        document.body.appendChild(printContainer);
+
+        const root = createRoot(printContainer);
+
+        const subtotal = finalTasks.reduce((acc, task) => acc + ((task.quantity || 0) * (task.unitPrice || 0)), 0);
+        const tax = subtotal * 0.18;
+        const grandTotal = subtotal + tax;
+
+        root.render(
+            <QuotationPrintTemplate quotation={finalQuotationData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
+        );
         
+        // Timeout to allow React to render the component off-screen
         setTimeout(async () => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            
-            const fileName = `Quotation_${quoteNumber}.pdf`;
-            pdf.save(fileName); 
+            const input = document.getElementById('quotation-to-print');
+            if (!input) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Could not find quotation template to print.' });
+                setIsGenerating(false);
+                return;
+            }
 
-            const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
-            const newAttachmentRef = doc(attachmentsRef);
-            
-            const attachmentData = {
-                id: newAttachmentRef.id,
-                workItemId: workItem.id,
-                url: '#downloaded-locally',
-                direction: 'Outbound',
-                fileName: fileName,
-                uploadedAt: new Date().toISOString(),
-                uploadedBy: user.uid,
-                type: 'QUOTE',
-                documentSource: 'System',
-                businessEvent: 'QUOTATION',
-                quotationData: finalQuotationData, 
-            };
-            
-            await setDoc(newAttachmentRef, attachmentData);
+            try {
+                const canvas = await html2canvas(input, { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                
+                const fileName = `Quotation_${quoteNumber}.pdf`;
+                pdf.save(fileName); 
 
-            toast({
-                title: 'Quotation Generated & Logged',
-                description: 'The PDF has been downloaded and a record has been saved to attachments.',
-            });
-            setIsGenerating(false);
-        }, 100); 
+                const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
+                const newAttachmentRef = doc(attachmentsRef);
+                
+                const attachmentData = {
+                    id: newAttachmentRef.id,
+                    workItemId: workItem.id,
+                    url: '#downloaded-locally',
+                    direction: 'Outbound',
+                    fileName: fileName,
+                    uploadedAt: new Date().toISOString(),
+                    uploadedBy: user.uid,
+                    type: 'QUOTE',
+                    documentSource: 'System',
+                    businessEvent: 'QUOTATION',
+                    quotationData: finalQuotationData, 
+                };
+                
+                await setDoc(newAttachmentRef, attachmentData);
+
+                toast({
+                    title: 'Quotation Generated & Logged',
+                    description: 'The PDF has been downloaded and a record has been saved to attachments.',
+                });
+            } catch (e) {
+                console.error("Failed to generate PDF canvas:", e);
+                toast({ variant: 'destructive', title: 'Generation Failed', description: 'Could not create PDF content.' });
+            } finally {
+                root.unmount();
+                document.body.removeChild(printContainer);
+                setIsGenerating(false);
+            }
+        }, 200); 
 
     } catch (error: any) {
         console.error("Failed to generate or log quotation:", error);
@@ -270,7 +298,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
              <QuotationPrintTemplate quotation={{...quotationData, tasks: addedTasks.map(t => t as any)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm">Generate Quotation</CardTitle>
           </CardHeader>
           <CardContent>
