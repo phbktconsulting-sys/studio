@@ -193,9 +193,10 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         toast({ variant: "destructive", title: "Error", description: "You must be logged in." });
         return;
     }
+    
+    // Filter out any empty rows from the tasks array before processing.
+    const finalTasks = data.tasks.filter(task => task.process && task.task);
 
-    // Filter out the last empty item before processing
-    const finalTasks = data.tasks.slice(0, -1);
     if (finalTasks.length === 0) {
         toast({ variant: "destructive", title: "Error", description: "Please add at least one line item to the quotation." });
         return;
@@ -211,6 +212,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     }
 
     try {
+        // We use a clean version of the data for printing.
+        const printableData = { ...data, tasks: finalTasks };
+
         const canvas = await html2canvas(input, { scale: 2 });
         
         setTimeout(async () => {
@@ -220,7 +224,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_${quoteNumber.replace(/[^0-9-]/g, '')}.pdf`;
+            const fileName = `Quotation_Q-${quoteNumber.replace(/[^0-9-]/g, '')}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
@@ -263,7 +267,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   return (
       <div className="p-4 space-y-6">
         <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-             <QuotationPrintTemplate quotation={{...quotationData, tasks: quotationData.tasks.slice(0,-1)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
+             <QuotationPrintTemplate quotation={{...quotationData, tasks: quotationData.tasks.filter(t => t.process && t.task)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
            <CardHeader>

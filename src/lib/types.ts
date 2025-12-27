@@ -277,13 +277,24 @@ export const LeadCaptureSchema = z.object({
 export type LeadCaptureFormValues = z.infer<typeof LeadCaptureSchema>;
 
 export const QuotationTaskSchema = z.object({
-  process: z.string().min(1, "Process is required."),
-  task: z.string().min(1, "Task is required."),
-  item: z.string(),
-  description: z.string(),
-  quantity: z.number().min(0, "Quantity must be positive."),
-  unitPrice: z.number().min(0, "Unit price must be positive."),
+  process: z.string().optional(),
+  task: z.string().optional(),
+  item: z.string().optional(),
+  description: z.string().optional(),
+  quantity: z.number().optional(),
+  unitPrice: z.number().optional(),
+}).refine(data => {
+  // If any of the fields are filled, then process and task are required.
+  const hasAnyValue = data.process || data.task || data.item || data.description || data.quantity || data.unitPrice;
+  if (!hasAnyValue) return true; // It's an empty row, so it's valid.
+  
+  // If there is any value, then process and task must be filled.
+  return !!data.process && !!data.task;
+}, {
+  message: "Process and Task are required if any other field is filled.",
+  path: ['task'], // Show the error on the task field
 });
+
 export type QuotationTask = z.infer<typeof QuotationTaskSchema>;
 
 export const QuotationFormSchema = z.object({
@@ -291,6 +302,9 @@ export const QuotationFormSchema = z.object({
   customerPhone: z.string().min(1, 'Customer phone is required.'),
   customerBusinessName: z.string().optional(),
   customerAddress: z.string().optional(),
-  tasks: z.array(QuotationTaskSchema).min(1, "At least one item is required for a quotation."),
+  tasks: z.array(QuotationTaskSchema).refine(
+    (tasks) => tasks.filter(task => task.process && task.task).length > 0,
+    { message: "At least one complete line item is required." }
+  ),
 });
 export type QuotationFormValues = z.infer<typeof QuotationFormSchema>;
