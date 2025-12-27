@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { WorkItem, QuotationFormValues, QuotationTask } from '@/lib/types';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -68,7 +68,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   });
   
   const quotationData = form.watch();
-  const addedTasks = fields.slice(0, -1);
+  const addedTasks = quotationData.tasks.filter(task => !!task.process && !!task.task && !!task.item && !!task.quantity && task.quantity > 0);
   const subtotal = addedTasks.reduce((acc, task) => acc + ((task.quantity || 0) * (task.unitPrice || 0)), 0);
   const tax = subtotal * 0.18;
   const grandTotal = subtotal + tax;
@@ -195,7 +195,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   if (!isCqPageVisible) {
     return (
       <div className="p-4 flex justify-center items-center h-full">
-        <Button onClick={() => setIsCqPageVisible(true)}>CQ</Button>
+        <Button onClick={() => setIsCqPageVisible(true)}>Development Services Quotation</Button>
       </div>
     );
   }
@@ -217,7 +217,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
           <CardContent className="p-6">
             <Form {...form}>
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
-                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start border-b pb-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start border-b pb-6">
                     <div className="md:col-span-1 pt-1.5">
                         <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
                     </div>
