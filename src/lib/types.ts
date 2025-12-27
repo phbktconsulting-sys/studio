@@ -284,14 +284,16 @@ export const QuotationTaskSchema = z.object({
   quantity: z.number().optional(),
   unitPrice: z.number().optional(),
 }).refine(data => {
-  // If any of the fields are filled, then process and task are required.
-  const hasAnyValue = data.process || data.task || data.item || data.description || data.quantity || data.unitPrice;
-  if (!hasAnyValue) return true; // It's an empty row, so it's valid.
+  // A row is considered "partially filled" if process/task is selected, or if quantity/price has been entered.
+  const isPartiallyFilled = (data.process && data.task) || (data.quantity && data.quantity > 0) || (data.unitPrice && data.unitPrice > 0);
   
-  // If there is any value, then process and task must be filled.
-  return !!data.process && !!data.task;
+  // If it's not even partially filled, it's a valid empty row.
+  if (!isPartiallyFilled) return true;
+  
+  // If it IS partially filled, then process, task, and quantity must all be present and valid.
+  return !!data.process && !!data.task && data.quantity !== undefined && data.quantity > 0;
 }, {
-  message: "Process and Task are required if any other field is filled.",
+  message: "Process, Task, and Quantity are required if any other field is filled.",
   path: ['task'], // Show the error on the task field
 });
 
@@ -303,7 +305,7 @@ export const QuotationFormSchema = z.object({
   customerBusinessName: z.string().optional(),
   customerAddress: z.string().optional(),
   tasks: z.array(QuotationTaskSchema).refine(
-    (tasks) => tasks.filter(task => task.process && task.task).length > 0,
+    (tasks) => tasks.filter(task => task.process && task.task && task.quantity && task.quantity > 0).length > 0,
     { message: "At least one complete line item is required." }
   ),
 });
