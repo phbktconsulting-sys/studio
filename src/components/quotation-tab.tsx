@@ -93,6 +93,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         customerAddress: fullAddress,
         tasks: [...initialTasks, { process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }],
       });
+      setEntryFormKey(prev => prev + 1); // Force re-render of entry form
     }
   }, [workItem, form]);
 
@@ -102,7 +103,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         return;
     }
     
-    const finalTasks = data.tasks.filter(task => task.process && task.task && task.item && task.quantity && task.quantity > 0);
+    const finalTasks = data.tasks.filter(task => !!task.process && !!task.task && !!task.item && task.quantity && task.quantity > 0);
 
     if (finalTasks.length === 0) {
         toast({ variant: "destructive", title: "Error", description: "Please add at least one complete line item to the quotation." });
@@ -362,7 +363,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                     <Input
                                       type="number"
                                       {...field}
-                                      value={field.value || 0}
+                                      value={field.value || ''}
                                       onChange={(e) => field.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
                                       className="text-xs h-9"
                                     />
@@ -382,7 +383,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                     <Input
                                       type="number"
                                       {...field}
-                                      value={field.value || 0}
+                                      value={field.value || ''}
                                        onChange={(e) => field.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
                                       className="text-xs h-9"
                                     />
@@ -406,7 +407,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                             </Button>
                         </div>
-                        <div className="mt-2 block h-px w-full bg-green-600"></div>
                   </div>
                 </div>
                 
@@ -443,7 +443,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         </Table>
                     </div>
                 )}
-                 <div className="flex justify-end">
+                 <div className="flex justify-end mt-4">
                     <div className="w-1/3 text-xs space-y-1">
                         <div className="flex justify-between">
                             <span>Subtotal:</span>
