@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -22,7 +23,7 @@ interface QuotationTabProps {
   workItem: WorkItem;
 }
 
-const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number }) => (
+export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number }) => (
     <div id="quotation-to-print" className="p-10" style={{ width: '800px', fontFamily: 'Inter, sans-serif', color: '#111827', backgroundColor: 'white', fontSize: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#6b7280', marginBottom: '20px' }}>
         <span>{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
@@ -158,7 +159,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
 
     try {
         const canvas = await html2canvas(input, { scale: 2 });
-        // Add a short delay to ensure canvas is fully rendered before creating PDF
+        
         setTimeout(async () => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
@@ -167,16 +168,15 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
             const fileName = `Quotation_${workItem.customId}.pdf`;
-            pdf.save(fileName); // Triggers download
+            pdf.save(fileName); 
 
-            // Now, save the log to Firestore
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
             const newAttachmentRef = doc(attachmentsRef);
             
             const attachmentData = {
                 id: newAttachmentRef.id,
                 workItemId: workItem.id,
-                url: '#downloaded-locally', // Placeholder as discussed
+                url: '#downloaded-locally',
                 direction: 'Outbound',
                 fileName: fileName,
                 uploadedAt: new Date().toISOString(),
@@ -184,6 +184,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 type: 'QUOTE',
                 documentSource: 'System',
                 businessEvent: 'QUOTATION',
+                quotationData: data, 
             };
             
             await setDoc(newAttachmentRef, attachmentData);
@@ -193,7 +194,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 description: 'The PDF has been downloaded and a record has been saved to attachments.',
             });
             setIsGenerating(false);
-        }, 100); // 100ms delay
+        }, 100); 
 
     } catch (error: any) {
         console.error("Failed to generate or log quotation:", error);
@@ -370,5 +371,3 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       </div>
   );
 }
-
-    

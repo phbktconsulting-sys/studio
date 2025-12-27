@@ -49,7 +49,9 @@ import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { ImageAttachmentDialog } from './image-attachment-dialog';
 import { EditContactInfoDialog } from './edit-contact-info-dialog';
-import { QuotationTab } from './quotation-tab';
+import { QuotationTab, QuotationPrintTemplate } from './quotation-tab';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Call for New Lead", "Request Other Services"],
@@ -1130,6 +1132,8 @@ function CaseLockedInfo({ lockInfo }: { lockInfo: WorkItem['lockInfo'] }) {
 
 function ImagesTab({ workItemId }: { workItemId: string }) {
   const { firestore } = useFirebase();
+  const { toast } = useToast();
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
 
   const attachmentsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -1137,6 +1141,60 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
   }, [firestore, workItemId]);
 
   const { data: attachments, isLoading } = useCollection<ImageAttachment>(attachmentsQuery);
+
+  const handleDownload = async (attachment: ImageAttachment) => {
+    if (attachment.type === 'QUOTE' && attachment.quotationData) {
+      setRegeneratingId(attachment.id);
+      try {
+        const quoteData = attachment.quotationData;
+        const subtotal = quoteData.tasks.reduce((acc, task) => acc + (task.quantity * task.unitPrice), 0);
+        const tax = subtotal * 0.18;
+        const grandTotal = subtotal + tax;
+
+        // Create a temporary div to render the template for canvas conversion
+        const printContainer = document.createElement('div');
+        printContainer.style.position = 'absolute';
+        printContainer.style.left = '-9999px';
+        document.body.appendChild(printContainer);
+
+        const ReactDom = await import('react-dom');
+        ReactDom.render(
+            <QuotationPrintTemplate quotation={quoteData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} />,
+            printContainer
+        );
+        
+        // Slight delay to ensure rendering is complete
+        setTimeout(async () => {
+          const canvas = await html2canvas(printContainer.firstChild as HTMLElement, { scale: 2 });
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          
+          pdf.save(attachment.fileName);
+
+          // Cleanup
+          ReactDom.unmountComponentAtNode(printContainer);
+          document.body.removeChild(printContainer);
+          setRegeneratingId(null);
+          toast({ title: 'PDF Regenerated', description: 'The quotation PDF has been downloaded.' });
+        }, 200);
+
+      } catch (error: any) {
+        console.error("Failed to regenerate PDF:", error);
+        toast({ variant: 'destructive', title: 'Regeneration Failed', description: error.message });
+        setRegeneratingId(null);
+      }
+    } else if (attachment.url.startsWith('data:')) {
+       const link = document.createElement('a');
+       link.href = attachment.url;
+       link.download = attachment.fileName;
+       document.body.appendChild(link);
+       link.click();
+       document.body.removeChild(link);
+    }
+  };
 
   if (isLoading) {
     return <div className="p-4 text-center text-xs text-muted-foreground">Loading attachments...</div>;
@@ -1161,18 +1219,29 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
               <TableCell className="py-2 text-xs">{att.fileName}</TableCell>
               <TableCell className="py-2 text-xs">{att.type}</TableCell>
               <TableCell className="py-2 text-xs">{att.direction}</TableCell>
-              <TableCell className="py-2 text-xs text-right">
+              <TableCell className="py-2 text-xs text-right space-x-2">
                 <a
-                  href={att.url}
+                  href={att.url.startsWith('data:') ? att.url : undefined}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
                     buttonVariants({ variant: 'link', size: 'sm' }),
-                    'h-auto p-0 text-xs'
+                    'h-auto p-0 text-xs',
+                    !att.url.startsWith('data:') && 'cursor-not-allowed opacity-50'
                   )}
+                  onClick={(e) => !att.url.startsWith('data:') && e.preventDefault()}
                 >
                   View
                 </a>
+                <Button
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0 text-xs"
+                    onClick={() => handleDownload(att)}
+                    disabled={regeneratingId === att.id}
+                >
+                    {regeneratingId === att.id ? '...' : 'Download'}
+                </Button>
               </TableCell>
             </TableRow>
           ))}
@@ -1620,5 +1689,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </>
   );
 }
-
-    

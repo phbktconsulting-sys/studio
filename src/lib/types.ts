@@ -34,7 +34,7 @@ export interface Task {
 export interface ImageAttachment {
   id: string;
   workItemId: string;
-  url: string; // Data URL
+  url: string; // Data URL or placeholder
   direction: 'Inbound' | 'Outbound';
   fileName: string;
   uploadedAt: string; // ISO date string
@@ -42,6 +42,7 @@ export interface ImageAttachment {
   type: string;
   documentSource: string;
   businessEvent: string;
+  quotationData?: QuotationFormValues; // Optional data for regeneration
 }
 
 export interface WorkItem {
@@ -290,5 +291,3 @@ export const QuotationFormSchema = z.object({
   tasks: z.array(QuotationTaskSchema).min(1, "At least one item is required for a quotation."),
 });
 export type QuotationFormValues = z.infer<typeof QuotationFormSchema>;
-
-    
