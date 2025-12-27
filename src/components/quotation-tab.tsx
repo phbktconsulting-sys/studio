@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { WorkItem, QuotationFormValues, QuotationTask } from '@/lib/types';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { QuotationFormSchema } from '@/lib/types';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Trash2, PlusCircle, Loader2, ChevronsUpDown, X } from 'lucide-react';
+import { Trash2, PlusCircle, Loader2, ChevronsUpDown, X, ArrowLeft } from 'lucide-react';
 import { useFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -25,6 +25,7 @@ import { QuotationPrintTemplate } from './quotation-print-template';
 import type { createRoot } from 'react-dom/client';
 import type jsPDF from 'jspdf';
 import type html2canvas from 'html2canvas';
+
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Call for New Lead", "Request Other Services"],
@@ -48,6 +49,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [openPopovers, setOpenPopovers] = useState<Record<number, boolean>>({});
   const [entryFormKey, setEntryFormKey] = useState(0);
+  const [isCqPageVisible, setIsCqPageVisible] = useState(false);
 
   const form = useForm<QuotationFormValues>({
     resolver: zodResolver(QuotationFormSchema),
@@ -108,9 +110,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     setIsGenerating(true);
 
     try {
-        const jsPDF = (await import('jspdf')).default;
-        const html2canvas = (await import('html2canvas')).default;
-        const { createRoot } = (await import('react-dom/client'));
+        const { default: jsPDF } = await import('jspdf');
+        const { default: html2canvas } = await import('html2canvas');
+        const { createRoot } = await import('react-dom/client');
 
         const printContainer = document.createElement('div');
         printContainer.style.position = 'absolute';
@@ -189,9 +191,25 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         setIsGenerating(false);
     }
   };
+
+  if (!isCqPageVisible) {
+    return (
+      <div className="p-4 flex justify-center items-center h-full">
+        <Button onClick={() => setIsCqPageVisible(true)}>CQ</Button>
+      </div>
+    );
+  }
   
   return (
       <div className="p-4 space-y-6">
+        <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => setIsCqPageVisible(false)}>
+                <ArrowLeft className="h-4 w-4" />
+                <span className="sr-only">Back</span>
+            </Button>
+            <h2 className="text-lg font-semibold">Create Quotation</h2>
+        </div>
+
         <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
              <QuotationPrintTemplate quotation={{...quotationData, tasks: addedTasks.map(t => t as any)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
