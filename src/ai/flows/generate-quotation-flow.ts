@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A server-side flow for generating a quotation PDF from a set of tasks.
@@ -30,7 +31,7 @@ export async function generateQuotation(
 
 const quotationHtmlPrompt = ai.definePrompt({
     name: 'quotationHtmlPrompt',
-    model: googleAI.model('gemini-1.5-flash-latest'),
+    model: googleAI.model('gemini-1.5-flash'),
     input: { schema: GenerateQuotationInputSchema.extend({
         currentDate: z.string(),
     })},
