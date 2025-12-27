@@ -326,178 +326,179 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                    </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-sm font-medium">Line Items</h3>
-                  
-                  {/* The entry form for the new item */}
-                  <div className="grid grid-cols-12 gap-2 items-start border p-3 rounded-md">
-                        <div className="col-span-3">
-                           <FormField
-                            control={form.control}
-                            name={`tasks.${fields.length - 1}.process`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Process</FormLabel>
-                                 <Select 
-                                  onValueChange={(value) => {
-                                      field.onChange(value);
-                                      update(fields.length - 1, { ...form.getValues(`tasks.${fields.length - 1}`), task: '', item: '', description: '' });
-                                  }} 
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger className='text-xs h-9'>
-                                      <SelectValue placeholder="Select Process" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {processTypes.map((proc) => (
-                                      <SelectItem key={proc} value={proc}>{proc}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <div className="col-span-4">
-                           <FormField
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-1">
+                    <FormLabel className="text-xs">Line Items</FormLabel>
+                  </div>
+
+                  <div className="md:col-span-2 space-y-4">
+                     <div className="grid grid-cols-12 gap-2 items-start border p-3 rounded-md">
+                          <div className="col-span-3">
+                             <FormField
                               control={form.control}
-                              name={`tasks.${fields.length - 1}.task`}
-                              render={({ field: taskField }) => (
+                              name={`tasks.${fields.length - 1}.process`}
+                              render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs">Task</FormLabel>
-                                  <Popover open={openPopovers[fields.length - 1]} onOpenChange={(isOpen) => setOpenPopovers(prev => ({...prev, [fields.length - 1]: isOpen}))}>
-                                    <PopoverTrigger asChild>
-                                      <FormControl>
-                                        <Button
-                                          variant="outline"
-                                          role="combobox"
-                                          disabled={!form.watch(`tasks.${fields.length - 1}.process`)}
-                                          className={cn("w-full justify-between text-xs h-9", !taskField.value && "text-muted-foreground")}
-                                        >
-                                          {taskField.value ? taskField.value : "Select Task"}
-                                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                      </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                      <Command>
-                                        <CommandInput placeholder="Search task..." />
-                                        <CommandList>
-                                            <CommandEmpty>No tasks found.</CommandEmpty>
-                                            <CommandGroup>
-                                            {(processTaskMap[form.watch(`tasks.${fields.length - 1}.process`)] || []).map((task) => (
-                                                <CommandItem
-                                                value={task}
-                                                key={task}
-                                                onSelect={() => {
-                                                    update(fields.length - 1, { ...form.getValues(`tasks.${fields.length - 1}`), task: task, item: task, description: task });
-                                                    setOpenPopovers(prev => ({...prev, [fields.length - 1]: false}));
-                                                }}
-                                                >
-                                                {task}
-                                                </CommandItem>
-                                            ))}
-                                            </CommandGroup>
-                                        </CommandList>
-                                      </Command>
-                                    </PopoverContent>
-                                  </Popover>
+                                  <FormLabel className="text-xs">Process</FormLabel>
+                                   <Select 
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                        update(fields.length - 1, { ...form.getValues(`tasks.${fields.length - 1}`), task: '', item: '', description: '' });
+                                    }} 
+                                    value={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className='text-xs h-9'>
+                                        <SelectValue placeholder="Select Process" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {processTypes.map((proc) => (
+                                        <SelectItem key={proc} value={proc}>{proc}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
-                        </div>
+                          </div>
+                          <div className="col-span-4">
+                             <FormField
+                                control={form.control}
+                                name={`tasks.${fields.length - 1}.task`}
+                                render={({ field: taskField }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs">Task</FormLabel>
+                                    <Popover open={openPopovers[fields.length - 1]} onOpenChange={(isOpen) => setOpenPopovers(prev => ({...prev, [fields.length - 1]: isOpen}))}>
+                                      <PopoverTrigger asChild>
+                                        <FormControl>
+                                          <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            disabled={!form.watch(`tasks.${fields.length - 1}.process`)}
+                                            className={cn("w-full justify-between text-xs h-9", !taskField.value && "text-muted-foreground")}
+                                          >
+                                            {taskField.value ? taskField.value : "Select Task"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                          </Button>
+                                        </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                        <Command>
+                                          <CommandInput placeholder="Search task..." />
+                                          <CommandList>
+                                              <CommandEmpty>No tasks found.</CommandEmpty>
+                                              <CommandGroup>
+                                              {(processTaskMap[form.watch(`tasks.${fields.length - 1}.process`)] || []).map((task) => (
+                                                  <CommandItem
+                                                  value={task}
+                                                  key={task}
+                                                  onSelect={() => {
+                                                      update(fields.length - 1, { ...form.getValues(`tasks.${fields.length - 1}`), task: task, item: task, description: task });
+                                                      setOpenPopovers(prev => ({...prev, [fields.length - 1]: false}));
+                                                  }}
+                                                  >
+                                                  {task}
+                                                  </CommandItem>
+                                              ))}
+                                              </CommandGroup>
+                                          </CommandList>
+                                        </Command>
+                                      </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                          </div>
 
-                        <div className="col-span-1">
-                          <FormField
-                            control={form.control}
-                            name={`tasks.${fields.length - 1}.quantity`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Qty</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    {...field}
-                                    className="text-xs"
-                                    onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <div className="col-span-2">
-                          <FormField
-                            control={form.control}
-                            name={`tasks.${fields.length - 1}.unitPrice`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Unit Price</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    {...field}
-                                    className="text-xs"
-                                    onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                         <div className="col-span-2">
-                           <FormLabel className='text-xs'>Total</FormLabel>
-                           <div className="h-9 flex items-center text-xs font-medium">
-                            ₹{(form.watch(`tasks.${fields.length - 1}.quantity`) * form.watch(`tasks.${fields.length - 1}.unitPrice`)).toLocaleString()}
+                          <div className="col-span-1">
+                            <FormField
+                              control={form.control}
+                              name={`tasks.${fields.length - 1}.quantity`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Qty</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      {...field}
+                                      className="text-xs"
+                                      onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="col-span-2">
+                            <FormField
+                              control={form.control}
+                              name={`tasks.${fields.length - 1}.unitPrice`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Unit Price</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      {...field}
+                                      className="text-xs"
+                                      onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                           <div className="col-span-2">
+                             <FormLabel className='text-xs'>Total</FormLabel>
+                             <div className="h-9 flex items-center text-xs font-medium">
+                              ₹{(form.watch(`tasks.${fields.length - 1}.quantity`) * form.watch(`tasks.${fields.length - 1}.unitPrice`)).toLocaleString()}
+                             </div>
                            </div>
-                         </div>
-                      </div>
-                  
-                  <Button type="button" variant="outline" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 })}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-                  </Button>
+                        </div>
+                    
+                    <Button type="button" variant="outline" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 })}>
+                      <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+                    </Button>
 
-                  {/* Display previously added items */}
-                  {fields.length > 1 && (
-                    <div className="space-y-2 pt-4">
-                      <h4 className="text-xs font-medium text-muted-foreground">Added Items</h4>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className='text-xs'>Description</TableHead>
-                            <TableHead className='w-[80px] text-center text-xs'>Quantity</TableHead>
-                            <TableHead className='w-[120px] text-right text-xs'>Unit Price</TableHead>
-                            <TableHead className='w-[120px] text-right text-xs'>Total</TableHead>
-                            <TableHead className='w-[50px]'></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        {fields.slice(0, -1).map((field, index) => (
-                           <TableRow key={field.id}>
-                             <TableCell className='py-2'>
-                                <p className="font-medium text-xs">{field.item}</p>
-                                <p className="text-muted-foreground text-xs">{field.description}</p>
-                             </TableCell>
-                              <TableCell className='text-center text-xs py-2'>{field.quantity}</TableCell>
-                              <TableCell className='text-right text-xs py-2'>₹{field.unitPrice.toLocaleString()}</TableCell>
-                              <TableCell className='text-right text-xs py-2'>₹{(field.quantity * field.unitPrice).toLocaleString()}</TableCell>
-                              <TableCell className='py-2'>
-                                <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </TableCell>
-                           </TableRow>
-                        ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-
+                  </div>
                 </div>
+                
+                {fields.length > 1 && (
+                      <div className="space-y-2 pt-4">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className='text-xs'>Description</TableHead>
+                              <TableHead className='w-[80px] text-center text-xs'>Quantity</TableHead>
+                              <TableHead className='w-[120px] text-right text-xs'>Unit Price</TableHead>
+                              <TableHead className='w-[120px] text-right text-xs'>Total</TableHead>
+                              <TableHead className='w-[50px]'></TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                          {fields.slice(0, -1).map((field, index) => (
+                             <TableRow key={field.id}>
+                               <TableCell className='py-2'>
+                                  <p className="font-medium text-xs">{field.item}</p>
+                                  <p className="text-muted-foreground text-xs">{field.description}</p>
+                               </TableCell>
+                                <TableCell className='text-center text-xs py-2'>{field.quantity}</TableCell>
+                                <TableCell className='text-right text-xs py-2'>₹{field.unitPrice.toLocaleString()}</TableCell>
+                                <TableCell className='text-right text-xs py-2'>₹{(field.quantity * field.unitPrice).toLocaleString()}</TableCell>
+                                <TableCell className='py-2'>
+                                  <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </TableCell>
+                             </TableRow>
+                          ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
                  <div className="flex justify-end">
                     <div className="w-1/3 text-xs space-y-1">
                         <div className="flex justify-between">
