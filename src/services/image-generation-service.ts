@@ -1,13 +1,18 @@
+
 'use server';
 
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium-min';
 
 export async function generatePdfFromHtml(htmlContent: string): Promise<string> {
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [...chromium.args, '--disable-web-security'], // Add '--disable-web-security'
+      executablePath: await chromium.executablePath(
+        `https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar`
+      ),
+      headless: chromium.headless,
     });
     
     const page = await browser.newPage();
