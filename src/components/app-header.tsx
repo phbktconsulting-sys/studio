@@ -74,9 +74,6 @@ export function AppHeader() {
               <PlusCircle className="mr-2 h-4 w-4" />
               New Work
             </Button>
-            <Button asChild variant="outline" className="h-8 text-xs">
-                <Link href="/lead-capture" target="_blank">Contact Sales</Link>
-            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="relative h-8 w-auto px-4 bg-black text-white hover:bg-black/80 text-xs">
