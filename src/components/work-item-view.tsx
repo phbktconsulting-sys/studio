@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -706,7 +705,7 @@ function VerifyAuthorityForm({ workItem, onCancel }: { workItem: WorkItem; onCan
                       value={pendNotes}
                       onChange={(e) => setPendNotes(e.target.value)}
                       placeholder="Add pend notes..."
-                      className="min-h-[80px] text-xs w-3/5"
+                      className="min-h-[80px] text-xs w-3/s"
                   />
                 </div>
             </div>
@@ -1136,6 +1135,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
   const { firestore } = useFirebase();
   const { toast } = useToast();
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
+  const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
 
   const attachmentsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -1143,6 +1143,42 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
   }, [firestore, workItemId]);
 
   const { data: attachments, isLoading } = useCollection<ImageAttachment>(attachmentsQuery);
+
+  useEffect(() => {
+    const fetchAttachmentUsers = async () => {
+      if (!firestore || !attachments || attachments.length === 0) return;
+
+      const userIds = [...new Set(attachments.map(att => att.uploadedBy))];
+      const idsToFetch = userIds.filter(id => !usersMap.has(id));
+      
+      if (idsToFetch.length === 0) return;
+
+      const newUsersMap = new Map(usersMap);
+      const usersRef = collection(firestore, 'users');
+
+      try {
+        const chunks = [];
+        for (let i = 0; i < idsToFetch.length; i += 30) {
+            chunks.push(idsToFetch.slice(i, i + 30));
+        }
+
+        for (const chunk of chunks) {
+          const q = query(usersRef, where('uid', 'in', chunk));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data() as User;
+            newUsersMap.set(userData.uid, userData.displayName || 'Unknown User');
+          });
+        }
+        setUsersMap(newUsersMap);
+
+      } catch (error) {
+        console.error("Error fetching attachment authors:", error);
+      }
+    };
+    fetchAttachmentUsers();
+  }, [attachments, firestore, usersMap]);
+
 
   const handleDownload = async (attachment: ImageAttachment) => {
     if (attachment.type === 'QUOTE' && attachment.quotationData) {
@@ -1160,6 +1196,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
         document.body.appendChild(printContainer);
 
         const root = createRoot(printContainer);
+        
         root.render(
             <QuotationPrintTemplate quotation={quoteData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} />
         );
@@ -1216,6 +1253,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
             <TableHead className="w-1/4 text-xs">File Name</TableHead>
             <TableHead className="w-1/4 text-xs">Type</TableHead>
             <TableHead className="w-1/4 text-xs">Direction</TableHead>
+            <TableHead className="w-1/4 text-xs">Added By</TableHead>
             <TableHead className="text-right text-xs">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -1226,20 +1264,8 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
               <TableCell className="py-2 text-xs">{att.fileName}</TableCell>
               <TableCell className="py-2 text-xs">{att.type}</TableCell>
               <TableCell className="py-2 text-xs">{att.direction}</TableCell>
+              <TableCell className="py-2 text-xs">{usersMap.get(att.uploadedBy) || '...'}</TableCell>
               <TableCell className="py-2 text-xs text-right space-x-2">
-                <a
-                  href={att.url.startsWith('data:') ? att.url : undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    buttonVariants({ variant: 'link', size: 'sm' }),
-                    'h-auto p-0 text-xs',
-                    !att.url.startsWith('data:') && 'cursor-not-allowed opacity-50'
-                  )}
-                  onClick={(e) => !att.url.startsWith('data:') && e.preventDefault()}
-                >
-                  View
-                </a>
                 <Button
                     variant="link"
                     size="sm"
@@ -1254,7 +1280,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
           ))}
           {(!attachments || attachments.length === 0) && (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground py-4 text-xs">
+              <TableCell colSpan={6} className="text-center text-muted-foreground py-4 text-xs">
                 No attachments for this work item.
               </TableCell>
             </TableRow>
@@ -1696,3 +1722,5 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </>
   );
 }
+
+    
