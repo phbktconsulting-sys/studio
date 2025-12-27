@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -213,7 +214,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_Q-${quoteNumber.split('-').pop()}.pdf`;
+            const fileName = `Quotation_${quoteNumber}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
@@ -332,7 +333,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                   </div>
 
                   <div className="md:col-span-2 space-y-4">
-                     <div className="grid grid-cols-12 gap-2 items-start border p-3 rounded-md">
+                     <div className="grid grid-cols-12 gap-2 items-start rounded-md">
                           <div className="col-span-3">
                              <FormField
                               control={form.control}
@@ -458,47 +459,47 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                              </div>
                            </div>
                         </div>
-                    
-                    <Button type="button" variant="outline" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 })}>
-                      <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-                    </Button>
-
+                    <div className="flex justify-end">
+                      <Button type="button" variant="outline" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 })}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 
                 {fields.length > 1 && (
-                      <div className="space-y-2 pt-4">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className='text-xs'>Description</TableHead>
-                              <TableHead className='w-[80px] text-center text-xs'>Quantity</TableHead>
-                              <TableHead className='w-[120px] text-right text-xs'>Unit Price</TableHead>
-                              <TableHead className='w-[120px] text-right text-xs'>Total</TableHead>
-                              <TableHead className='w-[50px]'></TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                          {fields.slice(0, -1).map((field, index) => (
-                             <TableRow key={field.id}>
-                               <TableCell className='py-2'>
-                                  <p className="font-medium text-xs">{field.item}</p>
-                                  <p className="text-muted-foreground text-xs">{field.description}</p>
-                               </TableCell>
-                                <TableCell className='text-center text-xs py-2'>{field.quantity}</TableCell>
-                                <TableCell className='text-right text-xs py-2'>₹{field.unitPrice.toLocaleString()}</TableCell>
-                                <TableCell className='text-right text-xs py-2'>₹{(field.quantity * field.unitPrice).toLocaleString()}</TableCell>
-                                <TableCell className='py-2'>
-                                  <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
-                                      <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </TableCell>
-                             </TableRow>
-                          ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
+                  <div className="space-y-2 pt-4">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className='text-xs'>Description</TableHead>
+                          <TableHead className='w-[80px] text-center text-xs'>Quantity</TableHead>
+                          <TableHead className='w-[120px] text-right text-xs'>Unit Price</TableHead>
+                          <TableHead className='w-[120px] text-right text-xs'>Total</TableHead>
+                          <TableHead className='w-[50px]'></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                      {fields.slice(0, -1).map((field, index) => (
+                          <TableRow key={field.id}>
+                            <TableCell className='py-2'>
+                              <p className="font-medium text-xs">{field.item}</p>
+                              <p className="text-muted-foreground text-xs">{field.description}</p>
+                            </TableCell>
+                            <TableCell className='text-center text-xs py-2'>{field.quantity}</TableCell>
+                            <TableCell className='text-right text-xs py-2'>₹{field.unitPrice.toLocaleString()}</TableCell>
+                            <TableCell className='text-right text-xs py-2'>₹{(field.quantity * field.unitPrice).toLocaleString()}</TableCell>
+                            <TableCell className='py-2'>
+                              <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                      ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
                  <div className="flex justify-end">
                     <div className="w-1/3 text-xs space-y-1">
                         <div className="flex justify-between">
@@ -515,10 +516,12 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         </div>
                     </div>
                 </div>
-                <Button type="submit" disabled={isGenerating}>
-                  {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isGenerating ? 'Generating...' : 'Generate Quotation'}
-                </Button>
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={isGenerating}>
+                    {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isGenerating ? 'Generating...' : 'Generate Quotation'}
+                  </Button>
+                </div>
               </form>
             </Form>
           </CardContent>
