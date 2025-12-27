@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import { Checkbox } from './ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Badge } from './ui/badge';
-import type { QuotationPrintTemplate as QuotationPrintTemplateType } from './quotation-print-template';
+import { QuotationPrintTemplate } from './quotation-print-template';
 
 
 const processTaskMap: Record<string, string[]> = {
