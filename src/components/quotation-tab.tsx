@@ -58,7 +58,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       customerPhone: '',
       customerBusinessName: '',
       customerAddress: '',
-      tasks: [{ process: 'Development Services (Web & App)', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }],
+      tasks: [],
     },
   });
 
@@ -89,10 +89,12 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         tasks: [], // Always start with an empty list of tasks for the quotation itself.
       });
       // Ensure the entry form also starts fresh
-      append({ process: 'Development Services (Web & App)', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
+      if(fields.length === 0) {
+        append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
+      }
       setEntryFormKey(prev => prev + 1);
     }
-  }, [workItem, form, append]);
+  }, [workItem, form, append, fields.length]);
 
 
   const handleGenerateQuote = async (data: QuotationFormValues) => {
@@ -294,15 +296,24 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                   <div className="md:col-span-3 space-y-4" key={entryFormKey}>
                      <div className="grid grid-cols-12 gap-2 items-start rounded-md">
                           <div className="col-span-3">
-                             <FormField
+                            <FormField
                               control={form.control}
                               name={`tasks.${fields.length - 1}.process`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel className="text-xs">Process</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} readOnly disabled className="text-xs h-8 bg-muted/50" />
-                                  </FormControl>
+                                  <Select onValueChange={(value) => { field.onChange(value); form.setValue(`tasks.${fields.length - 1}.task`, ''); }} value={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="h-8 text-xs">
+                                        <SelectValue placeholder="Select Process" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {processTypes.map((type) => (
+                                        <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -409,7 +420,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         </div>
                          <div className="flex justify-end">
                             <Button type="button" variant="outline" size="sm" onClick={() => {
-                                append({ process: 'Development Services (Web & App)', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
+                                append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
                                 setEntryFormKey(prev => prev + 1);
                                 }} className="h-8">
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add Item
