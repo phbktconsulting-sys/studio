@@ -260,12 +260,8 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
              <QuotationPrintTemplate quotation={{...quotationData, tasks: quotationData.tasks.slice(0,-1)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+           <CardHeader>
             <CardTitle className="text-sm">Generate Quotation</CardTitle>
-            <Button form="quotation-form" type="submit" disabled={isGenerating}>
-              {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isGenerating ? 'Generating...' : 'Generate Quotation'}
-            </Button>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -518,6 +514,12 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <span>₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
                     </div>
+                </div>
+                 <div className="flex justify-end pt-4">
+                  <Button form="quotation-form" type="submit" disabled={isGenerating}>
+                    {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isGenerating ? 'Generating...' : 'Generate Quotation'}
+                  </Button>
                 </div>
               </form>
             </Form>
