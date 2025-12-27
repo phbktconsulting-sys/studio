@@ -15,8 +15,8 @@ import { Trash2, PlusCircle } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { useFirebase, setDocumentNonBlocking } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { useFirebase } from '@/firebase';
+import { collection, doc, setDoc } from 'firebase/firestore';
 
 
 // This is the printable component that will be rendered off-screen
@@ -374,18 +374,19 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             businessEvent: 'QUOTATION',
         };
 
-        // Use setDoc with an explicit doc ref to ensure ID consistency
-        setDocumentNonBlocking(newAttachmentRef, attachmentData, {});
+        // GUARANTEE THE SAVE: Use await with the native setDoc function
+        await setDoc(newAttachmentRef, attachmentData);
 
         toast({
           title: 'Quotation Generated & Saved',
           description: 'The PDF has been downloaded and saved to attachments.',
         });
       } catch (error: any) {
+        console.error("Failed to save attachment:", error);
         toast({
           variant: 'destructive',
-          title: 'Generation Failed',
-          description: error.message || 'An unexpected error occurred while generating the PDF.',
+          title: 'Generation or Save Failed',
+          description: error.message || 'An unexpected error occurred while generating or saving the PDF.',
         });
       } finally {
         setIsGenerating(false);
