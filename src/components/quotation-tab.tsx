@@ -16,7 +16,7 @@ import { Textarea } from './ui/textarea';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useFirebase, addDocumentNonBlocking } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 
 
 // This is the printable component that will be rendered off-screen
@@ -344,22 +344,22 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 
-                // 1. Download the PDF
                 const fileName = `Quotation_${workItem.customId}.pdf`;
                 pdf.save(fileName);
 
-                // 2. Save the PDF as a data URL to Firestore
                 const pdfDataUrl = pdf.output('datauristring');
                 const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
+                const newAttachmentRef = doc(attachmentsRef);
                 
                 await addDocumentNonBlocking(attachmentsRef, {
+                    id: newAttachmentRef.id,
                     workItemId: workItem.id,
                     url: pdfDataUrl,
                     direction: 'Outbound',
                     fileName: fileName,
                     uploadedAt: new Date().toISOString(),
                     uploadedBy: user.uid,
-                    type: 'QUOTE', // Specific type for quotations
+                    type: 'QUOTE',
                     documentSource: 'Manual',
                     businessEvent: 'QUOTATION',
                 });
@@ -392,7 +392,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
 
   return (
     <>
-    {/* This div is for rendering the printable content off-screen */}
     <div style={{ position: 'absolute', left: '-9999px', top: 0, width: '840px' }}>
         {printableData && <PrintableQuotation data={printableData} forwardedRef={printableRef} />}
     </div>
@@ -557,5 +556,3 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     </>
   );
 }
-
-    
