@@ -194,6 +194,14 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         return;
     }
 
+    // Filter out the last empty item before processing
+    const finalTasks = data.tasks.slice(0, -1);
+    if (finalTasks.length === 0) {
+        toast({ variant: "destructive", title: "Error", description: "Please add at least one line item to the quotation." });
+        return;
+    }
+    const finalQuotationData = { ...data, tasks: finalTasks };
+
     setIsGenerating(true);
     const input = document.getElementById('quotation-to-print');
     if (!input) {
@@ -201,8 +209,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         setIsGenerating(false);
         return;
     }
-    
-    const finalQuotationData = { ...data, tasks: data.tasks.slice(0, -1) };
 
     try {
         const canvas = await html2canvas(input, { scale: 2 });
@@ -214,7 +220,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_${quoteNumber.replace(/Quote #:\s*/, '')}.pdf`;
+            const fileName = `Quotation_${quoteNumber.replace(/[^0-9-]/g, '')}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
