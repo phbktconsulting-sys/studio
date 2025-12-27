@@ -273,3 +273,20 @@ export const LeadCaptureSchema = z.object({
   overview: z.string().min(10, 'Please provide a brief description of your needs.'),
 });
 export type LeadCaptureFormValues = z.infer<typeof LeadCaptureSchema>;
+
+export const QuotationTaskSchema = z.object({
+  item: z.string().min(1, "Item name is required."),
+  description: z.string().optional(),
+  quantity: z.number().min(0, "Quantity must be positive."),
+  unitPrice: z.number().min(0, "Unit price must be positive."),
+});
+export type QuotationTask = z.infer<typeof QuotationTaskSchema>;
+
+export const QuotationFormSchema = z.object({
+  customerName: z.string().min(1, 'Customer name is required.'),
+  customerPhone: z.string().min(1, 'Customer phone is required.'),
+  customerBusinessName: z.string().optional(),
+  customerAddress: z.string().optional(),
+  tasks: z.array(QuotationTaskSchema).min(1, "At least one item is required for a quotation."),
+});
+export type QuotationFormValues = z.infer<typeof QuotationFormSchema>;

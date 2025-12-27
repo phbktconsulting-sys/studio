@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A server-side flow for generating a quotation PDF from a set of tasks.
@@ -7,11 +6,15 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { generatePdfFromHtml } from '@/services/image-generation-service';
 import { googleAI } from '@genkit-ai/google-genai';
+import { QuotationTaskSchema } from '@/lib/types';
+
 
 const GenerateQuotationInputSchema = z.object({
-  process: z.string(),
-  tasks: z.array(z.string()),
   customerName: z.string(),
+  customerPhone: z.string(),
+  customerBusinessName: z.string().optional(),
+  customerAddress: z.string().optional(),
+  tasks: z.array(QuotationTaskSchema),
 });
 
 const GenerateQuotationOutputSchema = z.object({
@@ -28,10 +31,7 @@ export async function generateQuotation(
 const quotationHtmlPrompt = ai.definePrompt({
     name: 'quotationHtmlPrompt',
     model: googleAI.model('gemini-1.5-flash-latest'),
-    input: { schema: z.object({
-        process: z.string(),
-        tasks: z.array(z.string()),
-        customerName: z.string(),
+    input: { schema: GenerateQuotationInputSchema.extend({
         currentDate: z.string(),
     })},
     output: { format: 'text' },
@@ -43,31 +43,30 @@ const quotationHtmlPrompt = ai.definePrompt({
       - The entire output MUST be a single HTML file with inline CSS within a <style> tag.
       - Use professional fonts and a clean, modern layout.
       - **Company Details (Header):**
-        - Placeholder for "[YOUR COMPANY NAME / LOGO]"
+        - Company Name: "[YOUR COMPANY NAME]"
         - Address: "[Your Address Line 1]", "[City, State, Zip Code]"
         - Contact: "[Phone Number] | [Email Address] | [Website URL]"
       - **Quotation Details:**
         - Title: "QUOTATION"
         - Date: {{{currentDate}}}
-        - Quote #: Generate a unique quote number, e.g., "Q-YYYY-####".
+        - Quote #: Q-{{#each tasks}}{{@index}}{{/each}}-{{tasks.length}}
         - Valid Until: 15 days from the current date.
       - **Client Details:**
         - Quotation For: {{{customerName}}}
-        - Placeholders for Client Address and Contact Name.
+        - Business: {{{customerBusinessName}}}
+        - Address: {{{customerAddress}}}
+        - Phone: {{{customerPhone}}}
       - **Project/Product Details (Table):**
         - Create a table with columns: 'Item / Service', 'Description', 'Qty / Hours', 'Unit Price', 'Total'.
-        - For each task provided below, create a row. The task text should be the 'Item / Service'.
-        - The 'Description' should be a brief, plausible explanation of the task.
-        - 'Qty / Hours' should be '1'.
-        - 'Unit Price' should be a realistic but not excessively high whole number.
+        - Use the exact tasks provided below to create the rows.
         - 'Total' is 'Unit Price' * 'Qty / Hours'.
       - **Financial Summary:**
         - **Subtotal:** Sum of all 'Total' values from the table.
-        - **Discount:** Generate a reasonable discount (e.g., 5-10% of subtotal) if the subtotal is over 5000. Otherwise, show 0.
+        - **Discount:** 0
         - **Tax (GST/VAT @ 18%):** Calculate 18% tax on (Subtotal - Discount).
         - **GRAND TOTAL:** (Subtotal - Discount) + Tax.
        - **Terms & Conditions:**
-        - This quotation is valid for 14 days from the date of issue.
+        - This quotation is valid for 15 days from the date of issue.
         - 50% advance payment is required to commence the project.
         - Remaining balance is due upon project completion.
         - Any additional requirements not listed above will be charged separately.
@@ -77,7 +76,7 @@ const quotationHtmlPrompt = ai.definePrompt({
 
       **Tasks to include in the table:**
       {{#each tasks}}
-      - {{{this}}}
+      - Item: {{{this.item}}}, Description: {{{this.description}}}, Quantity: {{{this.quantity}}}, Unit Price: {{{this.unitPrice}}}
       {{/each}}
 
       Your response must be only the HTML code, starting with <!DOCTYPE html> and ending with </html>.
