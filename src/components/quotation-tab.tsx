@@ -204,70 +204,62 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
              <QuotationPrintTemplate quotation={{...quotationData, tasks: addedTasks.map(t => t as any)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm">Generate Quotation</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <Form {...form}>
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
-                   <div className="md:col-span-1 pt-1.5">
-                      <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
-                   </div>
-                   <div className="md:col-span-2 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="customerName"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                    <Input {...field} placeholder="Customer Name" className="text-xs" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                             <FormField
-                              control={form.control}
-                              name="customerPhone"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input {...field} placeholder="Customer Phone" className="text-xs" />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
+                 <div className="space-y-4 border-b pb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
                             control={form.control}
-                            name="customerBusinessName"
+                            name="customerName"
                             render={({ field }) => (
-                              <FormItem>
+                            <FormItem>
                                 <FormControl>
-                                  <Input {...field} placeholder="Business Name (Optional)" className="text-xs" />
+                                <Input {...field} placeholder="Customer Name" className="text-xs" />
                                 </FormControl>
                                 <FormMessage />
-                              </FormItem>
+                            </FormItem>
                             )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="customerAddress"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} placeholder="Customer Address" className="text-xs" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                   </div>
+                        />
+                         <FormField
+                          control={form.control}
+                          name="customerPhone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} placeholder="Customer Phone" className="text-xs" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="customerBusinessName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input {...field} placeholder="Business Name (Optional)" className="text-xs" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="customerAddress"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input {...field} placeholder="Customer Address" className="text-xs" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -404,7 +396,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                              </div>
                            </div>
                         </div>
-                        <div className="flex justify-end">
+                         <div className="flex justify-end">
                             <Button type="button" variant="outline" size="sm" onClick={() => {
                                 append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
                                 setEntryFormKey(prev => prev + 1);
