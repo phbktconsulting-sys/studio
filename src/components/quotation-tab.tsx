@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -22,7 +21,9 @@ import { Checkbox } from './ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Badge } from './ui/badge';
 import { QuotationPrintTemplate } from './quotation-print-template';
-
+import type { createRoot } from 'react-dom/client';
+import type jsPDF from 'jspdf';
+import type html2canvas from 'html2canvas';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Call for New Lead", "Request Other Services"],
@@ -106,9 +107,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     setIsGenerating(true);
 
     try {
-        const { default: jsPDF } = await import('jspdf');
-        const { default: html2canvas } = await import('html2canvas');
-        const { createRoot } = await import('react-dom/client');
+        const jsPDF = (await import('jspdf')).default;
+        const html2canvas = (await import('html2canvas')).default;
+        const { createRoot } = (await import('react-dom/client'));
 
         const printContainer = document.createElement('div');
         printContainer.style.position = 'absolute';
@@ -215,17 +216,22 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 </FormItem>
                                 )}
                             />
-                             <FormField
-                              control={form.control}
-                              name="customerPhone"
-                              render={({ field }) => (
+                            <FormField
+                                control={form.control}
+                                name="customerPhone"
+                                render={({ field }) => (
                                 <FormItem>
-                                  <FormControl>
-                                    <Input {...field} placeholder="Customer Phone" className="text-xs h-8" />
-                                  </FormControl>
-                                  <FormMessage />
+                                    <div className="relative">
+                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <span className="text-gray-500 sm:text-sm">+91</span>
+                                    </div>
+                                    <FormControl>
+                                        <Input {...field} placeholder="Customer Phone" className="pl-12 text-xs h-8" />
+                                    </FormControl>
+                                    </div>
+                                    <FormMessage />
                                 </FormItem>
-                              )}
+                                )}
                             />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -395,7 +401,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <Button type="button" variant="outline" size="sm" onClick={() => {
                                 append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
                                 setEntryFormKey(prev => prev + 1);
-                                }}>
+                                }} className="h-8">
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                             </Button>
                         </div>
