@@ -66,14 +66,14 @@ const quotationHtmlPrompt = ai.definePrompt({
         - **Discount:** Generate a reasonable discount (e.g., 5-10% of subtotal) if the subtotal is over 5000. Otherwise, show 0.
         - **Tax (GST/VAT @ 18%):** Calculate 18% tax on (Subtotal - Discount).
         - **GRAND TOTAL:** (Subtotal - Discount) + Tax.
-      - **Terms and Conditions:**
-        - **Validity:** 15 days from the date of issue.
-        - **Payment Terms:** 50% Advance, 50% on completion.
-        - **Timeline:** Placeholder for "[X] working days".
-        - **Revisions:** Placeholder for "[Number]" rounds of revisions and hourly rate for additional changes.
-        - **Exclusions:** Note on third-party costs.
+       - **Terms & Conditions:**
+        - This quotation is valid for 14 days from the date of issue.
+        - 50% advance payment is required to commence the project.
+        - Remaining balance is due upon project completion.
+        - Any additional requirements not listed above will be charged separately.
       - **Acceptance:**
-        - Include a section for signature and date.
+        - Include a "Thank you for your business!" message.
+        - Create two signature areas at the bottom, one for "Client Signature" and one for "Authorized Signature", with a line above each for the signature.
 
       **Tasks to include in the table:**
       {{#each tasks}}
