@@ -6,16 +6,10 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { generatePdfFromHtml } from '@/services/image-generation-service';
-import { QuotationTaskSchema } from '@/lib/types';
+import { QuotationFormSchema, QuotationTaskSchema } from '@/lib/types';
 
 
-const GenerateQuotationInputSchema = z.object({
-  customerName: z.string(),
-  customerPhone: z.string(),
-  customerBusinessName: z.string().optional(),
-  customerAddress: z.string().optional(),
-  tasks: z.array(QuotationTaskSchema),
-});
+const GenerateQuotationInputSchema = QuotationFormSchema;
 
 const GenerateQuotationOutputSchema = z.object({
   pdfUrl: z.string().optional(),
@@ -25,11 +19,18 @@ const GenerateQuotationOutputSchema = z.object({
 export async function generateQuotation(
   payload: z.infer<typeof GenerateQuotationInputSchema>
 ): Promise<z.infer<typeof GenerateQuotationOutputSchema>> {
-  return generateQuotationFlow(payload);
+  const transformedPayload = {
+    ...payload,
+    tasks: payload.tasks.map(t => ({...t, quantity: Number(t.quantity), unitPrice: Number(t.unitPrice)}))
+  }
+  return generateQuotationFlow(transformedPayload);
 }
 
 function generateQuotationHtml(payload: z.infer<typeof GenerateQuotationInputSchema>): string {
-  const currentDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const formattedTime = currentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
   const validUntilDate = new Date();
   validUntilDate.setDate(validUntilDate.getDate() + 15);
   const validUntil = validUntilDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -39,12 +40,14 @@ function generateQuotationHtml(payload: z.infer<typeof GenerateQuotationInputSch
   const grandTotal = subtotal + tax;
 
   const tasksHtml = payload.tasks.map(task => `
-    <tr>
-      <td>${task.item}</td>
-      <td>${task.description || ''}</td>
+    <tr class="item-row">
+      <td>
+        <p class="font-bold">${task.item}</p>
+        <p class="text-muted-foreground">${task.description || ''}</p>
+      </td>
       <td class="text-center">${task.quantity}</td>
-      <td class="text-right">₹${task.unitPrice.toFixed(2)}</td>
-      <td class="text-right">₹${(task.quantity * task.unitPrice).toFixed(2)}</td>
+      <td class="text-right">₹${task.unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td class="text-right">₹${(task.quantity * task.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
     </tr>
   `).join('');
 
@@ -55,112 +58,155 @@ function generateQuotationHtml(payload: z.infer<typeof GenerateQuotationInputSch
       <meta charset="UTF-8">
       <title>Quotation</title>
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-        body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-color: #fff; color: #333; font-size: 12px; }
-        .container { max-width: 800px; margin: 20px auto; padding: 20px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 2px solid #333; }
-        .header .company-details { text-align: left; }
-        .header .company-details h1 { margin: 0; font-size: 24px; color: #000; }
-        .header .company-details p { margin: 2px 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body { 
+          font-family: 'Inter', sans-serif; 
+          margin: 0; 
+          padding: 20px; 
+          background-color: #fff; 
+          color: #111827; 
+          font-size: 10px;
+        }
+        .container { 
+          max-width: 800px; 
+          margin: auto;
+        }
+        .meta-header {
+          display: flex;
+          justify-content: space-between;
+          font-size: 9px;
+          color: #6b7280;
+          margin-bottom: 20px;
+        }
+        .header { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: flex-start; 
+          padding-bottom: 15px; 
+          border-bottom: 1px solid #e5e7eb;
+        }
+        .header .company-details h1 { 
+          margin: 0 0 5px; 
+          font-size: 18px; 
+          font-weight: 700;
+          color: #000; 
+        }
+        .header .company-details p { 
+          margin: 0; 
+          line-height: 1.5;
+        }
         .header .quote-details { text-align: right; }
-        .header .quote-details h2 { margin: 0; font-size: 28px; color: #333; }
-        .header .quote-details p { margin: 2px 0; }
-        .client-details { display: flex; justify-content: space-between; padding: 20px 0; }
-        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .table th { background-color: #f2f2f2; font-weight: bold; }
-        .table td.text-center { text-align: center; }
-        .table td.text-right { text-align: right; }
+        .header .quote-details h2 { 
+          margin: 0 0 10px; 
+          font-size: 24px;
+          font-weight: 700; 
+          color: #374151; 
+        }
+        .header .quote-details p { 
+          margin: 2px 0; 
+          font-size: 10px;
+          font-weight: 500;
+        }
+        .client-details { padding: 20px 0; }
+        .client-details h3 { 
+            margin: 0 0 8px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #374151;
+        }
+         .client-details p { margin: 2px 0; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .table th {
+          background-color: #f3f4f6;
+          padding: 10px;
+          text-align: left;
+          font-weight: 700;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        .table td { 
+          padding: 10px; 
+          vertical-align: top;
+        }
+        .table .item-row { border-bottom: 1px solid #e5e7eb; }
+        .table .item-row:last-child { border-bottom: none; }
+
+        .table th:first-child, .table td:first-child { width: 50%; }
+        .table .text-center { text-align: center; }
+        .table .text-right { text-align: right; }
+        .font-bold { font-weight: 700; }
+        .text-muted-foreground { color: #6b7280; }
+        
         .summary { display: flex; justify-content: flex-end; margin-top: 20px; }
-        .summary table { width: 40%; border-collapse: collapse; }
-        .summary th, .summary td { padding: 8px; }
-        .summary .grand-total { font-weight: bold; font-size: 14px; background-color: #f2f2f2; }
-        .terms { margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; }
-        .terms h3 { margin-top: 0; font-size: 14px; }
-        .terms ul { padding-left: 20px; margin: 10px 0 0; }
-        .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #333; display: flex; justify-content: space-between; font-size: 12px; }
+        .summary table { width: 40%; }
+        .summary td { padding: 5px 0; }
+        .summary .total-row td {
+            padding-top: 10px;
+            border-top: 2px solid #111827;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        .summary .text-right { text-align: right; }
       </style>
     </head>
     <body>
       <div class="container">
+        <div class="meta-header">
+            <span>${formattedDate}, ${formattedTime}</span>
+            <span>Business Quotation</span>
+        </div>
         <div class="header">
           <div class="company-details">
             <h1>[YOUR COMPANY NAME]</h1>
-            <p>[Your Address Line 1], [City, State, Zip Code]</p>
-            <p>[Phone Number] | [Email Address] | [Website URL]</p>
+            <p>123 Business Road, Tech Park</p>
+            <p>Pune, Maharashtra, 411057</p>
+            <p>Email: contact@yourbusiness.com | Phone: +91 98765 43210</p>
           </div>
           <div class="quote-details">
             <h2>QUOTATION</h2>
-            <p><strong>Date:</strong> ${currentDate}</p>
-            <p><strong>Quote #:</strong> Q-${Date.now()}</p>
+            <p><strong>Date:</strong> ${formattedDate}</p>
+            <p><strong>Quote #:</strong> Q-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}</p>
             <p><strong>Valid Until:</strong> ${validUntil}</p>
           </div>
         </div>
+
         <div class="client-details">
-          <div>
-            <p><strong>Quotation For:</strong></p>
-            <p>${payload.customerName}</p>
-            <p>${payload.customerBusinessName || ''}</p>
-            <p>${payload.customerAddress || ''}</p>
-            <p>Phone: ${payload.customerPhone}</p>
-          </div>
+          <h3>Quotation For:</h3>
+          <p>${payload.customerName}</p>
+          ${payload.customerBusinessName ? `<p>${payload.customerBusinessName}</p>` : ''}
+          <p>${payload.customerAddress || ''}</p>
         </div>
+
         <table class="table">
           <thead>
             <tr>
-              <th>Item / Service</th>
               <th>Description</th>
-              <th class="text-center">Qty / Hours</th>
-              <th class="text-right">Unit Price</th>
-              <th class="text-right">Total</th>
+              <th class="text-center">Quantity</th>
+              <th class="text-right">Unit Price (₹)</th>
+              <th class="text-right">Total (₹)</th>
             </tr>
           </thead>
           <tbody>
             ${tasksHtml}
           </tbody>
         </table>
+
         <div class="summary">
           <table>
-            <tr>
-              <td>Subtotal</td>
-              <td class="text-right">₹${subtotal.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Discount</td>
-              <td class="text-right">₹0.00</td>
-            </tr>
-            <tr>
-              <td>Tax (GST/VAT @ 18%)</td>
-              <td class="text-right">₹${tax.toFixed(2)}</td>
-            </tr>
-            <tr class="grand-total">
-              <td>GRAND TOTAL</td>
-              <td class="text-right">₹${grandTotal.toFixed(2)}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <td>Subtotal:</td>
+                <td class="text-right">₹${subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+              <tr>
+                <td>Tax (18% GST):</td>
+                <td class="text-right">₹${tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+              <tr class="total-row">
+                <td>TOTAL:</td>
+                <td class="text-right">₹${grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
           </table>
-        </div>
-        <div class="terms">
-          <h3>Terms & Conditions</h3>
-          <ul>
-            <li>This quotation is valid for 15 days from the date of issue.</li>
-            <li>50% advance payment is required to commence the project.</li>
-            <li>Remaining balance is due upon project completion.</li>
-            <li>Any additional requirements not listed above will be charged separately.</li>
-          </ul>
-        </div>
-        <div class="footer">
-          <div style="width: 45%;">
-            <p>Thank you for your business!</p>
-            <br/><br/><br/>
-            <hr style="border-top: 1px solid #333;"/>
-            <p style="text-align: center;">Client Signature</p>
-          </div>
-          <div style="width: 45%;">
-            <p>&nbsp;</p>
-            <br/><br/><br/>
-            <hr style="border-top: 1px solid #333;"/>
-            <p style="text-align: center;">Authorized Signature</p>
-          </div>
         </div>
       </div>
     </body>
