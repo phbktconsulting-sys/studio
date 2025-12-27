@@ -233,7 +233,12 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <FormItem>
                               <FormLabel className="text-xs">Qty</FormLabel>
                               <FormControl>
-                                <Input type="number" {...field} className="text-xs" />
+                                <Input
+                                  type="number"
+                                  {...field}
+                                  className="text-xs"
+                                  onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                                />
                               </FormControl>
                             </FormItem>
                           )}
@@ -247,7 +252,12 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <FormItem>
                               <FormLabel className="text-xs">Unit Price</FormLabel>
                               <FormControl>
-                                <Input type="number" {...field} className="text-xs" />
+                                <Input
+                                  type="number"
+                                  {...field}
+                                  className="text-xs"
+                                  onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                                />
                               </FormControl>
                             </FormItem>
                           )}
