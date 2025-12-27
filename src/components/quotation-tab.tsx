@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -15,16 +15,90 @@ import { Trash2, PlusCircle, Loader2 } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import { useFirebase } from '@/firebase';
 import { collection, doc, setDoc } from 'firebase/firestore';
-import { generateQuotation } from '@/ai/flows/generate-quotation-flow';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface QuotationTabProps {
   workItem: WorkItem;
 }
 
+const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number }) => (
+    <div id="quotation-to-print" className="p-10" style={{ width: '800px', fontFamily: 'Inter, sans-serif', color: '#111827', backgroundColor: 'white', fontSize: '10px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#6b7280', marginBottom: '20px' }}>
+        <span>{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+        <span>Business Quotation</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '15px', borderBottom: '1px solid #e5e7eb' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+           <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ height: '40px', width: '40px' }}>
+              <g transform="translate(50,50)">
+                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(173 58% 39%)" transform="rotate(0)"/>
+                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(27 87% 67%)" transform="rotate(90)"/>
+                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(0 100% 25%)" transform="rotate(180)"/>
+                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(0 39% 47%)" transform="rotate(270)"/>
+              </g>
+            </svg>
+          <div>
+            <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#000', margin: 0 }}>PHBKT Group Limited</h1>
+            <p style={{ margin: '2px 0', fontSize: '10px' }}>123 Business Road, Tech Park</p>
+            <p style={{ margin: '2px 0', fontSize: '10px' }}>Pune, Maharashtra, 411057</p>
+            <p style={{ margin: '2px 0', fontSize: '10px' }}>Email: contact@phbkt.com | Phone: +91 98765 43210</p>
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <h2 style={{ margin: '0 0 10px', fontSize: '24px', fontWeight: 700, color: '#374151' }}>QUOTATION</h2>
+          <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Date:</strong> {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+          <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Quote #:</strong> Q-{new Date().getFullYear()}-{String(Date.now()).slice(-5)}</p>
+          <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Valid Until:</strong> {(() => { const d = new Date(); d.setDate(d.getDate() + 15); return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }); })()}</p>
+        </div>
+      </div>
+      <div style={{ padding: '20px 0' }}>
+        <h3 style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: '#374151' }}>Quotation For:</h3>
+        <p style={{ margin: '2px 0' }}>{quotation.customerName}</p>
+        {quotation.customerBusinessName && <p style={{ margin: '2px 0' }}>{quotation.customerBusinessName}</p>}
+        <p style={{ margin: '2px 0' }}>{quotation.customerAddress}</p>
+      </div>
+      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+        <thead>
+          <tr style={{ backgroundColor: '#f3f4f6', borderBottom: '1px solid #e5e7eb' }}>
+            <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700 }}>Description</th>
+            <th style={{ padding: '10px', textAlign: 'center', fontWeight: 700 }}>Quantity</th>
+            <th style={{ padding: '10px', textAlign: 'right', fontWeight: 700 }}>Unit Price (₹)</th>
+            <th style={{ padding: '10px', textAlign: 'right', fontWeight: 700 }}>Total (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {quotation.tasks.map((task, index) => (
+            <tr key={index} style={{ borderBottom: '1px solid #e5e7eb' }}>
+              <td style={{ padding: '10px', verticalAlign: 'top' }}>
+                <p style={{ fontWeight: 700, margin: 0 }}>{task.item}</p>
+                <p style={{ color: '#6b7280', margin: 0 }}>{task.description || ''}</p>
+              </td>
+              <td style={{ padding: '10px', textAlign: 'center', verticalAlign: 'top' }}>{task.quantity}</td>
+              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{task.unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{(task.quantity * task.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+        <table style={{ width: '40%' }}>
+          <tbody>
+            <tr><td style={{ padding: '5px 0' }}>Subtotal:</td><td style={{ padding: '5px 0', textAlign: 'right' }}>₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
+            <tr><td style={{ padding: '5px 0' }}>Tax (18% GST):</td><td style={{ padding: '5px 0', textAlign: 'right' }}>₹{tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
+            <tr style={{ fontWeight: 700, fontSize: '12px' }}><td style={{ paddingTop: '10px', borderTop: '2px solid #111827' }}>TOTAL:</td><td style={{ paddingTop: '10px', borderTop: '2px solid #111827', textAlign: 'right' }}>₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+);
+
+
 export function QuotationTab({ workItem }: QuotationTabProps) {
   const { toast } = useToast();
   const { firestore, user } = useFirebase();
   const [isGenerating, setIsGenerating] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<QuotationFormValues>({
     resolver: zodResolver(QuotationFormSchema),
@@ -41,6 +115,11 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     control: form.control,
     name: 'tasks',
   });
+  
+  const quotationData = form.watch();
+  const subtotal = quotationData.tasks.reduce((acc, task) => acc + (task.quantity * task.unitPrice), 0);
+  const tax = subtotal * 0.18;
+  const grandTotal = subtotal + tax;
 
   useEffect(() => {
     if (workItem) {
@@ -53,17 +132,17 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         customerPhone: workItem.relatedContact.phone || '',
         customerBusinessName: workItem.relatedContact.businessName || '',
         customerAddress: fullAddress,
-        tasks: workItem.tasks.map(task => ({
+        tasks: workItem.tasks?.length > 0 ? workItem.tasks.map(task => ({
           item: task.text,
           description: '',
           quantity: 1,
           unitPrice: 0,
-        })),
+        })) : [],
       });
     }
   }, [workItem, form]);
 
-  const handleGenerateQuote = async (data: QuotationFormValues) => {
+ const handleGenerateQuote = async (data: QuotationFormValues) => {
     if (!firestore || !user) {
       toast({
         variant: "destructive",
@@ -72,65 +151,81 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       });
       return;
     }
-    
+
     setIsGenerating(true);
 
+    const input = document.getElementById('quotation-to-print');
+    if (!input) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not find quotation template to print.' });
+        setIsGenerating(false);
+        return;
+    }
+
     try {
-      const result = await generateQuotation(data);
-      
-      if (result.error || !result.pdfDataUrl) {
-          throw new Error(result.error || 'PDF generation failed on the server.');
-      }
-      
-      const pdfDataUrl = result.pdfDataUrl;
-      const fileName = `Quotation_${workItem.customId}.pdf`;
+        const canvas = await html2canvas(input, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-      // 1. Trigger download on the client
-      const link = document.createElement("a");
-      link.href = pdfDataUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+        
+        const pdfDataUrl = pdf.output('datauristring');
+        const fileName = `Quotation_${workItem.customId}.pdf`;
 
-      // 2. Save the generated PDF as an attachment in Firestore
-      const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
-      const newAttachmentRef = doc(attachmentsRef);
-      
-      const attachmentData = {
-          id: newAttachmentRef.id,
-          workItemId: workItem.id,
-          url: pdfDataUrl,
-          direction: 'Outbound',
-          fileName: fileName,
-          uploadedAt: new Date().toISOString(),
-          uploadedBy: user.uid,
-          type: 'QUOTE',
-          documentSource: 'System',
-          businessEvent: 'QUOTATION',
-      };
-      
-      await setDoc(newAttachmentRef, attachmentData);
+        // 1. Trigger download on the client
+        const link = document.createElement("a");
+        link.href = pdfDataUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      toast({
-        title: 'Quotation Generated & Saved',
-        description: 'The PDF has been downloaded and saved to attachments.',
-      });
+        // 2. Save the generated PDF as an attachment in Firestore
+        const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
+        const newAttachmentRef = doc(attachmentsRef);
+        
+        const attachmentData = {
+            id: newAttachmentRef.id,
+            workItemId: workItem.id,
+            url: pdfDataUrl,
+            direction: 'Outbound',
+            fileName: fileName,
+            uploadedAt: new Date().toISOString(),
+            uploadedBy: user.uid,
+            type: 'QUOTE',
+            documentSource: 'System',
+            businessEvent: 'QUOTATION',
+        };
+        
+        await setDoc(newAttachmentRef, attachmentData);
+
+        toast({
+            title: 'Quotation Generated & Saved',
+            description: 'The PDF has been downloaded and saved to attachments.',
+        });
 
     } catch (error: any) {
-      console.error("Failed to generate or save quotation:", error);
-      toast({
-        variant: 'destructive',
-        title: 'Generation Failed',
-        description: error.message || 'An unexpected error occurred.',
-      });
+        console.error("Failed to generate or save quotation:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Generation Failed',
+            description: error.message || 'An unexpected error occurred.',
+        });
     } finally {
-      setIsGenerating(false);
+        setIsGenerating(false);
     }
   };
   
   return (
       <div className="p-4 space-y-6">
+        <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+             <QuotationPrintTemplate quotation={quotationData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} />
+        </div>
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Generate Quotation</CardTitle>
