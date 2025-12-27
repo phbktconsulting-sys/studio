@@ -58,7 +58,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       customerPhone: '',
       customerBusinessName: '',
       customerAddress: '',
-      tasks: [{ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }],
+      tasks: [{ process: 'Development Services (Web & App)', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }],
     },
   });
 
@@ -68,7 +68,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   });
   
   const quotationData = form.watch();
-  const addedTasks = quotationData.tasks.filter(task => !!task.process && !!task.task && !!task.item && !!task.quantity && task.quantity > 0);
+  const addedTasks = quotationData.tasks.filter(task => !!task.process && !!task.task && !!task.item && task.quantity && task.quantity > 0);
   const subtotal = addedTasks.reduce((acc, task) => acc + ((task.quantity || 0) * (task.unitPrice || 0)), 0);
   const tax = subtotal * 0.18;
   const grandTotal = subtotal + tax;
@@ -89,7 +89,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         tasks: [], // Always start with an empty list of tasks for the quotation itself.
       });
       // Ensure the entry form also starts fresh
-      append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
+      append({ process: 'Development Services (Web & App)', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
       setEntryFormKey(prev => prev + 1);
     }
   }, [workItem, form, append]);
@@ -200,7 +200,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         <Button 
           onClick={() => setIsCqPageVisible(true)} 
           size="sm"
-          className="bg-black text-white hover:bg-black/80"
+          className="bg-black text-white hover:bg-black/80 h-8"
         >
           Development Services Quotation
         </Button>
@@ -226,9 +226,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             <Form {...form}>
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start border-b pb-6">
-                    <div className="md:col-span-1 pt-1.5">
-                        <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
-                    </div>
+                    <FormLabel className="md:col-span-1 pt-1.5 text-xs font-semibold">Customer Details</FormLabel>
                     <div className="md:col-span-3 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
@@ -250,7 +248,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 <FormItem>
                                     <div className="relative">
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span className="text-gray-500 sm:text-sm">+91 </span>
+                                        <span className="text-gray-500 text-xs">+91 </span>
                                     </div>
                                     <FormControl>
                                         <Input {...field} placeholder="Customer Phone" className="pl-10 text-xs h-8" />
@@ -291,9 +289,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 </div>
 
                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-                  <div className="md:col-span-1 pt-1.5">
-                    <FormLabel className="text-xs font-semibold">Line Items</FormLabel>
-                  </div>
+                  <FormLabel className="md:col-span-1 pt-1.5 text-xs font-semibold">Line Items</FormLabel>
 
                   <div className="md:col-span-3 space-y-4" key={entryFormKey}>
                      <div className="grid grid-cols-12 gap-2 items-start rounded-md">
@@ -304,26 +300,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel className="text-xs">Process</FormLabel>
-                                   <Select 
-                                    onValueChange={(value) => {
-                                        field.onChange(value);
-                                        form.setValue(`tasks.${fields.length - 1}.task`, '');
-                                        form.setValue(`tasks.${fields.length - 1}.item`, '');
-                                        form.setValue(`tasks.${fields.length - 1}.description`, '');
-                                    }} 
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className='text-xs h-8'>
-                                        <SelectValue placeholder="Select Process" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {processTypes.map((proc) => (
-                                        <SelectItem key={proc} value={proc}>{proc}</SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                  <FormControl>
+                                    <Input {...field} readOnly disabled className="text-xs h-8 bg-muted/50" />
+                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -430,7 +409,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         </div>
                          <div className="flex justify-end">
                             <Button type="button" variant="outline" size="sm" onClick={() => {
-                                append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
+                                append({ process: 'Development Services (Web & App)', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
                                 setEntryFormKey(prev => prev + 1);
                                 }} className="h-8">
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add Item
