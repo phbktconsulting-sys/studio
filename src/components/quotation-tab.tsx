@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { WorkItem, QuotationFormValues, QuotationTask } from '@/lib/types';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -59,7 +59,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     },
   });
 
-  const { fields, append, remove, update, replace } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'tasks',
   });
@@ -198,7 +198,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
           <CardContent className="p-6">
             <Form {...form}>
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
-                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 border-b pb-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start border-b pb-6">
                     <div className="md:col-span-1 pt-1.5">
                         <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
                     </div>
@@ -223,7 +223,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 <FormItem>
                                     <div className="relative">
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span className="text-gray-500 sm:text-sm">+91</span>
+                                        <span className="text-gray-500 sm:text-sm">+91 </span>
                                     </div>
                                     <FormControl>
                                         <Input {...field} placeholder="Customer Phone" className="pl-12 text-xs h-8" />
@@ -263,7 +263,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
                   <div className="md:col-span-1 pt-1.5">
                     <FormLabel className="text-xs font-semibold">Line Items</FormLabel>
                   </div>
@@ -280,7 +280,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                    <Select 
                                     onValueChange={(value) => {
                                         field.onChange(value);
-                                        update(fields.length - 1, { ...form.getValues(`tasks.${fields.length - 1}`), task: '', item: '', description: '' });
+                                        form.setValue(`tasks.${fields.length - 1}.task`, '');
+                                        form.setValue(`tasks.${fields.length - 1}.item`, '');
+                                        form.setValue(`tasks.${fields.length - 1}.description`, '');
                                     }} 
                                     value={field.value}
                                   >
@@ -332,7 +334,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                                   value={task}
                                                   key={task}
                                                   onSelect={() => {
-                                                      update(fields.length - 1, { ...form.getValues(`tasks.${fields.length - 1}`), task: task, item: task, description: task });
+                                                      form.setValue(`tasks.${fields.length - 1}.task`, task);
+                                                      form.setValue(`tasks.${fields.length - 1}.item`, task);
+                                                      form.setValue(`tasks.${fields.length - 1}.description`, task);
                                                       setOpenPopovers(prev => ({...prev, [fields.length - 1]: false}));
                                                   }}
                                                   >
