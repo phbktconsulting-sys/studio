@@ -1135,7 +1135,6 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
   const { firestore } = useFirebase();
   const { toast } = useToast();
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
-  const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
 
   const attachmentsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -1143,43 +1142,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
   }, [firestore, workItemId]);
 
   const { data: attachments, isLoading } = useCollection<ImageAttachment>(attachmentsQuery);
-
-  useEffect(() => {
-    const fetchAttachmentUsers = async () => {
-      if (!firestore || !attachments || attachments.length === 0) return;
-
-      const userIds = [...new Set(attachments.map(att => att.uploadedBy))];
-      const idsToFetch = userIds.filter(id => !usersMap.has(id));
-      
-      if (idsToFetch.length === 0) return;
-
-      const newUsersMap = new Map(usersMap);
-      const usersRef = collection(firestore, 'users');
-
-      try {
-        const chunks = [];
-        for (let i = 0; i < idsToFetch.length; i += 30) {
-            chunks.push(idsToFetch.slice(i, i + 30));
-        }
-
-        for (const chunk of chunks) {
-          const q = query(usersRef, where('uid', 'in', chunk));
-          const querySnapshot = await getDocs(q);
-          querySnapshot.forEach((doc) => {
-            const userData = doc.data() as User;
-            newUsersMap.set(userData.uid, userData.displayName || 'Unknown User');
-          });
-        }
-        setUsersMap(newUsersMap);
-
-      } catch (error) {
-        console.error("Error fetching attachment authors:", error);
-      }
-    };
-    fetchAttachmentUsers();
-  }, [attachments, firestore, usersMap]);
-
-
+  
   const handleDownload = async (attachment: ImageAttachment) => {
     if (attachment.type === 'QUOTE' && attachment.quotationData) {
       setRegeneratingId(attachment.id);
@@ -1189,7 +1152,6 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
         const tax = subtotal * 0.18;
         const grandTotal = subtotal + tax;
 
-        // Create a temporary div to render the template for canvas conversion
         const printContainer = document.createElement('div');
         printContainer.style.position = 'absolute';
         printContainer.style.left = '-9999px';
@@ -1201,7 +1163,6 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
             <QuotationPrintTemplate quotation={quoteData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} />
         );
         
-        // Slight delay to ensure rendering is complete
         setTimeout(async () => {
           try {
             const canvas = await html2canvas(printContainer.firstChild as HTMLElement, { scale: 2 });
@@ -1218,7 +1179,6 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
             console.error("Failed to generate PDF canvas:", e);
             toast({ variant: 'destructive', title: 'Regeneration Failed', description: 'Could not create PDF content.' });
           } finally {
-            // Cleanup
             root.unmount();
             document.body.removeChild(printContainer);
             setRegeneratingId(null);
@@ -1250,22 +1210,26 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-1/4 text-xs">Date</TableHead>
-            <TableHead className="w-1/4 text-xs">File Name</TableHead>
             <TableHead className="w-1/4 text-xs">Type</TableHead>
             <TableHead className="w-1/4 text-xs">Direction</TableHead>
-            <TableHead className="w-1/4 text-xs">Added By</TableHead>
-            <TableHead className="text-right text-xs">Actions</TableHead>
+            <TableHead className="w-1/4 text-xs">Document Source</TableHead>
+            <TableHead className="w-1/4 text-xs">Business Event</TableHead>
+            <TableHead className="text-xs">Update Image</TableHead>
+            <TableHead className="text-right text-xs">View Image</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {attachments && attachments.map(att => (
             <TableRow key={att.id}>
               <TableCell className="py-1 text-xs">{format(parseISO(att.uploadedAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
-              <TableCell className="py-1 text-xs">{att.fileName}</TableCell>
               <TableCell className="py-1 text-xs">{att.type}</TableCell>
               <TableCell className="py-1 text-xs">{att.direction}</TableCell>
-              <TableCell className="py-1 text-xs">{usersMap.get(att.uploadedBy) || '...'}</TableCell>
-              <TableCell className="py-1 text-xs text-right space-x-2">
+              <TableCell className="py-1 text-xs">{att.documentSource}</TableCell>
+              <TableCell className="py-1 text-xs">{att.businessEvent}</TableCell>
+              <TableCell className="py-1 text-xs">
+                 <Button variant="link" size="sm" className="h-auto p-0 text-xs">Update</Button>
+              </TableCell>
+              <TableCell className="py-1 text-xs text-right">
                 <Button
                     variant="link"
                     size="sm"
@@ -1273,14 +1237,14 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
                     onClick={() => handleDownload(att)}
                     disabled={regeneratingId === att.id}
                 >
-                    {regeneratingId === att.id ? '...' : 'Download'}
+                    {regeneratingId === att.id ? '...' : 'Click to view document'}
                 </Button>
               </TableCell>
             </TableRow>
           ))}
           {(!attachments || attachments.length === 0) && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground py-4 text-xs">
+              <TableCell colSpan={7} className="text-center text-muted-foreground py-4 text-xs">
                 No attachments for this work item.
               </TableCell>
             </TableRow>
@@ -1722,5 +1686,3 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </>
   );
 }
-
-    
