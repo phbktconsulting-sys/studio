@@ -15,6 +15,7 @@ import { Trash2, PlusCircle } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { LogoIcon } from './icons';
 
 // This is the printable component that will be rendered off-screen
 const PrintableQuotation = ({ data, forwardedRef }: { data: QuotationFormValues, forwardedRef: React.Ref<HTMLDivElement> }) => {
@@ -31,15 +32,15 @@ const PrintableQuotation = ({ data, forwardedRef }: { data: QuotationFormValues,
   const grandTotal = subtotal + tax;
 
   const tasksHtml = data.tasks.map((task, index) => (
-    <tr key={index} className="item-row">
+    `<tr key=${index} class="item-row">
       <td>
-        <p className="font-bold">{task.item}</p>
-        <p className="text-muted-foreground">{task.description || ''}</p>
+        <p class="font-bold">${task.item}</p>
+        <p class="text-muted-foreground">${task.description || ''}</p>
       </td>
-      <td className="text-center">{task.quantity}</td>
-      <td className="text-right">₹{Number(task.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-      <td className="text-right">₹{(Number(task.quantity) * Number(task.unitPrice)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-    </tr>
+      <td class="text-center">${task.quantity}</td>
+      <td class="text-right">₹${Number(task.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td class="text-right">₹${(Number(task.quantity) * Number(task.unitPrice)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+    </tr>`
   )).join('');
 
   const htmlTemplate = `
@@ -50,10 +51,24 @@ const PrintableQuotation = ({ data, forwardedRef }: { data: QuotationFormValues,
         </div>
         <div class="header">
           <div class="company-details">
-            <h1>[YOUR COMPANY NAME]</h1>
-            <p>123 Business Road, Tech Park</p>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <g transform="translate(50,50)">
+                    <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="#4B5563" transform="rotate(0)"></path>
+                    <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="#FBBF24" transform="rotate(90)"></path>
+                    <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="#059669" transform="rotate(180)"></path>
+                    <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="#3B82F6" transform="rotate(270)"></path>
+                  </g>
+                </svg>
+                <div style="font-size: 14px; font-weight: bold; line-height: 1.2;">
+                  <span>PHBKT</span><br/>
+                  <span>Group</span><br/>
+                  <span>Limited</span>
+                </div>
+            </div>
+            <p style="margin-top: 10px;">123 Business Road, Tech Park</p>
             <p>Pune, Maharashtra, 411057</p>
-            <p>Email: contact@yourbusiness.com | Phone: +91 98765 43210</p>
+            <p>Email: contact@phbkt.com | Phone: +91 98765 43210</p>
           </div>
           <div class="quote-details">
             <h2>QUOTATION</h2>
@@ -102,6 +117,29 @@ const PrintableQuotation = ({ data, forwardedRef }: { data: QuotationFormValues,
             </tbody>
           </table>
         </div>
+
+         <div class="footer-section">
+            <h3>Terms & Conditions</h3>
+            <ol>
+                <li>The above prices are exclusive of all applicable taxes.</li>
+                <li>This quotation is valid for a period of 15 days from the date of issue.</li>
+                <li>Any changes to the scope of work may result in a revision of the quotation.</li>
+                <li>Payment terms are 50% advance and 50% upon completion, unless otherwise agreed.</li>
+            </ol>
+        </div>
+
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <p>Authorized Signature</p>
+                <p><strong>For PHBKT Group Limited</strong></p>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <p>Client Signature</p>
+                <p><strong>${data.customerName}</strong></p>
+            </div>
+        </div>
       </div>
   `;
 
@@ -143,7 +181,7 @@ const PrintableQuotation = ({ data, forwardedRef }: { data: QuotationFormValues,
         color: #000; 
       }
       .header .company-details p { 
-        margin: 0; 
+        margin: 2px 0; 
         line-height: 1.5;
       }
       .header .quote-details { text-align: right; }
@@ -196,6 +234,42 @@ const PrintableQuotation = ({ data, forwardedRef }: { data: QuotationFormValues,
           font-size: 12px;
       }
       .summary .text-right { text-align: right; }
+      .footer-section {
+          margin-top: 30px;
+          padding-top: 10px;
+          border-top: 1px solid #e5e7eb;
+      }
+      .footer-section h3 {
+          font-weight: 700;
+          margin-bottom: 8px;
+          font-size: 11px;
+      }
+      .footer-section ol {
+          list-style-position: inside;
+          padding-left: 0;
+          margin: 0;
+      }
+       .footer-section li {
+          margin-bottom: 4px;
+          color: #6b7280;
+      }
+       .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+        }
+        .signature-box {
+            width: 45%;
+            text-align: center;
+        }
+        .signature-line {
+            border-top: 1px solid #374151;
+            margin-bottom: 8px;
+        }
+        .signature-box p {
+            margin: 0;
+            line-height: 1.4;
+        }
     </style>
   `;
 
