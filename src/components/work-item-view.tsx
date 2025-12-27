@@ -1166,6 +1166,9 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
                   <a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     View
                   </a>
+                  <a href={att.url} download={att.fileName} className="text-primary hover:underline">
+                    Download
+                  </a>
                 </div>
               </TableCell>
             </TableRow>
