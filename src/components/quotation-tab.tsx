@@ -12,14 +12,13 @@ import { QuotationFormSchema } from '@/lib/types';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Trash2, PlusCircle, Loader2, ChevronsUpDown } from 'lucide-react';
-import { Textarea } from './ui/textarea';
 import { useFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from './ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './ui/command';
 import { cn } from '@/lib/utils';
 
 
@@ -106,7 +105,7 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
           </tbody>
         </table>
       </div>
-      <div style={{ marginTop: '40px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+       <div style={{ marginTop: '40px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
         <h4 style={{ margin: '0 0 10px', fontWeight: 700 }}>Terms &amp; Conditions</h4>
         <ul style={{ margin: 0, paddingLeft: '20px', color: '#6b7280' }}>
           <li>50% advance payment is required to start the project.</li>
@@ -146,7 +145,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       customerPhone: '',
       customerBusinessName: '',
       customerAddress: '',
-      tasks: [],
+      tasks: [{ process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 }],
     },
   });
 
@@ -156,7 +155,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   });
   
   const quotationData = form.watch();
-  const subtotal = quotationData.tasks.reduce((acc, task) => acc + (task.quantity * task.unitPrice), 0);
+  const subtotal = quotationData.tasks.slice(0, -1).reduce((acc, task) => acc + (task.quantity * task.unitPrice), 0);
   const tax = subtotal * 0.18;
   const grandTotal = subtotal + tax;
   const quoteNumber = `Q-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
@@ -168,19 +167,21 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         ? `${workItem.relatedContact.address.line1}, ${workItem.relatedContact.address.city}, ${workItem.relatedContact.address.state} ${workItem.relatedContact.address.zipcode}`
         : '';
       
-      form.reset({
-        customerName: workItem.relatedContact.name || '',
-        customerPhone: workItem.relatedContact.phone || '',
-        customerBusinessName: workItem.relatedContact.businessName || '',
-        customerAddress: fullAddress,
-        tasks: workItem.tasks?.length > 0 ? workItem.tasks.map(task => ({
+      const initialTasks = workItem.tasks?.length > 0 ? workItem.tasks.map(task => ({
           process: workItem.process,
           item: task.text,
           task: task.text,
           description: '',
           quantity: 1,
           unitPrice: 0,
-        })) : [],
+        })) : [];
+
+      form.reset({
+        customerName: workItem.relatedContact.name || '',
+        customerPhone: workItem.relatedContact.phone || '',
+        customerBusinessName: workItem.relatedContact.businessName || '',
+        customerAddress: fullAddress,
+        tasks: [...initialTasks, { process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 }],
       });
     }
   }, [workItem, form]);
@@ -198,6 +199,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         setIsGenerating(false);
         return;
     }
+    
+    // Use a version of the data that doesn't include the last empty item for the PDF
+    const finalQuotationData = { ...data, tasks: data.tasks.slice(0, -1) };
 
     try {
         const canvas = await html2canvas(input, { scale: 2 });
@@ -209,7 +213,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_${quoteNumber}.pdf`;
+            const fileName = `Quotation_${quoteNumber.replace('#: ', '')}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
@@ -226,7 +230,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 type: 'QUOTE',
                 documentSource: 'System',
                 businessEvent: 'QUOTATION',
-                quotationData: data, 
+                quotationData: finalQuotationData, 
             };
             
             await setDoc(newAttachmentRef, attachmentData);
@@ -252,7 +256,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   return (
       <div className="p-4 space-y-6">
         <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-             <QuotationPrintTemplate quotation={quotationData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
+             <QuotationPrintTemplate quotation={{...quotationData, tasks: quotationData.tasks.slice(0,-1)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
           <CardHeader>
@@ -321,23 +325,34 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
 
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">Line Items</h3>
-                  <div className="space-y-4">
-                    {fields.map((field, index) => {
-                      const selectedProcess = form.watch(`tasks.${index}.process`);
-                      return (
-                      <div key={field.id} className="grid grid-cols-12 gap-2 items-start border p-3 rounded-md">
+                  {/* Display previously added items */}
+                  <div className="space-y-2">
+                    {fields.slice(0, -1).map((field, index) => (
+                      <div key={field.id} className="flex justify-between items-center border p-3 rounded-md bg-muted/50">
+                        <div className="flex-1 text-xs">
+                          <p className="font-medium">{field.item}</p>
+                          <p className="text-muted-foreground">{field.quantity} x ₹{field.unitPrice.toLocaleString()} = ₹{(field.quantity * field.unitPrice).toLocaleString()}</p>
+                        </div>
+                         <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* The entry form for the new item */}
+                  <div className="grid grid-cols-12 gap-2 items-start border p-3 rounded-md">
                         <div className="col-span-3">
                            <FormField
                             control={form.control}
-                            name={`tasks.${index}.process`}
+                            name={`tasks.${fields.length - 1}.process`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-xs">Process</FormLabel>
                                  <Select 
                                   onValueChange={(value) => {
                                       field.onChange(value);
-                                      // Reset task when process changes
-                                      update(index, { ...form.getValues(`tasks.${index}`), task: '', item: '', description: '' });
+                                      update(fields.length - 1, { ...form.getValues(`tasks.${fields.length - 1}`), task: '', item: '', description: '' });
                                   }} 
                                   value={field.value}
                                 >
@@ -360,17 +375,17 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         <div className="col-span-4">
                            <FormField
                               control={form.control}
-                              name={`tasks.${index}.task`}
+                              name={`tasks.${fields.length - 1}.task`}
                               render={({ field: taskField }) => (
                                 <FormItem>
                                   <FormLabel className="text-xs">Task</FormLabel>
-                                  <Popover open={openPopovers[index]} onOpenChange={(isOpen) => setOpenPopovers(prev => ({...prev, [index]: isOpen}))}>
+                                  <Popover open={openPopovers[fields.length - 1]} onOpenChange={(isOpen) => setOpenPopovers(prev => ({...prev, [fields.length - 1]: isOpen}))}>
                                     <PopoverTrigger asChild>
                                       <FormControl>
                                         <Button
                                           variant="outline"
                                           role="combobox"
-                                          disabled={!selectedProcess}
+                                          disabled={!form.watch(`tasks.${fields.length - 1}.process`)}
                                           className={cn("w-full justify-between text-xs h-9", !taskField.value && "text-muted-foreground")}
                                         >
                                           {taskField.value ? taskField.value : "Select Task"}
@@ -381,21 +396,23 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                     <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                       <Command>
                                         <CommandInput placeholder="Search task..." />
-                                        <CommandEmpty>No tasks found.</CommandEmpty>
-                                        <CommandGroup>
-                                          {(processTaskMap[selectedProcess] || []).map((task) => (
-                                            <CommandItem
-                                              value={task}
-                                              key={task}
-                                              onSelect={() => {
-                                                update(index, { ...form.getValues(`tasks.${index}`), task: task, item: task, description: task });
-                                                setOpenPopovers(prev => ({...prev, [index]: false}));
-                                              }}
-                                            >
-                                              {task}
-                                            </CommandItem>
-                                          ))}
-                                        </CommandGroup>
+                                        <CommandList>
+                                            <CommandEmpty>No tasks found.</CommandEmpty>
+                                            <CommandGroup>
+                                            {(processTaskMap[form.watch(`tasks.${fields.length - 1}.process`)] || []).map((task) => (
+                                                <CommandItem
+                                                value={task}
+                                                key={task}
+                                                onSelect={() => {
+                                                    update(fields.length - 1, { ...form.getValues(`tasks.${fields.length - 1}`), task: task, item: task, description: task });
+                                                    setOpenPopovers(prev => ({...prev, [fields.length - 1]: false}));
+                                                }}
+                                                >
+                                                {task}
+                                                </CommandItem>
+                                            ))}
+                                            </CommandGroup>
+                                        </CommandList>
                                       </Command>
                                     </PopoverContent>
                                   </Popover>
@@ -408,7 +425,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         <div className="col-span-1">
                           <FormField
                             control={form.control}
-                            name={`tasks.${index}.quantity`}
+                            name={`tasks.${fields.length - 1}.quantity`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-xs">Qty</FormLabel>
@@ -427,7 +444,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         <div className="col-span-2">
                           <FormField
                             control={form.control}
-                            name={`tasks.${index}.unitPrice`}
+                            name={`tasks.${fields.length - 1}.unitPrice`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-xs">Unit Price</FormLabel>
@@ -443,20 +460,14 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             )}
                           />
                         </div>
-                         <div className="col-span-1">
+                         <div className="col-span-2">
                            <FormLabel className='text-xs'>Total</FormLabel>
                            <div className="h-9 flex items-center text-xs font-medium">
-                            ₹{(form.watch(`tasks.${index}.quantity`) * form.watch(`tasks.${index}.unitPrice`)).toLocaleString()}
+                            ₹{(form.watch(`tasks.${fields.length - 1}.quantity`) * form.watch(`tasks.${fields.length - 1}.unitPrice`)).toLocaleString()}
                            </div>
                          </div>
-                        <div className="col-span-1 flex items-end h-full">
-                          <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-9 w-9">
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
                       </div>
-                    )})}
-                  </div>
+                  
                   <Button type="button" variant="outline" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 1, unitPrice: 0 })}>
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                   </Button>
