@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -21,7 +22,7 @@ interface QuotationTabProps {
   workItem: WorkItem;
 }
 
-export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number }) => (
+export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNumber }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number, quoteNumber: string }) => (
     <div id="quotation-to-print" className="p-10" style={{ width: '800px', fontFamily: 'Inter, sans-serif', color: '#111827', backgroundColor: 'white', fontSize: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#6b7280', marginBottom: '20px' }}>
         <span>{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
@@ -47,7 +48,7 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal }:
         <div style={{ textAlign: 'right' }}>
           <h2 style={{ margin: '0 0 10px', fontSize: '24px', fontWeight: 700, color: '#374151' }}>QUOTATION</h2>
           <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Date:</strong> {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
-          <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Quote #:</strong> Q-{new Date().getFullYear()}-{String(Date.now()).slice(-5)}</p>
+          <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Quote #:</strong> {quoteNumber}</p>
           <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Valid Until:</strong> {(() => { const d = new Date(); d.setDate(d.getDate() + 15); return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }); })()}</p>
         </div>
       </div>
@@ -142,6 +143,8 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const subtotal = quotationData.tasks.reduce((acc, task) => acc + (task.quantity * task.unitPrice), 0);
   const tax = subtotal * 0.18;
   const grandTotal = subtotal + tax;
+  const quoteNumber = `Q-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
+
 
   useEffect(() => {
     if (workItem) {
@@ -188,7 +191,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_${workItem.customId}.pdf`;
+            const fileName = `Quotation_${quoteNumber}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
@@ -231,7 +234,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   return (
       <div className="p-4 space-y-6">
         <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-             <QuotationPrintTemplate quotation={quotationData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} />
+             <QuotationPrintTemplate quotation={quotationData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
           <CardHeader>

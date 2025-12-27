@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -13,7 +14,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check, Download, Pencil, Building2, TrendingUp, Handshake, Fingerprint, Banknote } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
@@ -63,7 +64,7 @@ const processTaskMap: Record<string, string[]> = {
 
 const processTypes = Object.keys(processTaskMap);
 
-const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number }) => (
+const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNumber }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number, quoteNumber: string }) => (
     <div id="quotation-to-print" className="p-10" style={{ width: '800px', fontFamily: 'Inter, sans-serif', color: '#111827', backgroundColor: 'white', fontSize: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#6b7280', marginBottom: '20px' }}>
         <span>{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
@@ -89,7 +90,7 @@ const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal }: { quot
         <div style={{ textAlign: 'right' }}>
           <h2 style={{ margin: '0 0 10px', fontSize: '24px', fontWeight: 700, color: '#374151' }}>QUOTATION</h2>
           <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Date:</strong> {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
-          <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Quote #:</strong> Q-{new Date().getFullYear()}-{String(Date.now()).slice(-5)}</p>
+          <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Quote #:</strong> {quoteNumber}</p>
           <p style={{ margin: '2px 0', fontSize: '10px', fontWeight: 500 }}><strong>Valid Until:</strong> {(() => { const d = new Date(); d.setDate(d.getDate() + 15); return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }); })()}</p>
         </div>
       </div>
@@ -1267,6 +1268,8 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
         const subtotal = quoteData.tasks.reduce((acc, task) => acc + (task.quantity * task.unitPrice), 0);
         const tax = subtotal * 0.18;
         const grandTotal = subtotal + tax;
+        const quoteNumber = `Q-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
+
 
         const printContainer = document.createElement('div');
         printContainer.style.position = 'absolute';
@@ -1276,7 +1279,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
         const root = createRoot(printContainer);
         
         root.render(
-            <QuotationPrintTemplate quotation={quoteData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} />
+            <QuotationPrintTemplate quotation={quoteData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         );
         
         setTimeout(async () => {
