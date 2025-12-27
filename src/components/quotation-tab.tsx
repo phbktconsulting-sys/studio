@@ -268,63 +268,62 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="customerName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Customer Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} className="text-xs" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="customerPhone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Customer Phone</FormLabel>
-                          <FormControl>
-                            <Input {...field} className="text-xs" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="customerBusinessName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Business Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} className="text-xs" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                     <FormField
-                      control={form.control}
-                      name="customerAddress"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Customer Address</FormLabel>
-                          <FormControl>
-                            <Input {...field} className="text-xs" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
+                   <div className="md:col-span-1">
+                      <FormLabel className="text-xs">Customer Details</FormLabel>
+                   </div>
+                   <div className="md:col-span-2 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <FormField
+                          control={form.control}
+                          name="customerName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} placeholder="Customer Name" className="text-xs" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="customerPhone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} placeholder="Customer Phone" className="text-xs" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="customerBusinessName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input {...field} placeholder="Business Name (Optional)" className="text-xs" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="customerAddress"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input {...field} placeholder="Customer Address" className="text-xs" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                   </div>
                 </div>
 
                 <div className="space-y-4">
