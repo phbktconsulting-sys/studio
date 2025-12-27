@@ -3,15 +3,15 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import type { WorkItem, QuotationFormValues } from '@/lib/types';
+import type { WorkItem, QuotationFormValues, QuotationTask } from '@/lib/types';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { QuotationFormSchema } from '@/lib/types';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Trash2, PlusCircle, Loader2, ChevronsUpDown } from 'lucide-react';
+import { Trash2, PlusCircle, Loader2, ChevronsUpDown, X } from 'lucide-react';
 import { useFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -147,7 +147,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       customerPhone: '',
       customerBusinessName: '',
       customerAddress: '',
-      tasks: [{ process: '', task: '', item: '', description: '', quantity: undefined, unitPrice: 0 }],
+      tasks: [{ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }],
     },
   });
 
@@ -157,7 +157,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   });
   
   const quotationData = form.watch();
-  // We explicitly filter out the last, blank entry row for display and calculation.
   const addedTasks = fields.slice(0, -1);
   const subtotal = addedTasks.reduce((acc, task) => acc + ((task.quantity || 0) * (task.unitPrice || 0)), 0);
   const tax = subtotal * 0.18;
@@ -185,7 +184,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         customerPhone: workItem.relatedContact.phone || '',
         customerBusinessName: workItem.relatedContact.businessName || '',
         customerAddress: fullAddress,
-        tasks: [...initialTasks, { process: '', task: '', item: '', description: '', quantity: undefined, unitPrice: 0 }],
+        tasks: [...initialTasks, { process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }],
       });
     }
   }, [workItem, form]);
@@ -203,7 +202,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         toast({ variant: "destructive", title: "Error", description: "Please add at least one complete line item to the quotation." });
         return;
     }
-    const finalQuotationData = { ...data, tasks: finalTasks };
+    const finalQuotationData = { ...data, tasks: finalTasks as QuotationTask[] };
 
     setIsGenerating(true);
 
@@ -463,7 +462,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                       type="number"
                                       {...field}
                                       className="text-xs"
-                                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                                      onChange={(e) => field.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
                                     />
                                   </FormControl>
                                 </FormItem>
@@ -498,7 +497,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         </div>
                     <div className="flex justify-end">
                       <Button type="button" variant="outline" size="sm" onClick={() => {
-                        append({ process: '', task: '', item: '', description: '', quantity: undefined, unitPrice: 0 });
+                        append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
                         setEntryFormKey(prev => prev + 1);
                         }}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Add Item

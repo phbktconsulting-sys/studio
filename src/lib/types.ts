@@ -285,7 +285,7 @@ export const QuotationTaskSchema = z.object({
   unitPrice: z.number().optional(),
 }).refine(data => {
   // A row is considered "partially filled" if the user has selected a process/task or entered an item name.
-  const isPartiallyFilled = !!data.process || !!data.task || !!data.item;
+  const isPartiallyFilled = !!data.process || !!data.task || !!data.item || (data.quantity && data.quantity > 0);
   
   // If not partially filled, it's a valid empty row, so we don't validate it.
   if (!isPartiallyFilled) return true;
