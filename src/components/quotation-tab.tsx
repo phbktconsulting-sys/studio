@@ -15,7 +15,9 @@ import { Trash2, PlusCircle } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { LogoIcon } from './icons';
+import { useFirebase, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
+
 
 // This is the printable component that will be rendered off-screen
 const PrintableQuotation = ({ data, forwardedRef }: { data: QuotationFormValues, forwardedRef: React.Ref<HTMLDivElement> }) => {
@@ -285,6 +287,7 @@ interface QuotationTabProps {
 
 export function QuotationTab({ workItem }: QuotationTabProps) {
   const { toast } = useToast();
+  const { firestore, user } = useFirebase();
   const [isGenerating, setIsGenerating] = useState(false);
   const [printableData, setPrintableData] = useState<QuotationFormValues | null>(null);
   const printableRef = useRef<HTMLDivElement>(null);
@@ -328,11 +331,11 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   }, [workItem, form]);
 
   useEffect(() => {
-    if (printableData && printableRef.current) {
-        const generatePdf = async () => {
+    if (printableData && printableRef.current && user && firestore) {
+        const generateAndSavePdf = async () => {
             try {
                 const canvas = await html2canvas(printableRef.current!, {
-                    scale: 2, // Higher scale for better quality
+                    scale: 2,
                     useCORS: true,
                 });
                 const imgData = canvas.toDataURL('image/png');
@@ -340,11 +343,31 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                pdf.save(`Quotation_${workItem.customId}.pdf`);
+                
+                // 1. Download the PDF
+                const fileName = `Quotation_${workItem.customId}.pdf`;
+                pdf.save(fileName);
+
+                // 2. Save the PDF as a data URL to Firestore
+                const pdfDataUrl = pdf.output('datauristring');
+                const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
+                
+                await addDocumentNonBlocking(attachmentsRef, {
+                    workItemId: workItem.id,
+                    url: pdfDataUrl,
+                    direction: 'Outbound',
+                    fileName: fileName,
+                    uploadedAt: new Date().toISOString(),
+                    uploadedBy: user.uid,
+                    type: 'QUOTE', // Specific type for quotations
+                    documentSource: 'Manual',
+                    businessEvent: 'QUOTATION',
+                });
+
 
                  toast({
-                    title: 'Quotation Downloaded',
-                    description: 'The quotation PDF has been downloaded to your device.',
+                    title: 'Quotation Generated',
+                    description: 'The PDF has been downloaded and saved to the work item attachments.',
                 });
             } catch (error: any) {
                  toast({
@@ -357,9 +380,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 setPrintableData(null); // Reset after generation
             }
         };
-        generatePdf();
+        generateAndSavePdf();
     }
-  }, [printableData, workItem.customId, toast]);
+  }, [printableData, workItem.id, workItem.customId, toast, user, firestore]);
 
   const handleGenerateQuote = (data: QuotationFormValues) => {
     setIsGenerating(true);
@@ -370,7 +393,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   return (
     <>
     {/* This div is for rendering the printable content off-screen */}
-    <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+    <div style={{ position: 'absolute', left: '-9999px', top: 0, width: '840px' }}>
         {printableData && <PrintableQuotation data={printableData} forwardedRef={printableRef} />}
     </div>
 
@@ -524,7 +547,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                   </Button>
               </div>
               <Button type="submit" disabled={isGenerating}>
-                {isGenerating ? 'Generating...' : 'Create Quotation'}
+                {isGenerating ? 'Generating...' : 'Generate Quotation'}
               </Button>
             </form>
           </Form>
@@ -534,3 +557,5 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     </>
   );
 }
+
+    
