@@ -1147,30 +1147,24 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-1/6 text-xs">Date</TableHead>
-            <TableHead className="w-1/6 text-xs">Type</TableHead>
-            <TableHead className="w-1/6 text-xs">Direction</TableHead>
-            <TableHead className="w-1/6 text-xs">Document Source</TableHead>
-            <TableHead className="w-1/6 text-xs">Business Event</TableHead>
-            <TableHead className="w-1/6 text-xs">Actions</TableHead>
+            <TableHead className="w-1/5 text-xs">Date</TableHead>
+            <TableHead className="w-1/5 text-xs">File Name</TableHead>
+            <TableHead className="w-1/5 text-xs">Type</TableHead>
+            <TableHead className="w-1/5 text-xs">Direction</TableHead>
+            <TableHead className="w-1/5 text-xs">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {attachments && attachments.map(att => (
             <TableRow key={att.id}>
               <TableCell className="py-2 text-xs">{format(parseISO(att.uploadedAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
+              <TableCell className="py-2 text-xs">{att.fileName}</TableCell>
               <TableCell className="py-2 text-xs">{att.type}</TableCell>
               <TableCell className="py-2 text-xs">{att.direction}</TableCell>
-              <TableCell className="py-2 text-xs">{att.documentSource}</TableCell>
-              <TableCell className="py-2 text-xs">{att.businessEvent}</TableCell>
               <TableCell className="py-2 text-xs">
                 <div className="flex items-center gap-4">
                   <a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     View
-                  </a>
-                   <a href={att.url} download={att.fileName} className="flex items-center text-primary hover:underline">
-                    <Download className="mr-1 h-3 w-3" />
-                    Download
                   </a>
                 </div>
               </TableCell>
@@ -1178,7 +1172,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
           ))}
           {(!attachments || attachments.length === 0) && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground py-4 text-xs">
+              <TableCell colSpan={5} className="text-center text-muted-foreground py-4 text-xs">
                 No attachments for this work item.
               </TableCell>
             </TableRow>
