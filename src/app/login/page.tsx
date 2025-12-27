@@ -44,8 +44,25 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
+       <header className="absolute top-0 left-0 right-0 p-4 bg-white border-b">
+        <div className="container mx-auto flex justify-between items-center">
+            <Link href="/" className="flex items-center gap-4">
+              <LogoIcon height={40} width={40} />
+              <div className="font-headline text-lg font-bold leading-tight">
+                <div className="flex flex-col text-sm leading-snug text-black">
+                  <span>PHBKT</span>
+                  <span>Group</span>
+                  <span>Limited</span>
+                </div>
+              </div>
+            </Link>
+            <Button asChild>
+                <Link href="/lead-capture">Contact Sales</Link>
+            </Button>
+        </div>
+      </header>
+      <div className="w-full max-w-sm pt-20">
         <Card className="py-6">
           <CardHeader className="text-center pb-4">
             <div className="flex justify-center pt-4">
@@ -74,25 +91,6 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-        </Card>
-        
-        <div className="relative my-6">
-          <Separator />
-          <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-background px-2 text-xs text-muted-foreground">OR</span>
-        </div>
-
-        <Card>
-            <CardHeader className="text-center">
-                <CardTitle className="text-xl">New Business Inquiry?</CardTitle>
-                <CardDescription className="text-xs">
-                    If you are a new customer or do not have an account, please use our contact form.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-                <Button asChild variant="outline">
-                    <Link href="/lead-capture">Go to Contact Form</Link>
-                </Button>
-            </CardContent>
         </Card>
       </div>
     </div>
