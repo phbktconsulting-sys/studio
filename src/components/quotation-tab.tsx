@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -50,6 +49,8 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const [openPopovers, setOpenPopovers] = useState<Record<number, boolean>>({});
   const [entryFormKey, setEntryFormKey] = useState(0);
   const [isCqPageVisible, setIsCqPageVisible] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
+
 
   const form = useForm<QuotationFormValues>({
     resolver: zodResolver(QuotationFormSchema),
@@ -62,7 +63,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control: form.control,
     name: 'tasks',
   });
@@ -76,7 +77,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
 
 
   useEffect(() => {
-    if (workItem) {
+    if (workItem && !hasInitialized) {
       const fullAddress = workItem.relatedContact.address
         ? `${workItem.relatedContact.address.line1}, ${workItem.relatedContact.address.city}, ${workItem.relatedContact.address.state} ${workItem.relatedContact.address.zipcode}`
         : '';
@@ -86,15 +87,15 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         customerPhone: workItem.relatedContact.phone || '',
         customerBusinessName: workItem.relatedContact.businessName || '',
         customerAddress: fullAddress,
-        tasks: [], // Always start with an empty list of tasks for the quotation itself.
+        tasks: [], 
       });
-      // Ensure the entry form also starts fresh
-      if(fields.length === 0) {
-        append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
-      }
+
+      // Use replace to reset the field array and add a fresh empty item
+      replace([{ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }]);
       setEntryFormKey(prev => prev + 1);
+      setHasInitialized(true); // Mark as initialized
     }
-  }, [workItem, form, append, fields.length]);
+  }, [workItem, form, replace, hasInitialized]);
 
 
   const handleGenerateQuote = async (data: QuotationFormValues) => {
