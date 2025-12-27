@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -214,7 +213,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            const fileName = `Quotation_${quoteNumber}.pdf`;
+            const fileName = `Quotation_${quoteNumber.replace('#: ', '')}.pdf`;
             pdf.save(fileName); 
 
             const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
@@ -270,24 +269,23 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
-                   <div className="md:col-span-1">
-                      <FormLabel className="text-xs">Customer Details</FormLabel>
+                   <div className="md:col-span-1 pt-1.5">
+                      <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
                    </div>
                    <div className="md:col-span-2 space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                         <FormField
-                          control={form.control}
-                          name="customerName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input {...field} placeholder="Customer Name" className="text-xs" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
                         <FormField
+                            control={form.control}
+                            name="customerName"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                <Input {...field} placeholder="Customer Name" className="text-xs" />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                         <FormField
                           control={form.control}
                           name="customerPhone"
                           render={({ field }) => (
@@ -299,7 +297,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             </FormItem>
                           )}
                         />
-                      </div>
                       <FormField
                         control={form.control}
                         name="customerBusinessName"
@@ -328,8 +325,8 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-1">
-                    <FormLabel className="text-xs">Line Items</FormLabel>
+                  <div className="md:col-span-1 pt-1.5">
+                    <FormLabel className="text-xs font-semibold">Line Items</FormLabel>
                   </div>
 
                   <div className="md:col-span-2 space-y-4">
@@ -467,7 +464,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                   </div>
                 </div>
                 
-                {fields.length > 1 && (
+                 {fields.length > 1 && (
                   <div className="space-y-2 pt-4">
                     <Table>
                       <TableHeader>
