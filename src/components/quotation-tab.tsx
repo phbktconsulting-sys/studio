@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -90,6 +88,29 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal }:
             <tr style={{ fontWeight: 700, fontSize: '12px' }}><td style={{ paddingTop: '10px', borderTop: '2px solid #111827' }}>TOTAL:</td><td style={{ paddingTop: '10px', borderTop: '2px solid #111827', textAlign: 'right' }}>₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
           </tbody>
         </table>
+      </div>
+      <div style={{ marginTop: '40px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+        <h4 style={{ margin: '0 0 10px', fontWeight: 700 }}>Terms &amp; Conditions</h4>
+        <ul style={{ margin: 0, paddingLeft: '20px', color: '#6b7280' }}>
+          <li>50% advance payment is required to start the project.</li>
+          <li>The remaining 50% is due upon project completion, before final delivery.</li>
+          <li>This quotation is valid for 15 days from the date of issue.</li>
+          <li>Any changes or additions to the scope of work may incur additional charges.</li>
+        </ul>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '80px' }}>
+        <div style={{ width: '45%' }}>
+          <div style={{ borderTop: '1px solid #111827', paddingTop: '8px' }}>
+            <p style={{ margin: 0 }}>Authorized Signature</p>
+            <p style={{ margin: '2px 0', color: '#6b7280' }}>PHBKT Group Limited</p>
+          </div>
+        </div>
+        <div style={{ width: '45%' }}>
+          <div style={{ borderTop: '1px solid #111827', paddingTop: '8px' }}>
+            <p style={{ margin: 0 }}>Client Signature</p>
+            <p style={{ margin: '2px 0', color: '#6b7280' }}>{quotation.customerName}</p>
+          </div>
+        </div>
       </div>
     </div>
 );
