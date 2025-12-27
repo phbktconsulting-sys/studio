@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { WorkItem, QuotationFormValues, QuotationTask } from '@/lib/types';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -198,7 +199,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
           <CardContent className="p-6">
             <Form {...form}>
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start border-b pb-6">
+                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start border-b pb-6">
                     <div className="md:col-span-1 pt-1.5">
                         <FormLabel className="text-xs font-semibold">Customer Details</FormLabel>
                     </div>
@@ -216,7 +217,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 </FormItem>
                                 )}
                             />
-                            <FormField
+                             <FormField
                                 control={form.control}
                                 name="customerPhone"
                                 render={({ field }) => (
@@ -226,7 +227,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                         <span className="text-gray-500 sm:text-sm">+91 </span>
                                     </div>
                                     <FormControl>
-                                        <Input {...field} placeholder="Customer Phone" className="pl-12 text-xs h-8" />
+                                        <Input {...field} placeholder="Customer Phone" className="pl-10 text-xs h-8" />
                                     </FormControl>
                                     </div>
                                     <FormMessage />
@@ -263,7 +264,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
                   <div className="md:col-span-1 pt-1.5">
                     <FormLabel className="text-xs font-semibold">Line Items</FormLabel>
                   </div>
