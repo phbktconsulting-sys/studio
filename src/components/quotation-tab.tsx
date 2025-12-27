@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -23,7 +24,6 @@ interface QuotationTabProps {
 export function QuotationTab({ workItem }: QuotationTabProps) {
   const { firestore, user } = useFirebase();
   const { toast } = useToast();
-  const [generatedQuoteUrl, setGeneratedQuoteUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const form = useForm<QuotationFormValues>({
@@ -65,7 +65,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
 
   const handleGenerateQuote = async (data: QuotationFormValues) => {
     setIsGenerating(true);
-    setGeneratedQuoteUrl(null);
 
     try {
       const result = await generateQuotation({
@@ -74,10 +73,17 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       });
 
       if (result.pdfUrl) {
-        setGeneratedQuoteUrl(result.pdfUrl);
+        // Create a link and trigger the download
+        const link = document.createElement('a');
+        link.href = result.pdfUrl;
+        link.download = `Quotation_${workItem.customId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
         toast({
-          title: 'Quotation Generated',
-          description: 'A preview is available. You can now attach it to the case.',
+          title: 'Quotation Downloaded',
+          description: 'The quotation PDF has been downloaded to your device.',
         });
       } else {
         throw new Error(result.error || 'Failed to generate quotation PDF.');
@@ -90,38 +96,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       });
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const handleAttachQuote = async () => {
-    if (!generatedQuoteUrl || !firestore || !user) return;
-
-    const attachmentsRef = collection(firestore, 'work_items', workItem.id, 'attachments');
-
-    try {
-      await addDocumentNonBlocking(attachmentsRef, {
-        workItemId: workItem.id,
-        url: generatedQuoteUrl,
-        direction: 'Outbound',
-        fileName: `Quotation_${workItem.customId}_${new Date().toISOString()}.pdf`,
-        uploadedAt: new Date().toISOString(),
-        uploadedBy: user.uid,
-        type: 'QUOTE',
-        documentSource: 'Internal',
-        businessEvent: 'Quotation Generation',
-      });
-
-      toast({
-        title: 'Quotation Attached',
-        description: 'The generated quotation has been attached to the work item.',
-      });
-      setGeneratedQuoteUrl(null);
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Attachment Failed',
-        description: error.message || 'Could not attach the quotation.',
-      });
     }
   };
 
@@ -282,21 +256,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
           </Form>
         </CardContent>
       </Card>
-
-      {generatedQuoteUrl && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Quotation Preview</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <iframe src={generatedQuoteUrl} className="border rounded-md w-full h-[600px]" title="Generated Quotation Preview" />
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setGeneratedQuoteUrl(null)}>Discard</Button>
-              <Button onClick={handleAttachQuote}>Attach to Case</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
