@@ -75,13 +75,6 @@ export default function LoginPage() {
                 Sign In
               </Button>
             </form>
-            <Separator className="my-6" />
-            <div className="text-center">
-                <p className="text-sm text-muted-foreground">Need to submit a lead?</p>
-                <Button asChild variant="link" className="px-0">
-                    <Link href="/lead-capture">Contact our sales team</Link>
-                </Button>
-            </div>
           </CardContent>
         </Card>
       </div>
