@@ -14,7 +14,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Briefcase, Mail, Phone, User as UserIcon, FilePenLine, RefreshCw, Paperclip, MoreVertical, Lock, Home, History, CalendarIcon, MessageSquare, Clock, ChevronsUpDown, X, Check, Download, Pencil, Building2, TrendingUp, Handshake, Fingerprint, Banknote } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
@@ -1135,6 +1135,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
   const { firestore } = useFirebase();
   const { toast } = useToast();
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
+  const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
 
   const attachmentsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -1142,6 +1143,29 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
   }, [firestore, workItemId]);
 
   const { data: attachments, isLoading } = useCollection<ImageAttachment>(attachmentsQuery);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!attachments || attachments.length === 0 || !firestore) return;
+      const userIds = [...new Set(attachments.map(att => att.uploadedBy))];
+      const newUsersMap = new Map(usersMap);
+      const idsToFetch = userIds.filter(id => !newUsersMap.has(id));
+
+      if (idsToFetch.length > 0) {
+        for (let i = 0; i < idsToFetch.length; i += 30) {
+          const chunk = idsToFetch.slice(i, i + 30);
+          const usersQuery = query(collection(firestore, 'users'), where('uid', 'in', chunk));
+          const userSnapshot = await getDocs(usersQuery);
+          userSnapshot.forEach(doc => {
+            const user = doc.data() as User;
+            newUsersMap.set(user.uid, user.displayName || user.email || 'Unknown');
+          });
+        }
+        setUsersMap(newUsersMap);
+      }
+    };
+    fetchUsers();
+  }, [attachments, firestore, usersMap]);
   
   const handleDownload = async (attachment: ImageAttachment) => {
     if (attachment.type === 'QUOTE' && attachment.quotationData) {
@@ -1209,13 +1233,13 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-1/4 text-xs">Date</TableHead>
-            <TableHead className="w-1/4 text-xs">Type</TableHead>
-            <TableHead className="w-1/4 text-xs">Direction</TableHead>
-            <TableHead className="w-1/4 text-xs">Document Source</TableHead>
-            <TableHead className="w-1/4 text-xs">Business Event</TableHead>
-            <TableHead className="text-xs">Update Image</TableHead>
-            <TableHead className="text-right text-xs">View Image</TableHead>
+            <TableHead className="text-xs">Date</TableHead>
+            <TableHead className="text-xs">Type</TableHead>
+            <TableHead className="text-xs">Direction</TableHead>
+            <TableHead className="text-xs">User Name</TableHead>
+            <TableHead className="text-xs">Document Source</TableHead>
+            <TableHead className="text-xs">Business Event</TableHead>
+            <TableHead className="text-right text-xs">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -1224,11 +1248,9 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
               <TableCell className="py-1 text-xs">{format(parseISO(att.uploadedAt), 'dd MMM yyyy HH:mm:ss')}</TableCell>
               <TableCell className="py-1 text-xs">{att.type}</TableCell>
               <TableCell className="py-1 text-xs">{att.direction}</TableCell>
+              <TableCell className="py-1 text-xs">{usersMap.get(att.uploadedBy) || att.uploadedBy}</TableCell>
               <TableCell className="py-1 text-xs">{att.documentSource}</TableCell>
               <TableCell className="py-1 text-xs">{att.businessEvent}</TableCell>
-              <TableCell className="py-1 text-xs">
-                 <Button variant="link" size="sm" className="h-auto p-0 text-xs">Update</Button>
-              </TableCell>
               <TableCell className="py-1 text-xs text-right">
                 <Button
                     variant="link"
@@ -1237,7 +1259,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
                     onClick={() => handleDownload(att)}
                     disabled={regeneratingId === att.id}
                 >
-                    {regeneratingId === att.id ? '...' : 'Click to view document'}
+                    {regeneratingId === att.id ? 'Downloading...' : 'Download'}
                 </Button>
               </TableCell>
             </TableRow>
@@ -1686,3 +1708,4 @@ export function WorkItemView({ workItemId, customId }: { workItemId: string, cus
     </>
   );
 }
+
