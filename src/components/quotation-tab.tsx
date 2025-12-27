@@ -86,11 +86,13 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         customerPhone: workItem.relatedContact.phone || '',
         customerBusinessName: workItem.relatedContact.businessName || '',
         customerAddress: fullAddress,
-        tasks: [{ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }],
+        tasks: [], // Always start with an empty list of tasks for the quotation itself.
       });
+      // Ensure the entry form also starts fresh
+      append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
       setEntryFormKey(prev => prev + 1);
     }
-  }, [workItem, form]);
+  }, [workItem, form, append]);
 
 
   const handleGenerateQuote = async (data: QuotationFormValues) => {
@@ -195,7 +197,13 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   if (!isCqPageVisible) {
     return (
       <div className="p-4 flex justify-center items-center h-full">
-        <Button onClick={() => setIsCqPageVisible(true)}>Development Services Quotation</Button>
+        <Button 
+          onClick={() => setIsCqPageVisible(true)} 
+          size="sm"
+          className="bg-black text-white hover:bg-black/80"
+        >
+          Development Services Quotation
+        </Button>
       </div>
     );
   }
