@@ -121,12 +121,12 @@ export interface Customer {
 }
 
 const AddressSchema = z.object({
-  country: z.string().min(1, 'Country is required'),
-  line1: z.string().min(1, 'Address line 1 is required'),
+  country: z.string().optional(),
+  line1: z.string().optional(),
   line2: z.string().optional(),
-  city: z.string().min(1, 'City is required'),
-  state: z.string().min(1, 'State is required'),
-  zipcode: z.string().min(1, 'Zipcode is required'),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipcode: z.string().optional(),
 });
 
 export const WorkItemCreateSchema = z.object({
@@ -313,8 +313,14 @@ export const QuotationFormSchema = z.object({
   customerName: z.string().min(1, 'Customer name is required.'),
   customerPhone: z.string().min(1, 'Customer phone is required.'),
   customerBusinessName: z.string().optional(),
-  customerAddress: z.string().optional(),
-  tasks: z.array(QuotationTaskSchema),
+  customerAddress: AddressSchema.optional(),
+  tasks: z.array(QuotationTaskSchema).refine(
+    (tasks) => tasks.filter(task => Object.values(task).some(val => val !== undefined && val !== '' && val !== 0)).length > 0,
+    {
+      message: 'At least one complete line item is required.',
+      path: ['tasks'],
+    }
+  ),
 });
 
 

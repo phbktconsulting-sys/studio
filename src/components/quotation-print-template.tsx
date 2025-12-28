@@ -2,6 +2,20 @@
 'use client';
 import type { QuotationFormValues } from "@/lib/types";
 
+function formatAddress(address: QuotationFormValues['customerAddress']) {
+    if (!address) return '';
+    const parts = [
+        address.line1,
+        address.line2,
+        address.city,
+        address.state,
+        address.country,
+        address.zipcode
+    ];
+    return parts.filter(Boolean).join(', ');
+}
+
+
 export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNumber }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number, quoteNumber: string }) => (
     <div id="quotation-to-print" className="p-10" style={{ width: '800px', fontFamily: 'Inter, sans-serif', color: '#111827', backgroundColor: 'white', fontSize: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#6b7280', marginBottom: '20px' }}>
@@ -36,7 +50,7 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
         <h3 style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: '#374151' }}>Quotation For:</h3>
         <p style={{ margin: '2px 0' }}>{quotation.customerName}</p>
         {quotation.customerBusinessName && <p style={{ margin: '2px 0' }}>{quotation.customerBusinessName}</p>}
-        <p style={{ margin: '2px 0' }}>{quotation.customerAddress}</p>
+        <p style={{ margin: '2px 0' }}>{formatAddress(quotation.customerAddress)}</p>
       </div>
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
         <thead>

@@ -59,7 +59,14 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       customerName: '',
       customerPhone: '',
       customerBusinessName: '',
-      customerAddress: '',
+      customerAddress: {
+        country: '',
+        line1: '',
+        line2: '',
+        city: '',
+        state: '',
+        zipcode: '',
+      },
       tasks: [],
     },
   });
@@ -79,22 +86,19 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
 
   useEffect(() => {
     if (workItem && !hasInitialized) {
-      const fullAddress = workItem.relatedContact.address
-        ? `${workItem.relatedContact.address.line1}, ${workItem.relatedContact.address.city}, ${workItem.relatedContact.address.state} ${workItem.relatedContact.address.zipcode}`
-        : '';
-      
       form.reset({
         customerName: workItem.relatedContact.name || '',
         customerPhone: workItem.relatedContact.phone || '',
         customerBusinessName: workItem.relatedContact.businessName || '',
-        customerAddress: fullAddress,
+        customerAddress: workItem.relatedContact.address ? { ...workItem.relatedContact.address } : {
+            country: '', line1: '', line2: '', city: '', state: '', zipcode: ''
+        },
         tasks: [], 
       });
 
-      // Use replace to reset the field array and add a fresh empty item
       replace([{ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }]);
       setEntryFormKey(prev => prev + 1);
-      setHasInitialized(true); // Mark as initialized
+      setHasInitialized(true); 
     }
   }, [workItem, form, replace, hasInitialized]);
 
@@ -204,11 +208,11 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
 
   if (!isCqPageVisible) {
     return (
-      <div className="p-4 flex justify-center items-center h-full">
+      <div className="flex h-full items-center justify-center p-4">
         <Button 
           onClick={() => setIsCqPageVisible(true)} 
           size="sm"
-          className="bg-black text-white hover:bg-black/80 h-8"
+          className="h-8 bg-black text-white hover:bg-black/80"
         >
           Development Services Quotation
         </Button>
@@ -235,9 +239,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start border-b pb-6">
                     <FormLabel className="md:col-span-1 pt-1.5 text-xs font-semibold">Customer Details</FormLabel>
-                    <div className="md:col-span-3 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
+                    <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-4">
+                           <FormField
                                 control={form.control}
                                 name="customerName"
                                 render={({ field }) => (
@@ -266,9 +270,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 </FormItem>
                                 )}
                             />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
+                           <FormField
                             control={form.control}
                             name="customerBusinessName"
                             render={({ field }) => (
@@ -280,18 +282,18 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                               </FormItem>
                             )}
                           />
-                          <FormField
-                            control={form.control}
-                            name="customerAddress"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...field} placeholder="Customer Address" className="text-xs h-8" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                        </div>
+                         <div className="space-y-2">
+                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Address Line 1" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Address Line 2" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                            <div className="grid grid-cols-2 gap-2">
+                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="City" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="State" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                             <div className="grid grid-cols-2 gap-2">
+                                <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Country" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Zipcode" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -428,17 +430,18 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         </div>
                          <div className="flex justify-end">
                             <Button type="button" variant="outline" size="sm" onClick={() => {
-                                if (isLastTaskValid) {
-                                  append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
-                                  setEntryFormKey(prev => prev + 1);
-                                } else {
-                                  toast({
-                                    variant: "destructive",
-                                    title: "Incomplete Item",
-                                    description: "Please fill out all fields for the current line item before adding a new one."
-                                  })
-                                  form.trigger(`tasks.${fields.length - 1}`);
-                                }
+                                form.trigger().then((isValid) => {
+                                  if (isLastTaskValid && isValid) {
+                                    append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
+                                    setEntryFormKey(prev => prev + 1);
+                                  } else {
+                                     toast({
+                                      variant: "destructive",
+                                      title: "Incomplete Item",
+                                      description: "Please fill out all fields for the current line item before adding a new one."
+                                    })
+                                  }
+                                });
                                 }} className="h-8"
                                 >
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add Item
