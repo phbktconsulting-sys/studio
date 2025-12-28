@@ -277,13 +277,35 @@ export const LeadCaptureSchema = z.object({
 export type LeadCaptureFormValues = z.infer<typeof LeadCaptureSchema>;
 
 export const QuotationTaskSchema = z.object({
-  process: z.string().min(1, 'Process is required'),
-  task: z.string().min(1, 'Task is required'),
-  item: z.string().min(1, 'Item is required'),
+  process: z.string().optional(),
+  task: z.string().optional(),
+  item: z.string().optional(),
   description: z.string().optional(),
-  quantity: z.number().min(1, 'Quantity must be at least 1'),
-  unitPrice: z.number().min(1, 'Unit price must be at least 1'),
+  quantity: z.number().optional(),
+  unitPrice: z.number().optional(),
+}).superRefine((data, ctx) => {
+  const isPartiallyFilled = Object.values(data).some(val => val !== undefined && val !== '' && val !== 0);
+  if (!isPartiallyFilled) {
+    return true; // Ignore completely empty objects
+  }
+
+  if (!data.process) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Process is required.", path: ["process"] });
+  }
+  if (!data.task) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Task is required.", path: ["task"] });
+  }
+  if (!data.item) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Item is required.", path: ["item"] });
+  }
+  if (!data.quantity || data.quantity <= 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Quantity must be > 0.", path: ["quantity"] });
+  }
+  if (!data.unitPrice || data.unitPrice <= 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Price must be > 0.", path: ["unitPrice"] });
+  }
 });
+
 
 export type QuotationTask = z.infer<typeof QuotationTaskSchema>;
 
@@ -293,17 +315,7 @@ export const QuotationFormSchema = z.object({
   customerBusinessName: z.string().optional(),
   customerAddress: z.string().optional(),
   tasks: z.array(QuotationTaskSchema),
-}).transform((data) => {
-    // Before validation, filter out any tasks that are completely empty.
-    // This allows the final "entry" row to be ignored if it hasn't been touched.
-    const filteredTasks = data.tasks.filter(task => {
-        return !!task.process || !!task.task || !!task.item || !!task.quantity || !!task.unitPrice;
-    });
-    return { ...data, tasks: filteredTasks };
-}).refine(
-  (data) => data.tasks.length > 0,
-  { message: "At least one complete line item is required.", path: ["tasks"] }
-);
+});
 
 
 export type QuotationFormValues = z.infer<typeof QuotationFormSchema>;
