@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -165,32 +166,33 @@ export function NewWorkItemView() {
               <Card>
                 <CardHeader><CardTitle className="text-base">Customer Contact Information</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
-                  <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input placeholder="e.g., John Doe" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><div className="w-full md:w-2/3"><FormControl><Input placeholder="e.g., John Doe" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><div className="w-full md:w-2/3"><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
+                  
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField
+                      <FormField
                       control={form.control}
                       name="customerPhone"
                       render={({ field }) => (
-                        <FormItem>
+                          <FormItem>
                           <FormLabel>Customer Phone</FormLabel>
-                          <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                <span className="text-gray-500 sm:text-sm">+91</span>
+                            <div className="relative">
+                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                  <span className="text-gray-500 sm:text-sm">+91</span>
+                              </div>
+                              <FormControl>
+                                  <Input placeholder="e.g., 9876543210" {...field} className="h-7 pl-10" />
+                              </FormControl>
                             </div>
-                            <FormControl>
-                                <Input placeholder="e.g., 9876543210" {...field} className="h-7 pl-10" />
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
+                            <FormMessage />
+                          </FormItem>
                       )}
-                    />
-                    <FormField
+                      />
+                      <FormField
                       control={form.control}
                       name="customerPhoneSecondary"
                       render={({ field }) => (
-                        <FormItem>
+                          <FormItem>
                           <FormLabel>Secondary Phone</FormLabel>
                           <div className="relative">
                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -201,15 +203,16 @@ export function NewWorkItemView() {
                             </FormControl>
                           </div>
                           <FormMessage />
-                        </FormItem>
+                          </FormItem>
                       )}
-                    />
+                      />
                   </div>
-                  <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+
+                  <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><div className="w-full md:w-2/3"><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
                   <div className="grid grid-cols-3 gap-4">
                     <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip / Postal Code</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip / Postal Code</FormLabel><div className="w-full md:w-2/3"><FormControl><Input {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
                   </div>
                 </CardContent>
               </Card>
@@ -223,53 +226,59 @@ export function NewWorkItemView() {
                         <FormField control={form.control} name="process" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Process</FormLabel>
-                            <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
-                            <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
-                            <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
-                            </Select>
+                            <div className="w-full md:w-2/3">
+                              <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
+                              <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
+                              <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
+                              </Select>
+                            </div>
                             <FormMessage />
                         </FormItem>
                         )} />
-                        <FormField control={form.control} name="urgency" render={({ field }) => (
+                         <FormField control={form.control} name="urgency" render={({ field }) => (
                           <FormItem>
                               <FormLabel>Urgency</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select urgency" /></SelectTrigger></FormControl>
-                              <SelectContent>
-                                  <SelectItem value="Low">Low</SelectItem>
-                                  <SelectItem value="Medium">Medium</SelectItem>
-                                  <SelectItem value="High">High</SelectItem>
-                              </SelectContent>
-                              </Select>
+                               <div className="w-full md:w-2/3">
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select urgency" /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Low">Low</SelectItem>
+                                    <SelectItem value="Medium">Medium</SelectItem>
+                                    <SelectItem value="High">High</SelectItem>
+                                </SelectContent>
+                                </Select>
+                              </div>
                               <FormMessage />
                           </FormItem>
                         )} />
                         <FormItem>
                         <FormLabel>Initial Tasks</FormLabel>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                            <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
-                                {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                            <Command>
-                                <CommandInput placeholder="Search tasks..." />
-                                <CommandList>
-                                <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                <CommandGroup>
-                                    {(processTaskMap[selectedProcess] || []).map((task) => (
-                                    <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
-                                        <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
-                                        {task}
-                                    </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                                </CommandList>
-                            </Command>
-                            </PopoverContent>
-                        </Popover>
+                         <div className="w-full md:w-2/3">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
+                                    {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search tasks..." />
+                                    <CommandList>
+                                    <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                    <CommandGroup>
+                                        {(processTaskMap[selectedProcess] || []).map((task) => (
+                                        <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                            <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                            {task}
+                                        </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                                </PopoverContent>
+                            </Popover>
+                         </div>
                         </FormItem>
                         <FormField control={form.control} name="assignTo" render={({ field }) => (
                         <FormItem>
