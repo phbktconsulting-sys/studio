@@ -284,17 +284,23 @@ export const QuotationTaskSchema = z.object({
   quantity: z.number().optional(),
   unitPrice: z.number().optional(),
 }).refine(data => {
-  // A row is considered "partially filled" if the user has selected a process/task or entered an item name.
-  const isPartiallyFilled = !!data.process || !!data.task || !!data.item || (data.quantity && data.quantity > 0);
+  // A row is considered "partially filled" if the user has touched any field.
+  const isPartiallyFilled = !!data.process || !!data.task || !!data.item || data.quantity !== undefined || data.unitPrice !== undefined;
   
-  // If not partially filled, it's a valid empty row, so we don't validate it.
+  // If not partially filled, it's a valid empty row (the one used for new entry).
   if (!isPartiallyFilled) return true;
   
-  // If it IS partially filled, then process, task, and quantity must all be present and valid.
-  return !!data.process && !!data.task && !!data.item && data.quantity !== undefined && data.quantity > 0;
+  // If it IS partially filled, then ALL required fields must be present and valid.
+  const hasProcess = !!data.process && data.process.length > 0;
+  const hasTask = !!data.task && data.task.length > 0;
+  const hasItem = !!data.item && data.item.length > 0;
+  const hasQuantity = data.quantity !== undefined && data.quantity > 0;
+  const hasUnitPrice = data.unitPrice !== undefined && data.unitPrice > 0;
+  
+  return hasProcess && hasTask && hasItem && hasQuantity && hasUnitPrice;
 }, {
-  message: "Process, Task and Quantity are required if any other field is filled.",
-  path: ['task'], // Show the error on the task field
+  message: "Process, Task, Item, Quantity, and Unit Price are required if any field in the row is filled.",
+  path: ['item'], // Show the error near the main item input for simplicity.
 });
 
 export type QuotationTask = z.infer<typeof QuotationTaskSchema>;
