@@ -105,7 +105,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         return;
     }
     
-    const finalTasks = data.tasks.filter(task => !!task.process && !!task.task && !!task.item && task.quantity && task.quantity > 0);
+    const finalTasks = data.tasks.filter(task => !!task.process && !!task.task && !!task.item && !!task.quantity && task.quantity > 0);
 
     if (finalTasks.length === 0) {
         toast({ variant: "destructive", title: "Error", description: "Please add at least one complete line item to the quotation." });
@@ -500,4 +500,3 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       </div>
   );
 }
-
