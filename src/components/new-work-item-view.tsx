@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,7 +27,7 @@ import { createWorkItem } from '@/ai/flows/create-work-item-flow';
 import { ChevronsUpDown, X } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Popover,
   PopoverContent,
@@ -167,16 +166,6 @@ export function NewWorkItemView() {
                   <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       <FormField control={form.control} name="process" render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Process</FormLabel>
-                            <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
-                              <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )} />
                         <FormField control={form.control} name="urgency" render={({ field }) => (
                           <FormItem>
                             <FormLabel>Urgency</FormLabel>
@@ -225,8 +214,18 @@ export function NewWorkItemView() {
               </div>
               <div className="space-y-6">
                 <Card>
-                  <CardHeader><CardTitle className="text-base">Tasks & Assignment</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="text-base">Tasks &amp; Assignment</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
+                     <FormField control={form.control} name="process" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Process</FormLabel>
+                          <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
+                            <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                      <FormItem>
                         <FormLabel>Initial Tasks</FormLabel>
                         <Popover>
