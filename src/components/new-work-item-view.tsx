@@ -185,22 +185,6 @@ export function NewWorkItemView() {
                 <Card>
                   <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField control={form.control} name="urgency" render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Urgency</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select urgency" /></SelectTrigger></FormControl>
-                              <SelectContent>
-                                <SelectItem value="Low">Low</SelectItem>
-                                <SelectItem value="Medium">Medium</SelectItem>
-                                <SelectItem value="High">High</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )} />
-                    </div>
                      <FormField control={form.control} name="overview" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Overview / Description</FormLabel>
@@ -225,6 +209,20 @@ export function NewWorkItemView() {
                           <FormMessage />
                         </FormItem>
                       )} />
+                      <FormField control={form.control} name="urgency" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Urgency</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select urgency" /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                <SelectItem value="Low">Low</SelectItem>
+                                <SelectItem value="Medium">Medium</SelectItem>
+                                <SelectItem value="High">High</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
                      <FormItem>
                         <FormLabel>Initial Tasks</FormLabel>
                         <Popover>
