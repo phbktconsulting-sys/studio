@@ -161,8 +161,8 @@ export function NewWorkItemView() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="lg:col-span-1 space-y-6">
                  <Card>
                     <CardHeader><CardTitle className="text-base">Customer Contact Information</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
@@ -172,14 +172,14 @@ export function NewWorkItemView() {
                         <FormField control={form.control} name="customerPhoneSecondary" render={({ field }) => (<FormItem><FormLabel>Secondary Phone</FormLabel><FormControl><Input placeholder="Optional" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address Line 1</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormLabel>Address Line 2</FormLabel><FormControl><Input placeholder="e.g., Apt 4B" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip / Postal Code</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                        </div>
+                        <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip / Postal Code</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                     </CardContent>
                  </Card>
+              </div>
+              <div className="lg:col-span-1 space-y-6">
                 <Card>
                   <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
@@ -193,7 +193,8 @@ export function NewWorkItemView() {
                   </CardContent>
                 </Card>
               </div>
-              <div className="lg:col-span-1 space-y-6">
+
+               <div className="lg:col-span-2 space-y-6">
                 <Card>
                   <CardHeader><CardTitle className="text-base">Tasks &amp; Assignment</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
@@ -278,5 +279,3 @@ export function NewWorkItemView() {
     </div>
   );
 }
-
-    
