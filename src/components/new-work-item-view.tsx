@@ -167,18 +167,18 @@ export function NewWorkItemView() {
                     <CardHeader><CardTitle className="text-base">Customer Contact Information</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input placeholder="e.g., John Doe" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input placeholder="e.g., +1 555-1234" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField control={form.control} name="customerPhoneSecondary" render={({ field }) => (<FormItem><FormLabel>Secondary Phone</FormLabel><FormControl><Input placeholder="Optional" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input placeholder="e.g., John Doe" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input placeholder="e.g., +1 555-1234" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="customerPhoneSecondary" render={({ field }) => (<FormItem><FormLabel>Secondary Phone</FormLabel><FormControl><Input placeholder="Optional" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                         </div>
-                         <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address Line 1</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                         <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormLabel>Address Line 2</FormLabel><FormControl><Input placeholder="e.g., Apt 4B" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                         <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address Line 1</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                         <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormLabel>Address Line 2</FormLabel><FormControl><Input placeholder="e.g., Apt 4B" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                          <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip / Postal Code</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip / Postal Code</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                         </div>
                     </CardContent>
                  </Card>
@@ -190,7 +190,7 @@ export function NewWorkItemView() {
                           <FormItem>
                             <FormLabel>Urgency</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Select urgency" /></SelectTrigger></FormControl>
+                              <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select urgency" /></SelectTrigger></FormControl>
                               <SelectContent>
                                 <SelectItem value="Low">Low</SelectItem>
                                 <SelectItem value="Medium">Medium</SelectItem>
@@ -204,7 +204,7 @@ export function NewWorkItemView() {
                      <FormField control={form.control} name="overview" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Overview / Description</FormLabel>
-                        <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} /></FormControl>
+                        <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[60px]" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -219,7 +219,7 @@ export function NewWorkItemView() {
                         <FormItem>
                           <FormLabel>Process</FormLabel>
                           <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
+                            <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
                             <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
                           </Select>
                           <FormMessage />
@@ -229,7 +229,7 @@ export function NewWorkItemView() {
                         <FormLabel>Initial Tasks</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-9", !selectedTasks.length && "text-muted-foreground")}>
+                            <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
                               {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
@@ -256,7 +256,7 @@ export function NewWorkItemView() {
                       <FormItem>
                         <FormLabel>Assign To</FormLabel>
                         <FormControl>
-                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4">
+                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 h-7 items-center">
                             <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="initial_indexing" /></FormControl><FormLabel className="font-normal">Initial Indexing Queue</FormLabel></FormItem>
                             <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="myself" /></FormControl><FormLabel className="font-normal">Assign to Myself</FormLabel></FormItem>
                           </RadioGroup>
@@ -270,10 +270,10 @@ export function NewWorkItemView() {
           </div>
          
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting} className="h-8">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} className="h-8">
               {isSubmitting ? 'Creating...' : 'Create Work Item'}
             </Button>
           </div>
