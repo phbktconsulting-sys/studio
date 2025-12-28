@@ -115,7 +115,7 @@ function CardButton({ title, description, icon, onClick }: CardButtonProps) {
       onClick={onClick}
       className="flex flex-col items-start gap-3 rounded-lg border bg-card p-4 text-left shadow-sm transition-all hover:bg-accent hover:text-accent-foreground"
     >
-      <div className="rounded-full bg-primary p-2 text-primary-foreground">{icon}</div>
+      <div className="rounded-full bg-accent p-2 text-accent-foreground">{icon}</div>
       <div className="flex flex-col">
         <h3 className="text-sm font-semibold">{title}</h3>
         <p className="text-xs text-muted-foreground">{description}</p>
