@@ -58,10 +58,10 @@ export function AppHeader() {
           </div>
 
           <div className="ml-10 flex-1 space-y-1">
-            <p className="text-lg font-bold text-primary">
+            <p className="text-lg font-bold text-accent">
               WorkFlow Management Application
             </p>
-            <p className="text-base text-primary">
+            <p className="text-base text-accent">
               {user?.firstName} {user?.lastName} - Home Page
             </p>
           </div>
