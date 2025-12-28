@@ -277,30 +277,12 @@ export const LeadCaptureSchema = z.object({
 export type LeadCaptureFormValues = z.infer<typeof LeadCaptureSchema>;
 
 export const QuotationTaskSchema = z.object({
-  process: z.string().optional(),
-  task: z.string().optional(),
-  item: z.string().optional(),
+  process: z.string().min(1, 'Process is required'),
+  task: z.string().min(1, 'Task is required'),
+  item: z.string().min(1, 'Item is required'),
   description: z.string().optional(),
-  quantity: z.number().optional(),
-  unitPrice: z.number().optional(),
-}).refine(data => {
-  // A row is considered "partially filled" if the user has touched any field.
-  const isPartiallyFilled = !!data.process || !!data.task || !!data.item || data.quantity !== undefined || data.unitPrice !== undefined;
-  
-  // If not partially filled, it's a valid empty row (the one used for new entry).
-  if (!isPartiallyFilled) return true;
-  
-  // If it IS partially filled, then ALL required fields must be present and valid.
-  const hasProcess = !!data.process && data.process.length > 0;
-  const hasTask = !!data.task && data.task.length > 0;
-  const hasItem = !!data.item && data.item.length > 0;
-  const hasQuantity = data.quantity !== undefined && data.quantity > 0;
-  const hasUnitPrice = data.unitPrice !== undefined && data.unitPrice > 0;
-  
-  return hasProcess && hasTask && hasItem && hasQuantity && hasUnitPrice;
-}, {
-  message: "Process, Task, Item, Quantity, and Unit Price are required if any field in the row is filled.",
-  path: ['item'], // Show the error near the main item input for simplicity.
+  quantity: z.number().min(1, 'Quantity must be at least 1'),
+  unitPrice: z.number().min(1, 'Unit price must be at least 1'),
 });
 
 export type QuotationTask = z.infer<typeof QuotationTaskSchema>;
@@ -311,9 +293,17 @@ export const QuotationFormSchema = z.object({
   customerBusinessName: z.string().optional(),
   customerAddress: z.string().optional(),
   tasks: z.array(QuotationTaskSchema),
+}).transform((data) => {
+    // Before validation, filter out any tasks that are completely empty.
+    // This allows the final "entry" row to be ignored if it hasn't been touched.
+    const filteredTasks = data.tasks.filter(task => {
+        return !!task.process || !!task.task || !!task.item || !!task.quantity || !!task.unitPrice;
+    });
+    return { ...data, tasks: filteredTasks };
 }).refine(
-  (data) => data.tasks.filter(task => !!task.process && !!task.task && !!task.item && !!task.quantity && task.quantity > 0).length > 0,
+  (data) => data.tasks.length > 0,
   { message: "At least one complete line item is required.", path: ["tasks"] }
 );
+
 
 export type QuotationFormValues = z.infer<typeof QuotationFormSchema>;
