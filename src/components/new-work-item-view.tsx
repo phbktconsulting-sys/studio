@@ -216,6 +216,18 @@ export function NewWorkItemView() {
                   </div>
                 </CardContent>
               </Card>
+              <Card>
+                  <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
+                  <CardContent className="space-y-4">
+                      <FormField control={form.control} name="overview" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>Overview / Description</FormLabel>
+                          <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[125px] text-xs" /></FormControl>
+                          <FormMessage />
+                      </FormItem>
+                      )} />
+                  </CardContent>
+              </Card>
             </div>
             
             {/* --- RIGHT COLUMN --- */}
@@ -223,6 +235,18 @@ export function NewWorkItemView() {
                 <Card>
                     <CardHeader><CardTitle className="text-base">Tasks &amp; Assignment</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
+                        <FormField control={form.control} name="assignTo" render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Assign To</FormLabel>
+                          <FormControl>
+                              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 h-7 items-center">
+                              <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="initial_indexing" /></FormControl><FormLabel className="font-normal">Initial Indexing Queue</FormLabel></FormItem>
+                              <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="myself" /></FormControl><FormLabel className="font-normal">Assign to Myself</FormLabel></FormItem>
+                              </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                        )} />
                         <FormField control={form.control} name="process" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Process</FormLabel>
@@ -280,31 +304,6 @@ export function NewWorkItemView() {
                             </Popover>
                          </div>
                         </FormItem>
-                        <FormField control={form.control} name="assignTo" render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Assign To</FormLabel>
-                        <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 h-7 items-center">
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="initial_indexing" /></FormControl><FormLabel className="font-normal">Initial Indexing Queue</FormLabel></FormItem>
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="myself" /></FormControl><FormLabel className="font-normal">Assign to Myself</FormLabel></FormItem>
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )} />
-                    </CardContent>
-                </Card>
-                
-                <Card>
-                    <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <FormField control={form.control} name="overview" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Overview / Description</FormLabel>
-                            <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[125px] text-xs" /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )} />
                     </CardContent>
                 </Card>
             </div>
