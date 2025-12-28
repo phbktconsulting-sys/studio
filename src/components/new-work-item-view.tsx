@@ -75,9 +75,7 @@ export function NewWorkItemView() {
       customerPhone: '',
       customerPhoneSecondary: '',
       customerAddress: {
-        country: '',
         line1: '',
-        line2: '',
         city: '',
         state: '',
         zipcode: ''
@@ -161,7 +159,7 @@ export function NewWorkItemView() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             
             <div className="lg:col-span-1 space-y-6">
               <Card>
@@ -169,22 +167,41 @@ export function NewWorkItemView() {
                 <CardContent className="space-y-4">
                   <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input placeholder="e.g., John Doe" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input placeholder="e.g., +1 555-1234" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="customerPhoneSecondary" render={({ field }) => (<FormItem><FormLabel>Secondary Phone</FormLabel><FormControl><Input placeholder="Optional" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input placeholder="e.g., +1 555-1234" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="customerPhoneSecondary" render={({ field }) => (<FormItem><FormLabel>Secondary Phone</FormLabel><FormControl><Input placeholder="Optional" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                  </div>
                   <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip / Postal Code</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                  <div className="grid grid-cols-3 gap-4">
+                    <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip / Postal Code</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                  </div>
                 </CardContent>
               </Card>
             </div>
             
              <div className="lg:col-span-2 space-y-6">
-               <div className="space-y-6">
-                    <Card>
-                        <CardHeader><CardTitle className="text-base">Tasks &amp; Assignment</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                             <FormField control={form.control} name="process" render={({ field }) => (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-6">
+                        <Card>
+                            <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
+                            <CardContent className="space-y-4">
+                                <FormField control={form.control} name="overview" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Overview / Description</FormLabel>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[60px]" /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )} />
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <div className="space-y-6">
+                         <Card>
+                            <CardHeader><CardTitle className="text-base">Tasks &amp; Assignment</CardTitle></CardHeader>
+                            <CardContent className="space-y-4">
+                                <FormField control={form.control} name="process" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Process</FormLabel>
                                     <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
@@ -194,7 +211,7 @@ export function NewWorkItemView() {
                                     <FormMessage />
                                 </FormItem>
                                 )} />
-                             <FormField control={form.control} name="urgency" render={({ field }) => (
+                                <FormField control={form.control} name="urgency" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Urgency</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -208,61 +225,48 @@ export function NewWorkItemView() {
                                     <FormMessage />
                                 </FormItem>
                                 )} />
-                            <FormItem>
-                            <FormLabel>Initial Tasks</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
-                                    {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                <Command>
-                                    <CommandInput placeholder="Search tasks..." />
-                                    <CommandList>
-                                    <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                    <CommandGroup>
-                                        {(processTaskMap[selectedProcess] || []).map((task) => (
-                                        <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
-                                            <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
-                                            {task}
-                                        </CommandItem>
-                                        ))}
-                                    </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                                </PopoverContent>
-                            </Popover>
-                            </FormItem>
-                            <FormField control={form.control} name="assignTo" render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Assign To</FormLabel>
-                            <FormControl>
-                                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 h-7 items-center">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="initial_indexing" /></FormControl><FormLabel className="font-normal">Initial Indexing Queue</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="myself" /></FormControl><FormLabel className="font-normal">Assign to Myself</FormLabel></FormItem>
-                                </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )} />
-                        </CardContent>
-                    </Card>
-                </div>
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <FormField control={form.control} name="overview" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Overview / Description</FormLabel>
-                                <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[60px]" /></FormControl>
+                                <FormItem>
+                                <FormLabel>Initial Tasks</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
+                                        {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                    <Command>
+                                        <CommandInput placeholder="Search tasks..." />
+                                        <CommandList>
+                                        <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                        <CommandGroup>
+                                            {(processTaskMap[selectedProcess] || []).map((task) => (
+                                            <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                                <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                                {task}
+                                            </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                </FormItem>
+                                <FormField control={form.control} name="assignTo" render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Assign To</FormLabel>
+                                <FormControl>
+                                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 h-7 items-center">
+                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="initial_indexing" /></FormControl><FormLabel className="font-normal">Initial Indexing Queue</FormLabel></FormItem>
+                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="myself" /></FormControl><FormLabel className="font-normal">Assign to Myself</FormLabel></FormItem>
+                                    </RadioGroup>
+                                </FormControl>
                                 <FormMessage />
-                            </FormItem>
+                                </FormItem>
                             )} />
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
              </div>
           </div>
