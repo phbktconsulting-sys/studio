@@ -54,7 +54,7 @@ export function AppHeader() {
                 </div>
               </div>
             </Link>
-            <span className="mt-1 block h-1 w-full bg-accent"></span>
+            <span className="mt-1 block h-1 w-full bg-green-600"></span>
           </div>
 
           <div className="ml-10 flex-1 space-y-1">
