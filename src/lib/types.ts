@@ -144,6 +144,59 @@ export const WorkItemCreateSchema = z.object({
 
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 
+// This is the new comprehensive schema for the redesigned new work item page
+const ItemDetailSchema = z.object({
+  partNo: z.string().optional(),
+  item: z.string().optional(),
+  brand: z.string().optional(),
+  origin: z.string().optional(),
+  qty: z.number().optional(),
+  unitPrice: z.number().optional(),
+  amount: z.number().optional(),
+  availableQty: z.number().optional(),
+  leadTime: z.string().optional(),
+  tax: z.string().optional(),
+  taxAmount: z.number().optional(),
+  weight: z.string().optional(),
+  hsCode: z.string().optional(),
+});
+
+export const NewWorkItemFullSchema = z.object({
+  // Customer Info
+  customerName: z.string().min(1, "Customer Name is required"),
+  customerType: z.string().optional(),
+  potential: z.string().optional(),
+  industry: z.string().optional(),
+  country: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  // Contact Info
+  purchaserName: z.string().optional(),
+  purchaserPhone: z.string().optional(),
+  purchaserEmail: z.string().email().optional().or(z.literal('')),
+  accountName: z.string().optional(),
+  accountPhone: z.string().optional(),
+  accountEmail: z.string().email().optional().or(z.literal('')),
+  // Payment Info
+  taxId: z.string().optional(),
+  creditLimit: z.string().optional(),
+  paymentTerms: z.string().optional(),
+  outstandingBal: z.string().optional(),
+  currency: z.string().optional(),
+  paymentInfo: z.string().optional(),
+  // Quote Info
+  inquireNumber: z.string().optional(),
+  location: z.string().optional(),
+  quotationDate: z.date().optional(),
+  quotationValidity: z.date().optional(),
+  billingAddress: z.string().optional(),
+  shippingAddress: z.string().optional(),
+  // Item Details
+  items: z.array(ItemDetailSchema).optional(),
+});
+export type NewWorkItemFullValues = z.infer<typeof NewWorkItemFullSchema>;
+
+
 export const ServerWorkItemCreateSchema = z.object({
   process: z.string(),
   urgency: z.enum(['Low', 'Medium', 'High']),
@@ -289,20 +342,21 @@ export const QuotationTaskSchema = z.object({
     return true; // Ignore completely empty objects
   }
 
+  // If any field is filled, all main fields must be filled
   if (!data.process) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Process is required.", path: ["process"] });
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Required", path: ["process"] });
   }
   if (!data.task) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Task is required.", path: ["task"] });
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Required", path: ["task"] });
   }
   if (!data.item) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Item is required.", path: ["item"] });
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Required", path: ["item"] });
   }
-  if (!data.quantity || data.quantity <= 0) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Quantity must be > 0.", path: ["quantity"] });
+  if (data.quantity === undefined || data.quantity <= 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: " > 0", path: ["quantity"] });
   }
-  if (!data.unitPrice || data.unitPrice <= 0) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Price must be > 0.", path: ["unitPrice"] });
+  if (data.unitPrice === undefined || data.unitPrice <= 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: " > 0", path: ["unitPrice"] });
   }
 });
 
@@ -313,15 +367,17 @@ export const QuotationFormSchema = z.object({
   customerName: z.string().min(1, 'Customer name is required.'),
   customerPhone: z.string().min(1, 'Customer phone is required.'),
   customerBusinessName: z.string().optional(),
-  customerAddress: AddressSchema.optional(),
-  tasks: z.array(QuotationTaskSchema).refine(
-    (tasks) => tasks.filter(task => Object.values(task).some(val => val !== undefined && val !== '' && val !== 0)).length > 0,
+  customerAddress: AddressSchema,
+  tasks: z.array(QuotationTaskSchema).transform(
+    // Filter out any completely empty rows before validating the array's length
+    tasks => tasks.filter(task => Object.values(task).some(val => val !== undefined && val !== '' && val !== 0))
+  ).refine(
+    (tasks) => tasks.length > 0,
     {
       message: 'At least one complete line item is required.',
       path: ['tasks'],
     }
   ),
 });
-
 
 export type QuotationFormValues = z.infer<typeof QuotationFormSchema>;
