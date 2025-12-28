@@ -1,4 +1,3 @@
-
 'use client';
 
 import { AppHeader } from '@/components/app-header';
@@ -47,13 +46,13 @@ export function MainView() {
       <AppHeader />
       <div className="flex-1 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-col">
-          <div className="border-b border-[#A60A0A]">
+          <div className="border-b border-destructive">
             <TabsList className="h-auto rounded-none bg-transparent p-0">
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="relative flex h-7 items-center gap-2 rounded-none border-b-2 border-transparent bg-[#A60A0A] px-4 text-xs text-white hover:bg-[#A60A0A]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none"
+                  className="relative flex h-7 items-center gap-2 rounded-none border-b-2 border-transparent bg-[#A91D22] px-4 text-xs text-white hover:bg-[#A91D22]/80 data-[state=active]:border-transparent data-[state=active]:bg-[#A91D22]/90 data-[state=active]:text-white data-[state=active]:shadow-inner"
                 >
                   <span>{tab.title}</span>
                   {tab.type !== 'static' && (
