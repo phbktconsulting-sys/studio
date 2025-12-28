@@ -216,18 +216,6 @@ export function NewWorkItemView() {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                  <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
-                  <CardContent className="space-y-4">
-                      <FormField control={form.control} name="overview" render={({ field }) => (
-                      <FormItem>
-                          <FormLabel>Overview / Description</FormLabel>
-                          <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[125px] text-xs" /></FormControl>
-                          <FormMessage />
-                      </FormItem>
-                      )} />
-                  </CardContent>
-              </Card>
             </div>
             
             {/* --- RIGHT COLUMN --- */}
@@ -258,22 +246,6 @@ export function NewWorkItemView() {
                             </div>
                             <FormMessage />
                         </FormItem>
-                        )} />
-                         <FormField control={form.control} name="urgency" render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Urgency</FormLabel>
-                               <div className="w-full md:w-2/3">
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select urgency" /></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    <SelectItem value="Low">Low</SelectItem>
-                                    <SelectItem value="Medium">Medium</SelectItem>
-                                    <SelectItem value="High">High</SelectItem>
-                                </SelectContent>
-                                </Select>
-                              </div>
-                              <FormMessage />
-                          </FormItem>
                         )} />
                         <FormItem>
                         <FormLabel>Initial Tasks</FormLabel>
@@ -306,6 +278,34 @@ export function NewWorkItemView() {
                         </FormItem>
                     </CardContent>
                 </Card>
+                <Card>
+                  <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
+                  <CardContent className="space-y-4">
+                       <FormField control={form.control} name="urgency" render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Urgency</FormLabel>
+                               <div className="w-full md:w-2/3">
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select urgency" /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Low">Low</SelectItem>
+                                    <SelectItem value="Medium">Medium</SelectItem>
+                                    <SelectItem value="High">High</SelectItem>
+                                </SelectContent>
+                                </Select>
+                              </div>
+                              <FormMessage />
+                          </FormItem>
+                        )} />
+                      <FormField control={form.control} name="overview" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>Overview / Description</FormLabel>
+                          <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[125px] text-xs" /></FormControl>
+                          <FormMessage />
+                      </FormItem>
+                      )} />
+                  </CardContent>
+              </Card>
             </div>
           </div>
          
