@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { QuotationFormSchema } from '@/lib/types';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Trash2, PlusCircle, Loader2, ChevronsUpDown, X, ArrowLeft } from 'lucide-react';
+import { Trash2, PlusCircle, Loader2, ChevronsUpDown, X, ArrowLeft, Info, Edit, Plus, Search } from 'lucide-react';
 import { useFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -234,275 +233,211 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
              <QuotationPrintTemplate quotation={{...quotationData, tasks: addedTasks.map(t => t as any)}} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         </div>
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <Form {...form}>
-              <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start border-b pb-6">
-                    <FormLabel className="md:col-span-1 pt-1.5 text-xs font-semibold">Customer Details</FormLabel>
-                    <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-4">
-                           <FormField
-                                control={form.control}
-                                name="customerName"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-xs">Customer Name</FormLabel>
-                                    <FormControl>
-                                    <Input {...field} placeholder="Customer Name" className="text-xs h-8" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="customerPhone"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-xs">Customer Phone</FormLabel>
-                                    <div className="relative">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span className="text-gray-500 text-xs">+91 </span> 
-                                    </div>
-                                    <FormControl>
-                                        <Input {...field} placeholder="Customer Phone" className="pl-10 text-xs h-8" />
-                                    </FormControl>
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                           <FormField
-                            control={form.control}
-                            name="customerBusinessName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Business Name</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="Business Name (Optional)" className="text-xs h-8" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+              <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-4">
+                 
+                 {/* Customer Information Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Customer Info */}
+                    <div className="md:col-span-1 p-4 border rounded-lg bg-white">
+                        <div className="flex items-center gap-2 mb-4 text-blue-600">
+                           <Info className="w-5 h-5" />
+                           <h3 className="font-semibold text-sm">Customer Information</h3>
                         </div>
-                         <div className="space-y-2">
-                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="text-xs">Address Line 1</FormLabel><FormControl><Input {...field} placeholder="Address Line 1" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormLabel className="text-xs">Address Line 2</FormLabel><FormControl><Input {...field} placeholder="Address Line 2" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
-                            <div className="grid grid-cols-2 gap-2">
-                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="text-xs">City</FormLabel><FormControl><Input {...field} placeholder="City" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="text-xs">State</FormLabel><FormControl><Input {...field} placeholder="State" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
-                            </div>
-                             <div className="grid grid-cols-2 gap-2">
-                                <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormLabel className="text-xs">Country</FormLabel><FormControl><Input {...field} placeholder="Country" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="text-xs">Zipcode</FormLabel><FormControl><Input {...field} placeholder="Zipcode" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
-                            </div>
+                        <div className="space-y-3 text-xs">
+                          <div><FormLabel>Customer Name</FormLabel><Input placeholder="Aleem" className="h-8 mt-1"/></div>
+                          <div><FormLabel>Customer ID</FormLabel><Input placeholder="Regular" className="h-8 mt-1"/></div>
+                          <div><FormLabel>Customer Type</FormLabel><Input placeholder="Regular" className="h-8 mt-1"/></div>
+                          <div><FormLabel>Potential</FormLabel><Input placeholder="e.g. A,B,C,D" className="h-8 mt-1"/></div>
+                          <div><FormLabel>Industry</FormLabel><Input placeholder="Electrical" className="h-8 mt-1"/></div>
+                          <div><FormLabel>Country</FormLabel><Input placeholder="Dubai" className="h-8 mt-1"/></div>
+                          <div><FormLabel>State</FormLabel><Input placeholder="e.g ABG12134567" className="h-8 mt-1"/></div>
+                          <div><FormLabel>City</FormLabel><Input placeholder="e.g ABG12134567" className="h-8 mt-1"/></div>
                         </div>
                     </div>
-                </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-                  <FormLabel className="md:col-span-1 pt-1.5 text-xs font-semibold">Line Items</FormLabel>
+                    {/* Contact & Payment Info */}
+                    <div className="md:col-span-2 space-y-4">
+                        <div className="p-4 border rounded-lg bg-red-50 border-red-200">
+                            <div className="flex justify-between items-center mb-4">
+                                <div className="flex items-center gap-2 text-red-600">
+                                  <Info className="w-5 h-5" />
+                                  <h3 className="font-semibold text-sm">Contact Information</h3>
+                                </div>
+                                <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-100 text-xs h-7"><Plus className="w-4 h-4 mr-1" />Add New Contact</Button>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="grid grid-cols-4 gap-2 items-end">
+                                  <div><FormLabel className="text-xs">Select a Purchaser</FormLabel><Input placeholder="Aleem" className="h-8 mt-1"/></div>
+                                  <div><FormLabel className="text-xs">Phone Number</FormLabel><Input placeholder="e.g 1213456789" className="h-8 mt-1"/></div>
+                                  <div><FormLabel className="text-xs">Email</FormLabel><Input placeholder="mail@.com" className="h-8 mt-1"/></div>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-100"><Plus/></Button>
+                                </div>
+                                 <div className="grid grid-cols-4 gap-2 items-end">
+                                  <div><FormLabel className="text-xs">Select a Accounts</FormLabel><Input placeholder="Aleem" className="h-8 mt-1"/></div>
+                                  <div><FormLabel className="text-xs">Phone Number</FormLabel><Input placeholder="e.g 1213456789" className="h-8 mt-1"/></div>
+                                  <div><FormLabel className="text-xs">Email</FormLabel><Input placeholder="mail@.com" className="h-8 mt-1"/></div>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-100"><Plus/></Button>
+                                </div>
+                            </div>
+                        </div>
 
-                  <div className="md:col-span-3 space-y-4" key={entryFormKey}>
-                     <div className="grid grid-cols-12 gap-2 items-start rounded-md">
-                          <div className="col-span-3">
-                            <FormField
-                              control={form.control}
-                              name={`tasks.${fields.length - 1}.process`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-xs">Process</FormLabel>
-                                  <Select onValueChange={(value) => { field.onChange(value); form.setValue(`tasks.${fields.length - 1}.task`, ''); }} value={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger className="h-8 text-xs">
-                                        <SelectValue placeholder="Select Process" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {processTypes.map((type) => (
-                                        <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <div className="col-span-4">
-                             <FormField
-                                control={form.control}
-                                name={`tasks.${fields.length - 1}.task`}
-                                render={({ field: taskField }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-xs">Task</FormLabel>
-                                    <Popover open={openPopovers[fields.length - 1]} onOpenChange={(isOpen) => setOpenPopovers(prev => ({...prev, [fields.length - 1]: isOpen}))}>
-                                      <PopoverTrigger asChild>
-                                        <FormControl>
-                                          <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            disabled={!form.watch(`tasks.${fields.length - 1}.process`)}
-                                            className={cn("w-full justify-between text-xs h-8", !taskField.value && "text-muted-foreground")}
-                                          >
-                                            {taskField.value ? taskField.value : "Select Task"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                          </Button>
-                                        </FormControl>
-                                      </PopoverTrigger>
-                                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                        <Command>
-                                          <CommandInput placeholder="Search task..." />
-                                          <CommandList>
-                                              <CommandEmpty>No tasks found.</CommandEmpty>
-                                              <CommandGroup>
-                                              {(processTaskMap[form.watch(`tasks.${fields.length - 1}.process`) || ''] || []).map((task) => (
-                                                  <CommandItem
-                                                  value={task}
-                                                  key={task}
-                                                  onSelect={() => {
-                                                      form.setValue(`tasks.${fields.length - 1}.task`, task);
-                                                      form.setValue(`tasks.${fields.length - 1}.item`, task);
-                                                      form.setValue(`tasks.${fields.length - 1}.description`, task);
-                                                      setOpenPopovers(prev => ({...prev, [fields.length - 1]: false}));
-                                                  }}
-                                                  >
-                                                  {task}
-                                                  </CommandItem>
-                                              ))}
-                                              </CommandGroup>
-                                          </CommandList>
-                                        </Command>
-                                      </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                          </div>
-
-                          <div className="col-span-1">
-                            <FormField
-                              control={form.control}
-                              name={`tasks.${fields.length - 1}.quantity`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-xs">Qty</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      {...field}
-                                      value={field.value || ''}
-                                      onChange={(e) => field.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
-                                      className="text-xs h-8"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <div className="col-span-2">
-                            <FormField
-                              control={form.control}
-                              name={`tasks.${fields.length - 1}.unitPrice`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-xs">Unit Price</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      {...field}
-                                      value={field.value || ''}
-                                       onChange={(e) => field.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
-                                      className="text-xs h-8"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                           <div className="col-span-2">
-                             <FormLabel className='text-xs'>Total</FormLabel>
-                             <div className="h-8 flex items-center text-xs font-medium">
-                              ₹{((form.watch(`tasks.${fields.length - 1}.quantity`) || 0) * (form.watch(`tasks.${fields.length - 1}.unitPrice`) || 0)).toLocaleString()}
+                        <div className="p-4 border rounded-lg bg-white">
+                           <div className="flex items-center gap-2 mb-4 text-blue-600">
+                             <Info className="w-5 h-5" />
+                             <h3 className="font-semibold text-sm">Payment Information</h3>
+                           </div>
+                           <div className="grid grid-cols-4 gap-3 text-xs">
+                             <div><FormLabel>TAX ID/VAT NO</FormLabel><Input className="h-8 mt-1"/></div>
+                             <div><FormLabel>Credit Limit</FormLabel><Input className="h-8 mt-1"/></div>
+                             <div><FormLabel>Payment Terms</FormLabel><Input className="h-8 mt-1"/></div>
+                             <div><FormLabel>Outstanding Bal</FormLabel><Input className="h-8 mt-1"/></div>
+                             <div><FormLabel>Currency</FormLabel><Input className="h-8 mt-1"/></div>
+                             <div className="col-span-3"><FormLabel>Payment Info</FormLabel>
+                               <div className="flex items-center gap-4 mt-2">
+                                 <div className="flex items-center gap-2"><Checkbox id="default-payment" /><label htmlFor="default-payment">Default Payment term</label></div>
+                                 <div className="flex items-center gap-2"><Checkbox id="cash" /><label htmlFor="cash">Cash</label></div>
+                               </div>
                              </div>
                            </div>
                         </div>
-                         <div className="flex justify-end">
-                            <Button type="button" variant="outline" size="sm" onClick={() => {
-                                form.trigger().then((isValid) => {
-                                  if (isLastTaskValid && isValid) {
-                                    append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
-                                    setEntryFormKey(prev => prev + 1);
-                                  } else {
-                                     toast({
-                                      variant: "destructive",
-                                      title: "Incomplete Item",
-                                      description: "Please fill out all fields for the current line item before adding a new one."
-                                    })
-                                  }
-                                });
-                                }} className="h-8"
-                                >
-                                <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-                            </Button>
-                        </div>
-                        <div className="w-full border-b border-green-600 my-4" />
-                  </div>
+                    </div>
                 </div>
-                
-                 {addedTasks.length > 0 && (
-                    <div className="mt-6 space-y-2 pt-4">
-                        <Table>
+
+                {/* Quote Information & Totals Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Quote Info */}
+                   <div className="md:col-span-2 p-4 border rounded-lg bg-white">
+                      <div className="flex justify-between items-center mb-4">
+                           <div className="flex items-center gap-2 text-blue-600">
+                               <Info className="w-5 h-5" />
+                               <h3 className="font-semibold text-sm">Quote Information</h3>
+                           </div>
+                           <Button variant="outline" size="sm" className="h-7 text-xs"><Edit className="w-4 h-4 mr-1"/>Edit</Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                         <div><FormLabel>Inquire Number/REF</FormLabel><Input className="h-8 mt-1"/></div>
+                         <div><FormLabel>Location</FormLabel><Input className="h-8 mt-1"/></div>
+                         <div><FormLabel>Quotation Date</FormLabel><Input className="h-8 mt-1"/></div>
+                         <div><FormLabel>Quotation Validity</FormLabel><Input className="h-8 mt-1"/></div>
+                         <div className="col-span-2"><FormLabel>Billing Address</FormLabel><Input className="h-8 mt-1"/></div>
+                         <div className="col-span-2"><FormLabel>Shipping Address</FormLabel><Input className="h-8 mt-1"/></div>
+                      </div>
+                   </div>
+                   
+                   {/* Status & Totals */}
+                   <div className="md:col-span-1 space-y-4">
+                       <div className="p-4 border rounded-lg bg-white">
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                              <FormLabel>Status</FormLabel>
+                              <p className="font-semibold">Open</p>
+                              <FormLabel>Save Source</FormLabel>
+                              <p className="font-semibold">Web</p>
+                              <FormLabel>Created By</FormLabel>
+                              <p className="font-semibold">{user?.displayName}</p>
+                              <FormLabel>Department</FormLabel>
+                              <p className="font-semibold">Industrial Sales</p>
+                          </div>
+                       </div>
+                        <div className="p-4 border rounded-lg bg-orange-50 border-orange-200 text-xs space-y-2">
+                           <div className="flex justify-between"><FormLabel>Subtotal</FormLabel><span>₹{subtotal.toLocaleString('en-IN')}</span></div>
+                           <div className="flex justify-between"><FormLabel>Discount Item</FormLabel><span>10%</span></div>
+                           <div className="flex justify-between"><FormLabel>Tax Total</FormLabel><span>₹{tax.toLocaleString('en-IN')}</span></div>
+                           <div className="flex justify-between font-bold pt-2 border-t mt-2 border-orange-300"><FormLabel>Total</FormLabel><span>₹{grandTotal.toLocaleString('en-IN')}</span></div>
+                       </div>
+                   </div>
+                </div>
+
+                {/* Item Details */}
+                <div className="p-4 border rounded-lg bg-white">
+                    <div className="flex justify-between items-center mb-4">
+                       <div className="flex items-center gap-2 text-blue-600">
+                           <Info className="w-5 h-5" />
+                           <h3 className="font-semibold text-sm">Item Details</h3>
+                       </div>
+                       <div className="flex items-center gap-2">
+                          <div className="relative w-48">
+                             <Input placeholder="Product Search" className="h-8 text-xs pl-8"/>
+                             <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"/>
+                          </div>
+                          <Select defaultValue="usd"><SelectTrigger className="h-8 text-xs w-24"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="usd">USD</SelectItem><SelectItem value="inr">INR</SelectItem></SelectContent></Select>
+                          <Button variant="outline" size="sm" className="h-8 text-xs">Total Line {addedTasks.length}</Button>
+                          <Button variant="outline" size="sm" className="h-8 text-xs">Total QTY {addedTasks.reduce((acc, t) => acc + (t.quantity || 0), 0)}</Button>
+                          <Button type="button" size="sm" onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 })} className="h-8 text-xs"><PlusCircle className="mr-2 h-4 w-4" /> Add Item</Button>
+                       </div>
+                   </div>
+
+                   <div className="overflow-x-auto">
+                     <Table className="min-w-full text-xs">
                         <TableHeader>
-                            <TableRow>
-                            <TableHead className='text-xs'>Description</TableHead>
-                            <TableHead className='w-[80px] text-center text-xs'>Quantity</TableHead>
-                            <TableHead className='w-[120px] text-right text-xs'>Unit Price</TableHead>
-                            <TableHead className='w-[120px] text-right text-xs'>Total</TableHead>
-                            <TableHead className='w-[50px]'></TableHead>
+                            <TableRow className="bg-gray-50">
+                                <TableHead className="w-[40px]">S.I.No</TableHead>
+                                <TableHead>Customer Part no</TableHead>
+                                <TableHead>Item</TableHead>
+                                <TableHead>Brand</TableHead>
+                                <TableHead>Origin</TableHead>
+                                <TableHead>QTY</TableHead>
+                                <TableHead>Unit Price</TableHead>
+                                <TableHead>Amount</TableHead>
+                                <TableHead>Available QTY</TableHead>
+                                <TableHead>Lead Time</TableHead>
+                                <TableHead>Tax</TableHead>
+                                <TableHead>Tax Amount</TableHead>
+                                <TableHead>Weight</TableHead>
+                                <TableHead>HS Code</TableHead>
+                                <TableHead className="w-[50px]"></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                        {fields.slice(0, -1).map((field, index) => (
-                            <TableRow key={field.id}>
-                                <TableCell className='py-2'>
-                                <p className="font-medium text-xs">{field.item}</p>
-                                <p className="text-muted-foreground text-xs">{field.description}</p>
-                                </TableCell>
-                                <TableCell className='text-center text-xs py-2'>{field.quantity}</TableCell>
-                                <TableCell className='text-right text-xs py-2'>₹{(field.unitPrice || 0).toLocaleString()}</TableCell>
-                                <TableCell className='text-right text-xs py-2'>₹{((field.quantity || 0) * (field.unitPrice || 0)).toLocaleString()}</TableCell>
-                                <TableCell className='py-2'>
-                                <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                            {fields.map((field, index) => (
+                                <TableRow key={field.id}>
+                                    <TableCell className="p-1">{index + 1}</TableCell>
+                                    <TableCell className="p-1"><Input className="h-8 text-xs" /></TableCell>
+                                    <TableCell className="p-1">
+                                      <FormField
+                                          control={form.control}
+                                          name={`tasks.${index}.item`}
+                                          render={({ field }) => ( <Input {...field} className="h-8 text-xs" /> )}
+                                      />
+                                    </TableCell>
+                                    <TableCell className="p-1"><Input className="h-8 text-xs" /></TableCell>
+                                    <TableCell className="p-1"><Input className="h-8 text-xs" /></TableCell>
+                                    <TableCell className="p-1">
+                                      <FormField
+                                        control={form.control}
+                                        name={`tasks.${index}.quantity`}
+                                        render={({ field }) => ( <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-20" /> )}
+                                      />
+                                    </TableCell>
+                                    <TableCell className="p-1">
+                                      <FormField
+                                        control={form.control}
+                                        name={`tasks.${index}.unitPrice`}
+                                        render={({ field }) => ( <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-24" /> )}
+                                      />
+                                    </TableCell>
+                                    <TableCell className="p-1 font-semibold">
+                                      ₹{((form.watch(`tasks.${index}.quantity`) || 0) * (form.watch(`tasks.${index}.unitPrice`) || 0)).toLocaleString()}
+                                    </TableCell>
+                                    <TableCell className="p-1"><Input className="h-8 text-xs" /></TableCell>
+                                    <TableCell className="p-1"><Input className="h-8 text-xs" /></TableCell>
+                                    <TableCell className="p-1"><Input className="h-8 text-xs" /></TableCell>
+                                    <TableCell className="p-1"><Input className="h-8 text-xs" /></TableCell>
+                                    <TableCell className="p-1"><Input className="h-8 text-xs" /></TableCell>
+                                    <TableCell className="p-1"><Input className="h-8 text-xs" /></TableCell>
+                                    <TableCell className="p-1">
+                                        <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
                         </TableBody>
-                        </Table>
-                    </div>
-                )}
-                 <div className="flex justify-end mt-4">
-                    <div className="w-1/3 text-xs space-y-1">
-                        <div className="flex justify-between">
-                            <span>Subtotal:</span>
-                            <span>₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>Tax (18% GST):</span>
-                            <span>₹{tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                        </div>
-                        <div className="flex justify-between font-bold text-sm pt-1 border-t">
-                            <span>Grand Total:</span>
-                            <span>₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                        </div>
-                    </div>
+                     </Table>
+                   </div>
                 </div>
+
                  <div className="flex justify-end pt-4">
                   <Button form="quotation-form" type="submit" disabled={isGenerating} className="h-8">
                     {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
