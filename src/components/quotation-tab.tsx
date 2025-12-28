@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -196,6 +197,10 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         setIsGenerating(false);
     }
   };
+
+  const lastTask = fields[fields.length - 1];
+  const isLastTaskValid = !!(lastTask && lastTask.process && lastTask.task && lastTask.item && lastTask.quantity && lastTask.quantity > 0 && lastTask.unitPrice && lastTask.unitPrice > 0);
+
 
   if (!isCqPageVisible) {
     return (
@@ -423,7 +428,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <Button type="button" variant="outline" size="sm" onClick={() => {
                                 append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 });
                                 setEntryFormKey(prev => prev + 1);
-                                }} className="h-8">
+                                }} className="h-8"
+                                disabled={!isLastTaskValid}
+                                >
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                             </Button>
                         </div>
