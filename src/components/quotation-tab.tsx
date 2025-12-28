@@ -198,7 +198,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     }
   };
 
-  const lastTask = fields[fields.length - 1];
+  const lastTask = quotationData.tasks[quotationData.tasks.length - 1];
   const isLastTaskValid = !!(lastTask && lastTask.process && lastTask.task && lastTask.item && lastTask.quantity && lastTask.quantity > 0 && lastTask.unitPrice && lastTask.unitPrice > 0);
 
 
@@ -256,7 +256,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 <FormItem>
                                     <div className="relative">
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span className="text-gray-500 text-xs">+91 </span>
+                                        <span className="text-gray-500 text-xs">+91 </span> 
                                     </div>
                                     <FormControl>
                                         <Input {...field} placeholder="Customer Phone" className="pl-10 text-xs h-8" />
@@ -500,3 +500,4 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       </div>
   );
 }
+
