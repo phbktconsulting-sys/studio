@@ -45,7 +45,7 @@ import {
 } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { Badge } from './ui/badge';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Call for New Lead", "Request Other Services"],
@@ -296,6 +296,31 @@ export function NewWorkItemView() {
                         </FormItem>
                     )}
                 />
+                <FormField
+                    control={form.control}
+                    name="customerPhoneSecondary"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Customer Phone (Secondary)</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <div className="space-y-2">
+                    <Label>Customer Address</Label>
+                    <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormControl><Input placeholder="Line 1" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormControl><Input placeholder="Line 2" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormControl><Input placeholder="City" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormControl><Input placeholder="State" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                      <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormControl><Input placeholder="Zipcode" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormControl><Input placeholder="Country" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    </div>
+                </div>
                 
                 <div className="space-y-2">
                     <Label>Initial Tasks</Label>
