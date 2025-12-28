@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -168,8 +167,42 @@ export function NewWorkItemView() {
                   <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input placeholder="e.g., John Doe" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input placeholder="e.g., +1 555-1234" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="customerPhoneSecondary" render={({ field }) => (<FormItem><FormLabel>Secondary Phone</FormLabel><FormControl><Input placeholder="Optional" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField
+                      control={form.control}
+                      name="customerPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Customer Phone</FormLabel>
+                          <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <span className="text-gray-500 sm:text-sm">+91</span>
+                            </div>
+                            <FormControl>
+                                <Input placeholder="e.g., 9876543210" {...field} className="h-7 pl-10" />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="customerPhoneSecondary"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Secondary Phone</FormLabel>
+                          <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <span className="text-gray-500 sm:text-sm">+91</span>
+                            </div>
+                            <FormControl>
+                              <Input placeholder="Optional" {...field} className="h-7 pl-10" />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                   <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                   <div className="grid grid-cols-3 gap-4">
