@@ -23,23 +23,39 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
-import { NewWorkItemFullSchema, type NewWorkItemFullValues } from '@/lib/types';
+import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ArrowLeft, ChevronsUpDown, X, User, Info, DollarSign, FileText, Phone, Plus, Banknote } from 'lucide-react';
+import { ArrowLeft, ChevronsUpDown, X } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
-import { format } from 'date-fns';
-import { CustomCalendar } from './custom-calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { cn } from '@/lib/utils';
+import { Badge } from './ui/badge';
 
-const SectionHeader = ({ title, icon }: { title: string; icon: React.ReactNode }) => (
-    <div className="flex items-center gap-2 -mx-4 -mt-4 mb-4 px-3 py-1.5 rounded-t-lg bg-[hsl(var(--section-header-bg))] text-[hsl(var(--section-header-fg))]">
-        {icon}
-        <h3 className="font-semibold text-sm">{title}</h3>
-    </div>
-);
+const processTaskMap: Record<string, string[]> = {
+    "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Call for New Lead", "Request Other Services"],
+    "Development Services (Web & App)": ["New Corporate Website Build", "New E-Commerce Store Build", "Android App Development", "IOS App Development", "Hybrid App Development", "Excel Automation Micros", "CRM / ERP System Development", "Landing Page Creation", "Website Redesign Project", "Payment Gateway Integration", "API Development & Integration", "Admin Panel / Dashboard Build", "User Portal Development", "Chatbot Integration", "SaaS Platform Development", "Plugin / Extension Development", "UI/UX Design Mockups", "Database Structure Design", "Third-Party Tool Integration", "Website Speed Optimization"],
+    "Operations & Support (Backend)": ["Server Down / Critical Issue", "Database Connection Error", "Fix Application Bug", "Restore Data form Backup", "Install SSL Certificate", "Migrate Server to Cloud", "Optimize Server Speed", "Update Security Patches", "Configure Firewalls", "Fix Email/SMTP Issues", "Resolve API Failure", "Clean Malware / Virus", "Update PHP/Node Version", "Manage User Permissions", "Setup Cron Jobs", "Review Error Logs", "DNS / Domain Configuration", "Hosting CPanel Support", "Automation Script Failure", "General Maintenance Task"],
+    "Digital Services Request": ["Start SEO Campaign", "Start Google Ads (PPC)", "Start Facebook/Insta Ads", "Create Social Media Calendar", "Write Blog Content", "Design Marketing Graphics", "Setup Email Newsletter", "Create Promotional Video", "Manage LinkedIn Profile", "Setup Google Analytics", "Optimize Google My Business", "Manage Online Reviews", "Create Landing Page Copy", "Influencer Marketing Setup", "App Store Optimization (ASO)", "YouTube Channel Management", "Brand Identity Design", "Competitor Analysis Report", "Monthly Performance Report"],
+    "Feedback / Complaint": ["Report a System Crash", "Report Slow Performance", "Report Login Issue", "Report Data Error", "Report UI/Design Flaw", "Complaint about Billing", "Complaint about Delay", "Complaint about Support Quality", "Complaint about Communication", "Suggest New Feature", "Suggest Design Change", "Suggest Process Improvement", "Escalation to Management", "Review: Positive Feedback", "Review: Negative Feedback", "Request for Refund", "Request for Contract Cancellation", "Report Security Concern", "Post-Project Feedback", "General Complaint"],
+    "Other Service Request": ["Inquire about Invoice", "Inquire about Job Opening", "Inquire about Internship", "Inquire about Training", "Renew Domain Name", "Renew Hosting Plan", "Purchase Software License", "Update Company Details", "Request Tax Document", "Schedule Annual Review", "Vendor Sales Pitch", "Legal / Compliance Query", "Media / Press Inquiry", "Sponsorship Request", "Employee Referral", "Internal Admin Task", "Hardware Requirement", "Network Setup Request", "Office Visit Request", "Unclassified Request"]
+};
 
+const processTypes = Object.keys(processTaskMap);
 
 export function NewWorkItemView() {
   const { user } = useFirebase();
@@ -47,69 +63,59 @@ export function NewWorkItemView() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<NewWorkItemFullValues>({
-    resolver: zodResolver(NewWorkItemFullSchema),
+  const form = useForm<WorkItemFormValues>({
+    resolver: zodResolver(WorkItemCreateSchema),
     defaultValues: {
+      process: '',
+      urgency: 'Medium',
       customerName: '',
-      customerType: 'Regular',
-      potential: '',
-      industry: '',
-      country: 'Dubai',
-      state: '',
-      city: '',
-      purchaserName: '',
-      purchaserPhone: '',
-      purchaserEmail: '',
-      accountName: '',
-      accountPhone: '',
-      accountEmail: '',
-      taxId: '',
-      creditLimit: '',
-      paymentTerms: 'Electrical',
-      outstandingBal: '',
-      currency: '',
-      paymentInfo: 'Default Payment term',
-      inquireNumber: '',
-      location: '',
-      quotationDate: new Date(),
-      quotationValidity: new Date(),
-      billingAddress: '',
-      shippingAddress: '',
-      items: [],
+      customerEmail: '',
+      customerPhone: '',
+      customerPhoneSecondary: '',
+      customerAddress: {
+        country: '',
+        line1: '',
+        line2: '',
+        city: '',
+        state: '',
+        zipcode: '',
+      },
+      overview: '',
+      initialTasks: [],
+      assignTo: 'initial_indexing',
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "items",
-  });
-
-  const onSubmit = async (data: NewWorkItemFullValues) => {
+  const onSubmit = async (data: WorkItemFormValues) => {
     if (!user) {
       toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in.' });
       return;
     }
     setIsSubmitting(true);
     
-    // This is a simplified mapping. In a real app, you'd have a more robust way
-    // to determine process, urgency, assignedTo etc. from the form data.
+    // Determine who the work item is assigned to
+    const assignedTo = data.assignTo === 'myself' ? user.uid : data.process;
+    
     const payload = {
-        process: 'Request Quotation', // Example, derived from context
-        urgency: 'Medium',
-        assignedTo: user.uid, // Assign to self for now
-        createdBy: user.uid,
-        relatedContact: {
-            name: data.customerName,
-            email: data.purchaserEmail, // Using purchaser email as primary
-            phone: data.purchaserPhone,
-        },
-        overview: `Quotation for Inquire Number: ${data.inquireNumber}`,
-        tasks: data.items.map(item => ({
-            id: `task-${Date.now()}-${Math.random()}`,
-            text: `Prepare item: ${item.item}`,
-            completed: false,
-        })),
-        // You would also map other relevant fields from `data` to your WorkItem structure here
+      process: data.process,
+      urgency: data.urgency,
+      assignedTo: assignedTo,
+      createdBy: user.uid,
+      relatedContact: {
+        name: data.customerName,
+        email: data.customerEmail,
+        phone: data.customerPhone,
+        phoneSecondary: data.customerPhoneSecondary,
+        address: data.customerAddress
+      },
+      overview: data.overview,
+      tasks: (data.initialTasks || []).map(taskText => ({ 
+          id: `task-${Date.now()}-${Math.random()}`, 
+          text: taskText, 
+          completed: false,
+          createdBy: user.uid,
+          createdAt: new Date().toISOString()
+      })),
     };
 
     try {
@@ -137,6 +143,10 @@ export function NewWorkItemView() {
   const handleCancel = () => {
     closeTab('new-work-item');
   };
+  
+  const selectedProcess = form.watch('process');
+  const selectedTasks = form.watch('initialTasks') || [];
+  const setInitialTasks = (tasks: string[]) => form.setValue('initialTasks', tasks);
 
   return (
     <div className="p-4 sm:p-6 bg-slate-50 min-h-full">
@@ -147,7 +157,7 @@ export function NewWorkItemView() {
             <span className="sr-only">Back</span>
             </Button>
             <div>
-            <h1 className="font-headline text-lg font-bold tracking-tight">Create New Quotation</h1>
+            <h1 className="font-headline text-lg font-bold tracking-tight">Create New Work</h1>
             <p className="text-xs text-muted-foreground">Fill out the details below.</p>
             </div>
         </div>
@@ -157,119 +167,196 @@ export function NewWorkItemView() {
       </div>
       
       <Form {...form}>
-        <form id="new-work-item-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {/* Left Column */}
-                <div className="lg:col-span-2 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 border rounded-lg bg-white shadow-sm">
-                            <SectionHeader title="Customer Information" icon={<Info className="w-4 h-4" />} />
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-xs">
-                                <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerType" render={({ field }) => (<FormItem><FormLabel>Customer ID</FormLabel><FormControl><Input {...field} className="h-7 mt-1" disabled /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerType" render={({ field }) => (<FormItem><FormLabel>Customer Type</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="potential" render={({ field }) => (<FormItem><FormLabel>Potential</FormLabel><FormControl><Input {...field} placeholder="e.g. A,B,C,D" className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="industry" render={({ field }) => (<FormItem><FormLabel>Industry</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl><SelectTrigger className="h-7 mt-1"><SelectValue /></SelectTrigger></FormControl>
-                                        <SelectContent><SelectItem value="Dubai">Dubai</SelectItem></SelectContent>
-                                    </Select>
-                                <FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} placeholder="e.g ABG12134567" className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} placeholder="e.g ABG12134567" className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                            </div>
-                        </div>
+        <form id="new-work-item-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left Column */}
+            <div className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="process"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Process</FormLabel>
+                            <Select onValueChange={(value) => { field.onChange(value); setInitialTasks([]); }} value={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a process type" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {processTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="urgency"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Urgency</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select urgency" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                <SelectItem value="Low">Low</SelectItem>
+                                <SelectItem value="Medium">Medium</SelectItem>
+                                <SelectItem value="High">High</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="overview"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Work Overview</FormLabel>
+                            <FormControl>
+                                <Textarea placeholder="Provide a detailed description of the work to be done..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-                        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="p-4 border rounded-lg bg-[hsl(var(--contact-info-bg))] border-[hsl(var(--contact-info-border))] shadow-sm">
-                                <div className="flex justify-between items-center -mx-4 -mt-4 mb-4 px-3 py-1.5 rounded-t-lg bg-[hsl(var(--contact-info-header-bg))] text-white">
-                                    <div className="flex items-center gap-2">
-                                        <Phone className="w-4 h-4" />
-                                        <h3 className="font-semibold text-sm">Contact Information</h3>
-                                    </div>
-                                    <Button type="button" variant="link" className="text-white h-auto p-0 text-xs"><Plus className="w-3 h-3 mr-1"/>Add New Contact</Button>
-                                </div>
-                                <div className="space-y-2 text-xs">
-                                     <FormField control={form.control} name="purchaserName" render={({ field }) => (<FormItem><FormLabel>Select a Purchaser</FormLabel><Select onValueChange={field.onChange}><FormControl><SelectTrigger className="h-7 mt-1 bg-white"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Aleem">Aleem</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                                     <div className="grid grid-cols-2 gap-2">
-                                        <FormField control={form.control} name="purchaserPhone" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} className="h-7 mt-1 bg-white"/></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="purchaserEmail" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} className="h-7 mt-1 bg-white"/></FormControl><FormMessage /></FormItem>)} />
-                                     </div>
-                                     <FormField control={form.control} name="accountName" render={({ field }) => (<FormItem><FormLabel>Select Accounts</FormLabel><Select onValueChange={field.onChange}><FormControl><SelectTrigger className="h-7 mt-1 bg-white"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Aleem">Aleem</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                                     <div className="grid grid-cols-2 gap-2">
-                                        <FormField control={form.control} name="accountPhone" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} className="h-7 mt-1 bg-white"/></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="accountEmail" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} className="h-7 mt-1 bg-white"/></FormControl><FormMessage /></FormItem>)} />
-                                     </div>
-                                </div>
-                            </div>
-                             <div className="p-4 border rounded-lg bg-white shadow-sm">
-                                <SectionHeader title="Payment Information" icon={<Banknote className="w-4 h-4" />} />
-                                <div className="space-y-2 text-xs">
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <FormField control={form.control} name="taxId" render={({ field }) => (<FormItem><FormLabel>TAX ID/VAT NO</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="creditLimit" render={({ field }) => (<FormItem><FormLabel>Credit Limit</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="paymentTerms" render={({ field }) => (<FormItem><FormLabel>Payment Terms</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl><SelectTrigger className="h-7 mt-1"><SelectValue /></SelectTrigger></FormControl>
-                                                <SelectContent><SelectItem value="Electrical">Electrical</SelectItem></SelectContent>
-                                            </Select>
-                                        <FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="outstandingBal" render={({ field }) => (<FormItem><FormLabel>Outstanding Bal</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                        <FormField control={form.control} name="currency" render={({ field }) => (<FormItem><FormLabel>Currency</FormLabel><Select onValueChange={field.onChange}><FormControl><SelectTrigger className="h-7 mt-1"><SelectValue placeholder="Select Currency"/></SelectTrigger></FormControl><SelectContent></SelectContent></Select><FormMessage /></FormItem>)} />
-                                    </div>
-                                    <div className="space-y-1 pt-1">
-                                        <Label>Payment Info:</Label>
-                                        <div className="flex items-center gap-4">
-                                            <FormField control={form.control} name="paymentInfo" render={({ field }) => (<FormItem className="flex items-center gap-2"><FormControl><Checkbox checked={field.value === 'Default Payment term'} onCheckedChange={(checked) => field.onChange(checked ? 'Default Payment term' : '')} /></FormControl><FormLabel className="font-normal">Default Payment term</FormLabel></FormItem>)} />
-                                            <FormField control={form.control} name="paymentInfo" render={({ field }) => (<FormItem className="flex items-center gap-2"><FormControl><Checkbox checked={field.value === 'Cash'} onCheckedChange={(checked) => field.onChange(checked ? 'Cash' : '')} /></FormControl><FormLabel className="font-normal">Cash</FormLabel></FormItem>)} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <FormField
+                    control={form.control}
+                    name="assignTo"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Assign To</FormLabel>
+                             <RadioGroup
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                className="flex space-x-4"
+                              >
+                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value="initial_indexing" />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">Initial Indexing Queue</FormLabel>
+                                </FormItem>
+                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value="myself" />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">Assign to Myself</FormLabel>
+                                </FormItem>
+                              </RadioGroup>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="customerName"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Customer Name</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="customerEmail"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Customer Email</FormLabel>
+                            <FormControl><Input type="email" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="customerPhone"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Customer Phone</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                
+                <div className="space-y-2">
+                    <Label>Initial Tasks</Label>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                            "w-full justify-between font-normal",
+                            !selectedTasks.length && "text-muted-foreground"
+                            )}
+                            disabled={!selectedProcess}
+                        >
+                            {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                            <CommandInput placeholder="Search tasks..." />
+                            <CommandList>
+                            <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                            <CommandGroup>
+                                {(processTaskMap[selectedProcess] || []).map((task) => (
+                                <CommandItem
+                                    key={task}
+                                    onSelect={() => {
+                                        const isSelected = selectedTasks.includes(task);
+                                        setInitialTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]);
+                                    }}
+                                >
+                                    <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                    {task}
+                                </CommandItem>
+                                ))}
+                            </CommandGroup>
+                            </CommandList>
+                        </Command>
+                        </PopoverContent>
+                    </Popover>
+                     {selectedTasks.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-2">
+                            {selectedTasks.map(task => (
+                                <Badge key={task} variant="secondary" className="font-normal">
+                                    {task}
+                                    <button
+                                        type="button"
+                                        className="ml-1.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                                        onClick={() => setInitialTasks(prev => prev.filter(t => t !== task))}
+                                    >
+                                        <X className="h-3 w-3" />
+                                        <span className="sr-only">Remove {task}</span>
+                                    </button>
+                                </Badge>
+                            ))}
                         </div>
-                    </div>
-                     <div className="p-4 border rounded-lg bg-white shadow-sm">
-                        <SectionHeader title="Quote Information" icon={<FileText className="w-4 h-4" />} />
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                             <FormField control={form.control} name="inquireNumber" render={({ field }) => (<FormItem><FormLabel>Inquire Number/REF</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                             <FormField control={form.control} name="location" render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                             <FormField control={form.control} name="quotationDate" render={({ field }) => (<FormItem><FormLabel>Quotation Date</FormLabel><CustomCalendar value={field.value} onChange={field.onChange} /><FormMessage /></FormItem>)} />
-                             <FormField control={form.control} name="quotationValidity" render={({ field }) => (<FormItem><FormLabel>Quotation Validity</FormLabel><CustomCalendar value={field.value} onChange={field.onChange} /><FormMessage /></FormItem>)} />
-                             <FormField control={form.control} name="billingAddress" render={({ field }) => (<FormItem className="sm:col-span-2"><FormLabel>Billing Address</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                             <FormField control={form.control} name="shippingAddress" render={({ field }) => (<FormItem className="sm:col-span-2"><FormLabel>Shipping Address</FormLabel><FormControl><Input {...field} className="h-7 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                        </div>
-                    </div>
+                    )}
                 </div>
 
-                {/* Right Column */}
-                <div className="space-y-4">
-                    <div className="p-4 border rounded-lg bg-white shadow-sm text-xs">
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormItem><FormLabel>Status</FormLabel><FormControl><Input readOnly value="Open" className="h-7 mt-1 bg-slate-100"/></FormControl></FormItem>
-                            <FormItem><FormLabel>Save Source</FormLabel><FormControl><Input readOnly value="Web" className="h-7 mt-1 bg-slate-100"/></FormControl></FormItem>
-                            <FormItem><FormLabel>Created By</FormLabel><FormControl><Input readOnly value={user?.displayName || ''} className="h-7 mt-1 bg-slate-100"/></FormControl></FormItem>
-                            <FormItem><FormLabel>Department</FormLabel><FormControl><Input readOnly value={user?.department || 'N/A'} className="h-7 mt-1 bg-slate-100"/></FormControl></FormItem>
-                        </div>
-                    </div>
-                    <div className="p-4 border rounded-lg bg-orange-50 border-orange-200 shadow-sm text-sm">
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center text-slate-600"><p>Subtotal</p><p>€0.00</p></div>
-                            <div className="flex justify-between items-center text-slate-600"><p>Discount Item</p><p>0%</p></div>
-                            <div className="flex justify-between items-center text-slate-600"><p>Tax Total</p><p>€0.00</p></div>
-                            <div className="flex justify-between items-center font-bold text-base border-t border-orange-200 pt-2 mt-2"><p>Total</p><p>€0.00</p></div>
-                        </div>
-                    </div>
-                </div>
             </div>
-            
-            {/* Item Details Table */}
-            <div className="p-4 border rounded-lg bg-white shadow-sm">
-                 <SectionHeader title="Item Details" icon={<DollarSign className="w-4 h-4" />} />
-                 <div className="overflow-x-auto">
-                    {/* Table will go here */}
-                 </div>
-            </div>
+          </div>
         </form>
       </Form>
     </div>

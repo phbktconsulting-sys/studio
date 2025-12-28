@@ -30,13 +30,6 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-
-    /* Custom colors from image */
-    --section-header-bg: 216 78% 49%;
-    --section-header-fg: 0 0% 100%;
-    --contact-info-bg: 354 100% 97%;
-    --contact-info-border: 354 100% 92%;
-    --contact-info-header-bg: 350 89% 60%;
   }
 
   .dark {
@@ -64,13 +57,6 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-
-    /* Custom colors from image */
-    --section-header-bg: 216 78% 49%;
-    --section-header-fg: 0 0% 100%;
-    --contact-info-bg: 354 100% 97%;
-    --contact-info-border: 354 100% 92%;
-    --contact-info-header-bg: 350 89% 60%;
   }
 }
 

@@ -144,58 +144,6 @@ export const WorkItemCreateSchema = z.object({
 
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 
-// This is the new comprehensive schema for the redesigned new work item page
-const ItemDetailSchema = z.object({
-  partNo: z.string().optional(),
-  item: z.string().optional(),
-  brand: z.string().optional(),
-  origin: z.string().optional(),
-  qty: z.number().optional(),
-  unitPrice: z.number().optional(),
-  amount: z.number().optional(),
-  availableQty: z.number().optional(),
-  leadTime: z.string().optional(),
-  tax: z.string().optional(),
-  taxAmount: z.number().optional(),
-  weight: z.string().optional(),
-  hsCode: z.string().optional(),
-});
-
-export const NewWorkItemFullSchema = z.object({
-  // Customer Info
-  customerName: z.string().min(1, "Customer Name is required"),
-  customerType: z.string().optional(),
-  potential: z.string().optional(),
-  industry: z.string().optional(),
-  country: z.string().optional(),
-  state: z.string().optional(),
-  city: z.string().optional(),
-  // Contact Info
-  purchaserName: z.string().optional(),
-  purchaserPhone: z.string().optional(),
-  purchaserEmail: z.string().email().optional().or(z.literal('')),
-  accountName: z.string().optional(),
-  accountPhone: z.string().optional(),
-  accountEmail: z.string().email().optional().or(z.literal('')),
-  // Payment Info
-  taxId: z.string().optional(),
-  creditLimit: z.string().optional(),
-  paymentTerms: z.string().optional(),
-  outstandingBal: z.string().optional(),
-  currency: z.string().optional(),
-  paymentInfo: z.string().optional(),
-  // Quote Info
-  inquireNumber: z.string().optional(),
-  location: z.string().optional(),
-  quotationDate: z.date().optional(),
-  quotationValidity: z.date().optional(),
-  billingAddress: z.string().optional(),
-  shippingAddress: z.string().optional(),
-  // Item Details
-  items: z.array(ItemDetailSchema).optional(),
-});
-export type NewWorkItemFullValues = z.infer<typeof NewWorkItemFullSchema>;
-
 
 export const ServerWorkItemCreateSchema = z.object({
   process: z.string(),
