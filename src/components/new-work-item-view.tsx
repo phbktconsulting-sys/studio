@@ -24,7 +24,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ArrowLeft, ChevronsUpDown, X } from 'lucide-react';
+import { ArrowLeft, ChevronsUpDown, X, User, Info, DollarSign, FileText } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
@@ -53,6 +53,17 @@ const processTaskMap: Record<string, string[]> = {
     "Feedback / Complaint": ["Report a System Crash", "Report Slow Performance", "Report Login Issue", "Report Data Error", "Report UI/Design Flaw", "Complaint about Billing", "Complaint about Delay", "Complaint about Support Quality", "Complaint about Communication", "Suggest New Feature", "Suggest Design Change", "Suggest Process Improvement", "Escalation to Management", "Review: Positive Feedback", "Review: Negative Feedback", "Request for Refund", "Request for Contract Cancellation", "Report Security Concern", "Post-Project Feedback", "General Complaint"],
     "Other Service Request": ["Inquire about Invoice", "Inquire about Job Opening", "Inquire about Internship", "Inquire about Training", "Renew Domain Name", "Renew Hosting Plan", "Purchase Software License", "Update Company Details", "Request Tax Document", "Schedule Annual Review", "Vendor Sales Pitch", "Legal / Compliance Query", "Media / Press Inquiry", "Sponsorship Request", "Employee Referral", "Internal Admin Task", "Hardware Requirement", "Network Setup Request", "Office Visit Request", "Unclassified Request"]
 };
+
+const SectionCard = ({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) => (
+    <div className="p-4 border rounded-lg bg-white shadow-sm">
+        <div className="flex items-center gap-2 mb-4 text-blue-600">
+            {icon}
+            <h3 className="font-semibold text-sm">{title}</h3>
+        </div>
+        {children}
+    </div>
+);
+
 
 export function NewWorkItemView() {
   const { user } = useFirebase();
@@ -157,103 +168,113 @@ export function NewWorkItemView() {
   };
 
   return (
-    <div className="p-4 sm:p-6 bg-slate-50">
-      <div className="">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="icon" onClick={handleCancel} className="h-8 w-8">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="sr-only">Back</span>
-          </Button>
-          <div>
-            <h1 className="font-headline text-lg font-bold tracking-tight">Create New Work Item</h1>
-            <p className="text-xs text-muted-foreground">Fill out the details below to create a new work item.</p>
-          </div>
+    <div className="p-4 sm:p-6 bg-slate-50 min-h-full">
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="ghost" size="icon" onClick={handleCancel} className="h-8 w-8">
+          <ArrowLeft className="h-5 w-5" />
+          <span className="sr-only">Back</span>
+        </Button>
+        <div>
+          <h1 className="font-headline text-lg font-bold tracking-tight">Create New Work Item</h1>
+          <p className="text-xs text-muted-foreground">Fill out the details below to create a new work item.</p>
         </div>
-        <Card className="shadow-lg">
-          <CardContent className="p-8">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                
-                <FormField
-                  control={form.control}
-                  name="assignTo"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-3 gap-4 items-start">
-                       <div className="col-span-1 pt-1.5">
-                            <FormLabel>Assign To</FormLabel>
-                            <p className="text-xs text-muted-foreground mt-1">Choose who this work item will be assigned to upon creation.</p>
-                       </div>
-                       <div className="col-span-2">
-                            <RadioGroup
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                                className="flex space-x-4 pt-1.5"
-                            >
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl>
-                                    <RadioGroupItem value="initial_indexing" />
-                                </FormControl>
-                                <FormLabel className="font-normal">Initial Indexing Queue</FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl>
-                                    <RadioGroupItem value="myself" />
-                                </FormControl>
-                                <FormLabel className="font-normal">Assign to Myself</FormLabel>
-                                </FormItem>
-                            </RadioGroup>
-                       </div>
-                    </FormItem>
-                  )}
-                />
+      </div>
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-                <FormField
-                  control={form.control}
-                  name="process"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-3 gap-4 items-start">
-                      <div className="col-span-1 pt-1.5">
-                        <FormLabel>Process</FormLabel>
-                        <p className="text-xs text-muted-foreground mt-1">Select the type of work.</p>
-                      </div>
-                      <div className="col-span-2">
-                        <Select onValueChange={(value) => { field.onChange(value); form.setValue('initialTasks', []); }} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a process" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {processTypes.map((type) => (
-                              <SelectItem key={type} value={type}>
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-                 
-                 <FormField
-                  control={form.control}
-                  name="initialTasks"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-3 gap-4 items-start">
-                        <div className="col-span-1 pt-1.5">
-                            <FormLabel>Initial Tasks</FormLabel>
-                            <p className="text-xs text-muted-foreground mt-1">Select one or more initial tasks to add to this work item.</p>
+            <SectionCard title="Customer Information" icon={<User className="w-5 h-5" />}>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                    <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="customerPhoneSecondary" render={({ field }) => (<FormItem><FormLabel>Secondary Phone</FormLabel><FormControl><Input {...field} placeholder="(Optional)" className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                    
+                    <div className="md:col-span-2 lg:col-span-4 space-y-2">
+                        <FormLabel>Customer Address</FormLabel>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                             <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Address Line 1" className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                             <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Address Line 2 (Optional)" className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                             <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="City" className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                             <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="State" className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                             <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Country" className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                             <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Zipcode" className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                         </div>
-                        <div className="col-span-2 flex flex-col gap-2">
-                            <Popover>
+                    </div>
+                </div>
+            </SectionCard>
+            
+             <SectionCard title="Quote Information" icon={<FileText className="w-5 h-5" />}>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                     <FormField
+                        control={form.control}
+                        name="process"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Process</FormLabel>
+                                <Select onValueChange={(value) => { field.onChange(value); form.setValue('initialTasks', []); }} value={field.value}>
+                                <FormControl>
+                                    <SelectTrigger className="h-8 mt-1"><SelectValue placeholder="Select a process" /></SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {processTypes.map((type) => ( <SelectItem key={type} value={type}>{type}</SelectItem> ))}
+                                </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="urgency"
+                        render={({ field }) => (
+                           <FormItem>
+                                <FormLabel>Urgency</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger className="h-8 mt-1"><SelectValue placeholder="Select urgency" /></SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="Low">Low</SelectItem>
+                                        <SelectItem value="Medium">Medium</SelectItem>
+                                        <SelectItem value="High">High</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                           </FormItem>
+                        )}
+                    />
+                    <div className="md:col-span-2">
+                        <FormField control={form.control} name="overview" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Overview</FormLabel>
+                                    <FormControl>
+                                        <Textarea {...field} placeholder="Provide a detailed description of the work item." className="min-h-[32px] mt-1"/>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                 </div>
+            </SectionCard>
+
+
+            <SectionCard title="Item Details" icon={<DollarSign className="w-5 h-5" />}>
+                <FormField
+                    control={form.control}
+                    name="initialTasks"
+                    render={({ field }) => (
+                        <FormItem className="space-y-2">
+                            <FormLabel className="text-xs">Initial Tasks</FormLabel>
+                             <p className="text-xs text-muted-foreground">Select one or more initial tasks to add to this work item.</p>
+                             <Popover>
                                 <PopoverTrigger asChild>
                                 <FormControl>
                                     <Button
                                     variant="outline"
                                     role="combobox"
-                                    className={cn("w-full justify-between", !field.value?.length && "text-muted-foreground")}
+                                    className={cn("w-full justify-between font-normal", !field.value?.length && "text-muted-foreground")}
                                     disabled={!selectedProcess}
                                     >
                                     {field.value?.length > 0 ? `${field.value.length} tasks selected` : (selectedProcess ? "Select initial tasks" : "Select a process first")}
@@ -302,215 +323,51 @@ export function NewWorkItemView() {
                                 </div>
                             )}
                             <FormMessage />
-                        </div>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="customerName"
-                  render={({ field }) => (
-                      <FormItem className="grid grid-cols-3 gap-4 items-start">
-                          <div className="col-span-1 pt-1.5">
-                              <FormLabel>Customer Name</FormLabel>
-                          </div>
-                          <div className="col-span-2">
-                              <Input {...field} />
-                              <FormMessage />
-                          </div>
-                      </FormItem>
-                  )}
-                  />
-                <FormField
-                  control={form.control}
-                  name="customerEmail"
-                  render={({ field }) => (
-                      <FormItem className="grid grid-cols-3 gap-4 items-start">
-                          <div className="col-span-1 pt-1.5">
-                              <FormLabel>Customer Email</FormLabel>
-                          </div>
-                          <div className="col-span-2">
-                              <Input type="email" {...field} />
-                              <FormMessage />
-                          </div>
-                      </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="customerPhone"
-                  render={({ field }) => (
-                      <FormItem className="grid grid-cols-3 gap-4 items-start">
-                          <div className="col-span-1 pt-1.5">
-                              <FormLabel>Customer Phone</FormLabel>
-                          </div>
-                          <div className="col-span-2">
-                              <Input {...field} />
-                              <FormMessage />
-                          </div>
-                      </FormItem>
-                  )}
-                  />
-                <FormField
-                  control={form.control}
-                  name="customerPhoneSecondary"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-3 gap-4 items-start">
-                          <div className="col-span-1 pt-1.5">
-                              <FormLabel>Secondary Phone</FormLabel>
-                          </div>
-                          <div className="col-span-2">
-                              <Input {...field} placeholder="(Optional)" />
-                              <FormMessage />
-                          </div>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="urgency"
-                    render={({ field }) => (
-                      <FormItem className="grid grid-cols-3 gap-4 items-start">
-                        <div className="col-span-1 pt-1.5">
-                          <FormLabel>Urgency</FormLabel>
-                          <p className="text-xs text-muted-foreground mt-1">Set the priority level.</p>
-                        </div>
-                        <div className="col-span-2">
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                              <SelectTrigger>
-                                  <SelectValue placeholder="Select urgency" />
-                              </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                              <SelectItem value="Low">Low</SelectItem>
-                              <SelectItem value="Medium">Medium</SelectItem>
-                              <SelectItem value="High">High</SelectItem>
-                              </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </div>
-                      </FormItem>
+                        </FormItem>
                     )}
-                  />
-                
-                <div className="grid grid-cols-3 gap-4 items-start">
-                    <div className="col-span-1 pt-1.5">
-                        <FormLabel>Customer Address</FormLabel>
-                         <p className="text-xs text-muted-foreground mt-1">Enter the customer's full address.</p>
-                    </div>
-                    <div className="col-span-2 space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="customerAddress.line1"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Input {...field} placeholder="Address line 1" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="customerAddress.line2"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Input {...field} placeholder="Address line 2 (Optional)" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                           <FormField
-                                control={form.control}
-                                name="customerAddress.city"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <Input {...field} placeholder="City" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                           <FormField
-                                control={form.control}
-                                name="customerAddress.state"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <Input {...field} placeholder="State" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                           <FormField
-                                control={form.control}
-                                name="customerAddress.country"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <Input {...field} placeholder="Country" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                           <FormField
-                                control={form.control}
-                                name="customerAddress.zipcode"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <Input {...field} placeholder="Zipcode" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-
-                {/* --- Form Row: Overview --- */}
-                <FormField
-                  control={form.control}
-                  name="overview"
-                  render={({ field }) => (
-                    <FormItem className="grid grid-cols-3 gap-4 items-start">
-                      <div className="col-span-1 pt-1.5">
-                        <FormLabel>Overview</FormLabel>
-                        <p className="text-xs text-muted-foreground mt-1">Provide a detailed description of the work item.</p>
-                      </div>
-                      <div className="col-span-2">
-                        <Textarea {...field} className="min-h-24" />
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
                 />
+            </SectionCard>
+            
+            <FormField
+              control={form.control}
+              name="assignTo"
+              render={({ field }) => (
+                <FormItem>
+                    <div className="flex items-center gap-6">
+                        <FormLabel>Assign To:</FormLabel>
+                        <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex space-x-4 pt-1.5"
+                        >
+                            <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                                <RadioGroupItem value="initial_indexing" />
+                            </FormControl>
+                            <FormLabel className="font-normal text-xs">Initial Indexing Queue</FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                                <RadioGroupItem value="myself" />
+                            </FormControl>
+                            <FormLabel className="font-normal text-xs">Assign to Myself</FormLabel>
+                            </FormItem>
+                        </RadioGroup>
+                    </div>
+                </FormItem>
+              )}
+            />
 
-                <div className="flex justify-end gap-2 pt-8">
-                  <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Creating...' : 'Create Work Item'}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Creating...' : 'Create Work Item'}
+              </Button>
+            </div>
+          </form>
+        </Form>
     </div>
   );
 }
