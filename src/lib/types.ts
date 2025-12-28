@@ -144,58 +144,6 @@ export const WorkItemCreateSchema = z.object({
 
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 
-export const NewWorkItemFullSchema = z.object({
-    // Customer Info
-    customerName: z.string().min(1, "Customer Name is required"),
-    customerType: z.string().optional(),
-    potential: z.string().optional(),
-    industry: z.string().optional(),
-    country: z.string().optional(),
-    state: z.string().optional(),
-    city: z.string().optional(),
-
-    // Contact Info
-    purchaserName: z.string().optional(),
-    purchaserPhone: z.string().optional(),
-    purchaserEmail: z.string().email().optional().or(z.literal('')),
-    accountName: z.string().optional(),
-    accountPhone: z.string().optional(),
-    accountEmail: z.string().email().optional().or(z.literal('')),
-
-    // Payment Info
-    taxId: z.string().optional(),
-    creditLimit: z.string().optional(),
-    paymentTerms: z.string().optional(),
-    outstandingBalance: z.string().optional(),
-    currency: z.string().optional(),
-    defaultPaymentTerm: z.boolean().optional(),
-    cashPayment: z.boolean().optional(),
-
-    // Quote Info
-    inquireNumber: z.string().optional(),
-    location: z.string().optional(),
-    quotationDate: z.string().optional(),
-    quotationValidity: z.string().optional(),
-    billingAddress: z.string().optional(),
-    shippingAddress: z.string().optional(),
-
-    // Item Details
-    items: z.array(z.object({
-        customerPartNo: z.string().optional(),
-        item: z.string().optional(),
-        brand: z.string().optional(),
-        origin: z.string().optional(),
-        quantity: z.number().optional(),
-        unitPrice: z.number().optional(),
-        tax: z.number().optional(),
-        weight: z.number().optional(),
-        hsCode: z.string().optional(),
-    })).optional(),
-    discount: z.number().optional(),
-});
-export type NewWorkItemFullFormValues = z.infer<typeof NewWorkItemFullSchema>;
-
-
 export const ServerWorkItemCreateSchema = z.object({
   process: z.string(),
   urgency: z.enum(['Low', 'Medium', 'High']),
