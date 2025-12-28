@@ -246,6 +246,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 name="customerName"
                                 render={({ field }) => (
                                 <FormItem>
+                                    <FormLabel className="text-xs">Customer Name</FormLabel>
                                     <FormControl>
                                     <Input {...field} placeholder="Customer Name" className="text-xs h-8" />
                                     </FormControl>
@@ -258,6 +259,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 name="customerPhone"
                                 render={({ field }) => (
                                 <FormItem>
+                                    <FormLabel className="text-xs">Customer Phone</FormLabel>
                                     <div className="relative">
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                         <span className="text-gray-500 text-xs">+91 </span> 
@@ -275,6 +277,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             name="customerBusinessName"
                             render={({ field }) => (
                               <FormItem>
+                                <FormLabel className="text-xs">Business Name</FormLabel>
                                 <FormControl>
                                   <Input {...field} placeholder="Business Name (Optional)" className="text-xs h-8" />
                                 </FormControl>
@@ -284,15 +287,15 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                           />
                         </div>
                          <div className="space-y-2">
-                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Address Line 1" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Address Line 2" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="text-xs">Address Line 1</FormLabel><FormControl><Input {...field} placeholder="Address Line 1" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormLabel className="text-xs">Address Line 2</FormLabel><FormControl><Input {...field} placeholder="Address Line 2" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
                             <div className="grid grid-cols-2 gap-2">
-                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="City" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="State" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="text-xs">City</FormLabel><FormControl><Input {...field} placeholder="City" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="text-xs">State</FormLabel><FormControl><Input {...field} placeholder="State" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
                             </div>
                              <div className="grid grid-cols-2 gap-2">
-                                <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Country" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormControl><Input {...field} placeholder="Zipcode" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormLabel className="text-xs">Country</FormLabel><FormControl><Input {...field} placeholder="Country" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="text-xs">Zipcode</FormLabel><FormControl><Input {...field} placeholder="Zipcode" className="text-xs h-8"/></FormControl><FormMessage /></FormItem>)} />
                             </div>
                         </div>
                     </div>
