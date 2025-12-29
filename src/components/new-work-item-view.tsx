@@ -28,7 +28,6 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -418,17 +417,17 @@ export function NewWorkItemView() {
                                 )}
                             />
                              <div className="col-span-2 space-y-2">
-                                <div className="grid grid-cols-12 gap-2">
-                                    <div className="col-span-12">
+                                <div className="grid grid-cols-5 gap-2">
+                                    <div className="col-span-2">
                                         <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" onChange={e => field.onChange(capitalizeWords(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
-                                    <div className="col-span-4">
+                                    <div className="col-span-1">
                                         <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Building className="h-3 w-3" />City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" onChange={e => field.onChange(capitalizeWords(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
-                                    <div className="col-span-4">
+                                    <div className="col-span-1">
                                         <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Map className="h-3 w-3" />State</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" onChange={e => field.onChange(capitalizeWords(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
-                                    <div className="col-span-4">
+                                    <div className="col-span-1">
                                         <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><MapPin className="h-3 w-3" />Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
                                 </div>
@@ -477,7 +476,7 @@ export function NewWorkItemView() {
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center gap-2"><FileText className="h-3 w-3" />Overview</FormLabel>
-                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm bg-orange-50 border-orange-200" /></FormControl>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[80px] text-sm bg-orange-50 border-orange-200" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
@@ -523,5 +522,3 @@ export function NewWorkItemView() {
 
     
 }
-
-    
