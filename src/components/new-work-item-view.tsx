@@ -25,10 +25,9 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -458,10 +457,3 @@ export function NewWorkItemView() {
     </>
   );
 }
-
-
-    
-
-    
-
-    
