@@ -261,11 +261,95 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                     {/* Item Details */}
                     <div className="md:col-span-3 p-4 border rounded-lg bg-white">
                         <div className="flex justify-between items-center mb-4">
-                        <div className="flex items-center gap-2 text-blue-600">
-                            <Info className="w-5 h-5" />
-                            <h3 className="font-semibold text-sm">Item Details</h3>
+                            <div className="flex items-center gap-2 text-blue-600">
+                                <Info className="w-5 h-5" />
+                                <h3 className="font-semibold text-sm">Item Details</h3>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
+
+                        <div className="overflow-x-auto">
+                            <Table className="min-w-full text-xs">
+                                <TableHeader>
+                                    <TableRow className="bg-gray-50">
+                                        <TableHead className="w-[180px]">Process</TableHead>
+                                        <TableHead className="w-[180px]">Task</TableHead>
+                                        <TableHead className="w-[80px]">QTY</TableHead>
+                                        <TableHead className="w-[120px]">Unit Price</TableHead>
+                                        <TableHead className="w-[120px]">Amount</TableHead>
+                                        <TableHead className="w-[50px]"></TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {fields.map((field, index) => {
+                                        const selectedProcess = form.watch(`tasks.${index}.process`);
+                                        return (
+                                        <TableRow key={field.id}>
+                                            <TableCell className="p-1">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`tasks.${index}.process`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <Select onValueChange={(value) => { field.onChange(value); form.setValue(`tasks.${index}.task`, ''); }} value={field.value}>
+                                                                <FormControl>
+                                                                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Process" /></SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <FormMessage/>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell className="p-1">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`tasks.${index}.task`}
+                                                    render={({ field: taskField }) => (
+                                                        <FormItem>
+                                                            <Select onValueChange={taskField.onChange} value={taskField.value} disabled={!selectedProcess}>
+                                                                <FormControl>
+                                                                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Task" /></SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                {(processTaskMap[selectedProcess] || []).map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell className="p-1">
+                                            <FormField
+                                                control={form.control}
+                                                name={`tasks.${index}.quantity`}
+                                                render={({ field }) => ( <FormItem><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-20" /></FormControl><FormMessage/></FormItem> )}
+                                            />
+                                            </TableCell>
+                                            <TableCell className="p-1">
+                                            <FormField
+                                                control={form.control}
+                                                name={`tasks.${index}.unitPrice`}
+                                                render={({ field }) => ( <FormItem><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-24" /></FormControl><FormMessage/></FormItem> )}
+                                            />
+                                            </TableCell>
+                                            <TableCell className="p-1 font-semibold">
+                                            ₹{((form.watch(`tasks.${index}.quantity`) || 0) * (form.watch(`tasks.${index}.unitPrice`) || 0)).toLocaleString()}
+                                            </TableCell>
+                                            <TableCell className="p-1">
+                                                <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    )})}
+                                </TableBody>
+                            </Table>
+                        </div>
+                        <div className="flex items-center gap-2 mt-4">
                             <Button 
                                 type="button" 
                                 size="sm" 
@@ -276,90 +360,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                             </Button>
                         </div>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <Table className="min-w-full text-xs">
-                            <TableHeader>
-                                <TableRow className="bg-gray-50">
-                                    <TableHead className="w-[180px]">Process</TableHead>
-                                    <TableHead className="w-[180px]">Task</TableHead>
-                                    <TableHead className="w-[80px]">QTY</TableHead>
-                                    <TableHead className="w-[120px]">Unit Price</TableHead>
-                                    <TableHead className="w-[120px]">Amount</TableHead>
-                                    <TableHead className="w-[50px]"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {fields.map((field, index) => {
-                                    const selectedProcess = form.watch(`tasks.${index}.process`);
-                                    return (
-                                    <TableRow key={field.id}>
-                                        <TableCell className="p-1">
-                                            <FormField
-                                                control={form.control}
-                                                name={`tasks.${index}.process`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <Select onValueChange={(value) => { field.onChange(value); form.setValue(`tasks.${index}.task`, ''); }} value={field.value}>
-                                                            <FormControl>
-                                                                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Process" /></SelectTrigger>
-                                                            </FormControl>
-                                                            <SelectContent>
-                                                                {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        <FormMessage/>
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </TableCell>
-                                        <TableCell className="p-1">
-                                            <FormField
-                                                control={form.control}
-                                                name={`tasks.${index}.task`}
-                                                render={({ field: taskField }) => (
-                                                    <FormItem>
-                                                        <Select onValueChange={taskField.onChange} value={taskField.value} disabled={!selectedProcess}>
-                                                            <FormControl>
-                                                                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Task" /></SelectTrigger>
-                                                            </FormControl>
-                                                            <SelectContent>
-                                                            {(processTaskMap[selectedProcess] || []).map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </TableCell>
-                                        <TableCell className="p-1">
-                                        <FormField
-                                            control={form.control}
-                                            name={`tasks.${index}.quantity`}
-                                            render={({ field }) => ( <FormItem><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-20" /></FormControl><FormMessage/></FormItem> )}
-                                        />
-                                        </TableCell>
-                                        <TableCell className="p-1">
-                                        <FormField
-                                            control={form.control}
-                                            name={`tasks.${index}.unitPrice`}
-                                            render={({ field }) => ( <FormItem><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-24" /></FormControl><FormMessage/></FormItem> )}
-                                        />
-                                        </TableCell>
-                                        <TableCell className="p-1 font-semibold">
-                                        ₹{((form.watch(`tasks.${index}.quantity`) || 0) * (form.watch(`tasks.${index}.unitPrice`) || 0)).toLocaleString()}
-                                        </TableCell>
-                                        <TableCell className="p-1">
-                                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
-                                                <Trash2 className="h-4 w-4 text-destructive" />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                )})}
-                            </TableBody>
-                        </Table>
-                    </div>
                     </div>
                 </div>
 
@@ -376,3 +376,4 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       </div>
   );
 }
+
