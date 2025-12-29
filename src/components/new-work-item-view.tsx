@@ -119,7 +119,6 @@ export function NewWorkItemView() {
     setIsCheckingPhone(true);
     setExistingCustomer(null); // Reset on new check
     try {
-      // 1. Prioritize searching the 'customers' collection by phone number on work items
       const workItemsByPhoneQuery = query(
         collection(firestore, 'work_items'),
         where('relatedContact.phone', '==', phone),
@@ -129,9 +128,7 @@ export function NewWorkItemView() {
 
       if (!workItemsSnapshot.empty) {
           const workItemData = workItemsSnapshot.docs[0].data() as WorkItem;
-          // Use the contact info from the most recent work item
           setExistingCustomer(workItemData.relatedContact);
-          return; // Found a match, no need to continue
       }
       
     } catch (error) {
@@ -209,10 +206,10 @@ export function NewWorkItemView() {
   const handleAlertClose = (proceed: boolean) => {
     if (proceed && existingCustomer) {
       form.reset({
-        ...form.getValues(),
+        ...form.getValues(), // Keep existing form values like process, tasks, etc.
         customerName: existingCustomer.name || '',
         customerEmail: existingCustomer.email || '',
-        customerPhone: existingCustomer.phone || '',
+        customerPhone: existingCustomer.phone || '', // Keep the phone number that was entered
         customerPhoneSecondary: existingCustomer.phoneSecondary || '',
         customerAddress: {
           line1: existingCustomer.address?.line1 || '',
@@ -225,14 +222,6 @@ export function NewWorkItemView() {
         hasBusiness: existingCustomer.businessName ? 'yes' : 'no',
         businessName: existingCustomer.businessName || '',
       });
-    } else {
-      // Clear fields if user says no, but keep the phone number they typed
-      form.setValue('customerName', '');
-      form.setValue('customerEmail', '');
-      form.setValue('customerPhoneSecondary', '');
-      form.setValue('customerAddress', { line1: '', line2: '', city: '', state: '', country: '', zipcode: '' });
-      form.setValue('businessName', '');
-      form.setValue('hasBusiness', 'no');
     }
     setExistingCustomer(null);
   };
@@ -453,14 +442,14 @@ export function NewWorkItemView() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
-            <div className="text-sm text-muted-foreground space-y-2">
-                <div>This mobile number is already associated with an existing customer:</div>
-                <div className="font-medium text-foreground mt-2">
-                  <div>Name: {existingCustomer?.name}</div>
-                  <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
-                </div>
-                <div>Do you want to continue with this customer's information?</div>
+          <div className="text-sm text-muted-foreground space-y-2 pt-2">
+            <div>This mobile number is already associated with an existing customer:</div>
+            <div className="font-medium text-foreground mt-2">
+              <div>Name: {existingCustomer?.name}</div>
+              <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
             </div>
+            <div>Do you want to continue with this customer's information?</div>
+          </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => handleAlertClose(false)}>No, enter a different number</AlertDialogCancel>
