@@ -192,12 +192,12 @@ export function NewWorkItemView() {
                                  <FormLabel>Process *</FormLabel>
                                 <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
                                     <FormControl><SelectTrigger className="bg-orange-50/50 h-7"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
-                                    <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
+                                    <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
                                 </Select>
                                 <FormMessage />
                             </FormItem>
                         )} />
-                        <FormItem>
+                         <FormItem>
                             <FormLabel>Initial Tasks</FormLabel>
                             <Popover>
                                 <PopoverTrigger asChild>
@@ -213,7 +213,7 @@ export function NewWorkItemView() {
                                     <CommandEmpty>No tasks found for this process.</CommandEmpty>
                                     <CommandGroup>
                                         {(processTaskMap[selectedProcess] || []).map((task) => (
-                                        <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                        <CommandItem className="text-xs" key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
                                             <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
                                             {task}
                                         </CommandItem>
