@@ -40,7 +40,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const { toast } = useToast();
   const { firestore, user } = useFirebase();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isCqPageVisible, setIsCqPageVisible] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // State for the single line item form
@@ -186,23 +185,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const grandTotal = subtotal + tax;
   const quoteNumber = `Q-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
 
-  if (!isCqPageVisible) {
-    return (
-      <div className="flex h-full items-center justify-center p-4">
-        <Button onClick={() => setIsCqPageVisible(true)} size="sm" className="h-8 bg-black text-white hover:bg-black/80">
-          Development Services Quotation
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => setIsCqPageVisible(false)}>
-          <ArrowLeft className="h-4 w-4" />
-          <span className="sr-only">Back</span>
-        </Button>
         <h2 className="text-lg font-semibold">Create Quotation</h2>
       </div>
 
