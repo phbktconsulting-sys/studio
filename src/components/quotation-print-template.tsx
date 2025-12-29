@@ -26,7 +26,8 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
                 </svg>
               <div>
                 <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#000', margin: 0 }}>PHBKT Group Limited</h1>
-                <p style={{ margin: '2px 0', fontSize: '10px' }}>North Main Road, Koregaon Park, Pune Maharashtra 414501.</p>
+                <p style={{ margin: '2px 0', fontSize: '10px' }}>North Main Road, Koregaon Park</p>
+                <p style={{ margin: '2px 0', fontSize: '10px' }}>Pune, Maharashtra 414501.</p>
                 <p style={{ margin: '2px 0', fontSize: '10px' }}>Email: contact@phbkt.com | Phone: +91 7972688626</p>
               </div>
             </div>
