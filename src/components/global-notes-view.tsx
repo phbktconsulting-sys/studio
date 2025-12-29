@@ -9,6 +9,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -20,7 +28,7 @@ import type { WorkItem, Note, User, GlobalNote, Customer } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
-function SearchedNotesList({ notes, isLoading }: { notes: (Note & { workItemCustomId: string })[], isLoading: boolean }) {
+function SearchedNotesList({ notes, isLoading }: { notes: GlobalNote[], isLoading: boolean }) {
   const { firestore } = useFirebase();
   const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
 
@@ -61,40 +69,47 @@ function SearchedNotesList({ notes, isLoading }: { notes: (Note & { workItemCust
     );
   }
   
-  if (notes.length === 0) {
-      return (
-        <div className="text-center text-xs text-muted-foreground py-10">
-            No notes found for this Customer ID.
-        </div>
-      )
-  }
-
   return (
-    <div className="space-y-3">
-      {notes.map(note => (
-        <Card key={note.id}>
-          <CardHeader className="p-3 pb-2">
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-sm">{note.subject}</CardTitle>
-                <CardDescription className="text-xs">
-                  {note.workItemId ? (
-                    <>From Case: <span className="font-medium text-primary">{note.workItemCustomId}</span></>
-                  ) : (
-                    <span className="font-medium text-purple-600">Global Note</span>
-                  )}
-                </CardDescription>
-              </div>
-               <p className="text-xs text-muted-foreground">{format(new Date(note.createdAt), 'dd MMM yyyy, HH:mm')}</p>
-            </div>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="text-xs">{note.text}</p>
-            <p className="text-xs text-muted-foreground mt-2">- {usersMap.get(note.authorId) || note.authorId}</p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+    <Card>
+        <CardHeader className="p-4 pb-2">
+            <CardTitle className="text-sm">Search Results</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+        <div className="rounded-lg border">
+            <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="text-xs">Global Note</TableHead>
+                    <TableHead className="text-xs">Customer ID</TableHead>
+                    <TableHead className="text-xs">Work Item Number</TableHead>
+                    <TableHead className="text-xs">Notes</TableHead>
+                    <TableHead className="text-xs">Added By</TableHead>
+                    <TableHead className="text-xs">Date</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {notes.length === 0 && !isLoading && (
+                    <TableRow>
+                        <TableCell colSpan={6} className="text-center text-xs text-muted-foreground py-10">
+                            No global notes found for this customer.
+                        </TableCell>
+                    </TableRow>
+                )}
+                {notes.map(note => (
+                    <TableRow key={note.id}>
+                        <TableCell className="py-2 text-xs font-medium">{note.subject}</TableCell>
+                        <TableCell className="py-2 text-xs">{note.customerUniqueId}</TableCell>
+                        <TableCell className="py-2 text-xs">{note.workItemNumber}</TableCell>
+                        <TableCell className="py-2 text-xs">{note.text}</TableCell>
+                        <TableCell className="py-2 text-xs">{usersMap.get(note.authorId) || note.authorId}</TableCell>
+                        <TableCell className="py-2 text-xs">{format(new Date(note.createdAt), 'dd MMM yyyy, HH:mm')}</TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+            </Table>
+        </div>
+        </CardContent>
+    </Card>
   );
 }
 
@@ -111,7 +126,7 @@ export function GlobalNotesView() {
   
   // State for searching notes
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchedNotes, setSearchedNotes] = useState<(Note & { workItemCustomId: string })[]>([]);
+  const [searchedNotes, setSearchedNotes] = useState<GlobalNote[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   const handleAddNote = async (e: React.FormEvent) => {
@@ -189,9 +204,7 @@ export function GlobalNotesView() {
         return {
           ...data,
           id: doc.id,
-          workItemId: '', // Global notes don't have a workItemId
-          workItemCustomId: 'Global Note', // Special identifier for global notes
-        } as Note & { workItemCustomId: string };
+        } as GlobalNote;
       });
       
       // 3. Sort all notes
