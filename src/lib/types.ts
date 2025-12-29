@@ -107,6 +107,7 @@ export interface GlobalNote {
   createdAt: string;
   category: string;
   subject: string;
+  workItemNumber?: string;
 }
 
 

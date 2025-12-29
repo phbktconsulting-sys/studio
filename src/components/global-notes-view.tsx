@@ -105,6 +105,7 @@ export function GlobalNotesView() {
   
   // State for adding a note
   const [newNoteCustomerId, setNewNoteCustomerId] = useState('');
+  const [newNoteWorkItemNumber, setNewNoteWorkItemNumber] = useState('');
   const [newNoteContent, setNewNoteContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -128,18 +129,24 @@ export function GlobalNotesView() {
     
     try {
         const globalNotesRef = collection(firestore, 'global_notes');
-        const newNote = {
+        const newNote: Partial<GlobalNote> = {
             authorId: user.uid,
             customerUniqueId: newNoteCustomerId.trim(),
             text: newNoteContent.trim(),
             createdAt: new Date().toISOString(),
             subject: 'Global Note',
             category: 'General',
+        };
+
+        if (newNoteWorkItemNumber.trim()) {
+            newNote.workItemNumber = newNoteWorkItemNumber.trim();
         }
+
         await addDocumentNonBlocking(globalNotesRef, newNote);
 
         toast({ title: 'Success', description: 'Global note added successfully.' });
         setNewNoteCustomerId('');
+        setNewNoteWorkItemNumber('');
         setNewNoteContent('');
 
     } catch (error: any) {
@@ -218,7 +225,7 @@ export function GlobalNotesView() {
         <CardContent>
           <form onSubmit={handleAddNote} className="space-y-4">
             <div className="space-y-1">
-              <Label htmlFor="customer-id-add" className="text-xs">Customer Unique ID</Label>
+              <Label htmlFor="customer-id-add" className="text-xs">Customer Unique ID *</Label>
               <Input 
                 id="customer-id-add" 
                 placeholder="Enter Customer ID..."
@@ -227,8 +234,18 @@ export function GlobalNotesView() {
                 className="text-xs"
               />
             </div>
+             <div className="space-y-1">
+              <Label htmlFor="work-item-number" className="text-xs">Work Item Number</Label>
+              <Input 
+                id="work-item-number" 
+                placeholder="Enter Work Item Number (Optional)..."
+                value={newNoteWorkItemNumber}
+                onChange={e => setNewNoteWorkItemNumber(e.target.value)}
+                className="text-xs"
+              />
+            </div>
             <div className="space-y-1">
-              <Label htmlFor="note-content" className="text-xs">Note</Label>
+              <Label htmlFor="note-content" className="text-xs">Note *</Label>
               <Textarea
                 id="note-content"
                 placeholder="Enter note content..."
