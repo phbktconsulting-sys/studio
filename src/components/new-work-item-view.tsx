@@ -186,12 +186,12 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-2 gap-4">
+                     <div className="grid grid-cols-2 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
                             <FormItem>
                                  <FormLabel>Process *</FormLabel>
                                 <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
-                                    <FormControl><SelectTrigger className="bg-orange-50/50"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger className="bg-orange-50/50 h-7"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
                                     <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -201,7 +201,7 @@ export function NewWorkItemView() {
                             <FormLabel>Initial Tasks</FormLabel>
                             <Popover>
                                 <PopoverTrigger asChild>
-                                <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-9 text-sm", !selectedTasks.length && "text-muted-foreground")}>
+                                <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-sm", !selectedTasks.length && "text-muted-foreground")}>
                                     {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
@@ -238,9 +238,9 @@ export function NewWorkItemView() {
                           </div>
                         </CardHeader>
                         <CardContent className="p-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input placeholder="e.g. John Doe" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
+                             <div className="grid grid-cols-2 gap-4">
+                                <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input placeholder="e.g. John Doe" {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
                             </div>
                              <div className="grid grid-cols-2 gap-4">
                                 <FormField
@@ -250,9 +250,9 @@ export function NewWorkItemView() {
                                         <FormItem>
                                         <FormLabel>Customer Phone *</FormLabel>
                                         <div className="flex items-center">
-                                          <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-9 px-3 flex items-center text-sm text-muted-foreground">+91</div>
+                                          <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                           <FormControl>
-                                            <Input placeholder="e.g. 9876543210" {...field} className="rounded-l-none bg-orange-50/50" />
+                                            <Input placeholder="e.g. 9876543210" {...field} className="rounded-l-none bg-orange-50/50 h-7" />
                                           </FormControl>
                                         </div>
                                         <FormMessage />
@@ -266,9 +266,9 @@ export function NewWorkItemView() {
                                         <FormItem>
                                         <FormLabel>Secondary Phone</FormLabel>
                                          <div className="flex items-center">
-                                          <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-9 px-3 flex items-center text-sm text-muted-foreground">+91</div>
+                                          <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                           <FormControl>
-                                            <Input placeholder="Optional" {...field} className="rounded-l-none bg-orange-50/50" />
+                                            <Input placeholder="Optional" {...field} className="rounded-l-none bg-orange-50/50 h-7" />
                                           </FormControl>
                                         </div>
                                         <FormMessage />
@@ -277,8 +277,8 @@ export function NewWorkItemView() {
                                 />
                              </div>
                              <div className="grid grid-cols-2 gap-4">
-                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
                              </div>
                         </CardContent>
                     </Card>
@@ -317,7 +317,7 @@ export function NewWorkItemView() {
                         <CardContent className="p-4">
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
-                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[290px] text-sm bg-orange-50/50" /></FormControl>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[232px] text-sm bg-orange-50/50" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
@@ -327,10 +327,10 @@ export function NewWorkItemView() {
             </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting} className="h-7">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-orange-500 hover:bg-orange-600 text-white">
+            <Button type="submit" disabled={isSubmitting} className="bg-orange-500 hover:bg-orange-600 text-white h-7">
               {isSubmitting ? 'Creating...' : 'Create Work Item'}
             </Button>
           </div>
