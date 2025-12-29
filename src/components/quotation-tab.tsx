@@ -237,152 +237,154 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             <Form {...form}>
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-4">
                  
-                 {/* Customer Information Grid */}
-                 <div className="p-4 border rounded-lg bg-white">
-                    <div className="flex items-center gap-2 mb-4 text-blue-600">
-                        <Info className="w-5 h-5" />
-                        <h3 className="font-semibold text-sm">Customer Details</h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3 text-xs">
-                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerBusinessName" render={({ field }) => (<FormItem><FormLabel>Business Name</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                    {/* Customer Information Grid */}
+                    <div className="p-4 border rounded-lg bg-white space-y-4">
+                        <div className="flex items-center gap-2 mb-4 text-blue-600">
+                            <Info className="w-5 h-5" />
+                            <h3 className="font-semibold text-sm">Customer Details</h3>
                         </div>
-                        <div className="space-y-3 text-xs">
-                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address Line 1</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormLabel>Address Line 2</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                            <div className="grid grid-cols-2 gap-2">
-                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-3 text-xs">
+                                <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerBusinessName" render={({ field }) => (<FormItem><FormLabel>Business Name</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip Code</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                            <div className="space-y-3 text-xs">
+                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address Line 1</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.line2" render={({ field }) => (<FormItem><FormLabel>Address Line 2</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <FormField control={form.control} name="customerAddress.country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip Code</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
 
-                {/* Item Details */}
-                <div className="p-4 border rounded-lg bg-white">
-                    <div className="flex justify-between items-center mb-4">
-                       <div className="flex items-center gap-2 text-blue-600">
-                           <Info className="w-5 h-5" />
-                           <h3 className="font-semibold text-sm">Item Details</h3>
-                       </div>
-                       <div className="flex items-center gap-2">
-                          <Button 
-                            type="button" 
-                            size="sm" 
-                            onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 })} 
-                            className="h-8 text-xs"
-                            disabled={!isLastTaskValid}
-                          >
-                            <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-                          </Button>
-                       </div>
-                   </div>
+                    {/* Item Details */}
+                    <div className="p-4 border rounded-lg bg-white">
+                        <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center gap-2 text-blue-600">
+                            <Info className="w-5 h-5" />
+                            <h3 className="font-semibold text-sm">Item Details</h3>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button 
+                                type="button" 
+                                size="sm" 
+                                onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 })} 
+                                className="h-8 text-xs"
+                                disabled={!isLastTaskValid}
+                            >
+                                <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+                            </Button>
+                        </div>
+                    </div>
 
-                   <div className="overflow-x-auto">
-                     <Table className="min-w-full text-xs">
-                        <TableHeader>
-                            <TableRow className="bg-gray-50">
-                                <TableHead className="w-[180px]">Process</TableHead>
-                                <TableHead className="w-[180px]">Task</TableHead>
-                                <TableHead>Item</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead className="w-[80px]">QTY</TableHead>
-                                <TableHead className="w-[120px]">Unit Price</TableHead>
-                                <TableHead className="w-[120px]">Amount</TableHead>
-                                <TableHead className="w-[50px]"></TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {fields.map((field, index) => {
-                                const selectedProcess = form.watch(`tasks.${index}.process`);
-                                return (
-                                <TableRow key={field.id}>
-                                    <TableCell className="p-1">
+                    <div className="overflow-x-auto">
+                        <Table className="min-w-full text-xs">
+                            <TableHeader>
+                                <TableRow className="bg-gray-50">
+                                    <TableHead className="w-[180px]">Process</TableHead>
+                                    <TableHead className="w-[180px]">Task</TableHead>
+                                    <TableHead>Item</TableHead>
+                                    <TableHead>Description</TableHead>
+                                    <TableHead className="w-[80px]">QTY</TableHead>
+                                    <TableHead className="w-[120px]">Unit Price</TableHead>
+                                    <TableHead className="w-[120px]">Amount</TableHead>
+                                    <TableHead className="w-[50px]"></TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {fields.map((field, index) => {
+                                    const selectedProcess = form.watch(`tasks.${index}.process`);
+                                    return (
+                                    <TableRow key={field.id}>
+                                        <TableCell className="p-1">
+                                            <FormField
+                                                control={form.control}
+                                                name={`tasks.${index}.process`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => { field.onChange(value); form.setValue(`tasks.${index}.task`, ''); }} value={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Process" /></SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage/>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell className="p-1">
+                                            <FormField
+                                                control={form.control}
+                                                name={`tasks.${index}.task`}
+                                                render={({ field: taskField }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={taskField.onChange} value={taskField.value} disabled={!selectedProcess}>
+                                                            <FormControl>
+                                                                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Task" /></SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                            {(processTaskMap[selectedProcess] || []).map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell className="p-1">
                                         <FormField
                                             control={form.control}
-                                            name={`tasks.${index}.process`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Select onValueChange={(value) => { field.onChange(value); form.setValue(`tasks.${index}.task`, ''); }} value={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Process" /></SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage/>
-                                                </FormItem>
-                                            )}
+                                            name={`tasks.${index}.item`}
+                                            render={({ field }) => ( <FormItem><FormControl><Input {...field} placeholder="Item Name" className="h-8 text-xs" /></FormControl><FormMessage/></FormItem> )}
                                         />
-                                    </TableCell>
-                                    <TableCell className="p-1">
-                                         <FormField
+                                        </TableCell>
+                                        <TableCell className="p-1">
+                                        <FormField
                                             control={form.control}
-                                            name={`tasks.${index}.task`}
-                                            render={({ field: taskField }) => (
-                                                <FormItem>
-                                                    <Select onValueChange={taskField.onChange} value={taskField.value} disabled={!selectedProcess}>
-                                                        <FormControl>
-                                                            <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Task" /></SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                          {(processTaskMap[selectedProcess] || []).map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
+                                            name={`tasks.${index}.description`}
+                                            render={({ field }) => ( <FormItem><FormControl><Input {...field} placeholder="Description" className="h-8 text-xs" /></FormControl><FormMessage/></FormItem> )}
                                         />
-                                    </TableCell>
-                                    <TableCell className="p-1">
-                                      <FormField
-                                          control={form.control}
-                                          name={`tasks.${index}.item`}
-                                          render={({ field }) => ( <FormItem><FormControl><Input {...field} placeholder="Item Name" className="h-8 text-xs" /></FormControl><FormMessage/></FormItem> )}
-                                      />
-                                    </TableCell>
-                                    <TableCell className="p-1">
-                                      <FormField
-                                          control={form.control}
-                                          name={`tasks.${index}.description`}
-                                          render={({ field }) => ( <FormItem><FormControl><Input {...field} placeholder="Description" className="h-8 text-xs" /></FormControl><FormMessage/></FormItem> )}
-                                      />
-                                    </TableCell>
-                                    <TableCell className="p-1">
-                                      <FormField
-                                        control={form.control}
-                                        name={`tasks.${index}.quantity`}
-                                        render={({ field }) => ( <FormItem><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-20" /></FormControl><FormMessage/></FormItem> )}
-                                      />
-                                    </TableCell>
-                                    <TableCell className="p-1">
-                                      <FormField
-                                        control={form.control}
-                                        name={`tasks.${index}.unitPrice`}
-                                        render={({ field }) => ( <FormItem><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-24" /></FormControl><FormMessage/></FormItem> )}
-                                      />
-                                    </TableCell>
-                                    <TableCell className="p-1 font-semibold">
-                                      ₹{((form.watch(`tasks.${index}.quantity`) || 0) * (form.watch(`tasks.${index}.unitPrice`) || 0)).toLocaleString()}
-                                    </TableCell>
-                                    <TableCell className="p-1">
-                                        <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            )})}
-                        </TableBody>
-                     </Table>
-                   </div>
+                                        </TableCell>
+                                        <TableCell className="p-1">
+                                        <FormField
+                                            control={form.control}
+                                            name={`tasks.${index}.quantity`}
+                                            render={({ field }) => ( <FormItem><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-20" /></FormControl><FormMessage/></FormItem> )}
+                                        />
+                                        </TableCell>
+                                        <TableCell className="p-1">
+                                        <FormField
+                                            control={form.control}
+                                            name={`tasks.${index}.unitPrice`}
+                                            render={({ field }) => ( <FormItem><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-8 text-xs w-24" /></FormControl><FormMessage/></FormItem> )}
+                                        />
+                                        </TableCell>
+                                        <TableCell className="p-1 font-semibold">
+                                        ₹{((form.watch(`tasks.${index}.quantity`) || 0) * (form.watch(`tasks.${index}.unitPrice`) || 0)).toLocaleString()}
+                                        </TableCell>
+                                        <TableCell className="p-1">
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                )})}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    </div>
                 </div>
 
                  <div className="flex justify-end pt-4">
