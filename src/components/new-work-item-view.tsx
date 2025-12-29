@@ -78,8 +78,10 @@ export function NewWorkItemView() {
       customerPhoneSecondary: '',
       customerAddress: {
         line1: '',
+        line2: '',
         city: '',
         state: '',
+        country: '',
         zipcode: ''
       },
       overview: '',
@@ -186,7 +188,7 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                     <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
                             <FormItem>
                                  <FormLabel>Process *</FormLabel>
@@ -197,33 +199,39 @@ export function NewWorkItemView() {
                                 <FormMessage />
                             </FormItem>
                         )} />
-                         <FormItem>
-                            <FormLabel>Initial Tasks</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-sm", !selectedTasks.length && "text-muted-foreground")}>
-                                    {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                <Command>
-                                    <CommandInput placeholder="Search tasks..." />
-                                    <CommandList>
-                                    <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                    <CommandGroup>
-                                        {(processTaskMap[selectedProcess] || []).map((task) => (
-                                        <CommandItem className="text-xs" key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
-                                            <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
-                                            {task}
-                                        </CommandItem>
-                                        ))}
-                                    </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                                </PopoverContent>
-                            </Popover>
-                        </FormItem>
+                        <FormField
+                            control={form.control}
+                            name="initialTasks"
+                            render={() => (
+                            <FormItem>
+                                <FormLabel>Initial Tasks</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
+                                        {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                    <Command>
+                                        <CommandInput placeholder="Search tasks..." />
+                                        <CommandList>
+                                        <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                        <CommandGroup>
+                                            {(processTaskMap[selectedProcess] || []).map((task) => (
+                                            <CommandItem className="text-xs" key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                                <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                                {task}
+                                            </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                    </PopoverContent>
+                                </Popover>
+                            </FormItem>
+                            )}
+                        />
                     </div>
                 </CardContent>
             </Card>
@@ -237,7 +245,7 @@ export function NewWorkItemView() {
                             <CardTitle className="text-sm font-semibold text-red-600">Contact Information</CardTitle>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-4">
+                        <CardContent className="p-4 space-y-4">
                              <div className="grid grid-cols-2 gap-4">
                                 <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
@@ -282,28 +290,7 @@ export function NewWorkItemView() {
                              </div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white">
-                        <CardHeader className="p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
-                            <div className="flex items-center gap-2">
-                                <Clock className="h-5 w-5 text-blue-700" />
-                                <CardTitle className="text-sm font-semibold text-blue-700">Urgency</CardTitle>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="p-4">
-                            <FormField control={form.control} name="urgency" render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 items-center">
-                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Low" /></FormControl><FormLabel className="font-normal">Low</FormLabel></FormItem>
-                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Medium" /></FormControl><FormLabel className="font-normal">Medium</FormLabel></FormItem>
-                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="High" /></FormControl><FormLabel className="font-normal">High</FormLabel></FormItem>
-                                        </RadioGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                        </CardContent>
-                    </Card>
+                    
                 </div>
 
                 <div className="space-y-4">
@@ -339,3 +326,5 @@ export function NewWorkItemView() {
     </div>
   );
 }
+
+    
