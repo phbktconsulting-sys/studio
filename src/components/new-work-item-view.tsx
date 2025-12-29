@@ -27,7 +27,6 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -202,22 +201,24 @@ export function NewWorkItemView() {
 
   const handleAlertClose = (proceed: boolean) => {
     if (proceed && existingCustomer) {
-        // Prefill form with all existing customer data
-        form.setValue('customerName', existingCustomer.name);
-        form.setValue('customerEmail', existingCustomer.email);
-        form.setValue('customerPhoneSecondary', existingCustomer.phoneSecondary || '');
-        form.setValue('customerAddress', {
-            line1: existingCustomer.address?.line1 || '',
-            line2: existingCustomer.address?.line2 || '',
-            city: existingCustomer.address?.city || '',
-            state: existingCustomer.address?.state || '',
-            country: existingCustomer.address?.country || '',
-            zipcode: existingCustomer.address?.zipcode || ''
+        form.reset({
+            ...form.getValues(), // keep existing form values like process, etc.
+            customerName: existingCustomer.name || '',
+            customerEmail: existingCustomer.email || '',
+            customerPhone: existingCustomer.phone || '',
+            customerPhoneSecondary: existingCustomer.phoneSecondary || '',
+            customerAddress: {
+                line1: existingCustomer.address?.line1 || '',
+                line2: existingCustomer.address?.line2 || '',
+                city: existingCustomer.address?.city || '',
+                state: existingCustomer.address?.state || '',
+                country: existingCustomer.address?.country || '',
+                zipcode: existingCustomer.address?.zipcode || ''
+            },
+            businessName: existingCustomer.businessName || '',
+            hasBusiness: existingCustomer.businessName ? 'yes' : 'no',
         });
-        form.setValue('businessName', existingCustomer.businessName || '');
-        form.setValue('hasBusiness', existingCustomer.businessName ? 'yes' : 'no');
     } else {
-        // Clear fields except the phone number
         form.setValue('customerName', '');
         form.setValue('customerEmail', '');
         form.setValue('customerPhoneSecondary', '');
