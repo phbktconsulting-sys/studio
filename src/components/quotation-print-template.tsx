@@ -55,6 +55,7 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
         <thead>
           <tr style={{ backgroundColor: '#f3f4f6', borderBottom: '1px solid #e5e7eb' }}>
+            <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700 }}>Item</th>
             <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700 }}>Description</th>
             <th style={{ padding: '10px', textAlign: 'center', fontWeight: 700 }}>Quantity</th>
             <th style={{ padding: '10px', textAlign: 'right', fontWeight: 700 }}>Unit Price (₹)</th>
@@ -66,6 +67,8 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
             <tr key={index} style={{ borderBottom: '1px solid #e5e7eb' }}>
               <td style={{ padding: '10px', verticalAlign: 'top' }}>
                 <p style={{ fontWeight: 700, margin: 0 }}>{task.item}</p>
+              </td>
+              <td style={{ padding: '10px', verticalAlign: 'top' }}>
                 <p style={{ color: '#6b7280', margin: 0 }}>{task.description || ''}</p>
               </td>
               <td style={{ padding: '10px', textAlign: 'center', verticalAlign: 'top' }}>{task.quantity}</td>
