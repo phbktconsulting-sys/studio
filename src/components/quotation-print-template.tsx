@@ -3,10 +3,10 @@
 import type { QuotationFormValues } from "@/lib/types";
 
 export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNumber }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number, quoteNumber: string }) => {
-    const addressLine1 = [quotation.customerAddress?.line1, quotation.customerAddress?.line2].filter(Boolean).join(', ');
-    const addressLine2 = [quotation.customerAddress?.city, quotation.customerAddress?.state, quotation.customerAddress?.zipcode].filter(Boolean).join(', ');
     const companyAddressLine1 = "North Main Road, Koregaon Park";
     const companyAddressLine2 = "Pune, Maharashtra 414501.";
+    const addressLine1 = [quotation.customerAddress?.line1, quotation.customerAddress?.line2].filter(Boolean).join(', ');
+    const addressLine2 = [quotation.customerAddress?.city, quotation.customerAddress?.state, quotation.customerAddress?.zipcode].filter(Boolean).join(', ');
 
     return (
         <div id="quotation-to-print" className="p-10" style={{ width: '800px', fontFamily: 'Inter, sans-serif', color: '#111827', backgroundColor: 'white', fontSize: '10px' }}>
@@ -42,7 +42,7 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
           </div>
           <div style={{ padding: '20px 0' }}>
             <h3 style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: '#374151' }}>Quotation For:</h3>
-            <p style={{ margin: '2px 0', fontWeight: 'bold' }}>{quotation.customerName}</p>
+            <p style={{ margin: '2px 0', fontWeight: 'bold', fontSize: '11px' }}>{quotation.customerName}</p>
             {quotation.customerBusinessName && <p style={{ margin: '2px 0' }}>{quotation.customerBusinessName}</p>}
             {addressLine1 && <p style={{ margin: '2px 0' }}>{addressLine1}</p>}
             {addressLine2 && <p style={{ margin: '2px 0' }}>{addressLine2}</p>}
