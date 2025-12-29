@@ -276,7 +276,7 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr,2.5fr,1fr] gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
                             <FormItem>
                                  <FormLabel className="text-xs">Process *</FormLabel>
@@ -297,7 +297,7 @@ export function NewWorkItemView() {
                                 <div className="flex items-start gap-2">
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-auto justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
+                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
                                             {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
                                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
