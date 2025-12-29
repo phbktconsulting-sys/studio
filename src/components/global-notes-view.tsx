@@ -167,39 +167,17 @@ export function GlobalNotesView() {
         return {
           ...data,
           id: doc.id,
+          workItemId: '', // Global notes don't have a workItemId
           workItemCustomId: 'Global Note', // Special identifier for global notes
         } as Note & { workItemCustomId: string };
       });
       
-      // 2. Find all work items related to the customer
-      const workItemsRef = collection(firestore, 'work_items');
-      const workItemsQuery = query(workItemsRef, where('relatedContact.customerUniqueId', '==', customerId));
-      const workItemsSnapshot = await getDocs(workItemsQuery);
-      const workItemsFound = workItemsSnapshot.docs.map(doc => ({ id: doc.id, customId: doc.data().customId } as WorkItem));
-
-      let allWorkItemNotes: (Note & { workItemCustomId: string })[] = [];
-
-      // 3. For each work item, fetch its notes
-      for (const workItem of workItemsFound) {
-        const notesRef = collection(firestore, `work_items/${workItem.id}/notes`);
-        const notesSnapshot = await getDocs(notesRef);
-        const notesForWorkItem = notesSnapshot.docs.map(doc => {
-            const noteData = doc.data() as Note;
-            return {
-                ...noteData,
-                id: doc.id,
-                workItemCustomId: workItem.customId, // Add customId for context
-            };
-        });
-        allWorkItemNotes.push(...notesForWorkItem);
-      }
-      
-      // 4. Combine and sort all notes
-      const allNotes = [...globalNotes, ...allWorkItemNotes];
+      // 2. Sort all notes
+      const allNotes = [...globalNotes];
       allNotes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       
       if (allNotes.length === 0) {
-        toast({ title: 'No Results', description: 'No notes found for this customer ID.'});
+        toast({ title: 'No Results', description: 'No global notes found for this customer ID.'});
       }
 
       setSearchedNotes(allNotes);
