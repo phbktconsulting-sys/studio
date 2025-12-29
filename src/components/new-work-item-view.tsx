@@ -25,7 +25,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X, UserCheck, Users, Search } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users, Search, FilePlus } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -74,7 +74,6 @@ export function NewWorkItemView() {
     resolver: zodResolver(WorkItemCreateSchema),
     defaultValues: {
       process: '',
-      urgency: 'Medium',
       leadType: 'Self Sources',
       customerName: '',
       customerEmail: '',
@@ -111,7 +110,7 @@ export function NewWorkItemView() {
 
     const payload = {
       process: data.process,
-      urgency: data.urgency,
+      urgency: 'Medium',
       leadType: data.leadType,
       assignedTo: assignedTo,
       createdBy: user.uid,
@@ -172,7 +171,7 @@ export function NewWorkItemView() {
           <Card className="bg-white">
                 <CardHeader className="flex flex-row items-center justify-between p-2 bg-blue-100 border-b border-blue-200 rounded-t-lg">
                     <div className="flex items-center gap-2">
-                        <Search className="h-5 w-5 text-blue-700" />
+                        <FilePlus className="h-5 w-5 text-blue-700" />
                         <CardTitle className="text-sm font-semibold text-blue-700">Create New work Item</CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
