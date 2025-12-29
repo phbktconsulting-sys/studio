@@ -27,8 +27,8 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
-  AlertDialogFooter,
   AlertDialogTitle,
+  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -412,18 +412,12 @@ export function NewWorkItemView() {
                                     </FormItem>
                                 )}
                             />
-                            <div className="col-span-2 grid grid-cols-10 gap-2">
-                                <div className="col-span-3">
-                                  <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
-                                </div>
-                                <div className="col-span-2">
-                                  <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Building className="h-3 w-3" />City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
-                                </div>
-                                <div className="col-span-2">
-                                  <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Map className="h-3 w-3" />State</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
-                                </div>
-                                <div className="col-span-3">
-                                  <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><MapPin className="h-3 w-3" />Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                            <div className="col-span-2 space-y-2">
+                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                <div className="grid grid-cols-3 gap-2">
+                                    <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Building className="h-3 w-3" />City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Map className="h-3 w-3" />State</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><MapPin className="h-3 w-3" />Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                 </div>
                              </div>
                         </CardContent>
