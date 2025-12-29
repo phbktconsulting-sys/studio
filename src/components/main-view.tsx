@@ -53,7 +53,7 @@ export function MainView() {
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="relative flex h-7 items-center gap-2 rounded-none border-b-2 border-transparent bg-[#A91D22] px-4 text-xs text-white hover:bg-[#A91D22]/80 data-[state=active]:border-transparent data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-inner"
+                  className="relative flex h-7 items-center gap-2 rounded-none border-b-2 border-transparent bg-[#A91D22] px-4 text-xs text-white hover:bg-[#A91D22]/80 data-[state=active]:border-primary data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-inner"
                 >
                   <span>{tab.title}</span>
                   {tab.type !== 'static' && (
