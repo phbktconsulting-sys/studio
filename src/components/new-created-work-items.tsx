@@ -383,7 +383,7 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
               <TableRow>
                 <TableHead className="w-[120px] text-xs">Case ID</TableHead>
                 <TableHead className="text-xs">Subject</TableHead>
-                <TableHead className="w-[150px] text-xs">Process</TableHead>
+                <TableHead className="w-[150px] text-xs">Task</TableHead>
                 <TableHead className="w-[150px] text-xs">Status</TableHead>
                 <TableHead className="w-[180px] text-xs">Created By</TableHead>
                 <TableHead className="w-[180px] text-xs">Assigned To Queue</TableHead>
@@ -407,31 +407,34 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
                 </TableRow>
               )}
               {!isLoading &&
-                sortedItems.map((item) => (
-                  <TableRow key={item.id} onClick={() => handleRowClick(item)} className="cursor-pointer">
-                    <TableCell className="font-mono text-xs py-1 px-4">{item.customId}</TableCell>
-                    <TableCell className="font-medium text-xs py-1 px-4">{item.subject}</TableCell>
-                    <TableCell className="text-xs py-1 px-4">{item.process}</TableCell>
-                    <TableCell className="text-xs py-1 px-4">
-                      <StatusBadge status={item.status} />
-                    </TableCell>
-                    <TableCell className="text-xs py-1 px-4">{usersMap.get(item.createdBy) || item.createdBy}</TableCell>
-                    <TableCell className="text-xs py-1 px-4">{item.assignedTo}</TableCell>
-                    <TableCell className="text-xs py-1 px-4">{format(new Date(item.createdAt), 'p, MMM d, yyyy')}</TableCell>
-                     <TableCell className="py-1 px-4 text-center">
-                      <div className="flex justify-center items-center gap-2">
-                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => handleReallocateClick(e, item)}>
-                          <RefreshCw className="h-4 w-4 text-blue-600" />
-                          <span className="sr-only">Reallocate</span>
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => handleDeleteClick(e, item)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                sortedItems.map((item) => {
+                  const activeTask = item.tasks?.find(task => !task.completed);
+                  return (
+                    <TableRow key={item.id} onClick={() => handleRowClick(item)} className="cursor-pointer">
+                      <TableCell className="font-mono text-xs py-1 px-4">{item.customId}</TableCell>
+                      <TableCell className="font-medium text-xs py-1 px-4">{item.process}</TableCell>
+                      <TableCell className="text-xs py-1 px-4">{activeTask?.text || 'No active task'}</TableCell>
+                      <TableCell className="text-xs py-1 px-4">
+                        <StatusBadge status={item.status} />
+                      </TableCell>
+                      <TableCell className="text-xs py-1 px-4">{usersMap.get(item.createdBy) || item.createdBy}</TableCell>
+                      <TableCell className="text-xs py-1 px-4">{item.assignedTo}</TableCell>
+                      <TableCell className="text-xs py-1 px-4">{format(new Date(item.createdAt), 'p, MMM d, yyyy')}</TableCell>
+                      <TableCell className="py-1 px-4 text-center">
+                        <div className="flex justify-center items-center gap-2">
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => handleReallocateClick(e, item)}>
+                            <RefreshCw className="h-4 w-4 text-blue-600" />
+                            <span className="sr-only">Reallocate</span>
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => handleDeleteClick(e, item)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <span className="sr-only">Delete</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
             </TableBody>
           </Table>
         </div>
