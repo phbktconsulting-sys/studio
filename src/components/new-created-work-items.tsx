@@ -418,7 +418,7 @@ export function NewCreatedWorkItems({ onBack }: NewCreatedWorkItemsProps) {
                         <StatusBadge status={item.status} />
                       </TableCell>
                       <TableCell className="text-xs py-1 px-4">{usersMap.get(item.createdBy) || item.createdBy}</TableCell>
-                      <TableCell className="text-xs py-1 px-4">{item.assignedTo}</TableCell>
+                      <TableCell className="text-xs py-1 px-4">{item.process}</TableCell>
                       <TableCell className="text-xs py-1 px-4">{format(new Date(item.createdAt), 'p, MMM d, yyyy')}</TableCell>
                       <TableCell className="py-1 px-4 text-center">
                         <div className="flex justify-center items-center gap-2">
