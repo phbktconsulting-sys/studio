@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,7 +34,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItem, type WorkItemFormValues, type Customer } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X, UserCheck, Users, FilePlus, Workflow, ListTodo, User, Mail, Phone, Home, Building, MapPin, Briefcase, FileText, Type } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users, FilePlus, Workflow, ListTodo, User, Mail, Phone, Home, Building, MapPin, Briefcase, FileText, Type, Map } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -413,9 +412,10 @@ export function NewWorkItemView() {
                                     </FormItem>
                                 )}
                             />
-                            <div className="col-span-2 grid grid-cols-3 gap-2">
+                            <div className="col-span-2 grid grid-cols-4 gap-2">
                                 <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Building className="h-3 w-3" />City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Map className="h-3 w-3" />State</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                  <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><MapPin className="h-3 w-3" />Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                              </div>
                         </CardContent>
@@ -508,5 +508,3 @@ export function NewWorkItemView() {
 
     
 }
-
-    
