@@ -431,12 +431,12 @@ export function NewWorkItemView() {
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
           <AlertDialogDescription>
-            This mobile number is already associated with an existing customer:
+            <div>This mobile number is already associated with an existing customer:</div>
             <div className="font-medium text-foreground mt-2">
               <div>Name: {existingCustomer?.name}</div>
               <div>Unique ID: {existingCustomer?.id}</div>
             </div>
-            Do you want to continue with this customer's information?
+            <div>Do you want to continue with this customer's information?</div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
