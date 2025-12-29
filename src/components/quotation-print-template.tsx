@@ -26,16 +26,17 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ height: '40px', width: '40px' }}>
               <g transform="translate(50,50)">
-                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(173 58% 39%)" transform="rotate(0)"/>
-                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(27 87% 67%)" transform="rotate(90)"/>
-                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(0 100% 25%)" transform="rotate(180)"/>
-                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(0 39% 47%)" transform="rotate(270)"/>
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-1))" transform="rotate(0)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-2))" transform="rotate(60)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-3))" transform="rotate(120)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-4))" transform="rotate(180)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--primary))" transform="rotate(240)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-5))" transform="rotate(300)" />
               </g>
             </svg>
           <div>
             <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#000', margin: 0 }}>PHBKT Group Limited</h1>
-            <p style={{ margin: '2px 0', fontSize: '10px' }}>North Main Road, Koregaon Park</p>
-            <p style={{ margin: '2px 0', fontSize: '10px' }}>Pune, Maharashtra, 414501</p>
+            <p style={{ margin: '2px 0', fontSize: '10px' }}>North Main Road, Koregaon Park, Pune Maharashtra 414501.</p>
             <p style={{ margin: '2px 0', fontSize: '10px' }}>Email: contact@phbkt.com | Phone: +91 7972688626</p>
           </div>
         </div>
@@ -48,7 +49,7 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
       </div>
       <div style={{ padding: '20px 0' }}>
         <h3 style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: '#374151' }}>Quotation For:</h3>
-        <p style={{ margin: '2px 0' }}>{quotation.customerName}</p>
+        <p style={{ margin: '2px 0', fontWeight: 'bold' }}>{quotation.customerName}</p>
         {quotation.customerBusinessName && <p style={{ margin: '2px 0' }}>{quotation.customerBusinessName}</p>}
         <p style={{ margin: '2px 0' }}>{formatAddress(quotation.customerAddress)}</p>
       </div>

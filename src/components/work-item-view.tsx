@@ -110,7 +110,7 @@ const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNum
       </div>
       <div style={{ padding: '20px 0' }}>
         <h3 style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: '#374151' }}>Quotation For:</h3>
-        <p style={{ margin: '2px 0' }}>{quotation.customerName}</p>
+        <p style={{ margin: '2px 0', fontWeight: 'bold' }}>{quotation.customerName}</p>
         {quotation.customerBusinessName && <p style={{ margin: '2px 0' }}>{quotation.customerBusinessName}</p>}
         <p style={{ margin: '2px 0' }}>{formatAddress(quotation.customerAddress)}</p>
       </div>
@@ -1299,15 +1299,18 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
         );
         
         // Wait for the component to render
-        setTimeout(async () => {
-          const printableElement = printContainer.querySelector<HTMLElement>('#quotation-to-print');
-          if (!printableElement) {
-              toast({ variant: 'destructive', title: 'Regeneration Failed', description: 'Printable element not found.' });
-              setRegeneratingId(null);
-              document.body.removeChild(printContainer);
-              return;
-          }
-          try {
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const printableElement = printContainer.querySelector<HTMLElement>('#quotation-to-print');
+        if (!printableElement) {
+            toast({ variant: 'destructive', title: 'Regeneration Failed', description: 'Printable element not found.' });
+            root.unmount();
+            document.body.removeChild(printContainer);
+            setRegeneratingId(null);
+            return;
+        }
+        
+        try {
             const canvas = await html2canvas(printableElement, { scale: 2 });
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
@@ -1318,16 +1321,14 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
             pdf.save(attachment.fileName);
 
             toast({ title: 'PDF Regenerated', description: 'The quotation PDF has been downloaded.' });
-          } catch (e) {
+        } catch (e) {
             console.error("Failed to generate PDF canvas:", e);
             toast({ variant: 'destructive', title: 'Regeneration Failed', description: 'Could not create PDF content.' });
-          } finally {
+        } finally {
             root.unmount();
             document.body.removeChild(printContainer);
             setRegeneratingId(null);
-          }
-        }, 500); // 500ms delay to ensure rendering
-
+        }
       } catch (error: any) {
         console.error("Failed to regenerate PDF:", error);
         toast({ variant: 'destructive', title: 'Regeneration Failed', description: error.message });
