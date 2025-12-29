@@ -35,7 +35,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItem, type WorkItemFormValues, type Customer } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X, UserCheck, Users, FilePlus } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users, FilePlus, Workflow, ListTodo, User, Mail, Phone, Home, Building, MapPin, Briefcase, FileText, Type } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -278,11 +278,11 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-12 gap-x-4 gap-y-2 items-start">
+                    <div className="grid grid-cols-12 gap-x-6 gap-y-2 items-start">
                         <div className="col-span-3">
                              <FormField control={form.control} name="process" render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs">Process *</FormLabel>
+                                    <FormLabel className="text-xs flex items-center gap-2"><Workflow className="h-3 w-3" /> Process *</FormLabel>
                                     <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
                                         <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
                                         <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
@@ -297,7 +297,7 @@ export function NewWorkItemView() {
                                 name="initialTasks"
                                 render={() => (
                                 <FormItem>
-                                    <FormLabel className="text-xs">Initial Tasks</FormLabel>
+                                    <FormLabel className="text-xs flex items-center gap-2"><ListTodo className="h-3 w-3" /> Initial Tasks</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                         <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
@@ -326,10 +326,9 @@ export function NewWorkItemView() {
                                 )}
                             />
                         </div>
-
-                        <div className="col-span-4">
+                        <div className="col-span-3 h-full flex items-center">
                             {selectedTasks.length > 0 && (
-                                <div className="flex flex-wrap gap-1 border-0 p-1 flex-1 h-full items-center">
+                                <div className="flex flex-wrap gap-1 border-0 p-1 flex-1 h-full items-center mt-4">
                                     {selectedTasks.map(task => (
                                         <Badge key={task} variant="secondary" className="text-xs font-normal">
                                             {task}
@@ -347,10 +346,10 @@ export function NewWorkItemView() {
                             )}
                         </div>
 
-                        <div className="col-span-2">
+                        <div className="col-span-3">
                            <FormField control={form.control} name="leadType" render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-xs">Lead Type</FormLabel>
+                                <FormLabel className="text-xs flex items-center gap-2"><Users className="h-3 w-3" /> Lead Type</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
                                     <SelectContent>{leadTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
@@ -373,14 +372,14 @@ export function NewWorkItemView() {
                           </div>
                         </CardHeader>
                         <CardContent className="p-4 grid grid-cols-2 gap-x-4 gap-y-2">
-                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><User className="h-3 w-3" />Customer Name *</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Mail className="h-3 w-3" />Customer Email</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                             <FormField
                                 control={form.control}
                                 name="customerPhone"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Customer Phone *</FormLabel>
+                                    <FormLabel className="flex items-center gap-2"><Phone className="h-3 w-3" />Customer Phone *</FormLabel>
                                     <div className="flex items-center">
                                       <div className="border border-r-0 border-red-200 rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                       <FormControl>
@@ -403,7 +402,7 @@ export function NewWorkItemView() {
                                 name="customerPhoneSecondary"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Secondary Phone</FormLabel>
+                                    <FormLabel className="flex items-center gap-2"><Phone className="h-3 w-3" />Secondary Phone</FormLabel>
                                      <div className="flex items-center">
                                       <div className="border border-r-0 border-red-200 rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                       <FormControl>
@@ -415,9 +414,9 @@ export function NewWorkItemView() {
                                 )}
                             />
                             <div className="col-span-2 grid grid-cols-3 gap-2">
-                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
-                                 <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Building className="h-3 w-3" />City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                 <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><MapPin className="h-3 w-3" />Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                              </div>
                         </CardContent>
                     </Card>
@@ -435,7 +434,7 @@ export function NewWorkItemView() {
                              <div className="grid grid-cols-2 items-center gap-4">
                                 <FormField control={form.control} name="hasBusiness" render={({ field }) => (
                                     <FormItem className="space-y-2">
-                                        <FormLabel>Customer Has Business?</FormLabel>
+                                        <FormLabel className="flex items-center gap-2"><Briefcase className="h-3 w-3" />Customer Has Business?</FormLabel>
                                         <FormControl>
                                             <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center space-x-4">
                                                 <FormItem className="flex items-center space-x-2 space-y-0">
@@ -453,7 +452,7 @@ export function NewWorkItemView() {
                                 {hasBusiness === 'yes' && (
                                     <FormField control={form.control} name="businessName" render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Business / Company Name</FormLabel>
+                                            <FormLabel className="flex items-center gap-2"><Type className="h-3 w-3" />Business / Company Name</FormLabel>
                                             <FormControl><Input {...field} className="h-7 bg-orange-50 border-orange-200" /></FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -462,6 +461,7 @@ export function NewWorkItemView() {
                              </div>
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
+                                    <FormLabel className="flex items-center gap-2"><FileText className="h-3 w-3" />Overview</FormLabel>
                                     <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm bg-orange-50 border-orange-200" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -508,3 +508,5 @@ export function NewWorkItemView() {
 
     
 }
+
+    
