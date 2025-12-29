@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -122,8 +121,6 @@ export function NewWorkItemView() {
     setIsCheckingPhone(true);
     setExistingCustomer(null);
     try {
-      // 1. First, check the customers collection which is keyed by email.
-      // Since we are searching by phone, we must query work_items.
       const q = query(
         collection(firestore, 'work_items'),
         where('relatedContact.phone', '==', phone),
@@ -232,14 +229,13 @@ export function NewWorkItemView() {
         businessName: existingCustomer.businessName || '',
       });
     } else if (!proceed) {
-      // Clear fields if user says no, but keep the phone number
       form.reset({
         ...form.getValues(),
         customerName: '',
         customerEmail: '',
         customerPhoneSecondary: '',
         customerAddress: { line1: '', line2: '', city: '', state: '', country: '', zipcode: '' },
-        hasBusiness: 'no',
+        hasBusiness: 'yes',
         businessName: '',
       });
     }
@@ -280,7 +276,7 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr,2fr,1fr] gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr,2.5fr,1fr] gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
                             <FormItem>
                                  <FormLabel className="text-xs">Process *</FormLabel>
