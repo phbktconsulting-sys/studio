@@ -13,8 +13,8 @@ import {
 } from '@/components/ui/card';
 import { format } from 'date-fns';
 
-const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: (Note | GlobalNote)[], usersMap: Map<string, string>, title: string, isLoading: boolean }) => {
-  const getCleanedNoteText = (note: Note | GlobalNote) => {
+const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: (Note)[], usersMap: Map<string, string>, title: string, isLoading: boolean }) => {
+  const getCleanedNoteText = (note: Note) => {
     const noteText = note.text;
     
     // List of all possible system-generated prefixes.
@@ -54,7 +54,6 @@ const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: (Note | Glob
     return cleanedText || noteText;
   };
   
-  const isGlobalNote = (note: any): note is GlobalNote => 'customerUniqueId' in note;
 
   return (
     <Card>
@@ -68,19 +67,17 @@ const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: (Note | Glob
               <tr className="border-b">
                 <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground text-xs">Category</th>
                 <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground text-xs">Subject</th>
-                 {isGlobalNote(notes[0] || {}) && <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground text-xs">Work Item #</th>}
                 <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground text-xs">Note</th>
                 <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground text-xs">Added By</th>
                 <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground text-xs">Date/Time</th>
               </tr>
             </thead>
             <tbody>
-              {isLoading && <tr><td colSpan={6} className="p-4 text-center text-xs">Loading notes...</td></tr>}
+              {isLoading && <tr><td colSpan={5} className="p-4 text-center text-xs">Loading notes...</td></tr>}
               {notes && notes.map((note) => (
                 <tr key={note.id} className="border-b">
                   <td className="p-2 align-middle font-medium text-xs">{note.category}</td>
                   <td className="p-2 align-middle font-medium text-xs">{note.subject}</td>
-                  {isGlobalNote(note) && <td className="p-2 align-middle text-xs">{note.workItemNumber}</td>}
                   <td className="p-2 align-middle text-xs">{getCleanedNoteText(note)}</td>
                   <td className="p-2 align-middle font-medium text-xs">{usersMap.get(note.authorId) || (note as Note).author || 'System'}</td>
                   <td className="p-2 align-middle text-xs">{format(new Date(note.createdAt), 'dd MMM yyyy HH:mm:ss')}</td>
@@ -88,7 +85,7 @@ const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: (Note | Glob
               ))}
               {notes && notes.length === 0 && !isLoading && (
                  <tr>
-                    <td colSpan={6} className="p-4 text-center text-xs text-muted-foreground">
+                    <td colSpan={5} className="p-4 text-center text-xs text-muted-foreground">
                       No matching data was found.
                     </td>
                   </tr>
@@ -102,7 +99,7 @@ const NotesTable = ({ notes, usersMap, title, isLoading }: { notes: (Note | Glob
 };
 
 
-export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string, customerUniqueId?: string }) {
+export function NotesTab({ workItemId }: { workItemId: string }) {
   const { firestore } = useFirebase();
   const [usersMap, setUserMap] = useState<Map<string, string>>(new Map());
 
@@ -114,18 +111,9 @@ export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string,
 
   const { data: workItemNotes, isLoading: isLoadingWorkItemNotes } = useCollection<Note>(workItemNotesQuery);
 
-  // Fetch Global Notes
-  const globalNotesQuery = useMemoFirebase(() => {
-      if (!firestore || !customerUniqueId) return null;
-      return query(collection(firestore, 'global_notes'), where('customerUniqueId', '==', customerUniqueId), orderBy('createdAt', 'desc'));
-  }, [firestore, customerUniqueId]);
-
-  const { data: globalNotes, isLoading: isLoadingGlobalNotes } = useCollection<GlobalNote>(globalNotesQuery);
-
-
   useEffect(() => {
     const fetchNoteAuthors = async () => {
-      const allNotes = [...(workItemNotes || []), ...(globalNotes || [])];
+      const allNotes = [...(workItemNotes || [])];
       if (!firestore || !allNotes || allNotes.length === 0) return;
       
       const authorIds = [...new Set(allNotes.map(note => note.authorId).filter(id => id && id !== 'system'))];
@@ -161,7 +149,7 @@ export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string,
     };
 
     fetchNoteAuthors();
-  }, [workItemNotes, globalNotes, firestore, usersMap]);
+  }, [workItemNotes, firestore, usersMap]);
 
 
   return (
@@ -172,14 +160,6 @@ export function NotesTab({ workItemId, customerUniqueId }: { workItemId: string,
         title="Notes" 
         isLoading={isLoadingWorkItemNotes} 
       />
-      {customerUniqueId && (
-          <NotesTable
-            notes={globalNotes || []}
-            usersMap={usersMap}
-            title="Global Notes"
-            isLoading={isLoadingGlobalNotes}
-          />
-      )}
     </div>
   );
 }
