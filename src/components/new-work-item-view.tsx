@@ -1,7 +1,8 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -160,51 +161,52 @@ export function NewWorkItemView() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             
-            {/* --- LEFT COLUMN --- */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="space-y-6 lg:col-span-1">
               <Card>
-                <CardHeader><CardTitle className="text-base">Customer Contact Information</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
+                <CardHeader className="bg-primary text-primary-foreground p-4 rounded-t-lg">
+                  <CardTitle className="text-base">Customer Contact Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 p-4">
                   <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><div className="w-full md:w-2/3"><FormControl><Input placeholder="e.g., John Doe" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><div className="w-full md:w-2/3"><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
                   
                   <div className="grid grid-cols-2 gap-4">
-                      <FormField
+                    <FormField
                       control={form.control}
                       name="customerPhone"
                       render={({ field }) => (
                           <FormItem>
                           <FormLabel>Customer Phone</FormLabel>
-                            <div className="relative">
+                          <div className="relative">
                               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                   <span className="text-gray-500 sm:text-sm">+91</span>
                               </div>
                               <FormControl>
                                   <Input placeholder="e.g., 9876543210" {...field} className="h-7 pl-10" />
                               </FormControl>
-                            </div>
-                            <FormMessage />
+                          </div>
+                          <FormMessage />
                           </FormItem>
                       )}
-                      />
-                      <FormField
+                    />
+                    <FormField
                       control={form.control}
                       name="customerPhoneSecondary"
                       render={({ field }) => (
                           <FormItem>
                           <FormLabel>Secondary Phone</FormLabel>
                           <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                <span className="text-gray-500 sm:text-sm">+91</span>
-                            </div>
-                            <FormControl>
+                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                  <span className="text-gray-500 sm:text-sm">+91</span>
+                              </div>
+                              <FormControl>
                               <Input placeholder="Optional" {...field} className="h-7 pl-10" />
-                            </FormControl>
+                              </FormControl>
                           </div>
                           <FormMessage />
                           </FormItem>
                       )}
-                      />
+                    />
                   </div>
 
                   <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><div className="w-full md:w-2/3"><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
@@ -217,11 +219,12 @@ export function NewWorkItemView() {
               </Card>
             </div>
             
-            {/* --- RIGHT COLUMN --- */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="space-y-6 lg:col-span-1">
                 <Card>
-                    <CardHeader><CardTitle className="text-base">Tasks &amp; Assignment</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardHeader className="bg-primary text-primary-foreground p-4 rounded-t-lg">
+                      <CardTitle className="text-base">Tasks &amp; Assignment</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 p-4">
                        <FormField control={form.control} name="assignTo" render={({ field }) => (
                           <FormItem>
                           <FormLabel>Assign To</FormLabel>
@@ -278,8 +281,10 @@ export function NewWorkItemView() {
                     </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader><CardTitle className="text-base">Work Item Details</CardTitle></CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardHeader className="bg-primary text-primary-foreground p-4 rounded-t-lg">
+                    <CardTitle className="text-base">Work Item Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 p-4">
                        <FormField control={form.control} name="urgency" render={({ field }) => (
                           <FormItem>
                               <FormLabel>Urgency</FormLabel>
