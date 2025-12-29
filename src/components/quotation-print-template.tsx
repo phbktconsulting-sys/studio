@@ -97,13 +97,13 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
             <div style={{ width: '45%', textAlign: 'center' }}>
               <div style={{ borderTop: '1px solid #111827', paddingTop: '8px' }}>
                 <p style={{ margin: 0 }}>Authorized Signature</p>
-                <p style={{ margin: '2px 0', color: '#6b7280' }}>PHBKT Group Limited</p>
+                <p style={{ margin: '2px 0', color: '#6b7280', fontWeight: 'bold', fontSize: '11px' }}>PHBKT Group Limited</p>
               </div>
             </div>
             <div style={{ width: '45%', textAlign: 'center' }}>
               <div style={{ borderTop: '1px solid #111827', paddingTop: '8px' }}>
                 <p style={{ margin: 0 }}>Client Signature</p>
-                <p style={{ margin: '2px 0', color: '#6b7280' }}>{quotation.customerName}</p>
+                <p style={{ margin: '2px 0', color: '#6b7280', fontWeight: 'bold', fontSize: '11px' }}>{quotation.customerName}</p>
               </div>
             </div>
           </div>
