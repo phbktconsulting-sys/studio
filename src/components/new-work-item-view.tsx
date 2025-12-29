@@ -89,6 +89,7 @@ export function NewWorkItemView() {
     defaultValues: {
       process: '',
       leadType: 'Self Sources',
+      urgency: 'Medium',
       customerName: '',
       customerEmail: '',
       customerPhone: '',
@@ -147,6 +148,7 @@ export function NewWorkItemView() {
     const payload = {
       process: data.process,
       leadType: data.leadType,
+      urgency: data.urgency,
       assignedTo: assignedTo,
       createdBy: user.uid,
       relatedContact: {
