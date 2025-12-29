@@ -278,8 +278,8 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-8 gap-x-4 items-start">
-                        <div className="col-span-2">
+                     <div className="grid grid-cols-12 gap-x-4 items-start">
+                        <div className="col-span-3">
                              <FormField control={form.control} name="process" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-xs flex items-center gap-2"><Workflow className="h-3 w-3" /> Process *</FormLabel>
@@ -291,7 +291,7 @@ export function NewWorkItemView() {
                                 </FormItem>
                             )} />
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-3">
                            <FormField
                                 control={form.control}
                                 name="initialTasks"
@@ -326,7 +326,7 @@ export function NewWorkItemView() {
                                 )}
                             />
                         </div>
-                        <div className="col-span-3">
+                         <div className="col-span-4">
                             {selectedTasks.length > 0 && (
                                 <div className="flex flex-wrap gap-1 border-0 p-1 flex-1 h-full items-center mt-4">
                                     {selectedTasks.map(task => (
@@ -345,8 +345,7 @@ export function NewWorkItemView() {
                                 </div>
                             )}
                         </div>
-
-                        <div className="col-span-1">
+                        <div className="col-span-2">
                            <FormField control={form.control} name="leadType" render={({ field }) => (
                             <FormItem>
                                 <FormLabel className="text-xs flex items-center gap-2"><Users className="h-3 w-3" /> Lead Type</FormLabel>
@@ -484,7 +483,7 @@ export function NewWorkItemView() {
             <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting} className="h-7">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || isCheckingPhone} className="bg-orange-500 hover:bg-orange-600 text-white h-7">
+            <Button type="submit" disabled={isSubmitting || isCheckingPhone} className="h-7">
               {isSubmitting ? 'Creating...' : (isCheckingPhone ? 'Checking...' : 'Create Work Item')}
             </Button>
           </div>
