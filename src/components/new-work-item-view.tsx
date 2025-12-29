@@ -179,7 +179,7 @@ export function NewWorkItemView() {
                             type="button"
                             onClick={() => form.setValue('assignTo', 'myself')}
                             variant={assignment === 'myself' ? 'default' : 'outline'}
-                            className={cn("h-7 text-xs", assignment === 'myself' ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50")}
+                            className={cn("h-8 text-xs", assignment === 'myself' ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50")}
                         >
                             <UserCheck className="mr-2 h-4 w-4" />
                             Assign to Myself
@@ -188,7 +188,7 @@ export function NewWorkItemView() {
                             type="button"
                             onClick={() => form.setValue('assignTo', 'initial_indexing')}
                             variant={assignment === 'initial_indexing' ? 'default' : 'outline'}
-                            className={cn("h-7 text-xs", assignment === 'initial_indexing' ? "bg-orange-500 hover:bg-orange-600 text-white" : "bg-white text-orange-500 border-orange-500 hover:bg-orange-50")}
+                            className={cn("h-8 text-xs", assignment === 'initial_indexing' ? "bg-orange-500 hover:bg-orange-600 text-white" : "bg-white text-orange-500 border-orange-500 hover:bg-orange-50")}
                         >
                             <Users className="mr-2 h-4 w-4" />
                             Initial Indexing Queue
@@ -263,7 +263,7 @@ export function NewWorkItemView() {
                             <CardTitle className="text-sm font-semibold text-red-600">Contact Information</CardTitle>
                           </div>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-2 gap-2 p-4">
+                        <CardContent className="p-4 grid grid-cols-2 gap-x-4 gap-y-2">
                             <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                             <FormField
