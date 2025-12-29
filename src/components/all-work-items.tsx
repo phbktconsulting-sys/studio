@@ -49,16 +49,20 @@ import {
   RefreshCw,
   Trash2,
   X,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { useTabs } from '@/contexts/tab-context';
-import { format, isSameDay, parseISO } from 'date-fns';
+import { format, isWithinInterval, parseISO, startOfDay, endOfDay, subDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { deleteWorkItem } from '@/ai/flows/delete-work-item-flow';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Calendar } from './ui/calendar';
+import { DateRange } from 'react-date-range';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
+import { cn } from '@/lib/utils';
 
 const UrgencyIcon = ({ urgency }: { urgency: WorkItem['urgency'] }) => {
   switch (urgency) {
@@ -269,7 +273,13 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
   const [processFilter, setProcessFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<Date | undefined>();
+  const [dateRange, setDateRange] = useState([
+    {
+      startDate: undefined as Date | undefined,
+      endDate: undefined as Date | undefined,
+      key: 'selection'
+    }
+  ]);
 
   const workItemsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -384,19 +394,28 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
     if (urgencyFilter !== 'all') {
       filtered = filtered.filter(item => item.urgency === urgencyFilter);
     }
-    if (dateFilter) {
-      filtered = filtered.filter(item => isSameDay(parseISO(item.createdAt), dateFilter));
+    if (dateRange[0].startDate && dateRange[0].endDate) {
+      const startDate = startOfDay(dateRange[0].startDate);
+      const endDate = endOfDay(dateRange[0].endDate);
+      filtered = filtered.filter(item => {
+        const createdAt = parseISO(item.createdAt);
+        return isWithinInterval(createdAt, { start: startDate, end: endDate });
+      });
     }
     
     return [...filtered].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }, [workItems, userFilter, processFilter, statusFilter, urgencyFilter, dateFilter]);
+  }, [workItems, userFilter, processFilter, statusFilter, urgencyFilter, dateRange]);
   
   const clearFilters = () => {
     setUserFilter('all');
     setProcessFilter('all');
     setStatusFilter('all');
     setUrgencyFilter('all');
-    setDateFilter(undefined);
+    setDateRange([{
+      startDate: undefined,
+      endDate: undefined,
+      key: 'selection'
+    }]);
   };
 
 
@@ -463,12 +482,33 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
               </Select>
               <Popover>
                   <PopoverTrigger asChild>
-                      <Button variant="outline" className="h-8 justify-start text-left font-normal text-xs">
-                          {dateFilter ? format(dateFilter, 'PPP') : <span>Filter by Date</span>}
-                      </Button>
+                    <Button
+                      id="date"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal h-8 text-xs",
+                        !dateRange[0].startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateRange[0].startDate && dateRange[0].endDate ? (
+                        <>
+                          {format(dateRange[0].startDate, "LLL dd, y")} -{" "}
+                          {format(dateRange[0].endDate, "LLL dd, y")}
+                        </>
+                      ) : (
+                        <span>Filter by Date</span>
+                      )}
+                    </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
+                     <DateRange
+                        editableDateInputs={true}
+                        onChange={item => setDateRange([item.selection] as any)}
+                        moveRangeOnFirstSelection={false}
+                        ranges={dateRange as any}
+                        className="w-full"
+                    />
                   </PopoverContent>
               </Popover>
               <Button variant="ghost" className="h-8" onClick={clearFilters}>
@@ -485,7 +525,7 @@ export function AllWorkItems({ onBack }: AllWorkItemsProps) {
                 <TableHead className="w-[50px] text-xs"></TableHead>
                 <TableHead className="w-[120px] text-xs">ID</TableHead>
                 <TableHead className="w-[150px] text-xs">Status</TableHead>
-                <TableHead className="text-xs">Subject</TableHead>
+                <TableHead className="text-xs">Process</TableHead>
                 <TableHead className="w-[180px] text-xs">Customer Name</TableHead>
                 <TableHead className="w-[180px] text-xs">Assigned To</TableHead>
                 <TableHead className="w-[180px] text-xs">Date</TableHead>
