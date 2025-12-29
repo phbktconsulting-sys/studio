@@ -25,6 +25,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -204,7 +205,11 @@ export function NewWorkItemView() {
         form.setValue('customerName', existingCustomer.name);
         form.setValue('customerEmail', existingCustomer.email);
         form.setValue('customerPhoneSecondary', existingCustomer.phoneSecondary || '');
-        form.setValue('customerAddress', existingCustomer.address || { line1: '', line2: '', city: '', state: '', country: '', zipcode: '' });
+        if (existingCustomer.address) {
+            form.setValue('customerAddress.line1', existingCustomer.address.line1);
+            form.setValue('customerAddress.city', existingCustomer.address.city);
+            form.setValue('customerAddress.zipcode', existingCustomer.address.zipcode);
+        }
         form.setValue('businessName', existingCustomer.businessName || '');
         form.setValue('hasBusiness', existingCustomer.businessName ? 'yes' : 'no');
     } else {
@@ -435,8 +440,8 @@ export function NewWorkItemView() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
-          <div className="text-sm text-muted-foreground">
-            <div>This mobile number is already associated with an existing customer:</div>
+           <div className="text-sm text-muted-foreground">
+             <div>This mobile number is already associated with an existing customer:</div>
             <div className="font-medium text-foreground mt-2">
               <div>Name: {existingCustomer?.name}</div>
               <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
