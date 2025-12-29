@@ -1,3 +1,4 @@
+
 import type { SVGProps } from 'react';
 
 export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement> & {height?: number, width?: number}) => {
@@ -11,10 +12,12 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement> & {hei
       {...props}
     >
       <g transform="translate(50,50)">
-        <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(var(--chart-2))" transform="rotate(0)" />
-        <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(var(--chart-5))" transform="rotate(90)" />
-        <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(var(--primary))" transform="rotate(180)" />
-        <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(var(--accent))" transform="rotate(270)" />
+        <path d="M0,0 L-50,0 A50,50 0 0,1 0,-50 Z" fill="hsl(var(--chart-1))" transform="rotate(0)" />
+        <path d="M0,0 L-50,0 A50,50 0 0,1 0,-50 Z" fill="hsl(var(--chart-2))" transform="rotate(60)" />
+        <path d="M0,0 L-50,0 A50,50 0 0,1 0,-50 Z" fill="hsl(var(--chart-3))" transform="rotate(120)" />
+        <path d="M0,0 L-50,0 A50,50 0 0,1 0,-50 Z" fill="hsl(var(--chart-4))" transform="rotate(180)" />
+        <path d="M0,0 L-50,0 A50,50 0 0,1 0,-50 Z" fill="hsl(var(--primary))" transform="rotate(240)" />
+        <path d="M0,0 L-50,0 A50,50 0 0,1 0,-50 Z" fill="hsl(var(--accent))" transform="rotate(300)" />
       </g>
     </svg>
   );
