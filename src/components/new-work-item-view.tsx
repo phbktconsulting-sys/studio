@@ -249,49 +249,43 @@ export function NewWorkItemView() {
                             <CardTitle className="text-sm font-semibold text-red-600">Contact Information</CardTitle>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-4">
-                             <div className="grid grid-cols-2 gap-4 mb-4">
-                                <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
-                            </div>
-                             <div className="grid grid-cols-2 gap-4 mb-4">
-                                <FormField
-                                    control={form.control}
-                                    name="customerPhone"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                        <FormLabel>Customer Phone *</FormLabel>
-                                        <div className="flex items-center">
-                                          <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
-                                          <FormControl>
-                                            <Input {...field} className="rounded-l-none bg-orange-50/50 h-7" />
-                                          </FormControl>
-                                        </div>
-                                        <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="customerPhoneSecondary"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                        <FormLabel>Secondary Phone</FormLabel>
-                                         <div className="flex items-center">
-                                          <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
-                                          <FormControl>
-                                            <Input {...field} className="rounded-l-none bg-orange-50/50 h-7" />
-                                          </FormControl>
-                                        </div>
-                                        <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                             </div>
-                             <div className="grid grid-cols-2 gap-4">
-                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
-                             </div>
+                        <CardContent className="p-4 grid grid-cols-2 gap-2">
+                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField
+                                control={form.control}
+                                name="customerPhone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Customer Phone *</FormLabel>
+                                    <div className="flex items-center">
+                                      <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
+                                      <FormControl>
+                                        <Input {...field} className="rounded-l-none bg-orange-50/50 h-7" />
+                                      </FormControl>
+                                    </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="customerPhoneSecondary"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Secondary Phone</FormLabel>
+                                     <div className="flex items-center">
+                                      <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
+                                      <FormControl>
+                                        <Input {...field} className="rounded-l-none bg-orange-50/50 h-7" />
+                                      </FormControl>
+                                    </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>Address</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
                         </CardContent>
                     </Card>
                 </div>
