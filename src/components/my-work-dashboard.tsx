@@ -192,7 +192,7 @@ export function MyWorkDashboard() {
                   <TableCell className="py-1 px-4 text-xs">
                     <StatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell className="py-1 px-4 text-xs">{item.subject}</TableCell>
+                  <TableCell className="py-1 px-4 text-xs">{item.process}</TableCell>
                   <TableCell className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
                   <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
                 </TableRow>
