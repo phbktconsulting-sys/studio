@@ -44,7 +44,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // State for the single line item form
-  const [currentItem, setCurrentItem] = useState<Partial<QuotationTask>>({ process: '', task: '', quantity: 1, unitPrice: 0 });
+  const [currentItem, setCurrentItem] = useState<Partial<QuotationTask>>({ item: '', description: '', quantity: 1, unitPrice: 0 });
 
   const form = useForm<QuotationFormValues>({
     resolver: zodResolver(QuotationFormSchema),
@@ -87,7 +87,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
       return;
     }
     append(result.data);
-    setCurrentItem({ process: '', task: '', quantity: 1, unitPrice: 0 }); // Reset for next item
+    setCurrentItem({ item: '', description: '', quantity: 1, unitPrice: 0 }); // Reset for next item
   };
 
   const handleGenerateQuote = async (data: QuotationFormValues) => {
@@ -247,8 +247,8 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                     <Table className="min-w-full text-xs">
                       <TableHeader>
                         <TableRow className="bg-gray-50">
-                          <TableHead className="w-[180px]">Process</TableHead>
-                          <TableHead className="w-[180px]">Task</TableHead>
+                          <TableHead className="w-[180px]">Item</TableHead>
+                          <TableHead className="w-[180px]">Description</TableHead>
                           <TableHead className="w-[80px]">QTY</TableHead>
                           <TableHead className="w-[120px]">Unit Price</TableHead>
                           <TableHead className="w-[120px]">Amount</TableHead>
@@ -258,15 +258,15 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                       <TableBody>
                         <TableRow>
                           <TableCell className="p-1">
-                            <Select onValueChange={(value) => setCurrentItem({ ...currentItem, process: value, task: '' })} value={currentItem.process || ''}>
-                              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Process" /></SelectTrigger>
+                            <Select onValueChange={(value) => setCurrentItem({ ...currentItem, item: value, description: '' })} value={currentItem.item || ''}>
+                              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Item" /></SelectTrigger>
                               <SelectContent>{processTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                             </Select>
                           </TableCell>
                           <TableCell className="p-1">
-                            <Select onValueChange={(value) => setCurrentItem({ ...currentItem, task: value })} value={currentItem.task || ''} disabled={!currentItem.process}>
-                              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Task" /></SelectTrigger>
-                              <SelectContent>{(processTaskMap[currentItem.process || ''] || []).map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                            <Select onValueChange={(value) => setCurrentItem({ ...currentItem, description: value })} value={currentItem.description || ''} disabled={!currentItem.item}>
+                              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select Description" /></SelectTrigger>
+                              <SelectContent>{(processTaskMap[currentItem.item || ''] || []).map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                             </Select>
                           </TableCell>
                           <TableCell className="p-1">
@@ -294,8 +294,8 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         <Table className="min-w-full text-xs">
                           <TableHeader>
                             <TableRow className="bg-gray-50">
-                              <TableHead>Process</TableHead>
-                              <TableHead>Task</TableHead>
+                              <TableHead>Item</TableHead>
+                              <TableHead>Description</TableHead>
                               <TableHead>QTY</TableHead>
                               <TableHead>Unit Price</TableHead>
                               <TableHead>Amount</TableHead>
@@ -305,8 +305,8 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                           <TableBody>
                             {fields.map((field, index) => (
                               <TableRow key={field.id}>
-                                <TableCell className="p-1">{quotationData.tasks[index]?.process}</TableCell>
-                                <TableCell className="p-1">{quotationData.tasks[index]?.task}</TableCell>
+                                <TableCell className="p-1">{quotationData.tasks[index]?.item}</TableCell>
+                                <TableCell className="p-1">{quotationData.tasks[index]?.description}</TableCell>
                                 <TableCell className="p-1">{quotationData.tasks[index]?.quantity}</TableCell>
                                 <TableCell className="p-1">₹{(quotationData.tasks[index]?.unitPrice || 0).toLocaleString()}</TableCell>
                                 <TableCell className="p-1 font-semibold">₹{((quotationData.tasks[index]?.quantity || 0) * (quotationData.tasks[index]?.unitPrice || 0)).toLocaleString()}</TableCell>

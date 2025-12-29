@@ -55,7 +55,7 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
         <thead>
           <tr style={{ backgroundColor: '#f3f4f6', borderBottom: '1px solid #e5e7eb' }}>
-            <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700 }}>Task</th>
+            <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700 }}>Description</th>
             <th style={{ padding: '10px', textAlign: 'center', fontWeight: 700 }}>Quantity</th>
             <th style={{ padding: '10px', textAlign: 'right', fontWeight: 700 }}>Unit Price (₹)</th>
             <th style={{ padding: '10px', textAlign: 'right', fontWeight: 700 }}>Total (₹)</th>
@@ -65,7 +65,8 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
           {quotation.tasks.map((task, index) => (
             <tr key={index} style={{ borderBottom: '1px solid #e5e7eb' }}>
               <td style={{ padding: '10px', verticalAlign: 'top' }}>
-                <p style={{ fontWeight: 700, margin: 0 }}>{task.task}</p>
+                <p style={{ fontWeight: 700, margin: 0 }}>{task.item}</p>
+                <p style={{ color: '#6b7280', margin: 0 }}>{task.description || ''}</p>
               </td>
               <td style={{ padding: '10px', textAlign: 'center', verticalAlign: 'top' }}>{task.quantity}</td>
               <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{(task.unitPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>

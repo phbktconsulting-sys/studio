@@ -283,8 +283,8 @@ export const LeadCaptureSchema = z.object({
 export type LeadCaptureFormValues = z.infer<typeof LeadCaptureSchema>;
 
 export const QuotationTaskSchema = z.object({
-  process: z.string().min(1, "Process is required."),
-  task: z.string().min(1, "Task is required."),
+  item: z.string().min(1, "Item is required."),
+  description: z.string().min(1, "Description is required."),
   quantity: z.number().positive("Quantity must be > 0."),
   unitPrice: z.number().positive("Unit price must be > 0."),
 });
