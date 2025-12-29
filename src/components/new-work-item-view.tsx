@@ -25,6 +25,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -277,7 +278,7 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-7 gap-4">
+                    <div className="grid grid-cols-5 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
                             <FormItem className="col-span-2">
                                 <FormLabel className="text-xs">Process *</FormLabel>
@@ -293,51 +294,32 @@ export function NewWorkItemView() {
                             control={form.control}
                             name="initialTasks"
                             render={() => (
-                            <FormItem className="col-span-4">
+                            <FormItem className="col-span-1">
                                 <FormLabel className="text-xs">Initial Tasks</FormLabel>
-                                <div className="flex items-start gap-2">
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
-                                            {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                        <Command>
-                                            <CommandInput placeholder="Search tasks..." />
-                                            <CommandList>
-                                            <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                            <CommandGroup>
-                                                {(processTaskMap[selectedProcess] || []).map((task) => (
-                                                <CommandItem className="text-xs" key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
-                                                    <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
-                                                    {task}
-                                                </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                        </PopoverContent>
-                                    </Popover>
-                                    {selectedTasks.length > 0 && (
-                                        <div className="flex flex-wrap gap-1 pt-1 border p-1 rounded-md bg-slate-50 flex-1">
-                                            {selectedTasks.map(task => (
-                                                <Badge key={task} variant="secondary" className="text-xs font-normal">
-                                                    {task}
-                                                    <button
-                                                        type="button"
-                                                        className="ml-1.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
-                                                        onClick={() => setSelectedTasks(prev => prev.filter(t => t !== task))}
-                                                    >
-                                                        <X className="h-3 w-3" />
-                                                        <span className="sr-only">Remove {task}</span>
-                                                    </button>
-                                                </Badge>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
+                                        {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                    <Command>
+                                        <CommandInput placeholder="Search tasks..." />
+                                        <CommandList>
+                                        <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                        <CommandGroup>
+                                            {(processTaskMap[selectedProcess] || []).map((task) => (
+                                            <CommandItem className="text-xs" key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                                <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                                {task}
+                                            </CommandItem>
                                             ))}
-                                        </div>
-                                    )}
-                                </div>
+                                        </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                    </PopoverContent>
+                                </Popover>
                             </FormItem>
                             )}
                         />
@@ -351,6 +333,25 @@ export function NewWorkItemView() {
                                 <FormMessage />
                             </FormItem>
                         )} />
+                        <div className="col-span-1">
+                            {selectedTasks.length > 0 && (
+                                <div className="flex flex-wrap gap-1 pt-1 border p-1 rounded-md bg-slate-50 flex-1 h-full items-center">
+                                    {selectedTasks.map(task => (
+                                        <Badge key={task} variant="secondary" className="text-xs font-normal">
+                                            {task}
+                                            <button
+                                                type="button"
+                                                className="ml-1.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                                                onClick={() => setSelectedTasks(prev => prev.filter(t => t !== task))}
+                                            >
+                                                <X className="h-3 w-3" />
+                                                <span className="sr-only">Remove {task}</span>
+                                            </button>
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -479,15 +480,15 @@ export function NewWorkItemView() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
-          <div className="text-sm text-muted-foreground space-y-2 pt-2">
-            <p>This mobile number is already associated with an existing customer:</p>
+          <AlertDialogDescription>
+            This mobile number is already associated with an existing customer:
             <div className="font-medium text-foreground mt-2">
               <p>Name: {existingCustomer?.name}</p>
               <p>Email: {existingCustomer?.email}</p>
               <p>Unique ID: {existingCustomer?.customerUniqueId}</p>
             </div>
-            <p>Do you want to continue with this customer's information?</p>
-          </div>
+            Do you want to continue with this customer's information?
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => handleAlertClose(false)}>No, enter a different number</AlertDialogCancel>
