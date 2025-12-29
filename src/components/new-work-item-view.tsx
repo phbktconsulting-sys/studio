@@ -250,7 +250,7 @@ export function NewWorkItemView() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           
-          <Card className="bg-white border">
+          <Card className="border">
                 <CardHeader className="flex flex-row items-center justify-between p-2 bg-blue-100 border-b border-blue-200 rounded-t-lg">
                     <div className="flex items-center gap-2">
                         <FilePlus className="h-5 w-5 text-blue-700" />
@@ -363,7 +363,7 @@ export function NewWorkItemView() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <div className="space-y-4">
-                    <Card className="bg-white border">
+                    <Card className="border">
                         <CardHeader className="p-2 bg-red-100 border-b border-red-200 rounded-t-lg">
                           <div className="flex items-center gap-2">
                             <Users className="h-5 w-5 text-red-600" />
@@ -414,13 +414,13 @@ export function NewWorkItemView() {
                             />
                              <div className="col-span-2 space-y-2">
                                 <div className="grid grid-cols-12 gap-2">
-                                    <div className="col-span-6">
+                                    <div className="col-span-4">
                                         <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-3">
                                         <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Building className="h-3 w-3" />City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-3">
                                         <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Map className="h-3 w-3" />State</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
                                     <div className="col-span-2">
@@ -433,7 +433,7 @@ export function NewWorkItemView() {
                 </div>
 
                 <div className="space-y-4">
-                    <Card className="bg-white border">
+                    <Card className="border">
                         <CardHeader className="p-2 bg-orange-100 border-b border-orange-200 rounded-t-lg">
                           <div className="flex items-center gap-2">
                             <FilePlus className="h-5 w-5 text-orange-600" />
@@ -472,7 +472,7 @@ export function NewWorkItemView() {
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center gap-2"><FileText className="h-3 w-3" />Overview</FormLabel>
-                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[80px] text-sm bg-orange-50 border-orange-200" /></FormControl>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm bg-orange-50 border-orange-200" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
