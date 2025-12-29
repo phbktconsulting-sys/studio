@@ -384,7 +384,8 @@ export function NewWorkItemView() {
                                       <FormControl>
                                         <Input 
                                           {...field} 
-                                          className="rounded-l-none h-7 bg-red-50 border-red-200" 
+                                          className="rounded-l-none h-7 bg-red-50 border-red-200"
+                                          maxLength={10}
                                           onBlur={(e) => {
                                             field.onBlur();
                                             checkForExistingCustomer(e.target.value);
@@ -405,7 +406,7 @@ export function NewWorkItemView() {
                                      <div className="flex items-center">
                                       <div className="border border-r-0 border-red-200 rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                       <FormControl>
-                                        <Input {...field} className="rounded-l-none h-7 bg-red-50 border-red-200" />
+                                        <Input {...field} maxLength={10} className="rounded-l-none h-7 bg-red-50 border-red-200" />
                                       </FormControl>
                                     </div>
                                     <FormMessage />
