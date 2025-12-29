@@ -252,7 +252,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                           <TableHead className="w-[80px]">QTY</TableHead>
                           <TableHead className="w-[120px]">Unit Price</TableHead>
                           <TableHead className="w-[120px]">Amount</TableHead>
-                          <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -278,14 +277,16 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                           <TableCell className="p-1 font-semibold">
                             ₹{((currentItem.quantity || 0) * (currentItem.unitPrice || 0)).toLocaleString()}
                           </TableCell>
-                          <TableCell className="p-1">
-                            <Button type="button" size="icon" onClick={handleAddItem} className="h-8 w-8 bg-green-500 hover:bg-green-600">
-                                <PlusCircle className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>
+                  </div>
+
+                  <div className="flex justify-end mt-2">
+                    <Button type="button" size="sm" onClick={handleAddItem} className="h-8 bg-green-500 hover:bg-green-600 text-xs">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Item
+                    </Button>
                   </div>
                   
                    {/* Table of added items */}
