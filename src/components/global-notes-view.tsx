@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -211,56 +212,58 @@ export function GlobalNotesView() {
   };
 
   return (
-    <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+    <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
       {/* Add Note Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Add Global Note</CardTitle>
-          <CardDescription className="text-xs">Add a note associated with a Customer ID.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddNote} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-1">
-                <Label htmlFor="customer-id-add" className="text-xs">Customer Unique ID *</Label>
-                <Input 
-                  id="customer-id-add" 
-                  placeholder="Enter Customer ID..."
-                  value={newNoteCustomerId}
-                  onChange={e => setNewNoteCustomerId(e.target.value)}
-                  className="text-xs"
+      <div className="lg:col-span-1">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Add Global Note</CardTitle>
+            <CardDescription className="text-xs">Add a note associated with a Customer ID.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAddNote} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-1">
+                  <Label htmlFor="customer-id-add" className="text-xs">Customer Unique ID *</Label>
+                  <Input 
+                    id="customer-id-add" 
+                    placeholder="Enter Customer ID..."
+                    value={newNoteCustomerId}
+                    onChange={e => setNewNoteCustomerId(e.target.value)}
+                    className="text-xs"
+                  />
+                </div>
+                 <div className="space-y-1">
+                  <Label htmlFor="work-item-number" className="text-xs">Work Item Number *</Label>
+                  <Input 
+                    id="work-item-number" 
+                    placeholder="Enter Work Item Number..."
+                    value={newNoteWorkItemNumber}
+                    onChange={e => setNewNoteWorkItemNumber(e.target.value)}
+                    className="text-xs"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="note-content" className="text-xs">Note *</Label>
+                <Textarea
+                  id="note-content"
+                  placeholder="Enter note content..."
+                  value={newNoteContent}
+                  onChange={e => setNewNoteContent(e.target.value)}
+                  className="min-h-[100px] text-xs"
                 />
               </div>
-               <div className="space-y-1">
-                <Label htmlFor="work-item-number" className="text-xs">Work Item Number *</Label>
-                <Input 
-                  id="work-item-number" 
-                  placeholder="Enter Work Item Number..."
-                  value={newNoteWorkItemNumber}
-                  onChange={e => setNewNoteWorkItemNumber(e.target.value)}
-                  className="text-xs"
-                />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="note-content" className="text-xs">Note *</Label>
-              <Textarea
-                id="note-content"
-                placeholder="Enter note content..."
-                value={newNoteContent}
-                onChange={e => setNewNoteContent(e.target.value)}
-                className="min-h-[100px] text-xs"
-              />
-            </div>
-            <Button type="submit" disabled={isSubmitting} size="sm" className="text-xs">
-              {isSubmitting ? 'Submitting...' : 'Submit Note'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <Button type="submit" disabled={isSubmitting} size="sm" className="text-xs">
+                {isSubmitting ? 'Submitting...' : 'Submit Note'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Search Notes Section */}
-      <div className="space-y-4">
+      <div className="space-y-4 lg:col-span-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Search Customer Notes</CardTitle>
