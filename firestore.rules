@@ -150,7 +150,7 @@ service cloud.firestore {
      * Allows any signed-in user to create and read global notes.
      */
     match /global_notes/{globalNoteId} {
-        allow get, list, create: if isSignedIn();
+        allow list, get, create: if isSignedIn();
         allow update, delete: if isAdmin() || (resource.data.authorId == request.auth.uid);
     }
     
