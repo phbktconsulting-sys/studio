@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,7 +24,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -87,6 +86,7 @@ export function NewWorkItemView() {
   });
 
   const selectedProcess = form.watch('process');
+  const assignment = form.watch('assignTo');
 
   const onSubmit = async (data: WorkItemFormValues) => {
     if (!user) {
@@ -159,161 +159,183 @@ export function NewWorkItemView() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-6">
-              <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Tasks &amp; Assignment</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                     <FormField control={form.control} name="assignTo" render={({ field }) => (
+          
+          {/* Top Row: Process and Assignment */}
+           <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <ChevronsUpDown className="h-5 w-5 text-blue-600" />
+                        <CardTitle className="text-base text-blue-600">Process</CardTitle>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            onClick={() => form.setValue('assignTo', 'myself')}
+                            variant={assignment === 'myself' ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-8"
+                        >
+                            <UserCheck className="mr-2 h-4 w-4" />
+                            Assign to Myself
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={() => form.setValue('assignTo', 'initial_indexing')}
+                            variant={assignment === 'initial_indexing' ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-8"
+                        >
+                            <Users className="mr-2 h-4 w-4" />
+                            Initial Indexing Queue
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <FormField control={form.control} name="process" render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Assign To</FormLabel>
-                        <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 h-7 items-center">
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="initial_indexing" /></FormControl><FormLabel className="font-normal">Initial Indexing Queue</FormLabel></FormItem>
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="myself" /></FormControl><FormLabel className="font-normal">Assign to Myself</FormLabel></FormItem>
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                      )} />
-                      <FormField control={form.control} name="process" render={({ field }) => (
-                      <FormItem>
-                          <FormLabel>Process</FormLabel>
-                          <div className="w-full md:w-1/3">
                             <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
-                            <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
-                            <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
+                                <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
                             </Select>
-                          </div>
-                          <FormMessage />
-                      </FormItem>
-                      )} />
-                      <FormItem>
-                      <FormLabel>Initial Tasks</FormLabel>
-                       <div className="w-full md:w-1/3">
-                          <Popover>
-                              <PopoverTrigger asChild>
-                              <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
-                                  {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                              <Command>
-                                  <CommandInput placeholder="Search tasks..." />
-                                  <CommandList>
-                                  <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                  <CommandGroup>
-                                      {(processTaskMap[selectedProcess] || []).map((task) => (
-                                      <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
-                                          <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
-                                          {task}
-                                      </CommandItem>
-                                      ))}
-                                  </CommandGroup>
-                                  </CommandList>
-                              </Command>
-                              </PopoverContent>
-                          </Popover>
-                       </div>
-                      </FormItem>
-                  </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Customer Contact Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><div className="w-full md:w-1/3"><FormControl><Input placeholder="e.g., John Doe" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><div className="w-full md:w-1/3"><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="customerPhone"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Customer Phone</FormLabel>
-                          <div className="relative w-full md:w-2/3">
-                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                  <span className="text-gray-500 sm:text-sm">+91</span>
-                              </div>
-                              <FormControl>
-                                  <Input placeholder="e.g., 9876543210" {...field} className="h-7 pl-10" />
-                              </FormControl>
-                          </div>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="customerPhoneSecondary"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Secondary Phone</FormLabel>
-                           <div className="relative w-full md:w-2/3">
-                              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                  <span className="text-gray-500 sm:text-sm">+91</span>
-                              </div>
-                              <FormControl>
-                              <Input placeholder="Optional" {...field} className="h-7 pl-10" />
-                              </FormControl>
-                          </div>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><div className="w-full md:w-2/3"><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip / Postal Code</FormLabel><div className="w-full md:w-2/3"><FormControl><Input {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Work Item Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                     <FormField control={form.control} name="urgency" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Urgency</FormLabel>
-                             <div className="w-full md:w-1/3">
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select urgency" /></SelectTrigger></FormControl>
-                              <SelectContent>
-                                  <SelectItem value="Low">Low</SelectItem>
-                                  <SelectItem value="Medium">Medium</SelectItem>
-                                  <SelectItem value="High">High</SelectItem>
-                              </SelectContent>
-                              </Select>
-                            </div>
                             <FormMessage />
                         </FormItem>
-                      )} />
-                    <FormField control={form.control} name="overview" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Overview / Description</FormLabel>
-                        <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[125px] text-xs" /></FormControl>
-                        <FormMessage />
-                    </FormItem>
                     )} />
                 </CardContent>
             </Card>
-          </div>
-         
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                 {/* Left Column */}
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base text-red-600">Contact Information</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input placeholder="e.g., John Doe" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                             <FormField
+                                control={form.control}
+                                name="customerPhone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Customer Phone *</FormLabel>
+                                    <div className="relative">
+                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <span className="text-gray-500 sm:text-sm">+91</span>
+                                        </div>
+                                        <FormControl>
+                                            <Input placeholder="e.g., 9876543210" {...field} className="pl-12" />
+                                        </FormControl>
+                                    </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                             <FormField
+                                control={form.control}
+                                name="customerPhoneSecondary"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Secondary Phone</FormLabel>
+                                    <div className="relative">
+                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <span className="text-gray-500 sm:text-sm">+91</span>
+                                        </div>
+                                        <FormControl>
+                                            <Input placeholder="Optional" {...field} className="pl-12" />
+                                        </FormControl>
+                                    </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                            
+                             <div className="grid grid-cols-2 gap-4">
+                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                             </div>
+                        </CardContent>
+                    </Card>
+
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base text-blue-600">Urgency</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <FormField control={form.control} name="urgency" render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 items-center">
+                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Low" /></FormControl><FormLabel className="font-normal">Low</FormLabel></FormItem>
+                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Medium" /></FormControl><FormLabel className="font-normal">Medium</FormLabel></FormItem>
+                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="High" /></FormControl><FormLabel className="font-normal">High</FormLabel></FormItem>
+                                        </RadioGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </CardContent>
+                    </Card>
+                </div>
+
+                 {/* Right Column */}
+                <div className="space-y-6">
+                     <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">Initial Tasks</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormItem>
+                                <FormLabel>Initial Tasks</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-9 text-sm", !selectedTasks.length && "text-muted-foreground")}>
+                                        {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                    <Command>
+                                        <CommandInput placeholder="Search tasks..." />
+                                        <CommandList>
+                                        <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                        <CommandGroup>
+                                            {(processTaskMap[selectedProcess] || []).map((task) => (
+                                            <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                                <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                                {task}
+                                            </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                    </PopoverContent>
+                                </Popover>
+                             </FormItem>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">Overview / Description</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <FormField control={form.control} name="overview" render={({ field }) => (
+                                <FormItem>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[125px] text-sm" /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting} className="h-8">
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="h-8">
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : 'Create Work Item'}
             </Button>
           </div>
