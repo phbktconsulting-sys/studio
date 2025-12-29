@@ -20,6 +20,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
@@ -46,6 +56,7 @@ import { Checkbox } from './ui/checkbox';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 
 const processTaskMap: Record<string, string[]> = {
@@ -61,13 +72,19 @@ const processTypes = Object.keys(processTaskMap);
 
 const leadTypes = ["Self Sources", "Referred Sources", "Digital Sources", "Offline Sources", "Partner / Third-Party"];
 
+interface ExistingCustomerInfo {
+  name: string;
+  id: string;
+}
 
 export function NewWorkItemView() {
-  const { user } = useFirebase();
+  const { user, firestore } = useFirebase();
   const { closeTab, openTab } = useTabs();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
+  const [existingCustomer, setExistingCustomer] = useState<ExistingCustomerInfo | null>(null);
+  const [isCheckingPhone, setIsCheckingPhone] = useState(false);
 
 
   const form = useForm<WorkItemFormValues>({
@@ -98,6 +115,34 @@ export function NewWorkItemView() {
   const selectedProcess = form.watch('process');
   const assignment = form.watch('assignTo');
   const hasBusiness = form.watch('hasBusiness');
+  
+  const checkForExistingCustomer = async (phone: string) => {
+    if (!phone || !firestore) return;
+    setIsCheckingPhone(true);
+    try {
+      const q = query(
+        collection(firestore, 'work_items'),
+        where('relatedContact.phone', '==', phone),
+        limit(1)
+      );
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const existingWorkItem = querySnapshot.docs[0].data();
+        setExistingCustomer({
+          name: existingWorkItem.relatedContact.name,
+          id: existingWorkItem.relatedContact.customerUniqueId,
+        });
+        // Prefill form
+        form.setValue('customerName', existingWorkItem.relatedContact.name);
+        form.setValue('customerEmail', existingWorkItem.relatedContact.email);
+      }
+    } catch (error) {
+      console.error("Error checking for existing customer:", error);
+    } finally {
+      setIsCheckingPhone(false);
+    }
+  };
+
 
   const onSubmit = async (data: WorkItemFormValues) => {
     if (!user) {
@@ -163,7 +208,15 @@ export function NewWorkItemView() {
     closeTab('new-work-item');
   };
 
+  const handleAlertClose = (proceed: boolean) => {
+    if (!proceed) {
+      form.setValue('customerPhone', ''); // Clear phone number if user says no
+    }
+    setExistingCustomer(null);
+  };
+
   return (
+    <>
     <div className="p-4 sm:p-6 bg-[#e9f0f7] min-h-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -275,7 +328,14 @@ export function NewWorkItemView() {
                                     <div className="flex items-center">
                                       <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                       <FormControl>
-                                        <Input {...field} className="rounded-l-none h-7" />
+                                        <Input 
+                                          {...field} 
+                                          className="rounded-l-none h-7" 
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            checkForExistingCustomer(e.target.value);
+                                          }}
+                                        />
                                       </FormControl>
                                     </div>
                                     <FormMessage />
@@ -359,12 +419,34 @@ export function NewWorkItemView() {
             <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting} className="h-7">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-orange-500 hover:bg-orange-600 text-white h-7">
+            <Button type="submit" disabled={isSubmitting || isCheckingPhone} className="bg-orange-500 hover:bg-orange-600 text-white h-7">
               {isSubmitting ? 'Creating...' : 'Create Work Item'}
             </Button>
           </div>
         </form>
       </Form>
     </div>
+    
+    <AlertDialog open={!!existingCustomer} onOpenChange={(open) => !open && handleAlertClose(false)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
+          <AlertDialogDescription>
+            This mobile number is already associated with an existing customer:
+            <div className="font-medium text-foreground mt-2">
+              <p>Name: {existingCustomer?.name}</p>
+              <p>Unique ID: {existingCustomer?.id}</p>
+            </div>
+            Do you want to continue with this customer's information?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => handleAlertClose(false)}>No, enter a different number</AlertDialogCancel>
+          <AlertDialogAction onClick={() => handleAlertClose(true)}>Yes, continue with this customer</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
+
