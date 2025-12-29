@@ -237,9 +237,9 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
             <Form {...form}>
               <form id="quotation-form" onSubmit={form.handleSubmit(handleGenerateQuote)} className="space-y-4">
                  
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
                     {/* Customer Information Grid */}
-                    <div className="p-4 border rounded-lg bg-white space-y-4">
+                    <div className="md:col-span-2 p-4 border rounded-lg bg-white space-y-4">
                         <div className="flex items-center gap-2 mb-4 text-blue-600">
                             <Info className="w-5 h-5" />
                             <h3 className="font-semibold text-sm">Customer Details</h3>
@@ -247,18 +247,18 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
                             <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                            <div className="col-span-2 grid grid-cols-4 gap-2">
-                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip Code</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
-                            </div>
+                        </div>
+                         <div className="grid grid-cols-4 gap-2 text-xs">
+                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip Code</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                         </div>
                     </div>
 
 
                     {/* Item Details */}
-                    <div className="p-4 border rounded-lg bg-white">
+                    <div className="md:col-span-3 p-4 border rounded-lg bg-white">
                         <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-2 text-blue-600">
                             <Info className="w-5 h-5" />
