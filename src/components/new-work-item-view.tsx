@@ -25,7 +25,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X, UserCheck, Users, Search, Clock, FileText, Building2, Briefcase, Handshake, Phone, Mail, Home } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users, Search } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -197,13 +197,13 @@ export function NewWorkItemView() {
                             <FormItem>
                                  <FormLabel>Process *</FormLabel>
                                 <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
-                                    <FormControl><SelectTrigger className="bg-orange-50/50 h-7"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
                                     <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
                                 </Select>
                                 <FormMessage />
                             </FormItem>
                         )} />
-                        <FormField
+                         <FormField
                             control={form.control}
                             name="initialTasks"
                             render={() => (
@@ -249,9 +249,9 @@ export function NewWorkItemView() {
                             <CardTitle className="text-sm font-semibold text-red-600">Contact Information</CardTitle>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-4 grid grid-cols-2 gap-2">
-                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
+                        <CardContent className="grid grid-cols-2 gap-2 p-4">
+                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                             <FormField
                                 control={form.control}
                                 name="customerPhone"
@@ -261,7 +261,7 @@ export function NewWorkItemView() {
                                     <div className="flex items-center">
                                       <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                       <FormControl>
-                                        <Input {...field} className="rounded-l-none bg-orange-50/50 h-7" />
+                                        <Input {...field} className="rounded-l-none h-7" />
                                       </FormControl>
                                     </div>
                                     <FormMessage />
@@ -277,15 +277,16 @@ export function NewWorkItemView() {
                                      <div className="flex items-center">
                                       <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                       <FormControl>
-                                        <Input {...field} className="rounded-l-none bg-orange-50/50 h-7" />
+                                        <Input {...field} className="rounded-l-none h-7" />
                                       </FormControl>
                                     </div>
                                     <FormMessage />
                                     </FormItem>
                                 )}
                             />
-                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem className="col-span-2"><FormLabel>Address</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                             <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Pin Code</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
                         </CardContent>
                     </Card>
                 </div>
@@ -294,7 +295,7 @@ export function NewWorkItemView() {
                     <Card className="bg-white">
                         <CardHeader className="p-2 bg-orange-100 border-b border-orange-200 rounded-t-lg">
                           <div className="flex items-center gap-2">
-                            <FileText className="h-5 w-5 text-orange-600" />
+                            <Search className="h-5 w-5 text-orange-600" />
                             <CardTitle className="text-sm font-semibold text-orange-600">Overview / Description</CardTitle>
                           </div>
                         </CardHeader>
@@ -321,7 +322,7 @@ export function NewWorkItemView() {
                                     <FormField control={form.control} name="businessName" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Business / Company Name</FormLabel>
-                                            <FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl>
+                                            <FormControl><Input {...field} className="h-7" /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
@@ -329,7 +330,7 @@ export function NewWorkItemView() {
                              </div>
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
-                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm bg-orange-50/50" /></FormControl>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
@@ -351,3 +352,5 @@ export function NewWorkItemView() {
     </div>
   );
 }
+
+    
