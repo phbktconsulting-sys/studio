@@ -19,6 +19,11 @@
             "enum": ["Request Information", "Request Quotation", "Request Application", "Request Website", "Request inquiry", "Request Backend Support", "Request Other"],
             "description": "The type of process for the work item."
         },
+        "leadType": {
+          "type": "string",
+          "enum": ["Self Sources", "Referred Sources", "Digital Sources", "Offline Sources", "Partner / Third-Party"],
+          "description": "The source of the lead."
+        },
         "assignedTo": {
           "type": "string",
           "description": "Reference to User who is assigned to this work item."

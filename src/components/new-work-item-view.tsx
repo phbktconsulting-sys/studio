@@ -59,6 +59,9 @@ const processTaskMap: Record<string, string[]> = {
 
 const processTypes = Object.keys(processTaskMap);
 
+const leadTypes = ["Self Sources", "Referred Sources", "Digital Sources", "Offline Sources", "Partner / Third-Party"];
+
+
 export function NewWorkItemView() {
   const { user } = useFirebase();
   const { closeTab, openTab } = useTabs();
@@ -72,6 +75,7 @@ export function NewWorkItemView() {
     defaultValues: {
       process: '',
       urgency: 'Medium',
+      leadType: 'Self Sources',
       customerName: '',
       customerEmail: '',
       customerPhone: '',
@@ -108,6 +112,7 @@ export function NewWorkItemView() {
     const payload = {
       process: data.process,
       urgency: data.urgency,
+      leadType: data.leadType,
       assignedTo: assignedTo,
       createdBy: user.uid,
       relatedContact: {
@@ -192,7 +197,7 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
                             <FormItem>
                                  <FormLabel>Process *</FormLabel>
@@ -236,6 +241,16 @@ export function NewWorkItemView() {
                             </FormItem>
                             )}
                         />
+                         <FormField control={form.control} name="leadType" render={({ field }) => (
+                            <FormItem>
+                                 <FormLabel>Lead Type</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
+                                    <SelectContent>{leadTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
                     </div>
                 </CardContent>
             </Card>

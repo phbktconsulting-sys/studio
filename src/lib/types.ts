@@ -50,6 +50,7 @@ export interface WorkItem {
   id: string;
   customId: string;
   process: string;
+  leadType?: string;
   subject: string;
   status: 'Open' | 'In Progress' | 'Pending' | 'Closed' | 'Re-indexed';
   urgency: 'High' | 'Medium' | 'Low';
@@ -132,6 +133,7 @@ const AddressSchema = z.object({
 export const WorkItemCreateSchema = z.object({
   process: z.string().min(1, 'Process is required'),
   urgency: z.enum(['Low', 'Medium', 'High']),
+  leadType: z.string().optional(),
   customerName: z.string().min(1, 'Customer name is required'),
   customerEmail: z.string().email('Invalid email address'),
   customerPhone: z.string().min(1, 'Customer phone is required'),
@@ -149,6 +151,7 @@ export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
 export const ServerWorkItemCreateSchema = z.object({
   process: z.string(),
   urgency: z.enum(['Low', 'Medium', 'High']),
+  leadType: z.string().optional(),
   assignedTo: z.string(),
   createdBy: z.string(),
   relatedContact: z.object({
