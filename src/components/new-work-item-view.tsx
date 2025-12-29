@@ -155,7 +155,6 @@ export function NewWorkItemView() {
 
     const payload = {
       process: data.process,
-      urgency: 'Medium',
       leadType: data.leadType,
       assignedTo: assignedTo,
       createdBy: user.uid,
@@ -434,8 +433,8 @@ export function NewWorkItemView() {
           <AlertDialogDescription>
             This mobile number is already associated with an existing customer:
             <div className="font-medium text-foreground mt-2">
-              <p>Name: {existingCustomer?.name}</p>
-              <p>Unique ID: {existingCustomer?.id}</p>
+              <div>Name: {existingCustomer?.name}</div>
+              <div>Unique ID: {existingCustomer?.id}</div>
             </div>
             Do you want to continue with this customer's information?
           </AlertDialogDescription>
