@@ -163,10 +163,10 @@ export function NewWorkItemView() {
             
             <div className="space-y-6 lg:col-span-1">
               <Card>
-                <CardHeader className="bg-primary text-primary-foreground p-4 rounded-t-lg">
+                <CardHeader>
                   <CardTitle className="text-base">Customer Contact Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 p-4">
+                <CardContent className="space-y-4">
                   <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><div className="w-full md:w-2/3"><FormControl><Input placeholder="e.g., John Doe" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><div className="w-full md:w-2/3"><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="h-7" /></FormControl></div><FormMessage /></FormItem>)} />
                   
@@ -221,10 +221,10 @@ export function NewWorkItemView() {
             
             <div className="space-y-6 lg:col-span-1">
                 <Card>
-                    <CardHeader className="bg-primary text-primary-foreground p-4 rounded-t-lg">
+                    <CardHeader>
                       <CardTitle className="text-base">Tasks &amp; Assignment</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4 p-4">
+                    <CardContent className="space-y-4">
                        <FormField control={form.control} name="assignTo" render={({ field }) => (
                           <FormItem>
                           <FormLabel>Assign To</FormLabel>
@@ -281,10 +281,10 @@ export function NewWorkItemView() {
                     </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className="bg-primary text-primary-foreground p-4 rounded-t-lg">
+                  <CardHeader>
                     <CardTitle className="text-base">Work Item Details</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4 p-4">
+                  <CardContent className="space-y-4">
                        <FormField control={form.control} name="urgency" render={({ field }) => (
                           <FormItem>
                               <FormLabel>Urgency</FormLabel>
