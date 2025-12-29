@@ -276,7 +276,7 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr,2fr,1fr] gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
                             <FormItem>
                                  <FormLabel className="text-xs">Process *</FormLabel>
@@ -292,7 +292,7 @@ export function NewWorkItemView() {
                             control={form.control}
                             name="initialTasks"
                             render={() => (
-                            <FormItem className="lg:col-span-2">
+                            <FormItem>
                                 <FormLabel>Initial Tasks</FormLabel>
                                 <div className="flex items-start gap-2">
                                     <Popover>
