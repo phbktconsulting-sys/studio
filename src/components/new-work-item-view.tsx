@@ -206,11 +206,7 @@ export function NewWorkItemView() {
         form.setValue('customerName', existingCustomer.name);
         form.setValue('customerEmail', existingCustomer.email);
         form.setValue('customerPhoneSecondary', existingCustomer.phoneSecondary || '');
-        if (existingCustomer.address) {
-            form.setValue('customerAddress.line1', existingCustomer.address.line1);
-            form.setValue('customerAddress.city', existingCustomer.address.city);
-            form.setValue('customerAddress.zipcode', existingCustomer.address.zipcode);
-        }
+        form.setValue('customerAddress', existingCustomer.address || { line1: '', line2: '', city: '', state: '', country: '', zipcode: '' });
         form.setValue('businessName', existingCustomer.businessName || '');
         form.setValue('hasBusiness', existingCustomer.businessName ? 'yes' : 'no');
     } else {
