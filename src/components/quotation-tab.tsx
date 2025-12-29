@@ -248,8 +248,10 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                         </div>
-                         <div className="grid grid-cols-4 gap-2 text-xs">
-                            <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                         <div className="grid grid-cols-5 gap-2 text-xs">
+                            <div className="col-span-2">
+                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
+                            </div>
                             <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip Code</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
