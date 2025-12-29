@@ -32,7 +32,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
-import { WorkItemCreateSchema, type WorkItem, type WorkItemFormValues } from '@/lib/types';
+import { WorkItemCreateSchema, type WorkItem, type WorkItemFormValues, type Customer } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
 import { ChevronsUpDown, X, UserCheck, Users, FilePlus } from 'lucide-react';
 import { useState } from 'react';
@@ -117,17 +117,23 @@ export function NewWorkItemView() {
   const checkForExistingCustomer = async (phone: string) => {
     if (!phone || !firestore) return;
     setIsCheckingPhone(true);
+    setExistingCustomer(null); // Reset on new check
     try {
-      const q = query(
+      // 1. Prioritize searching the 'customers' collection by phone number on work items
+      const workItemsByPhoneQuery = query(
         collection(firestore, 'work_items'),
         where('relatedContact.phone', '==', phone),
         limit(1)
       );
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        const existingWorkItem = querySnapshot.docs[0].data() as WorkItem;
-        setExistingCustomer(existingWorkItem.relatedContact);
+      const workItemsSnapshot = await getDocs(workItemsByPhoneQuery);
+
+      if (!workItemsSnapshot.empty) {
+          const workItemData = workItemsSnapshot.docs[0].data() as WorkItem;
+          // Use the contact info from the most recent work item
+          setExistingCustomer(workItemData.relatedContact);
+          return; // Found a match, no need to continue
       }
+      
     } catch (error) {
       console.error("Error checking for existing customer:", error);
     } finally {
@@ -147,8 +153,8 @@ export function NewWorkItemView() {
 
     const payload = {
       process: data.process,
-      leadType: data.leadType,
       urgency: data.urgency,
+      leadType: data.leadType,
       assignedTo: assignedTo,
       createdBy: user.uid,
       relatedContact: {
@@ -203,7 +209,7 @@ export function NewWorkItemView() {
   const handleAlertClose = (proceed: boolean) => {
     if (proceed && existingCustomer) {
       form.reset({
-        ...form.getValues(), // Keep existing values like process, leadType, etc.
+        ...form.getValues(),
         customerName: existingCustomer.name || '',
         customerEmail: existingCustomer.email || '',
         customerPhone: existingCustomer.phone || '',
@@ -436,7 +442,7 @@ export function NewWorkItemView() {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting || isCheckingPhone} className="bg-orange-500 hover:bg-orange-600 text-white h-7">
-              {isSubmitting ? 'Creating...' : 'Create Work Item'}
+              {isSubmitting ? 'Creating...' : (isCheckingPhone ? 'Checking...' : 'Create Work Item')}
             </Button>
           </div>
         </form>
@@ -447,7 +453,7 @@ export function NewWorkItemView() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground space-y-2">
                 <div>This mobile number is already associated with an existing customer:</div>
                 <div className="font-medium text-foreground mt-2">
                   <div>Name: {existingCustomer?.name}</div>
@@ -466,3 +472,4 @@ export function NewWorkItemView() {
   );
 
     
+}
