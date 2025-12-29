@@ -89,7 +89,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         tasks: [], 
       });
 
-      replace([{ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 }]);
+      replace([{ process: '', task: '', quantity: 0, unitPrice: 0 }]);
       setHasInitialized(true); 
     }
   }, [workItem, form, replace, hasInitialized]);
@@ -101,7 +101,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
         return;
     }
     
-    const finalTasks = data.tasks.filter(task => !!task.process && !!task.task && !!task.item && !!task.quantity && task.quantity > 0);
+    const finalTasks = data.tasks.filter(task => !!task.process && !!task.task && !!task.quantity && task.quantity > 0);
 
     if (finalTasks.length === 0) {
         toast({ variant: "destructive", title: "Error", description: "Please add at least one complete line item to the quotation." });
@@ -196,13 +196,13 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
     }
   };
   
-  const addedTasks = quotationData.tasks.filter(task => !!task.process && !!task.task && !!task.item && task.quantity && task.quantity > 0);
+  const addedTasks = quotationData.tasks.filter(task => !!task.process && !!task.task && task.quantity && task.quantity > 0);
   const subtotal = addedTasks.reduce((acc, task) => acc + ((task.quantity || 0) * (task.unitPrice || 0)), 0);
   const tax = subtotal * 0.18;
   const grandTotal = subtotal + tax;
   const quoteNumber = `Q-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
   const lastTask = quotationData.tasks[quotationData.tasks.length - 1];
-  const isLastTaskValid = !!(lastTask && lastTask.process && lastTask.task && lastTask.item && lastTask.quantity && lastTask.quantity > 0 && lastTask.unitPrice && lastTask.unitPrice > 0);
+  const isLastTaskValid = !!(lastTask && lastTask.process && lastTask.task && lastTask.quantity && lastTask.quantity > 0 && lastTask.unitPrice && lastTask.unitPrice > 0);
 
 
   if (!isCqPageVisible) {
@@ -248,7 +248,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="customerPhone" render={({ field }) => (<FormItem><FormLabel>Customer Phone</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                         </div>
-                         <div className="grid grid-cols-5 gap-2 text-xs">
+                        <div className="grid grid-cols-5 gap-2 text-xs">
                             <div className="col-span-2">
                                 <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                             </div>
@@ -257,7 +257,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Zip Code</FormLabel><FormControl><Input {...field} className="h-8 mt-1"/></FormControl><FormMessage /></FormItem>)} />
                         </div>
                     </div>
-
 
                     {/* Item Details */}
                     <div className="md:col-span-3 p-4 border rounded-lg bg-white">
@@ -270,7 +269,7 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                             <Button 
                                 type="button" 
                                 size="sm" 
-                                onClick={() => append({ process: '', task: '', item: '', description: '', quantity: 0, unitPrice: 0 })} 
+                                onClick={() => append({ process: '', task: '', quantity: 0, unitPrice: 0 })} 
                                 className="h-8 text-xs"
                                 disabled={!isLastTaskValid}
                             >
@@ -285,8 +284,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                 <TableRow className="bg-gray-50">
                                     <TableHead className="w-[180px]">Process</TableHead>
                                     <TableHead className="w-[180px]">Task</TableHead>
-                                    <TableHead>Item</TableHead>
-                                    <TableHead>Description</TableHead>
                                     <TableHead className="w-[80px]">QTY</TableHead>
                                     <TableHead className="w-[120px]">Unit Price</TableHead>
                                     <TableHead className="w-[120px]">Amount</TableHead>
@@ -335,20 +332,6 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                                                     </FormItem>
                                                 )}
                                             />
-                                        </TableCell>
-                                        <TableCell className="p-1">
-                                        <FormField
-                                            control={form.control}
-                                            name={`tasks.${index}.item`}
-                                            render={({ field }) => ( <FormItem><FormControl><Input {...field} placeholder="Item Name" className="h-8 text-xs" /></FormControl><FormMessage/></FormItem> )}
-                                        />
-                                        </TableCell>
-                                        <TableCell className="p-1">
-                                        <FormField
-                                            control={form.control}
-                                            name={`tasks.${index}.description`}
-                                            render={({ field }) => ( <FormItem><FormControl><Input {...field} placeholder="Description" className="h-8 text-xs" /></FormControl><FormMessage/></FormItem> )}
-                                        />
                                         </TableCell>
                                         <TableCell className="p-1">
                                         <FormField

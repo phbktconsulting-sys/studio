@@ -285,8 +285,6 @@ export type LeadCaptureFormValues = z.infer<typeof LeadCaptureSchema>;
 export const QuotationTaskSchema = z.object({
   process: z.string().optional(),
   task: z.string().optional(),
-  item: z.string().optional(),
-  description: z.string().optional(),
   quantity: z.number().optional(),
   unitPrice: z.number().optional(),
 }).superRefine((data, ctx) => {
@@ -301,9 +299,6 @@ export const QuotationTaskSchema = z.object({
   }
   if (!data.task) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Required", path: ["task"] });
-  }
-  if (!data.item) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Required", path: ["item"] });
   }
   if (data.quantity === undefined || data.quantity <= 0) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: " > 0", path: ["quantity"] });
