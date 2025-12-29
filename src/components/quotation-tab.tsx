@@ -281,49 +281,58 @@ export function QuotationTab({ workItem }: QuotationTabProps) {
                       </TableBody>
                     </Table>
                   </div>
-
                   <div className="flex justify-end mt-2">
                     <Button type="button" size="sm" onClick={handleAddItem} className="h-8 bg-green-500 hover:bg-green-600 text-xs">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add Item
                     </Button>
                   </div>
-                  
-                   {/* Table of added items */}
-                  {fields.length > 0 && (
-                     <div className="mt-4 overflow-x-auto border-t pt-4">
-                        <Table className="min-w-full text-xs">
-                          <TableHeader>
-                            <TableRow className="bg-gray-50">
-                              <TableHead>Item</TableHead>
-                              <TableHead>Description</TableHead>
-                              <TableHead>QTY</TableHead>
-                              <TableHead>Unit Price</TableHead>
-                              <TableHead>Amount</TableHead>
-                              <TableHead></TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {fields.map((field, index) => (
-                              <TableRow key={field.id}>
-                                <TableCell className="p-1">{quotationData.tasks[index]?.item}</TableCell>
-                                <TableCell className="p-1">{quotationData.tasks[index]?.description}</TableCell>
-                                <TableCell className="p-1">{quotationData.tasks[index]?.quantity}</TableCell>
-                                <TableCell className="p-1">₹{(quotationData.tasks[index]?.unitPrice || 0).toLocaleString()}</TableCell>
-                                <TableCell className="p-1 font-semibold">₹{((quotationData.tasks[index]?.quantity || 0) * (quotationData.tasks[index]?.unitPrice || 0)).toLocaleString()}</TableCell>
-                                <TableCell className="p-1">
-                                  <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                  )}
                 </div>
               </div>
+
+               {/* Table of added items */}
+              {fields.length > 0 && (
+                <Card className="mt-4">
+                  <CardHeader>
+                    <h3 className="font-semibold text-sm">Added Items</h3>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto border rounded-lg">
+                      <Table className="min-w-full text-xs">
+                        <TableHeader>
+                          <TableRow className="bg-gray-50">
+                            <TableHead className="w-[50px]">#</TableHead>
+                            <TableHead>Item</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead>QTY</TableHead>
+                            <TableHead>Unit Price</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead className="w-[50px]"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {fields.map((field, index) => (
+                            <TableRow key={field.id}>
+                              <TableCell className="p-2 font-medium">{index + 1}</TableCell>
+                              <TableCell className="p-2">{quotationData.tasks[index]?.item}</TableCell>
+                              <TableCell className="p-2">{quotationData.tasks[index]?.description}</TableCell>
+                              <TableCell className="p-2">{quotationData.tasks[index]?.quantity}</TableCell>
+                              <TableCell className="p-2">₹{(quotationData.tasks[index]?.unitPrice || 0).toLocaleString()}</TableCell>
+                              <TableCell className="p-2 font-semibold">₹{((quotationData.tasks[index]?.quantity || 0) * (quotationData.tasks[index]?.unitPrice || 0)).toLocaleString()}</TableCell>
+                              <TableCell className="p-2">
+                                <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-7 w-7">
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
 
               <div className="flex justify-end pt-4">
                 <Button form="quotation-form" type="submit" disabled={isGenerating} className="h-8">
