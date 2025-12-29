@@ -25,7 +25,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X, UserCheck, Users, Search, User, Clock, FileText } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users, Search, User, Clock, FileText, Building2 } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -45,6 +45,8 @@ import {
 import { Checkbox } from './ui/checkbox';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+
 
 const processTaskMap: Record<string, string[]> = {
     "New Business Request": ["Request Inmation & Quotation", "Request Website Development", "Request Mobile App Development", "Request Digital Marketing", "Request Meeting/Consultation", "Request Backend Support", "Request Graphic Design", "Request SEO Services", "Request Product Demo", "Request Project Proposal", "Request Maintenance Contract (AMC)", "Request Domain & Hosting", "Request Content Writing", "Request E-commerce Solution", "Request Automation & Micros", "Request Custom Software", "Request Urgent Repair (New Client)", "Request Callback", "Request Call for New Lead", "Request Other Services"],
@@ -193,44 +195,52 @@ export function NewWorkItemView() {
                             <FormMessage />
                         </FormItem>
                     )} />
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
-                        <FormItem>
-                            <FormLabel>Initial Tasks</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-9 text-sm", !selectedTasks.length && "text-muted-foreground")}>
-                                    {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                <Command>
-                                    <CommandInput placeholder="Search tasks..." />
-                                    <CommandList>
-                                    <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                    <CommandGroup>
-                                        {(processTaskMap[selectedProcess] || []).map((task) => (
-                                        <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
-                                            <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
-                                            {task}
-                                        </CommandItem>
-                                        ))}
-                                    </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                                </PopoverContent>
-                            </Popover>
-                        </FormItem>
-                    </div>
                 </CardContent>
             </Card>
 
             <Card className="bg-white">
                 <CardHeader className="p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
                     <div className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-blue-700" />
-                    <CardTitle className="text-sm font-semibold text-blue-700">Urgency</CardTitle>
+                        <Building2 className="h-5 w-5 text-blue-700" />
+                        <CardTitle className="text-sm font-semibold text-blue-700">Initial Tasks</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-4 space-y-4">
+                    <FormItem>
+                        <FormLabel>Initial Tasks</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-9 text-sm", !selectedTasks.length && "text-muted-foreground")}>
+                                {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                            <Command>
+                                <CommandInput placeholder="Search tasks..." />
+                                <CommandList>
+                                <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                <CommandGroup>
+                                    {(processTaskMap[selectedProcess] || []).map((task) => (
+                                    <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                        <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                        {task}
+                                    </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                                </CommandList>
+                            </Command>
+                            </PopoverContent>
+                        </Popover>
+                    </FormItem>
+                </CardContent>
+            </Card>
+            
+            <Card className="bg-white">
+                <CardHeader className="p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
+                    <div className="flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-blue-700" />
+                        <CardTitle className="text-sm font-semibold text-blue-700">Urgency</CardTitle>
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
@@ -260,6 +270,7 @@ export function NewWorkItemView() {
                         </CardHeader>
                         <CardContent className="space-y-4 p-4">
                             <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input placeholder="e.g. John Doe" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
                              <FormField
                                 control={form.control}
                                 name="customerPhone"
