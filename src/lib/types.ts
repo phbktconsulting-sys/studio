@@ -283,49 +283,19 @@ export const LeadCaptureSchema = z.object({
 export type LeadCaptureFormValues = z.infer<typeof LeadCaptureSchema>;
 
 export const QuotationTaskSchema = z.object({
-  process: z.string().optional(),
-  task: z.string().optional(),
-  quantity: z.number().optional(),
-  unitPrice: z.number().optional(),
-}).superRefine((data, ctx) => {
-  const isPartiallyFilled = Object.values(data).some(val => val !== undefined && val !== '' && val !== 0);
-  if (!isPartiallyFilled) {
-    return true; // Ignore completely empty objects
-  }
-
-  // If any field is filled, all main fields must be filled
-  if (!data.process) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Required", path: ["process"] });
-  }
-  if (!data.task) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Required", path: ["task"] });
-  }
-  if (data.quantity === undefined || data.quantity <= 0) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: " > 0", path: ["quantity"] });
-  }
-  if (data.unitPrice === undefined || data.unitPrice <= 0) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: " > 0", path: ["unitPrice"] });
-  }
+  process: z.string().min(1, "Process is required."),
+  task: z.string().min(1, "Task is required."),
+  quantity: z.number().positive("Quantity must be > 0."),
+  unitPrice: z.number().positive("Unit price must be > 0."),
 });
-
 
 export type QuotationTask = z.infer<typeof QuotationTaskSchema>;
 
 export const QuotationFormSchema = z.object({
   customerName: z.string().min(1, 'Customer name is required.'),
   customerPhone: z.string().min(1, 'Customer phone is required.'),
-  customerBusinessName: z.string().optional(),
   customerAddress: AddressSchema,
-  tasks: z.array(QuotationTaskSchema).transform(
-    // Filter out any completely empty rows before validating the array's length
-    tasks => tasks.filter(task => Object.values(task).some(val => val !== undefined && val !== '' && val !== 0))
-  ).refine(
-    (tasks) => tasks.length > 0,
-    {
-      message: 'At least one complete line item is required.',
-      path: ['tasks'],
-    }
-  ),
+  tasks: z.array(QuotationTaskSchema).min(1, "At least one item is required for the quotation."),
 });
 
 export type QuotationFormValues = z.infer<typeof QuotationFormSchema>;
