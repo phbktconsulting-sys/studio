@@ -173,7 +173,7 @@ export function NewWorkItemView() {
                 <CardHeader className="flex flex-row items-center justify-between p-2 bg-blue-100 border-b border-blue-200 rounded-t-lg">
                     <div className="flex items-center gap-2">
                         <Search className="h-5 w-5 text-blue-700" />
-                        <CardTitle className="text-sm font-semibold text-blue-700">Process</CardTitle>
+                        <CardTitle className="text-sm font-semibold text-blue-700">Create New work Item</CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
@@ -369,5 +369,3 @@ export function NewWorkItemView() {
     </div>
   );
 }
-
-    
