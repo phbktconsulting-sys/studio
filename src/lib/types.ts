@@ -193,6 +193,7 @@ export const ContactInfoUpdateSchema = z.object({
   address: AddressSchema.optional(),
   email: z.string().email('Invalid email address'),
   phone: z.string().min(1, 'Phone is required'),
+  phoneSecondary: z.string().optional(),
   aadharNumber: z.string().optional(),
   panNumber: z.string().optional(),
   businessName: z.string().optional(),

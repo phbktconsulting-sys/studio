@@ -51,6 +51,7 @@ export function EditContactInfoDialog({
       name: '',
       email: '',
       phone: '',
+      phoneSecondary: '',
       aadharNumber: '',
       panNumber: '',
       businessName: '',
@@ -60,7 +61,6 @@ export function EditContactInfoDialog({
       address: {
         country: '',
         line1: '',
-        line2: '',
         city: '',
         state: '',
         zipcode: '',
@@ -74,6 +74,7 @@ export function EditContactInfoDialog({
         name: contactInfo.name || '',
         email: contactInfo.email || '',
         phone: contactInfo.phone || '',
+        phoneSecondary: contactInfo.phoneSecondary || '',
         aadharNumber: contactInfo.aadharNumber || '',
         panNumber: contactInfo.panNumber || '',
         businessName: contactInfo.businessName || '',
@@ -83,7 +84,6 @@ export function EditContactInfoDialog({
         address: {
           country: contactInfo.address?.country || '',
           line1: contactInfo.address?.line1 || '',
-          line2: contactInfo.address?.line2 || '',
           city: contactInfo.address?.city || '',
           state: contactInfo.address?.state || '',
           zipcode: contactInfo.address?.zipcode || '',
@@ -149,6 +149,19 @@ export function EditContactInfoDialog({
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="phoneSecondary"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Secondary Phone</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                <div className="md:col-span-2 space-y-2">
                  <FormLabel>Address</FormLabel>
                   <FormField
@@ -158,18 +171,6 @@ export function EditContactInfoDialog({
                       <FormItem>
                         <FormControl>
                           <Input {...field} placeholder="Address Line 1" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="address.line2"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input {...field} placeholder="Address Line 2 (Optional)" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
