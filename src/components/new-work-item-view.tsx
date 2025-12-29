@@ -430,14 +430,14 @@ export function NewWorkItemView() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
-          <AlertDialogDescription>
-            <div>This mobile number is already associated with an existing customer:</div>
-            <div className="font-medium text-foreground mt-2">
-              <div>Name: {existingCustomer?.name}</div>
-              <div>Unique ID: {existingCustomer?.id}</div>
-            </div>
-            <div>Do you want to continue with this customer's information?</div>
-          </AlertDialogDescription>
+           <div className="text-sm text-muted-foreground">
+                <div>This mobile number is already associated with an existing customer:</div>
+                <div className="font-medium text-foreground mt-2">
+                  <div>Name: {existingCustomer?.name}</div>
+                  <div>Unique ID: {existingCustomer?.id}</div>
+                </div>
+                <div>Do you want to continue with this customer's information?</div>
+          </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => handleAlertClose(false)}>No, enter a different number</AlertDialogCancel>
@@ -449,3 +449,5 @@ export function NewWorkItemView() {
   );
 }
 
+
+    
