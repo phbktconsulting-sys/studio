@@ -5,6 +5,8 @@ import type { QuotationFormValues } from "@/lib/types";
 export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNumber }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number, quoteNumber: string }) => {
     const addressLine1 = [quotation.customerAddress?.line1, quotation.customerAddress?.line2].filter(Boolean).join(', ');
     const addressLine2 = [quotation.customerAddress?.city, quotation.customerAddress?.state, quotation.customerAddress?.zipcode].filter(Boolean).join(', ');
+    const companyAddressLine1 = "North Main Road, Koregaon Park";
+    const companyAddressLine2 = "Pune, Maharashtra 414501.";
 
     return (
         <div id="quotation-to-print" className="p-10" style={{ width: '800px', fontFamily: 'Inter, sans-serif', color: '#111827', backgroundColor: 'white', fontSize: '10px' }}>
@@ -26,8 +28,8 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
                 </svg>
               <div>
                 <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#000', margin: 0 }}>PHBKT Group Limited</h1>
-                <p style={{ margin: '2px 0', fontSize: '10px' }}>North Main Road, Koregaon Park</p>
-                <p style={{ margin: '2px 0', fontSize: '10px' }}>Pune, Maharashtra 414501.</p>
+                <p style={{ margin: '2px 0', fontSize: '10px' }}>{companyAddressLine1}</p>
+                <p style={{ margin: '2px 0', fontSize: '10px' }}>{companyAddressLine2}</p>
                 <p style={{ margin: '2px 0', fontSize: '10px' }}>Email: contact@phbkt.com | Phone: +91 7972688626</p>
               </div>
             </div>
@@ -48,6 +50,7 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
             <thead>
               <tr style={{ backgroundColor: '#f3f4f6', borderBottom: '1px solid #e5e7eb' }}>
+                <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700, width: '30px' }}>#</th>
                 <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700 }}>Item</th>
                 <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700 }}>Description</th>
                 <th style={{ padding: '10px', textAlign: 'center', fontWeight: 700 }}>Quantity</th>
@@ -58,6 +61,7 @@ export const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, q
             <tbody>
               {quotation.tasks.map((task, index) => (
                 <tr key={index} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                  <td style={{ padding: '10px', verticalAlign: 'top', textAlign: 'center' }}>{index + 1}</td>
                   <td style={{ padding: '10px', verticalAlign: 'top' }}>
                     <p style={{ fontWeight: 700, margin: 0 }}>{task.item}</p>
                   </td>
