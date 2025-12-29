@@ -470,7 +470,7 @@ export function NewWorkItemView() {
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center gap-2"><FileText className="h-3 w-3" />Overview</FormLabel>
-                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm bg-orange-50 border-orange-200" /></FormControl>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[80px] text-sm bg-orange-50 border-orange-200" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
