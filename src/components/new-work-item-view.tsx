@@ -27,7 +27,7 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter
+  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -276,10 +276,10 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
                             <FormItem>
-                                 <FormLabel>Process *</FormLabel>
+                                 <FormLabel className="text-xs">Process *</FormLabel>
                                 <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
                                     <FormControl><SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
                                     <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
@@ -287,42 +287,62 @@ export function NewWorkItemView() {
                                 <FormMessage />
                             </FormItem>
                         )} />
-                         <FormField
+                        
+                        <FormField
                             control={form.control}
                             name="initialTasks"
                             render={() => (
-                            <FormItem>
+                            <FormItem className="lg:col-span-2">
                                 <FormLabel>Initial Tasks</FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                    <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
-                                        {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                    <Command>
-                                        <CommandInput placeholder="Search tasks..." />
-                                        <CommandList>
-                                        <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                        <CommandGroup>
-                                            {(processTaskMap[selectedProcess] || []).map((task) => (
-                                            <CommandItem className="text-xs" key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
-                                                <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
-                                                {task}
-                                            </CommandItem>
+                                <div className="flex items-start gap-2">
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-auto justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
+                                            {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Search tasks..." />
+                                            <CommandList>
+                                            <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                            <CommandGroup>
+                                                {(processTaskMap[selectedProcess] || []).map((task) => (
+                                                <CommandItem className="text-xs" key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                                    <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                                    {task}
+                                                </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                    {selectedTasks.length > 0 && (
+                                        <div className="flex flex-wrap gap-1 pt-1 border p-1 rounded-md bg-slate-50 flex-1">
+                                            {selectedTasks.map(task => (
+                                                <Badge key={task} variant="secondary" className="text-xs font-normal">
+                                                    {task}
+                                                    <button
+                                                        type="button"
+                                                        className="ml-1.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                                                        onClick={() => setSelectedTasks(prev => prev.filter(t => t !== task))}
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                        <span className="sr-only">Remove {task}</span>
+                                                    </button>
+                                                </Badge>
                                             ))}
-                                        </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                    </PopoverContent>
-                                </Popover>
+                                        </div>
+                                    )}
+                                </div>
                             </FormItem>
                             )}
                         />
                          <FormField control={form.control} name="leadType" render={({ field }) => (
                             <FormItem>
-                                 <FormLabel>Lead Type</FormLabel>
+                                 <FormLabel className="text-xs">Lead Type</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl><SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
                                     <SelectContent>{leadTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
