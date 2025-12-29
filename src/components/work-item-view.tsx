@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -63,6 +64,19 @@ const processTaskMap: Record<string, string[]> = {
 
 const processTypes = Object.keys(processTaskMap);
 
+function formatAddress(address: QuotationFormValues['customerAddress']) {
+    if (!address) return '';
+    const parts = [
+        address.line1,
+        address.line2,
+        address.city,
+        address.state,
+        address.country,
+        address.zipcode
+    ];
+    return parts.filter(Boolean).join(', ');
+}
+
 const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNumber }: { quotation: QuotationFormValues, subtotal: number, tax: number, grandTotal: number, quoteNumber: string }) => (
     <div id="quotation-to-print" className="p-10" style={{ width: '800px', fontFamily: 'Inter, sans-serif', color: '#111827', backgroundColor: 'white', fontSize: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#6b7280', marginBottom: '20px' }}>
@@ -73,17 +87,18 @@ const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNum
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ height: '40px', width: '40px' }}>
               <g transform="translate(50,50)">
-                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(173 58% 39%)" transform="rotate(0)"/>
-                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(27 87% 67%)" transform="rotate(90)"/>
-                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(0 100% 25%)" transform="rotate(180)"/>
-                <path d="M0,0 L0,-50 A50,50 0 0,1 50,0 Z" fill="hsl(0 39% 47%)" transform="rotate(270)"/>
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-1))" transform="rotate(0)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-2))" transform="rotate(60)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-3))" transform="rotate(120)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-4))" transform="rotate(180)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--primary))" transform="rotate(240)" />
+                <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-5))" transform="rotate(300)" />
               </g>
             </svg>
           <div>
             <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#000', margin: 0 }}>PHBKT Group Limited</h1>
-            <p style={{ margin: '2px 0', fontSize: '10px' }}>123 Business Road, Tech Park</p>
-            <p style={{ margin: '2px 0', fontSize: '10px' }}>Pune, Maharashtra, 411057</p>
-            <p style={{ margin: '2px 0', fontSize: '10px' }}>Email: contact@phbkt.com | Phone: +91 98765 43210</p>
+            <p style={{ margin: '2px 0', fontSize: '10px' }}>North Main Road, Koregaon Park, Pune Maharashtra 414501.</p>
+            <p style={{ margin: '2px 0', fontSize: '10px' }}>Email: contact@phbkt.com | Phone: +91 7972688626</p>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
@@ -97,11 +112,12 @@ const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNum
         <h3 style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: '#374151' }}>Quotation For:</h3>
         <p style={{ margin: '2px 0' }}>{quotation.customerName}</p>
         {quotation.customerBusinessName && <p style={{ margin: '2px 0' }}>{quotation.customerBusinessName}</p>}
-        <p style={{ margin: '2px 0' }}>{quotation.customerAddress}</p>
+        <p style={{ margin: '2px 0' }}>{formatAddress(quotation.customerAddress)}</p>
       </div>
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
         <thead>
           <tr style={{ backgroundColor: '#f3f4f6', borderBottom: '1px solid #e5e7eb' }}>
+            <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700 }}>Item</th>
             <th style={{ padding: '10px', textAlign: 'left', fontWeight: 700 }}>Description</th>
             <th style={{ padding: '10px', textAlign: 'center', fontWeight: 700 }}>Quantity</th>
             <th style={{ padding: '10px', textAlign: 'right', fontWeight: 700 }}>Unit Price (₹)</th>
@@ -113,11 +129,13 @@ const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNum
             <tr key={index} style={{ borderBottom: '1px solid #e5e7eb' }}>
               <td style={{ padding: '10px', verticalAlign: 'top' }}>
                 <p style={{ fontWeight: 700, margin: 0 }}>{task.item}</p>
+              </td>
+              <td style={{ padding: '10px', verticalAlign: 'top' }}>
                 <p style={{ color: '#6b7280', margin: 0 }}>{task.description || ''}</p>
               </td>
               <td style={{ padding: '10px', textAlign: 'center', verticalAlign: 'top' }}>{task.quantity}</td>
-              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{task.unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{(task.quantity * task.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{(task.unitPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td style={{ padding: '10px', textAlign: 'right', verticalAlign: 'top' }}>₹{((task.quantity || 0) * (task.unitPrice || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
           ))}
         </tbody>
@@ -131,7 +149,7 @@ const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNum
           </tbody>
         </table>
       </div>
-      <div style={{ marginTop: '40px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+       <div style={{ marginTop: '40px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
         <h4 style={{ margin: '0 0 10px', fontWeight: 700 }}>Terms &amp; Conditions</h4>
         <ul style={{ margin: 0, paddingLeft: '20px', color: '#6b7280' }}>
           <li>50% advance payment is required to start the project.</li>
@@ -1269,7 +1287,6 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
         const grandTotal = subtotal + tax;
         const quoteNumber = `Q-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
 
-
         const printContainer = document.createElement('div');
         printContainer.style.position = 'absolute';
         printContainer.style.left = '-9999px';
@@ -1281,9 +1298,17 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
             <QuotationPrintTemplate quotation={quoteData} subtotal={subtotal} tax={tax} grandTotal={grandTotal} quoteNumber={quoteNumber} />
         );
         
+        // Wait for the component to render
         setTimeout(async () => {
+          const printableElement = printContainer.querySelector<HTMLElement>('#quotation-to-print');
+          if (!printableElement) {
+              toast({ variant: 'destructive', title: 'Regeneration Failed', description: 'Printable element not found.' });
+              setRegeneratingId(null);
+              document.body.removeChild(printContainer);
+              return;
+          }
           try {
-            const canvas = await html2canvas(printContainer.firstChild as HTMLElement, { scale: 2 });
+            const canvas = await html2canvas(printableElement, { scale: 2 });
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -1301,7 +1326,7 @@ function ImagesTab({ workItemId }: { workItemId: string }) {
             document.body.removeChild(printContainer);
             setRegeneratingId(null);
           }
-        }, 200);
+        }, 500); // 500ms delay to ensure rendering
 
       } catch (error: any) {
         console.error("Failed to regenerate PDF:", error);
