@@ -25,7 +25,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X, UserCheck, Users, Search, Clock, FileText, Building2, Briefcase, Handshake } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users, Search, Clock, FileText, Building2, Briefcase, Handshake, Phone, Mail, Home } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -250,11 +250,11 @@ export function NewWorkItemView() {
                           </div>
                         </CardHeader>
                         <CardContent className="p-4">
-                             <div className="grid grid-cols-2 gap-4">
+                             <div className="grid grid-cols-2 gap-4 mb-4">
                                 <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
                             </div>
-                             <div className="grid grid-cols-2 gap-4">
+                             <div className="grid grid-cols-2 gap-4 mb-4">
                                 <FormField
                                     control={form.control}
                                     name="customerPhone"
@@ -305,32 +305,34 @@ export function NewWorkItemView() {
                           </div>
                         </CardHeader>
                         <CardContent className="p-4 space-y-4">
-                             <FormField control={form.control} name="hasBusiness" render={({ field }) => (
-                                <FormItem className="space-y-2">
-                                    <FormLabel>Customer Has Business?</FormLabel>
-                                    <FormControl>
-                                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center space-x-4">
-                                            <FormItem className="flex items-center space-x-2 space-y-0">
-                                                <FormControl><RadioGroupItem value="yes" /></FormControl>
-                                                <FormLabel className="font-normal">Yes</FormLabel>
-                                            </FormItem>
-                                            <FormItem className="flex items-center space-x-2 space-y-0">
-                                                <FormControl><RadioGroupItem value="no" /></FormControl>
-                                                <FormLabel className="font-normal">No</FormLabel>
-                                            </FormItem>
-                                        </RadioGroup>
-                                    </FormControl>
-                                </FormItem>
-                             )} />
-                             {hasBusiness === 'yes' && (
-                                <FormField control={form.control} name="businessName" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Business / Company Name</FormLabel>
-                                        <FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl>
-                                        <FormMessage />
+                             <div className="grid grid-cols-2 items-center gap-4">
+                                <FormField control={form.control} name="hasBusiness" render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                        <FormLabel>Customer Has Business?</FormLabel>
+                                        <FormControl>
+                                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center space-x-4">
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl><RadioGroupItem value="yes" /></FormControl>
+                                                    <FormLabel className="font-normal">Yes</FormLabel>
+                                                </FormItem>
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl><RadioGroupItem value="no" /></FormControl>
+                                                    <FormLabel className="font-normal">No</FormLabel>
+                                                </FormItem>
+                                            </RadioGroup>
+                                        </FormControl>
                                     </FormItem>
                                 )} />
-                             )}
+                                {hasBusiness === 'yes' && (
+                                    <FormField control={form.control} name="businessName" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Business / Company Name</FormLabel>
+                                            <FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+                                )}
+                             </div>
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
                                     <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm bg-orange-50/50" /></FormControl>
