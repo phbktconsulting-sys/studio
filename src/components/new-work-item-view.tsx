@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,7 +27,6 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -276,10 +276,10 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
-                            <FormItem>
-                                 <FormLabel className="text-xs">Process *</FormLabel>
+                            <FormItem className="col-span-1">
+                                <FormLabel className="text-xs">Process *</FormLabel>
                                 <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
                                     <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
                                     <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
@@ -292,12 +292,12 @@ export function NewWorkItemView() {
                             control={form.control}
                             name="initialTasks"
                             render={() => (
-                            <FormItem>
+                            <FormItem className="col-span-3">
                                 <FormLabel className="text-xs">Initial Tasks</FormLabel>
                                 <div className="flex items-start gap-2">
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
+                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-[200px] justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
                                             {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
                                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
@@ -341,8 +341,8 @@ export function NewWorkItemView() {
                             )}
                         />
                          <FormField control={form.control} name="leadType" render={({ field }) => (
-                            <FormItem>
-                                 <FormLabel className="text-xs">Lead Type</FormLabel>
+                            <FormItem className="col-span-1">
+                                <FormLabel className="text-xs">Lead Type</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
                                     <SelectContent>{leadTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
