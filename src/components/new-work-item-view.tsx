@@ -25,8 +25,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
@@ -436,13 +434,13 @@ export function NewWorkItemView() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
-           <div className="text-sm text-muted-foreground">
-                <div>This mobile number is already associated with an existing customer:</div>
-                <div className="font-medium text-foreground mt-2">
-                  <div>Name: {existingCustomer?.name}</div>
-                  <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
-                </div>
-                <div>Do you want to continue with this customer's information?</div>
+          <div className="text-sm text-muted-foreground">
+             <div>This mobile number is already associated with an existing customer:</div>
+            <div className="font-medium text-foreground mt-2">
+              <div>Name: {existingCustomer?.name}</div>
+              <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
+            </div>
+            <div>Do you want to continue with this customer's information?</div>
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -455,5 +453,7 @@ export function NewWorkItemView() {
   );
 }
 
+
+    
 
     
