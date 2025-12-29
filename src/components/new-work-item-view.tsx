@@ -250,7 +250,7 @@ export function NewWorkItemView() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           
-          <Card className="bg-white">
+          <Card className="bg-white border">
                 <CardHeader className="flex flex-row items-center justify-between p-2 bg-blue-100 border-b border-blue-200 rounded-t-lg">
                     <div className="flex items-center gap-2">
                         <FilePlus className="h-5 w-5 text-blue-700" />
@@ -278,7 +278,7 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-12 gap-4 items-start">
+                    <div className="grid grid-cols-12 gap-x-4 gap-y-2 items-start">
                         <div className="col-span-3">
                              <FormField control={form.control} name="process" render={({ field }) => (
                                 <FormItem>
@@ -365,7 +365,7 @@ export function NewWorkItemView() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <div className="space-y-4">
-                    <Card className="bg-white">
+                    <Card className="bg-white border">
                         <CardHeader className="p-2 bg-red-100 border-b border-red-200 rounded-t-lg">
                           <div className="flex items-center gap-2">
                             <Users className="h-5 w-5 text-red-600" />
@@ -424,7 +424,7 @@ export function NewWorkItemView() {
                 </div>
 
                 <div className="space-y-4">
-                    <Card className="bg-white">
+                    <Card className="bg-white border">
                         <CardHeader className="p-2 bg-orange-100 border-b border-orange-200 rounded-t-lg">
                           <div className="flex items-center gap-2">
                             <FilePlus className="h-5 w-5 text-orange-600" />
