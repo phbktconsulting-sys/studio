@@ -71,7 +71,7 @@ const processTypes = Object.keys(processTaskMap);
 
 const leadTypes = ["Self Sources", "Referred Sources", "Digital Sources", "Offline Sources", "Partner / Third-Party"];
 
-type ExistingCustomerInfo = WorkItem['relatedContact'];
+type ExistingCustomerInfo = WorkItem['relatedContact'] & { id?: string };
 
 
 export function NewWorkItemView() {
@@ -114,32 +114,36 @@ export function NewWorkItemView() {
   const assignment = form.watch('assignTo');
   const hasBusiness = form.watch('hasBusiness');
   
-  const checkForExistingCustomer = async (phone: string) => {
+ const checkForExistingCustomer = async (phone: string) => {
     if (!phone || phone.length < 10 || !firestore) {
-        setExistingCustomer(null);
-        return;
+      setExistingCustomer(null);
+      return;
     }
     setIsCheckingPhone(true);
     setExistingCustomer(null);
     try {
-        const q = query(
-            collection(firestore, 'work_items'),
-            where('relatedContact.phone', '==', phone),
-            limit(1)
-        );
-        const querySnapshot = await getDocs(q);
+      // 1. First, check the customers collection which is keyed by email.
+      // Since we are searching by phone, we must query work_items.
+      const q = query(
+        collection(firestore, 'work_items'),
+        where('relatedContact.phone', '==', phone),
+        limit(1)
+      );
+      const querySnapshot = await getDocs(q);
 
-        if (!querySnapshot.empty) {
-            const workItemData = querySnapshot.docs[0].data() as WorkItem;
+      if (!querySnapshot.empty) {
+        const workItemData = querySnapshot.docs[0].data() as WorkItem;
+        if (workItemData.relatedContact) {
             setExistingCustomer(workItemData.relatedContact);
-        } else {
-             setExistingCustomer(null);
         }
-    } catch (error) {
-        console.error("Error checking for existing customer:", error);
+      } else {
         setExistingCustomer(null);
+      }
+    } catch (error) {
+      console.error("Error checking for existing customer:", error);
+      setExistingCustomer(null);
     } finally {
-        setIsCheckingPhone(false);
+      setIsCheckingPhone(false);
     }
   };
 
@@ -281,7 +285,7 @@ export function NewWorkItemView() {
                             <FormItem>
                                  <FormLabel className="text-xs">Process *</FormLabel>
                                 <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
-                                    <FormControl><SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
                                     <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -293,11 +297,11 @@ export function NewWorkItemView() {
                             name="initialTasks"
                             render={() => (
                             <FormItem>
-                                <FormLabel>Initial Tasks</FormLabel>
+                                <FormLabel className="text-xs">Initial Tasks</FormLabel>
                                 <div className="flex items-start gap-2">
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-auto justify-between h-7 text-xs", !selectedTasks.length && "text-muted-foreground")}>
+                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-auto justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
                                             {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
                                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
@@ -344,7 +348,7 @@ export function NewWorkItemView() {
                             <FormItem>
                                  <FormLabel className="text-xs">Lead Type</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl><SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
                                     <SelectContent>{leadTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -364,8 +368,8 @@ export function NewWorkItemView() {
                           </div>
                         </CardHeader>
                         <CardContent className="p-4 grid grid-cols-2 gap-x-4 gap-y-2">
-                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                             <FormField
                                 control={form.control}
                                 name="customerPhone"
@@ -373,11 +377,11 @@ export function NewWorkItemView() {
                                     <FormItem>
                                     <FormLabel>Customer Phone *</FormLabel>
                                     <div className="flex items-center">
-                                      <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
+                                      <div className="border border-r-0 border-red-200 rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                       <FormControl>
                                         <Input 
                                           {...field} 
-                                          className="rounded-l-none h-7" 
+                                          className="rounded-l-none h-7 bg-red-50 border-red-200" 
                                           onBlur={(e) => {
                                             field.onBlur();
                                             checkForExistingCustomer(e.target.value);
@@ -396,9 +400,9 @@ export function NewWorkItemView() {
                                     <FormItem>
                                     <FormLabel>Secondary Phone</FormLabel>
                                      <div className="flex items-center">
-                                      <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
+                                      <div className="border border-r-0 border-red-200 rounded-l-md bg-slate-50 h-7 px-3 flex items-center text-sm text-muted-foreground">+91</div>
                                       <FormControl>
-                                        <Input {...field} className="rounded-l-none h-7" />
+                                        <Input {...field} className="rounded-l-none h-7 bg-red-50 border-red-200" />
                                       </FormControl>
                                     </div>
                                     <FormMessage />
@@ -406,9 +410,9 @@ export function NewWorkItemView() {
                                 )}
                             />
                             <div className="col-span-2 grid grid-cols-3 gap-2">
-                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
-                                 <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Pin Code</FormLabel><FormControl><Input {...field} className="h-7" /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                 <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel>Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                              </div>
                         </CardContent>
                     </Card>
@@ -445,7 +449,7 @@ export function NewWorkItemView() {
                                     <FormField control={form.control} name="businessName" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Business / Company Name</FormLabel>
-                                            <FormControl><Input {...field} className="h-7" /></FormControl>
+                                            <FormControl><Input {...field} className="h-7 bg-orange-50 border-orange-200" /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
@@ -453,7 +457,7 @@ export function NewWorkItemView() {
                              </div>
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
-                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm" /></FormControl>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm bg-orange-50 border-orange-200" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
@@ -482,6 +486,7 @@ export function NewWorkItemView() {
             <p>This mobile number is already associated with an existing customer:</p>
             <div className="font-medium text-foreground mt-2">
               <p>Name: {existingCustomer?.name}</p>
+              <p>Email: {existingCustomer?.email}</p>
               <p>Unique ID: {existingCustomer?.customerUniqueId}</p>
             </div>
             <p>Do you want to continue with this customer's information?</p>
