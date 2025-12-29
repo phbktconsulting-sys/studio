@@ -25,6 +25,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
@@ -276,7 +277,7 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-5 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
                             <FormItem className="col-span-1">
                                 <FormLabel className="text-xs">Process *</FormLabel>
