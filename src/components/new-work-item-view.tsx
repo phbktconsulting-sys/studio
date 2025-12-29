@@ -418,7 +418,7 @@ export function NewWorkItemView() {
                                 )}
                             />
                              <div className="col-span-2 space-y-2">
-                                <div className="grid grid-cols-4 gap-2">
+                                <div className="grid grid-cols-5 gap-2">
                                     <div className="col-span-2">
                                         <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" onChange={e => field.onChange(capitalizeWords(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                                     </div>
