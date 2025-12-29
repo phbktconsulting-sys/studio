@@ -150,14 +150,10 @@ service cloud.firestore {
      * Allows any signed-in user to create and read global notes.
      */
     match /global_notes/{globalNoteId} {
-        allow get, create: if isSignedIn();
+        allow get, list, create: if isSignedIn();
         allow update, delete: if isAdmin() || (resource.data.authorId == request.auth.uid);
     }
     
-    match /global_notes/{globalNoteId=**} {
-        allow list: if isSignedIn();
-    }
-
     /**
      * @description Rules for counters. Admins can read/write all counters.
      * This is an internal collection used for generating sequential IDs.
