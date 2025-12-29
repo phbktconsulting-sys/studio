@@ -27,6 +27,7 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -201,24 +202,22 @@ export function NewWorkItemView() {
 
   const handleAlertClose = (proceed: boolean) => {
     if (proceed && existingCustomer) {
-        form.reset({
-            ...form.getValues(), // keep existing form values like process, etc.
-            customerName: existingCustomer.name || '',
-            customerEmail: existingCustomer.email || '',
-            customerPhone: existingCustomer.phone || '',
-            customerPhoneSecondary: existingCustomer.phoneSecondary || '',
-            customerAddress: {
-                line1: existingCustomer.address?.line1 || '',
-                line2: existingCustomer.address?.line2 || '',
-                city: existingCustomer.address?.city || '',
-                state: existingCustomer.address?.state || '',
-                country: existingCustomer.address?.country || '',
-                zipcode: existingCustomer.address?.zipcode || ''
-            },
-            businessName: existingCustomer.businessName || '',
-            hasBusiness: existingCustomer.businessName ? 'yes' : 'no',
+        form.setValue('customerName', existingCustomer.name || '');
+        form.setValue('customerEmail', existingCustomer.email || '');
+        form.setValue('customerPhone', existingCustomer.phone || '');
+        form.setValue('customerPhoneSecondary', existingCustomer.phoneSecondary || '');
+        form.setValue('customerAddress', {
+            line1: existingCustomer.address?.line1 || '',
+            line2: existingCustomer.address?.line2 || '',
+            city: existingCustomer.address?.city || '',
+            state: existingCustomer.address?.state || '',
+            country: existingCustomer.address?.country || '',
+            zipcode: existingCustomer.address?.zipcode || ''
         });
+        form.setValue('businessName', existingCustomer.businessName || '');
+        form.setValue('hasBusiness', existingCustomer.businessName ? 'yes' : 'no');
     } else {
+        // Clear fields if user says no, but keep the phone number they typed
         form.setValue('customerName', '');
         form.setValue('customerEmail', '');
         form.setValue('customerPhoneSecondary', '');
@@ -445,14 +444,14 @@ export function NewWorkItemView() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
-          <div className="text-sm text-muted-foreground">
-            <div>This mobile number is already associated with an existing customer:</div>
-            <div className="font-medium text-foreground mt-2">
-              <div>Name: {existingCustomer?.name}</div>
-              <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
+            <div className="text-sm text-muted-foreground">
+              <div>This mobile number is already associated with an existing customer:</div>
+              <div className="font-medium text-foreground mt-2">
+                <div>Name: {existingCustomer?.name}</div>
+                <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
+              </div>
+              <div>Do you want to continue with this customer's information?</div>
             </div>
-            <div>Do you want to continue with this customer's information?</div>
-          </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => handleAlertClose(false)}>No, enter a different number</AlertDialogCancel>
