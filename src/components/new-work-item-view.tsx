@@ -34,7 +34,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItem, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X, UserCheck, Users, Search, FilePlus } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users, FilePlus } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -206,7 +206,14 @@ export function NewWorkItemView() {
         form.setValue('customerName', existingCustomer.name);
         form.setValue('customerEmail', existingCustomer.email);
         form.setValue('customerPhoneSecondary', existingCustomer.phoneSecondary || '');
-        form.setValue('customerAddress', existingCustomer.address || { line1: '', line2: '', city: '', state: '', country: '', zipcode: '' });
+        form.setValue('customerAddress', {
+            line1: existingCustomer.address?.line1 || '',
+            line2: existingCustomer.address?.line2 || '',
+            city: existingCustomer.address?.city || '',
+            state: existingCustomer.address?.state || '',
+            country: existingCustomer.address?.country || '',
+            zipcode: existingCustomer.address?.zipcode || ''
+        });
         form.setValue('businessName', existingCustomer.businessName || '');
         form.setValue('hasBusiness', existingCustomer.businessName ? 'yes' : 'no');
     } else {
@@ -377,7 +384,7 @@ export function NewWorkItemView() {
                     <Card className="bg-white">
                         <CardHeader className="p-2 bg-orange-100 border-b border-orange-200 rounded-t-lg">
                           <div className="flex items-center gap-2">
-                            <Search className="h-5 w-5 text-orange-600" />
+                            <FilePlus className="h-5 w-5 text-orange-600" />
                             <CardTitle className="text-sm font-semibold text-orange-600">Overview / Description</CardTitle>
                           </div>
                         </CardHeader>
@@ -437,8 +444,8 @@ export function NewWorkItemView() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
-           <div className="text-sm text-muted-foreground">
-             <div>This mobile number is already associated with an existing customer:</div>
+          <div className="text-sm text-muted-foreground">
+            <div>This mobile number is already associated with an existing customer:</div>
             <div className="font-medium text-foreground mt-2">
               <div>Name: {existingCustomer?.name}</div>
               <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
