@@ -90,7 +90,7 @@ const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNum
                 </svg>
               <div>
                 <h1 style={{ fontSize: '18px', fontWeight: 700, color: '#000', margin: 0 }}>PHBKT Group Limited</h1>
-                 <p style={{ margin: '2px 0', fontSize: '10px' }}>{companyAddressLine1}</p>
+                <p style={{ margin: '2px 0', fontSize: '10px' }}>{companyAddressLine1}</p>
                 <p style={{ margin: '2px 0', fontSize: '10px' }}>{companyAddressLine2}</p>
                 <p style={{ margin: '2px 0', fontSize: '10px' }}>Email: contact@phbkt.com | Phone: +91 7972688626</p>
               </div>
@@ -156,13 +156,13 @@ const QuotationPrintTemplate = ({ quotation, subtotal, tax, grandTotal, quoteNum
             </ul>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '80px' }}>
-            <div style={{ width: '45%' }}>
+            <div style={{ width: '45%', textAlign: 'center' }}>
               <div style={{ borderTop: '1px solid #111827', paddingTop: '8px' }}>
                 <p style={{ margin: 0 }}>Authorized Signature</p>
                 <p style={{ margin: '2px 0', color: '#6b7280' }}>PHBKT Group Limited</p>
               </div>
             </div>
-            <div style={{ width: '45%' }}>
+            <div style={{ width: '45%', textAlign: 'center' }}>
               <div style={{ borderTop: '1px solid #111827', paddingTop: '8px' }}>
                 <p style={{ margin: 0 }}>Client Signature</p>
                 <p style={{ margin: '2px 0', color: '#6b7280' }}>{quotation.customerName}</p>
