@@ -277,9 +277,9 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-5 gap-4">
+                    <div className="grid grid-cols-7 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
-                            <FormItem className="col-span-1">
+                            <FormItem className="col-span-2">
                                 <FormLabel className="text-xs">Process *</FormLabel>
                                 <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
                                     <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
@@ -293,12 +293,12 @@ export function NewWorkItemView() {
                             control={form.control}
                             name="initialTasks"
                             render={() => (
-                            <FormItem className="col-span-3">
+                            <FormItem className="col-span-4">
                                 <FormLabel className="text-xs">Initial Tasks</FormLabel>
                                 <div className="flex items-start gap-2">
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-[200px] justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
+                                        <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-7 text-xs bg-blue-50 border-blue-200", !selectedTasks.length && "text-muted-foreground")}>
                                             {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
                                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
