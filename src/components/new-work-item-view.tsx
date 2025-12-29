@@ -195,17 +195,6 @@ export function NewWorkItemView() {
                             <FormMessage />
                         </FormItem>
                     )} />
-                </CardContent>
-            </Card>
-
-            <Card className="bg-white">
-                <CardHeader className="p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
-                    <div className="flex items-center gap-2">
-                        <Building2 className="h-5 w-5 text-blue-700" />
-                        <CardTitle className="text-sm font-semibold text-blue-700">Initial Tasks</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent className="p-4 space-y-4">
                     <FormItem>
                         <FormLabel>Initial Tasks</FormLabel>
                         <Popover>
@@ -235,7 +224,7 @@ export function NewWorkItemView() {
                     </FormItem>
                 </CardContent>
             </Card>
-            
+
             <Card className="bg-white">
                 <CardHeader className="p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
                     <div className="flex items-center gap-2">
