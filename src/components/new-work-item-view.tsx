@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,8 +26,8 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogFooter,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -277,8 +278,8 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-12 gap-x-6 gap-y-2 items-start">
-                        <div className="col-span-3">
+                    <div className="grid grid-cols-8 gap-x-4 items-start">
+                        <div className="col-span-2">
                              <FormField control={form.control} name="process" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-xs flex items-center gap-2"><Workflow className="h-3 w-3" /> Process *</FormLabel>
@@ -290,7 +291,7 @@ export function NewWorkItemView() {
                                 </FormItem>
                             )} />
                         </div>
-                        <div className="col-span-3">
+                        <div className="col-span-2">
                            <FormField
                                 control={form.control}
                                 name="initialTasks"
@@ -325,7 +326,7 @@ export function NewWorkItemView() {
                                 )}
                             />
                         </div>
-                        <div className="col-span-3 h-full flex items-center">
+                        <div className="col-span-3">
                             {selectedTasks.length > 0 && (
                                 <div className="flex flex-wrap gap-1 border-0 p-1 flex-1 h-full items-center mt-4">
                                     {selectedTasks.map(task => (
@@ -345,7 +346,7 @@ export function NewWorkItemView() {
                             )}
                         </div>
 
-                        <div className="col-span-3">
+                        <div className="col-span-1">
                            <FormField control={form.control} name="leadType" render={({ field }) => (
                             <FormItem>
                                 <FormLabel className="text-xs flex items-center gap-2"><Users className="h-3 w-3" /> Lead Type</FormLabel>
@@ -412,11 +413,19 @@ export function NewWorkItemView() {
                                     </FormItem>
                                 )}
                             />
-                            <div className="col-span-2 grid grid-cols-4 gap-2">
-                                <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Building className="h-3 w-3" />City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Map className="h-3 w-3" />State</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
-                                 <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><MapPin className="h-3 w-3" />Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                            <div className="col-span-2 grid grid-cols-10 gap-2">
+                                <div className="col-span-4">
+                                  <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                <div className="col-span-2">
+                                  <FormField control={form.control} name="customerAddress.city" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Building className="h-3 w-3" />City</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                <div className="col-span-2">
+                                  <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Map className="h-3 w-3" />State</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                <div className="col-span-2">
+                                  <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><MapPin className="h-3 w-3" />Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
                              </div>
                         </CardContent>
                     </Card>
