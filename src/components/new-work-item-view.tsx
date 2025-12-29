@@ -28,7 +28,6 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogFooter,
-  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -326,7 +325,7 @@ export function NewWorkItemView() {
                                 )}
                             />
                         </div>
-                         <div className="col-span-4">
+                        <div className="col-span-4">
                             {selectedTasks.length > 0 && (
                                 <div className="flex flex-wrap gap-1 border-0 p-1 flex-1 h-full items-center mt-4">
                                     {selectedTasks.map(task => (
@@ -413,7 +412,7 @@ export function NewWorkItemView() {
                                 )}
                             />
                             <div className="col-span-2 grid grid-cols-10 gap-2">
-                                <div className="col-span-4">
+                                <div className="col-span-3">
                                   <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Home className="h-3 w-3" />Address</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                 </div>
                                 <div className="col-span-2">
@@ -422,7 +421,7 @@ export function NewWorkItemView() {
                                 <div className="col-span-2">
                                   <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><Map className="h-3 w-3" />State</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                 </div>
-                                <div className="col-span-2">
+                                <div className="col-span-3">
                                   <FormField control={form.control} name="customerAddress.zipcode" render={({ field }) => (<FormItem><FormLabel className="flex items-center gap-2"><MapPin className="h-3 w-3" />Pin Code</FormLabel><FormControl><Input {...field} className="h-7 bg-red-50 border-red-200" /></FormControl><FormMessage /></FormItem>)} />
                                 </div>
                              </div>
@@ -480,10 +479,10 @@ export function NewWorkItemView() {
             </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting} className="h-7">
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting} className="h-9">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || isCheckingPhone} className="h-7">
+            <Button type="submit" disabled={isSubmitting || isCheckingPhone} className="h-9 bg-primary text-primary-foreground hover:bg-primary/90">
               {isSubmitting ? 'Creating...' : (isCheckingPhone ? 'Checking...' : 'Create Work Item')}
             </Button>
           </div>
