@@ -25,7 +25,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X, UserCheck, Users, Search, User, Clock, FileText, Building2 } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users, Search, Clock, FileText, Building2 } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -228,29 +228,6 @@ export function NewWorkItemView() {
                 </CardContent>
             </Card>
 
-            <Card className="bg-white">
-                <CardHeader className="p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
-                    <div className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-blue-700" />
-                        <CardTitle className="text-sm font-semibold text-blue-700">Urgency</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent className="p-4">
-                    <FormField control={form.control} name="urgency" render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 items-center">
-                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Low" /></FormControl><FormLabel className="font-normal">Low</FormLabel></FormItem>
-                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Medium" /></FormControl><FormLabel className="font-normal">Medium</FormLabel></FormItem>
-                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="High" /></FormControl><FormLabel className="font-normal">High</FormLabel></FormItem>
-                                </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
-                </CardContent>
-            </Card>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <div className="space-y-4">
                     <Card className="bg-white">
@@ -260,7 +237,7 @@ export function NewWorkItemView() {
                             <CardTitle className="text-sm font-semibold text-red-600">Contact Information</CardTitle>
                           </div>
                         </CardHeader>
-                        <CardContent className="space-y-4 p-4">
+                        <CardContent className="p-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input placeholder="e.g. John Doe" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
@@ -303,6 +280,28 @@ export function NewWorkItemView() {
                                 <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
                              </div>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-white">
+                        <CardHeader className="p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
+                            <div className="flex items-center gap-2">
+                                <Clock className="h-5 w-5 text-blue-700" />
+                                <CardTitle className="text-sm font-semibold text-blue-700">Urgency</CardTitle>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-4">
+                            <FormField control={form.control} name="urgency" render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 items-center">
+                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Low" /></FormControl><FormLabel className="font-normal">Low</FormLabel></FormItem>
+                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Medium" /></FormControl><FormLabel className="font-normal">Medium</FormLabel></FormItem>
+                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="High" /></FormControl><FormLabel className="font-normal">High</FormLabel></FormItem>
+                                        </RadioGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
                         </CardContent>
                     </Card>
                 </div>
