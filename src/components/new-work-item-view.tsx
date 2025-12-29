@@ -183,7 +183,7 @@ export function NewWorkItemView() {
                         </Button>
                     </div>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-4 space-y-4">
                     <FormField control={form.control} name="process" render={({ field }) => (
                         <FormItem>
                             <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
@@ -193,18 +193,7 @@ export function NewWorkItemView() {
                             <FormMessage />
                         </FormItem>
                     )} />
-                </CardContent>
-            </Card>
-
-            <Card className="bg-white">
-                <CardHeader className="p-2 bg-[#fff5e6] border-b border-orange-200 rounded-t-lg">
-                    <div className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-orange-600" />
-                    <CardTitle className="text-sm font-semibold text-orange-600">Initial Tasks</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-4 p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
                         <FormItem>
                             <FormLabel>Initial Tasks</FormLabel>
