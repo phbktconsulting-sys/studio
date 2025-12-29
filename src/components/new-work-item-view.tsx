@@ -179,7 +179,7 @@ export function NewWorkItemView() {
                             className={cn("h-7 text-xs", assignment === 'initial_indexing' ? "bg-orange-500 hover:bg-orange-600 text-white" : "bg-white text-orange-500 border-orange-500 hover:bg-orange-50")}
                         >
                             <Users className="mr-2 h-4 w-4" />
-                            Assign to Myself
+                            Initial Indexing Queue
                         </Button>
                     </div>
                 </CardHeader>
@@ -190,6 +190,70 @@ export function NewWorkItemView() {
                                 <FormControl><SelectTrigger className="bg-orange-50/50"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
                                 <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
                             </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                </CardContent>
+            </Card>
+
+            <Card className="bg-white">
+                <CardHeader className="p-2 bg-[#fff5e6] border-b border-orange-200 rounded-t-lg">
+                    <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-orange-600" />
+                    <CardTitle className="text-sm font-semibold text-orange-600">Initial Tasks</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4 p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
+                        <FormItem>
+                            <FormLabel>Initial Tasks</FormLabel>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-9 text-sm", !selectedTasks.length && "text-muted-foreground")}>
+                                    {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search tasks..." />
+                                    <CommandList>
+                                    <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                    <CommandGroup>
+                                        {(processTaskMap[selectedProcess] || []).map((task) => (
+                                        <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                            <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                            {task}
+                                        </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </FormItem>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="bg-white">
+                <CardHeader className="p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
+                    <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-blue-700" />
+                    <CardTitle className="text-sm font-semibold text-blue-700">Urgency</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-4">
+                    <FormField control={form.control} name="urgency" render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 items-center">
+                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Low" /></FormControl><FormLabel className="font-normal">Low</FormLabel></FormItem>
+                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Medium" /></FormControl><FormLabel className="font-normal">Medium</FormLabel></FormItem>
+                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="High" /></FormControl><FormLabel className="font-normal">High</FormLabel></FormItem>
+                                </RadioGroup>
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
@@ -246,71 +310,9 @@ export function NewWorkItemView() {
                              </div>
                         </CardContent>
                     </Card>
-
-                     <Card className="bg-white">
-                        <CardHeader className="p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
-                          <div className="flex items-center gap-2">
-                             <Clock className="h-5 w-5 text-blue-700" />
-                            <CardTitle className="text-sm font-semibold text-blue-700">Urgency</CardTitle>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-4">
-                            <FormField control={form.control} name="urgency" render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4 items-center">
-                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Low" /></FormControl><FormLabel className="font-normal">Low</FormLabel></FormItem>
-                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Medium" /></FormControl><FormLabel className="font-normal">Medium</FormLabel></FormItem>
-                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="High" /></FormControl><FormLabel className="font-normal">High</FormLabel></FormItem>
-                                        </RadioGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                        </CardContent>
-                    </Card>
                 </div>
 
                 <div className="space-y-4">
-                     <Card className="bg-white">
-                        <CardHeader className="p-2 bg-[#fff5e6] border-b border-orange-200 rounded-t-lg">
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-5 w-5 text-orange-600" />
-                            <CardTitle className="text-sm font-semibold text-orange-600">Initial Tasks</CardTitle>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="space-y-4 p-4">
-                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
-                            <FormItem>
-                                <FormLabel>Initial Tasks</FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                    <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-9 text-sm", !selectedTasks.length && "text-muted-foreground")}>
-                                        {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                    <Command>
-                                        <CommandInput placeholder="Search tasks..." />
-                                        <CommandList>
-                                        <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                        <CommandGroup>
-                                            {(processTaskMap[selectedProcess] || []).map((task) => (
-                                            <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
-                                                <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
-                                                {task}
-                                            </CommandItem>
-                                            ))}
-                                        </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                    </PopoverContent>
-                                </Popover>
-                             </FormItem>
-                        </CardContent>
-                    </Card>
-
                     <Card className="bg-white">
                         <CardHeader className="p-2 bg-[#fff5e6] border-b border-orange-200 rounded-t-lg">
                           <div className="flex items-center gap-2">
@@ -321,7 +323,7 @@ export function NewWorkItemView() {
                         <CardContent className="p-4">
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
-                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[125px] text-sm bg-orange-50/50" /></FormControl>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[290px] text-sm bg-orange-50/50" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
