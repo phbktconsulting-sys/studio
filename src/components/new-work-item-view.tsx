@@ -27,6 +27,7 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogFooter
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -280,7 +281,7 @@ export function NewWorkItemView() {
                             <FormItem>
                                  <FormLabel>Process *</FormLabel>
                                 <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
-                                    <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
                                     <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -323,7 +324,7 @@ export function NewWorkItemView() {
                             <FormItem>
                                  <FormLabel>Lead Type</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl><SelectTrigger className="h-7"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
                                     <SelectContent>{leadTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -466,10 +467,10 @@ export function NewWorkItemView() {
             <p>Do you want to continue with this customer's information?</p>
           </div>
         </AlertDialogHeader>
-        <AlertDialog.Footer>
+        <AlertDialogFooter>
           <AlertDialogCancel onClick={() => handleAlertClose(false)}>No, enter a different number</AlertDialogCancel>
           <AlertDialogAction onClick={() => handleAlertClose(true)}>Yes, continue with this customer</AlertDialogAction>
-        </AlertDialog.Footer>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
     </>
