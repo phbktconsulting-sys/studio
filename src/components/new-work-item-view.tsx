@@ -25,7 +25,7 @@ import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
 import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
-import { ChevronsUpDown, X, UserCheck, Users, Search, Clock, FileText, Building2 } from 'lucide-react';
+import { ChevronsUpDown, X, UserCheck, Users, Search, Clock, FileText, Building2, Briefcase } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -87,11 +87,14 @@ export function NewWorkItemView() {
       overview: '',
       initialTasks: [],
       assignTo: 'initial_indexing',
+      hasBusiness: 'no',
+      businessName: '',
     },
   });
 
   const selectedProcess = form.watch('process');
   const assignment = form.watch('assignTo');
+  const hasBusiness = form.watch('hasBusiness');
 
   const onSubmit = async (data: WorkItemFormValues) => {
     if (!user) {
@@ -112,7 +115,8 @@ export function NewWorkItemView() {
         email: data.customerEmail,
         phone: data.customerPhone,
         phoneSecondary: data.customerPhoneSecondary,
-        address: data.customerAddress
+        address: data.customerAddress,
+        businessName: data.businessName,
       },
       overview: data.overview,
       tasks: selectedTasks.map(taskText => ({ 
@@ -161,7 +165,7 @@ export function NewWorkItemView() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           
           <Card className="bg-white">
-                <CardHeader className="flex flex-row items-center justify-between p-2 bg-[#f0f6ff] border-b border-blue-200 rounded-t-lg">
+                <CardHeader className="flex flex-row items-center justify-between p-2 bg-blue-100 border-b border-blue-200 rounded-t-lg">
                     <div className="flex items-center gap-2">
                         <Search className="h-5 w-5 text-blue-700" />
                         <CardTitle className="text-sm font-semibold text-blue-700">Process</CardTitle>
@@ -239,14 +243,14 @@ export function NewWorkItemView() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <div className="space-y-4">
                     <Card className="bg-white">
-                        <CardHeader className="p-2 bg-[#fff0f0] border-b border-red-200 rounded-t-lg">
+                        <CardHeader className="p-2 bg-red-100 border-b border-red-200 rounded-t-lg">
                           <div className="flex items-center gap-2">
                             <Users className="h-5 w-5 text-red-600" />
                             <CardTitle className="text-sm font-semibold text-red-600">Contact Information</CardTitle>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-4 space-y-4">
-                             <div className="grid grid-cols-2 gap-4">
+                        <CardContent className="p-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl><FormMessage /></FormItem>)} />
                             </div>
@@ -290,24 +294,49 @@ export function NewWorkItemView() {
                              </div>
                         </CardContent>
                     </Card>
-                    
                 </div>
 
                 <div className="space-y-4">
                     <Card className="bg-white">
-                        <CardHeader className="p-2 bg-[#fff5e6] border-b border-orange-200 rounded-t-lg">
+                        <CardHeader className="p-2 bg-orange-100 border-b border-orange-200 rounded-t-lg">
                           <div className="flex items-center gap-2">
                             <FileText className="h-5 w-5 text-orange-600" />
                             <CardTitle className="text-sm font-semibold text-orange-600">Overview / Description</CardTitle>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-4">
+                        <CardContent className="p-4 space-y-4">
                              <FormField control={form.control} name="overview" render={({ field }) => (
                                 <FormItem>
-                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[232px] text-sm bg-orange-50/50" /></FormControl>
+                                    <FormControl><Textarea placeholder="Provide a detailed description of the work item..." {...field} className="min-h-[140px] text-sm bg-orange-50/50" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
+                             <FormField control={form.control} name="hasBusiness" render={({ field }) => (
+                                <FormItem className="space-y-2">
+                                    <FormLabel>Customer Has Business?</FormLabel>
+                                    <FormControl>
+                                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center space-x-4">
+                                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                                <FormControl><RadioGroupItem value="yes" /></FormControl>
+                                                <FormLabel className="font-normal">Yes</FormLabel>
+                                            </FormItem>
+                                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                                <FormControl><RadioGroupItem value="no" /></FormControl>
+                                                <FormLabel className="font-normal">No</FormLabel>
+                                            </FormItem>
+                                        </RadioGroup>
+                                    </FormControl>
+                                </FormItem>
+                             )} />
+                             {hasBusiness === 'yes' && (
+                                <FormField control={form.control} name="businessName" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Business / Company Name</FormLabel>
+                                        <FormControl><Input {...field} className="bg-orange-50/50 h-7" /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                             )}
                         </CardContent>
                     </Card>
                 </div>
@@ -326,5 +355,3 @@ export function NewWorkItemView() {
     </div>
   );
 }
-
-    

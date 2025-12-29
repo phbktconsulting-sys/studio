@@ -140,6 +140,8 @@ export const WorkItemCreateSchema = z.object({
   overview: z.string().min(1, 'Overview is required'),
   initialTasks: z.array(z.string()).optional(),
   assignTo: z.enum(['initial_indexing', 'myself']).default('initial_indexing'),
+  hasBusiness: z.enum(['yes', 'no']).optional(),
+  businessName: z.string().optional(),
 });
 
 export type WorkItemFormValues = z.infer<typeof WorkItemCreateSchema>;
@@ -155,6 +157,7 @@ export const ServerWorkItemCreateSchema = z.object({
     phone: z.string(),
     phoneSecondary: z.string().optional(),
     address: AddressSchema.optional(),
+    businessName: z.string().optional(),
   }),
   overview: z.string(),
   tasks: z.array(z.any()),
