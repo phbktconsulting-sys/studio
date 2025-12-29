@@ -185,43 +185,46 @@ export function NewWorkItemView() {
                         </Button>
                     </div>
                 </CardHeader>
-                <CardContent className="p-4 space-y-4">
-                    <FormField control={form.control} name="process" render={({ field }) => (
+                <CardContent className="p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField control={form.control} name="process" render={({ field }) => (
+                            <FormItem>
+                                 <FormLabel>Process *</FormLabel>
+                                <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
+                                    <FormControl><SelectTrigger className="bg-orange-50/50"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
+                                    <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
                         <FormItem>
-                            <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
-                                <FormControl><SelectTrigger className="bg-orange-50/50"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
-                                <SelectContent>{processTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
-                            </Select>
-                            <FormMessage />
+                            <FormLabel>Initial Tasks</FormLabel>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-9 text-sm", !selectedTasks.length && "text-muted-foreground")}>
+                                    {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search tasks..." />
+                                    <CommandList>
+                                    <CommandEmpty>No tasks found for this process.</CommandEmpty>
+                                    <CommandGroup>
+                                        {(processTaskMap[selectedProcess] || []).map((task) => (
+                                        <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
+                                            <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
+                                            {task}
+                                        </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                                </PopoverContent>
+                            </Popover>
                         </FormItem>
-                    )} />
-                    <FormItem>
-                        <FormLabel>Initial Tasks</FormLabel>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                            <Button variant="outline" role="combobox" disabled={!selectedProcess} className={cn("w-full justify-between h-9 text-sm", !selectedTasks.length && "text-muted-foreground")}>
-                                {selectedTasks.length > 0 ? `${selectedTasks.length} tasks selected` : "Select initial tasks"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                            <Command>
-                                <CommandInput placeholder="Search tasks..." />
-                                <CommandList>
-                                <CommandEmpty>No tasks found for this process.</CommandEmpty>
-                                <CommandGroup>
-                                    {(processTaskMap[selectedProcess] || []).map((task) => (
-                                    <CommandItem key={task} onSelect={() => { const isSelected = selectedTasks.includes(task); setSelectedTasks(isSelected ? selectedTasks.filter(t => t !== task) : [...selectedTasks, task]); }}>
-                                        <Checkbox checked={selectedTasks.includes(task)} className="mr-2" />
-                                        {task}
-                                    </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                                </CommandList>
-                            </Command>
-                            </PopoverContent>
-                        </Popover>
-                    </FormItem>
+                    </div>
                 </CardContent>
             </Card>
 
@@ -259,7 +262,7 @@ export function NewWorkItemView() {
                         </CardHeader>
                         <CardContent className="space-y-4 p-4">
                             <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input placeholder="e.g. John Doe" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
+                             <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
                              <FormField
                                 control={form.control}
                                 name="customerPhone"
