@@ -27,7 +27,6 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
@@ -105,7 +104,7 @@ export function NewWorkItemView() {
       overview: '',
       initialTasks: [],
       assignTo: 'initial_indexing',
-      hasBusiness: 'no',
+      hasBusiness: 'yes',
       businessName: '',
     },
   });
@@ -115,26 +114,31 @@ export function NewWorkItemView() {
   const hasBusiness = form.watch('hasBusiness');
   
   const checkForExistingCustomer = async (phone: string) => {
-    if (!phone || !firestore) return;
+    if (!phone || phone.length < 10 || !firestore) {
+        setExistingCustomer(null);
+        return;
+    }
     setIsCheckingPhone(true);
-    setExistingCustomer(null); // Reset on new check
+    setExistingCustomer(null);
     try {
-      const workItemsByPhoneQuery = query(
-        collection(firestore, 'work_items'),
-        where('relatedContact.phone', '==', phone),
-        limit(1)
-      );
-      const workItemsSnapshot = await getDocs(workItemsByPhoneQuery);
+        const q = query(
+            collection(firestore, 'work_items'),
+            where('relatedContact.phone', '==', phone),
+            limit(1)
+        );
+        const querySnapshot = await getDocs(q);
 
-      if (!workItemsSnapshot.empty) {
-          const workItemData = workItemsSnapshot.docs[0].data() as WorkItem;
-          setExistingCustomer(workItemData.relatedContact);
-      }
-      
+        if (!querySnapshot.empty) {
+            const workItemData = querySnapshot.docs[0].data() as WorkItem;
+            setExistingCustomer(workItemData.relatedContact);
+        } else {
+             setExistingCustomer(null);
+        }
     } catch (error) {
-      console.error("Error checking for existing customer:", error);
+        console.error("Error checking for existing customer:", error);
+        setExistingCustomer(null);
     } finally {
-      setIsCheckingPhone(false);
+        setIsCheckingPhone(false);
     }
   };
 
@@ -206,10 +210,10 @@ export function NewWorkItemView() {
   const handleAlertClose = (proceed: boolean) => {
     if (proceed && existingCustomer) {
       form.reset({
-        ...form.getValues(), // Keep existing form values like process, tasks, etc.
+        ...form.getValues(),
         customerName: existingCustomer.name || '',
         customerEmail: existingCustomer.email || '',
-        customerPhone: existingCustomer.phone || '', // Keep the phone number that was entered
+        customerPhone: existingCustomer.phone || '',
         customerPhoneSecondary: existingCustomer.phoneSecondary || '',
         customerAddress: {
           line1: existingCustomer.address?.line1 || '',
@@ -221,6 +225,17 @@ export function NewWorkItemView() {
         },
         hasBusiness: existingCustomer.businessName ? 'yes' : 'no',
         businessName: existingCustomer.businessName || '',
+      });
+    } else if (!proceed) {
+      // Clear fields if user says no, but keep the phone number
+      form.reset({
+        ...form.getValues(),
+        customerName: '',
+        customerEmail: '',
+        customerPhoneSecondary: '',
+        customerAddress: { line1: '', line2: '', city: '', state: '', country: '', zipcode: '' },
+        hasBusiness: 'no',
+        businessName: '',
       });
     }
     setExistingCustomer(null);
@@ -443,18 +458,18 @@ export function NewWorkItemView() {
         <AlertDialogHeader>
           <AlertDialogTitle>Existing Customer Found</AlertDialogTitle>
           <div className="text-sm text-muted-foreground space-y-2 pt-2">
-            <div>This mobile number is already associated with an existing customer:</div>
+            <p>This mobile number is already associated with an existing customer:</p>
             <div className="font-medium text-foreground mt-2">
-              <div>Name: {existingCustomer?.name}</div>
-              <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
+              <p>Name: {existingCustomer?.name}</p>
+              <p>Unique ID: {existingCustomer?.customerUniqueId}</p>
             </div>
-            <div>Do you want to continue with this customer's information?</div>
+            <p>Do you want to continue with this customer's information?</p>
           </div>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialog.Footer>
           <AlertDialogCancel onClick={() => handleAlertClose(false)}>No, enter a different number</AlertDialogCancel>
           <AlertDialogAction onClick={() => handleAlertClose(true)}>Yes, continue with this customer</AlertDialogAction>
-        </AlertDialogFooter>
+        </AlertDialog.Footer>
       </AlertDialogContent>
     </AlertDialog>
     </>
