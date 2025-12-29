@@ -17,7 +17,7 @@ export const LogoIcon = ({ className, ...props }: SVGProps<SVGSVGElement> & {hei
         <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-3))" transform="rotate(120)" />
         <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-4))" transform="rotate(180)" />
         <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--primary))" transform="rotate(240)" />
-        <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--accent))" transform="rotate(300)" />
+        <path d="M0,0 L50,0 A50,50 0 0,0 25,-43.3 Z" fill="hsl(var(--chart-5))" transform="rotate(300)" />
       </g>
     </svg>
   );
