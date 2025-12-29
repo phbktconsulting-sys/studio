@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -177,29 +176,34 @@ export function MyWorkDashboard() {
               <TableHead className="w-[120px] text-xs">Case ID</TableHead>
               <TableHead className="w-[150px] text-xs">Status</TableHead>
               <TableHead className="text-xs">Subject</TableHead>
+              <TableHead className="text-xs">Task</TableHead>
               <TableHead className="w-[180px] text-xs">Customer Name</TableHead>
               <TableHead className="w-[180px] text-xs">Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredAndSortedWorkItems &&
-              filteredAndSortedWorkItems.map((item) => (
-                <TableRow key={item.id} onClick={() => handleRowClick(item)} className="cursor-pointer">
-                  <TableCell className="text-center py-1 px-4">
-                    <UrgencyIcon urgency={item.urgency} />
-                  </TableCell>
-                  <TableCell className="font-medium py-1 px-4 text-xs">{item.customId}</TableCell>
-                  <TableCell className="py-1 px-4 text-xs">
-                    <StatusBadge status={item.status} />
-                  </TableCell>
-                  <TableCell className="py-1 px-4 text-xs">{item.process}</TableCell>
-                  <TableCell className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
-                  <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
-                </TableRow>
-              ))}
+              filteredAndSortedWorkItems.map((item) => {
+                const activeTask = item.tasks?.find(task => !task.completed);
+                return (
+                    <TableRow key={item.id} onClick={() => handleRowClick(item)} className="cursor-pointer">
+                    <TableCell className="text-center py-1 px-4">
+                        <UrgencyIcon urgency={item.urgency} />
+                    </TableCell>
+                    <TableCell className="font-medium py-1 px-4 text-xs">{item.customId}</TableCell>
+                    <TableCell className="py-1 px-4 text-xs">
+                        <StatusBadge status={item.status} />
+                    </TableCell>
+                    <TableCell className="py-1 px-4 text-xs">{item.process}</TableCell>
+                    <TableCell className="py-1 px-4 text-xs">{activeTask?.text || 'No active task'}</TableCell>
+                    <TableCell className="py-1 px-4 text-xs">{item.relatedContact.name}</TableCell>
+                    <TableCell className="py-1 px-4 text-xs">{format(new Date(item.updatedAt), 'MMM d, yyyy')}</TableCell>
+                    </TableRow>
+                );
+              })}
             {(!filteredAndSortedWorkItems || filteredAndSortedWorkItems.length === 0) && !isLoading && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-4 text-xs">
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-4 text-xs">
                   No work items match the current filters.
                 </TableCell>
               </TableRow>
