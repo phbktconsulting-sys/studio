@@ -149,10 +149,13 @@ service cloud.firestore {
      * @description Rule for the 'global_notes' collection.
      * Allows any signed-in user to create and read global notes.
      */
-    match /global_notes/{globalNoteId=**} {
-        allow read, list: if isSignedIn();
-        allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+    match /global_notes/{globalNoteId} {
+        allow get, create: if isSignedIn();
         allow update, delete: if isAdmin() || (resource.data.authorId == request.auth.uid);
+    }
+    
+    match /global_notes/{globalNoteId=**} {
+        allow list: if isSignedIn();
     }
 
     /**
