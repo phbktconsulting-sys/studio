@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -223,7 +222,7 @@ export function NewWorkItemView() {
                 <Card>
                     <CardHeader><CardTitle className="text-base">Tasks &amp; Assignment</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField control={form.control} name="assignTo" render={({ field }) => (
+                       <FormField control={form.control} name="assignTo" render={({ field }) => (
                           <FormItem>
                           <FormLabel>Assign To</FormLabel>
                           <FormControl>
