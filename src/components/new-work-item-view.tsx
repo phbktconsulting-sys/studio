@@ -261,41 +261,44 @@ export function NewWorkItemView() {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4 p-4">
-                            <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input placeholder="e.g. John Doe" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
-                             <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
-                             <FormField
-                                control={form.control}
-                                name="customerPhone"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Customer Phone *</FormLabel>
-                                    <div className="flex items-center">
-                                      <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-9 px-3 flex items-center text-sm text-muted-foreground">+91</div>
-                                      <FormControl>
-                                        <Input placeholder="e.g. 9876543210" {...field} className="rounded-l-none bg-orange-50/50" />
-                                      </FormControl>
-                                    </div>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField control={form.control} name="customerName" render={({ field }) => (<FormItem><FormLabel>Customer Name *</FormLabel><FormControl><Input placeholder="e.g. John Doe" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="customerEmail" render={({ field }) => (<FormItem><FormLabel>Customer Email</FormLabel><FormControl><Input placeholder="e.g., john.doe@example.com" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="customerPhone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Customer Phone *</FormLabel>
+                                        <div className="flex items-center">
+                                          <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-9 px-3 flex items-center text-sm text-muted-foreground">+91</div>
+                                          <FormControl>
+                                            <Input placeholder="e.g. 9876543210" {...field} className="rounded-l-none bg-orange-50/50" />
+                                          </FormControl>
+                                        </div>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                             <FormField
-                                control={form.control}
-                                name="customerPhoneSecondary"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Secondary Phone</FormLabel>
-                                     <div className="flex items-center">
-                                      <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-9 px-3 flex items-center text-sm text-muted-foreground">+91</div>
-                                      <FormControl>
-                                        <Input placeholder="Optional" {...field} className="rounded-l-none bg-orange-50/50" />
-                                      </FormControl>
-                                    </div>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
+                                <FormField
+                                    control={form.control}
+                                    name="customerPhoneSecondary"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Secondary Phone</FormLabel>
+                                         <div className="flex items-center">
+                                          <div className="border border-r-0 border-input rounded-l-md bg-slate-50 h-9 px-3 flex items-center text-sm text-muted-foreground">+91</div>
+                                          <FormControl>
+                                            <Input placeholder="Optional" {...field} className="rounded-l-none bg-orange-50/50" />
+                                          </FormControl>
+                                        </div>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            
+                             </div>
                              <div className="grid grid-cols-2 gap-4">
                                 <FormField control={form.control} name="customerAddress.line1" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="e.g., 123 Main St" {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="customerAddress.state" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} className="bg-orange-50/50" /></FormControl><FormMessage /></FormItem>)} />
