@@ -33,7 +33,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
 import { useTabs } from '@/contexts/tab-context';
-import { WorkItemCreateSchema, type WorkItemFormValues } from '@/lib/types';
+import { WorkItemCreateSchema, type WorkItem, type WorkItemFormValues } from '@/lib/types';
 import { createWorkItem } from '@/ai/flows/create-work-item-flow';
 import { ChevronsUpDown, X, UserCheck, Users, Search, FilePlus } from 'lucide-react';
 import { useState } from 'react';
@@ -72,10 +72,8 @@ const processTypes = Object.keys(processTaskMap);
 
 const leadTypes = ["Self Sources", "Referred Sources", "Digital Sources", "Offline Sources", "Partner / Third-Party"];
 
-interface ExistingCustomerInfo {
-  name: string;
-  id: string;
-}
+type ExistingCustomerInfo = WorkItem['relatedContact'];
+
 
 export function NewWorkItemView() {
   const { user, firestore } = useFirebase();
@@ -127,14 +125,8 @@ export function NewWorkItemView() {
       );
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
-        const existingWorkItem = querySnapshot.docs[0].data();
-        setExistingCustomer({
-          name: existingWorkItem.relatedContact.name,
-          id: existingWorkItem.relatedContact.customerUniqueId,
-        });
-        // Prefill form
-        form.setValue('customerName', existingWorkItem.relatedContact.name);
-        form.setValue('customerEmail', existingWorkItem.relatedContact.email);
+        const existingWorkItem = querySnapshot.docs[0].data() as WorkItem;
+        setExistingCustomer(existingWorkItem.relatedContact);
       }
     } catch (error) {
       console.error("Error checking for existing customer:", error);
@@ -208,8 +200,22 @@ export function NewWorkItemView() {
   };
 
   const handleAlertClose = (proceed: boolean) => {
-    if (!proceed) {
-      form.setValue('customerPhone', ''); // Clear phone number if user says no
+    if (proceed && existingCustomer) {
+        // Prefill form with all existing customer data
+        form.setValue('customerName', existingCustomer.name);
+        form.setValue('customerEmail', existingCustomer.email);
+        form.setValue('customerPhoneSecondary', existingCustomer.phoneSecondary || '');
+        form.setValue('customerAddress', existingCustomer.address || { line1: '', line2: '', city: '', state: '', country: '', zipcode: '' });
+        form.setValue('businessName', existingCustomer.businessName || '');
+        form.setValue('hasBusiness', existingCustomer.businessName ? 'yes' : 'no');
+    } else {
+        // Clear fields except the phone number
+        form.setValue('customerName', '');
+        form.setValue('customerEmail', '');
+        form.setValue('customerPhoneSecondary', '');
+        form.setValue('customerAddress', { line1: '', line2: '', city: '', state: '', country: '', zipcode: '' });
+        form.setValue('businessName', '');
+        form.setValue('hasBusiness', 'no');
     }
     setExistingCustomer(null);
   };
@@ -434,7 +440,7 @@ export function NewWorkItemView() {
                 <div>This mobile number is already associated with an existing customer:</div>
                 <div className="font-medium text-foreground mt-2">
                   <div>Name: {existingCustomer?.name}</div>
-                  <div>Unique ID: {existingCustomer?.id}</div>
+                  <div>Unique ID: {existingCustomer?.customerUniqueId}</div>
                 </div>
                 <div>Do you want to continue with this customer's information?</div>
           </div>
