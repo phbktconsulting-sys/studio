@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -120,8 +119,8 @@ export function GlobalNotesView() {
       toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in.' });
       return;
     }
-    if (!newNoteCustomerId.trim() || !newNoteContent.trim()) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Customer ID and Note content are required.' });
+    if (!newNoteCustomerId.trim() || !newNoteContent.trim() || !newNoteWorkItemNumber.trim()) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Customer ID, Work Item Number, and Note content are required.' });
       return;
     }
     
@@ -136,11 +135,8 @@ export function GlobalNotesView() {
             createdAt: new Date().toISOString(),
             subject: 'Global Note',
             category: 'General',
+            workItemNumber: newNoteWorkItemNumber.trim(),
         };
-
-        if (newNoteWorkItemNumber.trim()) {
-            newNote.workItemNumber = newNoteWorkItemNumber.trim();
-        }
 
         await addDocumentNonBlocking(globalNotesRef, newNote);
 
@@ -224,25 +220,27 @@ export function GlobalNotesView() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAddNote} className="space-y-4">
-            <div className="space-y-1">
-              <Label htmlFor="customer-id-add" className="text-xs">Customer Unique ID *</Label>
-              <Input 
-                id="customer-id-add" 
-                placeholder="Enter Customer ID..."
-                value={newNoteCustomerId}
-                onChange={e => setNewNoteCustomerId(e.target.value)}
-                className="text-xs"
-              />
-            </div>
-             <div className="space-y-1">
-              <Label htmlFor="work-item-number" className="text-xs">Work Item Number</Label>
-              <Input 
-                id="work-item-number" 
-                placeholder="Enter Work Item Number (Optional)..."
-                value={newNoteWorkItemNumber}
-                onChange={e => setNewNoteWorkItemNumber(e.target.value)}
-                className="text-xs"
-              />
+            <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-1">
+                <Label htmlFor="customer-id-add" className="text-xs">Customer Unique ID *</Label>
+                <Input 
+                  id="customer-id-add" 
+                  placeholder="Enter Customer ID..."
+                  value={newNoteCustomerId}
+                  onChange={e => setNewNoteCustomerId(e.target.value)}
+                  className="text-xs"
+                />
+              </div>
+               <div className="space-y-1">
+                <Label htmlFor="work-item-number" className="text-xs">Work Item Number *</Label>
+                <Input 
+                  id="work-item-number" 
+                  placeholder="Enter Work Item Number..."
+                  value={newNoteWorkItemNumber}
+                  onChange={e => setNewNoteWorkItemNumber(e.target.value)}
+                  className="text-xs"
+                />
+              </div>
             </div>
             <div className="space-y-1">
               <Label htmlFor="note-content" className="text-xs">Note *</Label>
