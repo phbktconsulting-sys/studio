@@ -280,7 +280,7 @@ export function NewWorkItemView() {
                 <CardContent className="p-4">
                     <div className="grid grid-cols-5 gap-4">
                         <FormField control={form.control} name="process" render={({ field }) => (
-                            <FormItem className="col-span-2">
+                            <FormItem>
                                 <FormLabel className="text-xs">Process *</FormLabel>
                                 <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
                                     <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a process" /></SelectTrigger></FormControl>
@@ -294,7 +294,7 @@ export function NewWorkItemView() {
                             control={form.control}
                             name="initialTasks"
                             render={() => (
-                            <FormItem className="col-span-1">
+                            <FormItem>
                                 <FormLabel className="text-xs">Initial Tasks</FormLabel>
                                 <Popover>
                                     <PopoverTrigger asChild>
@@ -323,17 +323,8 @@ export function NewWorkItemView() {
                             </FormItem>
                             )}
                         />
-                         <FormField control={form.control} name="leadType" render={({ field }) => (
-                            <FormItem className="col-span-1">
-                                <FormLabel className="text-xs">Lead Type</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
-                                    <SelectContent>{leadTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )} />
-                        <div className="col-span-1">
+
+                        <div className="col-span-2">
                             {selectedTasks.length > 0 && (
                                 <div className="flex flex-wrap gap-1 pt-1 border p-1 rounded-md bg-slate-50 flex-1 h-full items-center">
                                     {selectedTasks.map(task => (
@@ -352,6 +343,18 @@ export function NewWorkItemView() {
                                 </div>
                             )}
                         </div>
+
+                         <FormField control={form.control} name="leadType" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-xs">Lead Type</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl><SelectTrigger className="h-7 text-xs bg-blue-50 border-blue-200"><SelectValue placeholder="Select a lead type" /></SelectTrigger></FormControl>
+                                    <SelectContent>{leadTypes.map((type) => (<SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>))}</SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
                     </div>
                 </CardContent>
             </Card>
