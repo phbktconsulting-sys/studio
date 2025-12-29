@@ -28,6 +28,7 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogFooter,
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase } from '@/firebase';
