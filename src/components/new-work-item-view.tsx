@@ -278,9 +278,9 @@ export function NewWorkItemView() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-7 gap-4">
-                        <div className="col-span-2 space-y-2">
-                            <FormField control={form.control} name="process" render={({ field }) => (
+                    <div className="grid grid-cols-12 gap-4 items-start">
+                        <div className="col-span-3">
+                             <FormField control={form.control} name="process" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-xs">Process *</FormLabel>
                                     <Select onValueChange={(value) => { field.onChange(value); setSelectedTasks([]); }} value={field.value}>
@@ -290,7 +290,9 @@ export function NewWorkItemView() {
                                     <FormMessage />
                                 </FormItem>
                             )} />
-                             <FormField
+                        </div>
+                        <div className="col-span-3">
+                           <FormField
                                 control={form.control}
                                 name="initialTasks"
                                 render={() => (
@@ -325,9 +327,9 @@ export function NewWorkItemView() {
                             />
                         </div>
 
-                        <div className="col-span-3">
+                        <div className="col-span-4">
                             {selectedTasks.length > 0 && (
-                                <div className="flex flex-wrap gap-1 pt-1 border p-1 rounded-md bg-slate-50 flex-1 h-full items-center">
+                                <div className="flex flex-wrap gap-1 pt-6 border-0 p-1 flex-1 h-full items-center">
                                     {selectedTasks.map(task => (
                                         <Badge key={task} variant="secondary" className="text-xs font-normal">
                                             {task}
